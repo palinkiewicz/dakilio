@@ -1,0 +1,87 @@
+package pl.dakil.dakilio.core.database.dao
+
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.Query
+import androidx.room.Transaction
+import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
+import pl.dakil.dakilio.core.database.entity.PopulatedPost
+import pl.dakil.dakilio.core.database.entity.PostDiaryCrossRef
+import pl.dakil.dakilio.core.database.entity.PostEntity
+import pl.dakil.dakilio.core.database.entity.PostPhotoEntity
+import pl.dakil.dakilio.core.database.entity.PostTagCrossRef
+
+@Dao
+abstract class PostDao {
+    /** Newest first. Relations are batch-loaded by Room (a handful of IN queries, not N+1). */
+    @Transaction
+    @Query("SELECT * FROM post ORDER BY timestamp DESC, id DESC")
+    abstract fun observePosts(): Flow<List<PopulatedPost>>
+
+    @Transaction
+    @Query("SELECT * FROM post WHERE id = :id")
+    abstract suspend fun getPost(id: Long): PopulatedPost?
+
+    @Query("SELECT COUNT(*) FROM post WHERE id BETWEEN :fromId AND :toId")
+    abstract fun observeCountInRange(fromId: Long, toId: Long): Flow<Int>
+
+    @Query("SELECT file_name FROM post_photo WHERE post_id IN (:postIds)")
+    abstract suspend fun photoFileNames(postIds: List<Long>): List<String>
+
+    @Query("SELECT id FROM post WHERE id BETWEEN :fromId AND :toId")
+    abstract suspend fun idsInRange(fromId: Long, toId: Long): List<Long>
+
+    @Query("SELECT file_name FROM post_photo")
+    abstract suspend fun allPhotoFileNames(): List<String>
+
+    @Insert
+    protected abstract suspend fun insert(post: PostEntity): Long
+
+    @Update
+    protected abstract suspend fun update(post: PostEntity)
+
+    @Query("DELETE FROM post_tag WHERE post_id = :postId")
+    protected abstract suspend fun clearTags(postId: Long)
+
+    @Query("DELETE FROM post_diary WHERE post_id = :postId")
+    protected abstract suspend fun clearDiaries(postId: Long)
+
+    @Query("DELETE FROM post_photo WHERE post_id = :postId")
+    protected abstract suspend fun clearPhotos(postId: Long)
+
+    @Insert
+    protected abstract suspend fun insertTags(refs: List<PostTagCrossRef>)
+
+    @Insert
+    protected abstract suspend fun insertDiaries(refs: List<PostDiaryCrossRef>)
+
+    @Insert
+    protected abstract suspend fun insertPhotos(photos: List<PostPhotoEntity>)
+
+    @Query("DELETE FROM post WHERE id IN (:postIds)")
+    abstract suspend fun delete(postIds: List<Long>)
+
+    /** Inserts or fully replaces an entry and its relations atomically. Returns the entry id. */
+    @Transaction
+    open suspend fun save(
+        post: PostEntity,
+        tagIds: Collection<Long>,
+        diaryIds: Collection<Long>,
+        photoFileNames: List<String>,
+    ): Long {
+        val id = if (post.id == 0L) {
+            insert(post)
+        } else {
+            update(post)
+            clearTags(post.id)
+            clearDiaries(post.id)
+            clearPhotos(post.id)
+            post.id
+        }
+        insertTags(tagIds.map { PostTagCrossRef(id, it) })
+        insertDiaries(diaryIds.map { PostDiaryCrossRef(id, it) })
+        insertPhotos(photoFileNames.mapIndexed { index, name -> PostPhotoEntity(postId = id, fileName = name, position = index) })
+        return id
+    }
+}

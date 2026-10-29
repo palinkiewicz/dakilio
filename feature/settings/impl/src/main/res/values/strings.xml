@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Settings</string>
+    <string name="settings_back">Back</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_theme_body">Colors follow your wallpaper on Android 12 and newer.</string>
+    <string name="settings_theme_system">System</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_starter">Starter content</string>
+    <string name="settings_remove_samples">Remove sample entries</string>
+    <plurals name="settings_remove_samples_body">
+        <item quantity="one">%d sample entry and its photos</item>
+        <item quantity="other">%d sample entries and their photos</item>
+    </plurals>
+    <string name="settings_no_samples">No sample entries left. Everything here is yours.</string>
+    <string name="settings_remove_title">Remove sample entries?</string>
+    <string name="settings_remove_body">Your own entries, diaries and tags stay untouched.</string>
+    <string name="settings_remove_confirm">Remove</string>
+    <string name="settings_cancel">Cancel</string>
+    <string name="settings_samples_removed">Sample entries removed</string>
+    <string name="settings_more_soon">More settings are coming in future versions.</string>
+</resources>

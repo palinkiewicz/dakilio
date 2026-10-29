@@ -1,0 +1,43 @@
+package pl.dakil.dakilio.core.database.entity
+
+import androidx.room.Embedded
+import androidx.room.Junction
+import androidx.room.Relation
+
+data class PopulatedPost(
+    @Embedded val post: PostEntity,
+    @Relation(parentColumn = "mood_id", entityColumn = "id")
+    val mood: MoodEntity?,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "id",
+        associateBy = Junction(PostTagCrossRef::class, parentColumn = "post_id", entityColumn = "tag_id"),
+    )
+    val tags: List<TagEntity>,
+    @Relation(parentColumn = "id", entityColumn = "post_id", entity = PostDiaryCrossRef::class, projection = ["diary_id"])
+    val diaryIds: List<Long>,
+    @Relation(parentColumn = "id", entityColumn = "post_id")
+    val photos: List<PostPhotoEntity>,
+)
+
+data class PopulatedDiary(
+    @Embedded val diary: DiaryEntity,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "diary_id",
+        entity = DiarySuggestedGroupCrossRef::class,
+        projection = ["group_id"],
+    )
+    val suggestedGroupIds: List<Long>,
+)
+
+data class PopulatedTagGroup(
+    @Embedded val group: TagGroupEntity,
+    @Relation(parentColumn = "id", entityColumn = "group_id")
+    val tags: List<TagEntity>,
+)
+
+data class DiaryPostCount(
+    val diaryId: Long,
+    val count: Int,
+)

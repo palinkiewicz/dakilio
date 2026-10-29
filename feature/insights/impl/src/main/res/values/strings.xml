@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="insights_title">Insights</string>
+    <string name="insights_subtitle">Your journey so far</string>
+    <string name="insights_range_month">30 days</string>
+    <string name="insights_range_quarter">90 days</string>
+    <string name="insights_range_all">All time</string>
+    <string name="insights_current_streak">Current streak</string>
+    <plurals name="insights_days">
+        <item quantity="one">day in a row</item>
+        <item quantity="other">days in a row</item>
+    </plurals>
+    <string name="insights_longest_streak">Longest streak</string>
+    <string name="insights_entries">Entries</string>
+    <string name="insights_days_journaled">Days journaled</string>
+    <string name="insights_average_mood">Average mood</string>
+    <string name="insights_mostly">Mostly %1$s</string>
+    <string name="insights_score">%1$d%% on your mood scale</string>
+    <string name="insights_delta_up">↑ %1$d pts vs the previous %2$s</string>
+    <string name="insights_delta_down">↓ %1$d pts vs the previous %2$s</string>
+    <string name="insights_delta_same">Same as the previous %1$s</string>
+    <string name="insights_no_mood">No moods logged in this period yet.</string>
+    <string name="insights_distribution">Mood distribution</string>
+    <plurals name="insights_moods_logged">
+        <item quantity="one">%d mood logged</item>
+        <item quantity="other">%d moods logged</item>
+    </plurals>
+    <string name="insights_journey_map">Journey map</string>
+    <string name="insights_journey_map_body">The last 12 weeks, one square per day. Tap a day for details.</string>
+    <string name="insights_heat_day">%1$s · %2$s</string>
+    <string name="insights_heat_no_mood">no mood</string>
+    <plurals name="insights_heat_entries">
+        <item quantity="one">%d entry</item>
+        <item quantity="other">%d entries</item>
+    </plurals>
+    <string name="insights_heat_empty">%1$s · no entries</string>
+    <string name="insights_no_entries_day">No entries</string>
+    <string name="insights_top_tags">Most frequent tags</string>
+    <string name="insights_no_tags">Tags you add to entries will show up here.</string>
+    <string name="insights_empty_title">Insights grow with every entry</string>
+    <string name="insights_empty_body">Write a few entries and your patterns will start to show here.</string>
+    <string name="insights_coming">Deeper, interactive analytics are on the way.</string>
+</resources>

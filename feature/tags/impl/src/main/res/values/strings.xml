@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tags_title">Tags</string>
+    <string name="tags_subtitle">Group the things that shape your days</string>
+    <string name="tags_back">Back</string>
+    <string name="tags_new_group">New group</string>
+    <string name="tags_add_tag">Add tag</string>
+    <string name="tags_group_menu">Group options</string>
+    <string name="tags_rename_group">Rename</string>
+    <string name="tags_delete_group">Delete group</string>
+    <plurals name="tags_count">
+        <item quantity="one">%d tag</item>
+        <item quantity="other">%d tags</item>
+    </plurals>
+    <string name="tags_group_name">Group name</string>
+    <string name="tags_group_new_title">New tag group</string>
+    <string name="tags_group_rename_title">Rename group</string>
+    <string name="tags_save">Save</string>
+    <string name="tags_cancel">Cancel</string>
+    <string name="tags_new_tag">New tag</string>
+    <string name="tags_edit_tag">Edit tag</string>
+    <string name="tags_label">Label</string>
+    <string name="tags_group">Group</string>
+    <string name="tags_icon">Icon</string>
+    <string name="tags_delete">Delete</string>
+    <string name="tags_tag_deleted">“%1$s” deleted</string>
+    <string name="tags_group_deleted">Group “%1$s” deleted</string>
+    <string name="tags_undo">Undo</string>
+    <string name="tags_empty_title">No tag groups yet</string>
+    <string name="tags_empty_body">Create a group like “Activities” or “People”, then fill it with tags.</string>
+    <string name="tags_archived_note">Deleted tags disappear from the picker but stay on the entries that used them.</string>
+</resources>

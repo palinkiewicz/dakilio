@@ -1,0 +1,48 @@
+package pl.dakil.dakilio.core.datastore
+
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
+import javax.inject.Inject
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import pl.dakil.dakilio.core.model.ThemeMode
+import pl.dakil.dakilio.core.model.UserSettings
+
+/** The user's own choices. Fetched/created content lives in Room; preferences live here. */
+class SettingsDataSource @Inject constructor(
+    private val dataStore: DataStore<Preferences>,
+) {
+    val settings: Flow<UserSettings> = dataStore.data
+        .map { prefs ->
+            UserSettings(
+                themeMode = prefs[THEME_MODE]?.let { name -> ThemeMode.entries.firstOrNull { it.name == name } }
+                    ?: ThemeMode.System,
+                lastEntryDiaryIds = prefs[LAST_ENTRY_DIARIES].orEmpty().mapNotNull(String::toLongOrNull).toSet(),
+                sampleHintDismissed = prefs[SAMPLE_HINT_DISMISSED] ?: false,
+            )
+        }
+        .distinctUntilChanged()
+
+    suspend fun setThemeMode(mode: ThemeMode) {
+        dataStore.edit { it[THEME_MODE] = mode.name }
+    }
+
+    suspend fun setLastEntryDiaryIds(ids: Set<Long>) {
+        dataStore.edit { it[LAST_ENTRY_DIARIES] = ids.map(Long::toString).toSet() }
+    }
+
+    suspend fun setSampleHintDismissed(dismissed: Boolean) {
+        dataStore.edit { it[SAMPLE_HINT_DISMISSED] = dismissed }
+    }
+
+    private companion object {
+        val THEME_MODE = stringPreferencesKey("theme_mode")
+        val LAST_ENTRY_DIARIES = stringSetPreferencesKey("last_entry_diary_ids")
+        val SAMPLE_HINT_DISMISSED = booleanPreferencesKey("sample_hint_dismissed")
+    }
+}

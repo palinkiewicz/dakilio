@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="symbol_category_ui">Interface</string>
+    <string name="symbol_category_emotions">Emotions</string>
+    <string name="symbol_category_people">People</string>
+    <string name="symbol_category_activities">Activities</string>
+    <string name="symbol_category_health">Health</string>
+    <string name="symbol_category_nature">Outdoors &amp; travel</string>
+    <string name="symbol_category_weather">Weather</string>
+    <string name="symbol_category_places">Places</string>
+    <string name="symbol_category_objects">Things</string>
+</resources>

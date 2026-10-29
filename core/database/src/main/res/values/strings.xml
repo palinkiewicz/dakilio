@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Default content seeded on first launch. It becomes user data, so later edits only affect new installs. -->
+<resources>
+    <string name="seed_mood_awful">Awful</string>
+    <string name="seed_mood_bad">Bad</string>
+    <string name="seed_mood_okay">Okay</string>
+    <string name="seed_mood_good">Good</string>
+    <string name="seed_mood_great">Great</string>
+
+    <string name="seed_diary_journey">Your Journey</string>
+
+    <string name="seed_group_emotions">Emotions</string>
+    <string name="seed_group_people">People</string>
+    <string name="seed_group_activities">Activities</string>
+    <string name="seed_group_health">Health</string>
+    <string name="seed_group_journey">Journey</string>
+    <string name="seed_group_weather">Weather</string>
+
+    <string name="seed_tag_happy">Happy</string>
+    <string name="seed_tag_grateful">Grateful</string>
+    <string name="seed_tag_calm">Calm</string>
+    <string name="seed_tag_excited">Excited</string>
+    <string name="seed_tag_tired">Tired</string>
+    <string name="seed_tag_anxious">Anxious</string>
+    <string name="seed_tag_stressed">Stressed</string>
+    <string name="seed_tag_sad">Sad</string>
+    <string name="seed_tag_family">Family</string>
+    <string name="seed_tag_friends">Friends</string>
+    <string name="seed_tag_partner">Partner</string>
+    <string name="seed_tag_colleagues">Colleagues</string>
+    <string name="seed_tag_pets">Pets</string>
+    <string name="seed_tag_alone">Alone</string>
+    <string name="seed_tag_work">Work</string>
+    <string name="seed_tag_study">Study</string>
+    <string name="seed_tag_reading">Reading</string>
+    <string name="seed_tag_gaming">Gaming</string>
+    <string name="seed_tag_movies">Movies</string>
+    <string name="seed_tag_music">Music</string>
+    <string name="seed_tag_cooking">Cooking</string>
+    <string name="seed_tag_shopping">Shopping</string>
+    <string name="seed_tag_cleaning">Cleaning</string>
+    <string name="seed_tag_exercise">Exercise</string>
+    <string name="seed_tag_walk">Walk</string>
+    <string name="seed_tag_ate_healthy">Ate healthy</string>
+    <string name="seed_tag_water">Water</string>
+    <string name="seed_tag_meditation">Meditation</string>
+    <string name="seed_tag_good_sleep">Good sleep</string>
+    <string name="seed_tag_sick">Sick</string>
+    <string name="seed_tag_nature">Nature</string>
+    <string name="seed_tag_travel">Travel</string>
+    <string name="seed_tag_hiking">Hiking</string>
+    <string name="seed_tag_beach">Beach</string>
+    <string name="seed_tag_road_trip">Road trip</string>
+    <string name="seed_tag_new_place">New place</string>
+    <string name="seed_tag_sunny">Sunny</string>
+    <string name="seed_tag_cloudy">Cloudy</string>
+    <string name="seed_tag_rain">Rain</string>
+    <string name="seed_tag_snow">Snow</string>
+    <string name="seed_tag_windy">Windy</string>
+
+    <string name="sample_hike_title">Sunset hike up the ridge</string>
+    <string name="sample_hike_note">Made it to the top just as the sky caught fire. Legs are done, heart is full. We stayed until the last light slipped behind the rocks.</string>
+    <string name="sample_morning_title">Slow morning</string>
+    <string name="sample_morning_note">Coffee, the last chapters of my book and nowhere to be. More mornings like this, please.</string>
+    <string name="sample_walk_title">Morning walk</string>
+    <string name="sample_meetings_note">Long day of meetings. Nothing went wrong, nothing went great either.</string>
+    <string name="sample_pierogi_title">Pierogi night</string>
+    <string name="sample_pierogi_note">Grandma\'s recipe and flour everywhere. We made far too many and nobody complained.</string>
+    <string name="sample_deadline_title">Deadline day</string>
+    <string name="sample_deadline_note">Everything landed at once. Got it shipped, but I need to plan the next one better.</string>
+    <string name="sample_ideas_title">Ideas for the weekend</string>
+    <string name="sample_ideas_note">• Try the new bakery downtown\n• Call Ola\n• Finally fix the bike</string>
+    <string name="sample_city_title">Wandering the old town</string>
+    <string name="sample_city_note">First day in a new city. Got lost on purpose: narrow streets, warm lights and the best hot chocolate of my life.</string>
+    <string name="sample_run_title">Evening run</string>
+    <string name="sample_cold_title">Caught a cold</string>
+    <string name="sample_cold_note">Sore throat, tea, blanket, repeat. Cancelled everything.</string>
+</resources>

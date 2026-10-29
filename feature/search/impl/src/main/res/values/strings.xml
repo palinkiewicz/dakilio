@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search_hint">Search your journey</string>
+    <string name="search_back">Back</string>
+    <string name="search_clear">Clear</string>
+    <string name="search_with_photos">With photos</string>
+    <string name="search_start_title">Find anything you wrote</string>
+    <string name="search_start_body">Search titles, notes and tags, or filter by mood.</string>
+    <string name="search_none_title">Nothing found</string>
+    <string name="search_none_body">Try another word or loosen the filters.</string>
+    <plurals name="search_results">
+        <item quantity="one">%d entry</item>
+        <item quantity="other">%d entries</item>
+    </plurals>
+</resources>

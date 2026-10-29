@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="timeline_greeting_morning">Good morning</string>
+    <string name="timeline_greeting_afternoon">Good afternoon</string>
+    <string name="timeline_greeting_evening">Good evening</string>
+    <string name="timeline_greeting_night">Good night</string>
+    <plurals name="timeline_streak">
+        <item quantity="one">%d-day streak</item>
+        <item quantity="other">%d-day streak</item>
+    </plurals>
+    <string name="timeline_search">Search entries</string>
+    <string name="timeline_new_entry">New entry</string>
+    <string name="timeline_check_in_title">How\'s your journey today?</string>
+    <string name="timeline_check_in_body">Tap a mood to start, or use + to write anything.</string>
+    <string name="timeline_no_entries">No entries</string>
+    <string name="timeline_add_for_day">Add an entry for %1$s</string>
+    <plurals name="timeline_quiet_days">
+        <item quantity="one">%d quiet day</item>
+        <item quantity="other">%d quiet days</item>
+    </plurals>
+    <string name="timeline_quiet_range">%1$s – %2$s</string>
+    <string name="timeline_other_diary">%1$s · %2$d</string>
+    <string name="timeline_also_in">Also this day</string>
+    <string name="timeline_empty_title">Your journey starts here</string>
+    <string name="timeline_empty_body">Capture a mood, a few tags or a thought. It only takes a moment.</string>
+    <string name="timeline_empty_action">Write your first entry</string>
+</resources>

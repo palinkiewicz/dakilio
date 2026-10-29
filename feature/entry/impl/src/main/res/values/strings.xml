@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="entry_new">New entry</string>
+    <string name="entry_edit">Edit entry</string>
+    <string name="entry_close">Close</string>
+    <string name="entry_save">Save</string>
+    <string name="entry_more">More options</string>
+    <string name="entry_delete">Delete entry</string>
+    <string name="entry_next">Next</string>
+    <string name="entry_skip">Skip</string>
+    <string name="entry_back">Back</string>
+    <string name="entry_step_mood">Mood</string>
+    <string name="entry_step_tags">Tags</string>
+    <string name="entry_step_note">Note</string>
+    <string name="entry_date">Date</string>
+    <string name="entry_time">Time</string>
+    <string name="entry_today">Today</string>
+    <string name="entry_ok">OK</string>
+    <string name="entry_cancel">Cancel</string>
+    <string name="entry_pick_time">Pick a time</string>
+
+    <string name="entry_mood_title">How are you feeling?</string>
+    <string name="entry_mood_body">Pick the closest mood, or skip this step.</string>
+
+    <string name="entry_tags_title">What\'s been going on?</string>
+    <string name="entry_tags_body">Tap everything that fits. Nothing fits? Skip ahead.</string>
+    <string name="entry_more_groups">More groups</string>
+    <string name="entry_manage_tags">Manage tags</string>
+    <string name="entry_no_tags">No tags yet. Create some in Manage tags.</string>
+
+    <string name="entry_note_title">Anything to add?</string>
+    <string name="entry_note_body">A title, a few words or some photos. All optional.</string>
+    <string name="entry_note_required">You skipped the mood and the tags, so add a title, a note or a photo to save this entry.</string>
+    <string name="entry_title_hint">Title</string>
+    <string name="entry_note_hint">Write freely…</string>
+    <string name="entry_add_photos">Add photos</string>
+    <string name="entry_remove_photo">Remove photo</string>
+
+    <string name="entry_discard_title">Discard this entry?</string>
+    <string name="entry_discard_body">Your changes won\'t be saved.</string>
+    <string name="entry_discard">Discard</string>
+    <string name="entry_keep_editing">Keep editing</string>
+    <string name="entry_delete_title">Delete this entry?</string>
+    <string name="entry_delete_body">It will be gone for good, photos included.</string>
+    <string name="entry_delete_confirm">Delete</string>
+</resources>

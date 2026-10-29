@@ -1,0 +1,19 @@
+*.iml
+.gradle/
+/local.properties
+/keystore.properties
+*.jks
+*.keystore
+.idea/
+.DS_Store
+build/
+/captures
+.externalNativeBuild
+.cxx
+.kotlin/
+
+# Signed builds exported by Android Studio (Build > Generate Signed App Bundle / APK)
+/app/release/
+/app/preview/
+*.apk
+*.aab

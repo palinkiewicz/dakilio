@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="diaries_title">Diaries</string>
+    <string name="diaries_subtitle">Separate spaces for different parts of life</string>
+    <string name="diaries_back">Back</string>
+    <string name="diaries_new">New diary</string>
+    <string name="diaries_edit">Edit diary</string>
+    <plurals name="diaries_entries">
+        <item quantity="one">%d entry</item>
+        <item quantity="other">%d entries</item>
+    </plurals>
+    <plurals name="diaries_suggested">
+        <item quantity="one">%d suggested group</item>
+        <item quantity="other">%d suggested groups</item>
+    </plurals>
+    <string name="diaries_all_groups">all tag groups</string>
+    <string name="diaries_hint">Entries can live in several diaries at once. With two or more, a diary switcher appears on the timeline.</string>
+    <string name="diaries_save">Save</string>
+    <string name="diaries_close">Close</string>
+    <string name="diaries_name">Name</string>
+    <string name="diaries_name_hint">e.g. Work, Dreams, Travels</string>
+    <string name="diaries_change_icon">Change icon</string>
+    <string name="diaries_icon">Choose an icon</string>
+    <string name="diaries_suggested_title">Suggested tag groups</string>
+    <string name="diaries_suggested_body">These groups open up when you write in this diary. The others stay tucked away (but one tap away).</string>
+    <string name="diaries_delete">Delete diary</string>
+    <string name="diaries_last_diary">This is your only diary, so it can\'t be deleted.</string>
+    <string name="diaries_delete_title">Delete “%1$s”?</string>
+    <string name="diaries_delete_body_none">It has no entries of its own; shared entries stay in their other diaries.</string>
+    <plurals name="diaries_delete_body">
+        <item quantity="one">%d entry is only in this diary. What should happen to it?</item>
+        <item quantity="other">%d entries are only in this diary. What should happen to them?</item>
+    </plurals>
+    <string name="diaries_move_to">Move to %1$s</string>
+    <string name="diaries_delete_entries">Delete them too</string>
+    <string name="diaries_delete_confirm">Delete</string>
+    <string name="diaries_cancel">Cancel</string>
+    <string name="diaries_done">Done</string>
+</resources>

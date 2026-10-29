@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ui_today">Today</string>
+    <string name="ui_yesterday">Yesterday</string>
+    <string name="ui_all_diaries">All</string>
+    <string name="ui_no_mood">Note</string>
+    <string name="ui_entry">Entry</string>
+    <!-- Language used to format dates and weekday names; each translation sets its own. -->
+    <string name="ui_format_language">en</string>
+    <string name="ui_more_tags">+%1$d</string>
+    <string name="ui_photo">Photo %1$d of %2$d</string>
+    <string name="ui_close">Close</string>
+    <string name="ui_selected_icon">Selected icon</string>
+    <string name="ui_more_photos">+%1$d</string>
+    <string name="ui_diary_required">An entry needs at least one diary</string>
+</resources>
