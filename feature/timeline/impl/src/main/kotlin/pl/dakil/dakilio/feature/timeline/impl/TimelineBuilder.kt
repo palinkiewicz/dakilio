@@ -56,9 +56,38 @@ sealed interface TimelineItem {
 
 data class DiaryCount(val diary: Diary, val count: Int)
 
-/** Index of [date]'s day header, or -1 when that day has no header (no entries in the filter). */
-internal fun List<TimelineItem>.indexOfDay(date: LocalDate): Int =
-    indexOfFirst { it is TimelineItem.DayHeader && it.date == date }
+/** Where a day sits in a built timeline, for jumping to it. */
+sealed interface DayLocation {
+    /** The day's own row: its [TimelineItem.DayHeader], or its [TimelineItem.EmptyDay]. */
+    data class At(val index: Int) : DayLocation
+
+    /** Hidden inside a collapsed [TimelineItem.QuietStretch]; expand it, then locate again. */
+    data class InStretch(val newestEpochDay: Long) : DayLocation
+
+    /** Outside the timeline's range. */
+    data object Missing : DayLocation
+}
+
+internal fun List<TimelineItem>.locateDay(date: LocalDate): DayLocation {
+    val index = indexOfFirst {
+        (it is TimelineItem.DayHeader && it.date == date) || (it is TimelineItem.EmptyDay && it.date == date)
+    }
+    if (index >= 0) return DayLocation.At(index)
+    val stretch = firstOrNull { it is TimelineItem.QuietStretch && !it.expanded && date in it.oldest..it.newest }
+        as TimelineItem.QuietStretch?
+    return stretch?.let { DayLocation.InStretch(it.newest.toEpochDay()) } ?: DayLocation.Missing
+}
+
+/** The days the timeline covers: from the oldest entry (or today) to today (or a future-dated entry). */
+internal fun timelineBounds(posts: List<Post>, today: LocalDate): ClosedRange<LocalDate> {
+    var oldest = today
+    var newest = today
+    posts.forEach {
+        if (it.date < oldest) oldest = it.date
+        if (it.date > newest) newest = it.date
+    }
+    return oldest..newest
+}
 
 /** Runs of at least this many empty days collapse into a [TimelineItem.QuietStretch]. */
 internal const val QUIET_STRETCH_MIN_DAYS = 3
@@ -79,8 +108,9 @@ fun buildTimeline(
     val diaryById = diaries.associateBy { it.id }
     val labelDiaries = selectedDiaryId == null && diaries.size > 1
     val postsByDate = posts.groupBy { it.date }
-    val newest = maxOf(today, postsByDate.keys.maxOrNull() ?: today)
-    val oldest = minOf(today, postsByDate.keys.minOrNull() ?: today)
+    val bounds = timelineBounds(posts, today)
+    val newest = bounds.endInclusive
+    val oldest = bounds.start
 
     val items = ArrayList<TimelineItem>(posts.size + 32)
     /** Days without entries in the filter, each with the other diaries that have entries that day. */

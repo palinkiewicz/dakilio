@@ -36,6 +36,9 @@ sealed interface TimelineUiState {
         val selectedDiaryId: Long?,
         val moods: List<Mood>,
         val today: LocalDate,
+        /** The range [buildTimeline] covers; the jump-to-date picker is limited to it. */
+        val firstDay: LocalDate,
+        val lastDay: LocalDate,
         val greeting: Greeting,
         val streak: Int,
         val isEmpty: Boolean,
@@ -65,12 +68,15 @@ class TimelineViewModel @Inject constructor(
                 .filter { filter == null || filter in it.diaryIds }
                 .map { it.date }
                 .toSet()
+            val bounds = timelineBounds(posts, today)
             TimelineUiState.Ready(
                 items = buildTimeline(posts, diaries, filter, today, expanded),
                 diaries = diaries,
                 selectedDiaryId = filter,
                 moods = moods,
                 today = today,
+                firstDay = bounds.start,
+                lastDay = bounds.endInclusive,
                 greeting = greetingFor(LocalTime.now(clock)),
                 streak = Streaks.current(visibleDays, today),
                 isEmpty = posts.isEmpty(),
@@ -85,6 +91,11 @@ class TimelineViewModel @Inject constructor(
 
     fun toggleStretch(newestEpochDay: Long) {
         expandedStretches.update { if (newestEpochDay in it) it - newestEpochDay else it + newestEpochDay }
+    }
+
+    /** Idempotent, unlike [toggleStretch]: a jump into a stretch may ask more than once. */
+    fun expandStretch(newestEpochDay: Long) {
+        expandedStretches.update { it + newestEpochDay }
     }
 
     /** Called on resume so the list rolls over to a new day without restarting the app. */

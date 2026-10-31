@@ -27,6 +27,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeFlexibleTopAppBar
@@ -34,15 +36,19 @@ import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumFloatingActionButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.animateFloatingActionButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,7 +64,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneOffset
 import pl.dakil.dakilio.core.designsystem.component.pressScale
 import pl.dakil.dakilio.core.designsystem.component.rememberHaptics
 import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
@@ -98,6 +106,7 @@ internal fun TimelineRoute(
         state = state,
         onSelectDiary = viewModel::selectDiary,
         onToggleStretch = viewModel::toggleStretch,
+        onExpandStretch = viewModel::expandStretch,
         onOpenEntry = onOpenEntry,
         onOpenSearch = onOpenSearch,
     )
@@ -108,6 +117,7 @@ internal fun TimelineScreen(
     state: TimelineUiState,
     onSelectDiary: (Long?) -> Unit,
     onToggleStretch: (Long) -> Unit,
+    onExpandStretch: (Long) -> Unit,
     onOpenEntry: (EntryEditorKey) -> Unit,
     onOpenSearch: () -> Unit,
 ) {
@@ -119,16 +129,27 @@ internal fun TimelineScreen(
     val ready = state as? TimelineUiState.Ready
     val selectedDiary = ready?.selectedDiaryId
 
-    // An "Also this day" chip switches diaries *and* lands on its day. Without this the list keeps
-    // its position by the first visible item's key, falling back to its index: often a different day.
+    // Jumps to a day: from the date picker, or from an "Also this day" chip, which also switches
+    // diaries. Without this, a diary switch keeps the list's position by the first visible item's
+    // key, falling back to its index: often a different day.
     var pendingJump by remember { mutableStateOf<DayJump?>(null) }
+    var pickDate by rememberSaveable { mutableStateOf(false) }
     SideEffect {
         val jump = pendingJump ?: return@SideEffect
-        if (ready?.selectedDiaryId != jump.diaryId) return@SideEffect
-        val index = ready.items.indexOfDay(jump.date)
-        // Applied on the next measure, i.e. the very frame that shows the switched list.
-        if (index >= 0) listState.requestScrollToItem(index)
-        pendingJump = null
+        if (ready == null || (jump.diaryId != null && ready.selectedDiaryId != jump.diaryId)) return@SideEffect
+        when (val location = ready.items.locateDay(jump.date)) {
+            // Applied on the next measure, i.e. the very frame that shows the new list.
+            is DayLocation.At -> {
+                listState.requestScrollToItem(location.index)
+                pendingJump = null
+            }
+            // Open the stretch first; the next list has the day's own row.
+            is DayLocation.InStretch -> if (!jump.expanding) {
+                onExpandStretch(location.newestEpochDay)
+                pendingJump = jump.copy(expanding = true)
+            }
+            DayLocation.Missing -> pendingJump = null
+        }
     }
 
     Scaffold(
@@ -146,6 +167,14 @@ internal fun TimelineScreen(
                     title = { Text(stringResource(greetingRes(ready?.greeting ?: Greeting.Morning))) },
                     subtitle = ready?.let { { Subtitle(it, formats) } },
                     actions = {
+                        if (ready != null) {
+                            IconButton(onClick = {
+                                haptics.tick()
+                                pickDate = true
+                            }) {
+                                DakilioIcon(DakilioSymbols.CalendarMonth, contentDescription = stringResource(R.string.timeline_jump_to_date))
+                            }
+                        }
                         IconButton(
                             onClick = onOpenSearch,
                             modifier = Modifier.sharedContainer(SearchKey.SHARED_ELEMENT_KEY, CircleShape),
@@ -237,7 +266,7 @@ internal fun TimelineScreen(
                                 item = item,
                                 onSelectDiary = { diaryId ->
                                     haptics.tick()
-                                    pendingJump = DayJump(diaryId, item.date)
+                                    pendingJump = DayJump(item.date, diaryId)
                                     onSelectDiary(diaryId)
                                 },
                                 modifier = itemModifier,
@@ -265,10 +294,70 @@ internal fun TimelineScreen(
     }
 
     viewer?.let { (photos, index) -> PhotoViewer(photos, index, onDismiss = { viewer = null }) }
+
+    if (pickDate && ready != null) {
+        val topDay = ready.items.getOrNull(listState.firstVisibleItemIndex)?.dayOrNull()
+        JumpToDateDialog(
+            initial = (topDay ?: ready.today).coerceIn(ready.firstDay, ready.lastDay),
+            firstDay = ready.firstDay,
+            lastDay = ready.lastDay,
+            onDismiss = { pickDate = false },
+            onPick = { date ->
+                pickDate = false
+                haptics.confirm()
+                pendingJump = DayJump(date)
+            },
+        )
+    }
 }
 
-/** A diary switch that should land on [date] once the list shows [diaryId]. */
-private data class DayJump(val diaryId: Long, val date: LocalDate)
+@Composable
+private fun JumpToDateDialog(
+    initial: LocalDate,
+    firstDay: LocalDate,
+    lastDay: LocalDate,
+    onDismiss: () -> Unit,
+    onPick: (LocalDate) -> Unit,
+) {
+    fun LocalDate.utcMillis() = atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+    val first = firstDay.utcMillis()
+    val last = lastDay.utcMillis()
+    val pickerState = rememberDatePickerState(
+        initialSelectedDateMillis = initial.utcMillis(),
+        yearRange = firstDay.year..lastDay.year,
+        selectableDates = object : SelectableDates {
+            override fun isSelectableDate(utcTimeMillis: Long) = utcTimeMillis in first..last
+            override fun isSelectableYear(year: Int) = year in firstDay.year..lastDay.year
+        },
+    )
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(
+                onClick = { pickerState.selectedDateMillis?.let { onPick(Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).toLocalDate()) } },
+                enabled = pickerState.selectedDateMillis != null,
+            ) { Text(stringResource(R.string.timeline_jump)) }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.timeline_cancel)) } },
+    ) { DatePicker(pickerState) }
+}
+
+/** The day an item belongs to, for opening the date picker where the list currently is. */
+private fun TimelineItem.dayOrNull(): LocalDate? = when (this) {
+    is TimelineItem.DayHeader -> date
+    is TimelineItem.TodayPrompt -> date
+    is TimelineItem.PostItem -> post.date
+    is TimelineItem.EmptyDay -> date
+    is TimelineItem.QuietStretch -> newest
+    is TimelineItem.OtherDiaries -> date
+    is TimelineItem.MonthDivider -> null
+}
+
+/**
+ * A pending scroll to [date]. With [diaryId], it waits until the list shows that diary; [expanding]
+ * marks that the quiet stretch hiding the day has already been asked to open.
+ */
+private data class DayJump(val date: LocalDate, val diaryId: Long? = null, val expanding: Boolean = false)
 
 private fun greetingRes(greeting: Greeting) = when (greeting) {
     Greeting.Morning -> R.string.timeline_greeting_morning

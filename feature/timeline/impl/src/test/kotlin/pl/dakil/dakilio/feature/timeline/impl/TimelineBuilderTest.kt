@@ -107,12 +107,34 @@ class TimelineBuilderTest {
     }
 
     @Test
-    fun `indexOfDay finds the day header a diary switch should land on`() {
-        val posts = listOf(post(1, diaries = longArrayOf(1)), post(2, diaries = longArrayOf(1, 2)), post(5, diaries = longArrayOf(2)))
+    fun `locateDay finds headers, empty rows and collapsed stretches`() {
+        val posts = listOf(post(1), post(3), post(8)) // 2 is a lone empty day, 4..7 a quiet stretch
+        val items = buildTimeline(posts, listOf(journey), null, today)
+
+        val withEntries = items.locateDay(today.minusDays(1)) as DayLocation.At
+        assertEquals(DayHeader(today.minusDays(1), emptyList()), items[withEntries.index])
+        val lone = items.locateDay(today.minusDays(2)) as DayLocation.At
+        assertEquals(EmptyDay(today.minusDays(2)), items[lone.index])
+        assertEquals(DayLocation.InStretch(today.minusDays(4).toEpochDay()), items.locateDay(today.minusDays(6)))
+        assertEquals(DayLocation.Missing, items.locateDay(today.minusDays(9)))
+
+        val expanded = buildTimeline(posts, listOf(journey), null, today, setOf(today.minusDays(4).toEpochDay()))
+        val inside = expanded.locateDay(today.minusDays(6)) as DayLocation.At
+        assertEquals(EmptyDay(today.minusDays(6)), expanded[inside.index])
+    }
+
+    @Test
+    fun `locateDay lands a diary switch on the day header`() {
+        val posts = listOf(post(1, diaries = longArrayOf(1)), post(2, diaries = longArrayOf(1, 2)))
         val items = buildTimeline(posts, listOf(journey, work), 2L, today)
-        val index = items.indexOfDay(today.minusDays(2))
-        assertEquals(DayHeader(today.minusDays(2), emptyList()), items[index])
-        assertEquals(-1, items.indexOfDay(today.minusDays(1))) // only in Journey: a compact empty row here
+        val at = items.locateDay(today.minusDays(2)) as DayLocation.At
+        assertEquals(DayHeader(today.minusDays(2), emptyList()), items[at.index])
+    }
+
+    @Test
+    fun `timeline bounds span the oldest entry to today or a future entry`() {
+        assertEquals(today..today, timelineBounds(emptyList(), today))
+        assertEquals(today.minusDays(5)..today.plusDays(2), timelineBounds(listOf(post(5), post(-2)), today))
     }
 
     @Test
