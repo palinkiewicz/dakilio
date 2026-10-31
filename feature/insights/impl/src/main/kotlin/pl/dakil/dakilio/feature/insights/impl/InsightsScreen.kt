@@ -1,13 +1,7 @@
 package pl.dakil.dakilio.feature.insights.impl
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
@@ -52,7 +46,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -194,12 +187,6 @@ private fun CardTitle(title: String, subtitle: String? = null) {
 
 @Composable
 private fun StreakCard(insights: Insights) {
-    val spin by rememberInfiniteTransition(label = "streakSpin").animateFloat(
-        0f,
-        360f,
-        infiniteRepeatable(tween(30_000, easing = LinearEasing), RepeatMode.Restart),
-        label = "streakSpinValue",
-    )
     val sun = remember { PolygonShape(MaterialShapes.Sunny) }
     val colors = MaterialTheme.colorScheme
     Column(verticalArrangement = Arrangement.spacedBy(Spacing.xxs)) {
@@ -211,7 +198,7 @@ private fun StreakCard(insights: Insights) {
         ) {
             Row(Modifier.padding(Spacing.xl), verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.size(112.dp), contentAlignment = Alignment.Center) {
-                    Box(Modifier.size(112.dp).graphicsLayer { rotationZ = spin }.background(colors.primary, sun))
+                    Box(Modifier.size(112.dp).background(colors.primary, sun))
                     AnimatedContent(insights.currentStreak, transitionSpec = { fadeIn() togetherWith fadeOut() }, label = "streak") {
                         Text(it.toString(), style = MaterialTheme.typography.displayMediumEmphasized, color = colors.onPrimary)
                     }

@@ -101,6 +101,7 @@ The layout follows NowInAndroid: `app` → `feature:*:impl` → `feature:*:api` 
   - segmented groups (`SegmentedShapes`, `segmentedItemColors()`);
   - `raisedToggleColors()` for toggles on container-colored backgrounds;
   - haptics through `rememberHaptics()`.
+- **No endless decorative animation** (`rememberInfiniteTransition`, `infiniteRepeatable`, perpetual spins or pulses). It keeps the display at full refresh rate and stops LTPO screens from dropping to 1 Hz. Motion should be a short, settling response to a state change or input. Loading indicators are the only exception, because they disappear once the content is ready.
 - **Beginner hints:** any line that teaches how to use the UI (as opposed to describing state) goes through `Hint { }` or `hintOrNull()` from `core/ui/Hints.kt`, so the "Show beginner hints" setting (`UserSettings.showHints`, provided as `LocalShowHints` in `MainActivity`) covers it.
   - Never hints: empty states, counts, validation, dialog warnings, setting descriptions, placeholders and screen taglines.
   - Layouts must look right without the hint: put spacing on the neighbours, not on the hint.
