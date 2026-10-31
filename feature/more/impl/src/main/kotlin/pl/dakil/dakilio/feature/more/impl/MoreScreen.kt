@@ -115,6 +115,8 @@ private fun Header() {
         Text(
             stringResource(R.string.more_app_name),
             style = MaterialTheme.typography.displaySmallEmphasized,
+            // This screen has no Surface/Scaffold to provide a content color, so set it explicitly.
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(top = Spacing.l),
         )
         Text(
