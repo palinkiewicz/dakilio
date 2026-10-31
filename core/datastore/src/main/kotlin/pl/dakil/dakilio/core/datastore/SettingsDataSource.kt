@@ -10,6 +10,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.ThemeMode
 import pl.dakil.dakilio.core.model.UserSettings
 
@@ -24,6 +25,8 @@ class SettingsDataSource @Inject constructor(
                     ?: ThemeMode.System,
                 lastEntryDiaryIds = prefs[LAST_ENTRY_DIARIES].orEmpty().mapNotNull(String::toLongOrNull).toSet(),
                 sampleHintDismissed = prefs[SAMPLE_HINT_DISMISSED] ?: false,
+                tagStyle = prefs[TAG_STYLE]?.let { name -> TagStyle.entries.firstOrNull { it.name == name } }
+                    ?: TagStyle.Icons,
             )
         }
         .distinctUntilChanged()
@@ -40,9 +43,14 @@ class SettingsDataSource @Inject constructor(
         dataStore.edit { it[SAMPLE_HINT_DISMISSED] = dismissed }
     }
 
+    suspend fun setTagStyle(style: TagStyle) {
+        dataStore.edit { it[TAG_STYLE] = style.name }
+    }
+
     private companion object {
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val LAST_ENTRY_DIARIES = stringSetPreferencesKey("last_entry_diary_ids")
         val SAMPLE_HINT_DISMISSED = booleanPreferencesKey("sample_hint_dismissed")
+        val TAG_STYLE = stringPreferencesKey("tag_style")
     }
 }

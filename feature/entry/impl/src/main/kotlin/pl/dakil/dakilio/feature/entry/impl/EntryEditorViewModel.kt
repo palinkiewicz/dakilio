@@ -34,6 +34,7 @@ import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.PostDraft
 import pl.dakil.dakilio.core.model.TagGroup
+import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.feature.entry.api.EntryEditorKey
 
 enum class EditorStep { Mood, Tags, Note }
@@ -68,6 +69,7 @@ data class EditorUiState(
     val suggestedGroups: List<TagGroup>,
     val otherGroups: List<TagGroup>,
     val tagIds: Set<Long>,
+    val tagStyle: TagStyle,
     val photos: List<EditorPhoto>,
     val importingPhotos: Int,
     val dirty: Boolean,
@@ -103,7 +105,13 @@ class EntryEditorViewModel @AssistedInject constructor(
     private val sessionFiles = mutableSetOf<String>()
 
     val uiState: StateFlow<EditorUiState?> =
-        combine(form, moodRepository.moods, diaryRepository.diaries, tagRepository.groups) { form, moods, diaries, groups ->
+        combine(
+            form,
+            moodRepository.moods,
+            diaryRepository.diaries,
+            tagRepository.groups,
+            settingsRepository.settings,
+        ) { form, moods, diaries, groups, settings ->
             if (!form.loaded) return@combine null
             val suggestedIds = diaries.filter { it.id in form.diaryIds }.flatMap { it.suggestedGroupIds }.toSet()
             val (suggested, other) = if (suggestedIds.isEmpty()) groups to emptyList() else groups.partition { it.id in suggestedIds }
@@ -120,6 +128,7 @@ class EntryEditorViewModel @AssistedInject constructor(
                 suggestedGroups = suggested,
                 otherGroups = other,
                 tagIds = form.tagIds,
+                tagStyle = settings.tagStyle,
                 photos = form.photos,
                 importingPhotos = form.importingPhotos,
                 dirty = form.dirty,

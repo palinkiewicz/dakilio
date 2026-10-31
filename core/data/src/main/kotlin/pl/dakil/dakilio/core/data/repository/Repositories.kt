@@ -7,6 +7,7 @@ import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.Post
 import pl.dakil.dakilio.core.model.PostDraft
 import pl.dakil.dakilio.core.model.TagGroup
+import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.ThemeMode
 import pl.dakil.dakilio.core.model.UserSettings
 
@@ -83,4 +84,6 @@ interface SettingsRepository {
     suspend fun setLastEntryDiaryIds(ids: Set<Long>)
 
     suspend fun setSampleHintDismissed(dismissed: Boolean)
+
+    suspend fun setTagStyle(style: TagStyle)
 }

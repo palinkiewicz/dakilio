@@ -48,6 +48,7 @@ import pl.dakil.dakilio.core.designsystem.component.segmentedItemColors
 import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
+import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.ThemeMode
 
 @Composable
@@ -102,6 +103,27 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
                             ),
                             selected = state.themeMode,
                             onSelect = viewModel::setThemeMode,
+                        )
+                    }
+                }
+
+                SectionHeader(stringResource(R.string.settings_editor))
+                Surface(shape = RoundedCornerShape(28.dp), color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(Spacing.xl)) {
+                        Text(stringResource(R.string.settings_tag_style), style = MaterialTheme.typography.titleMediumEmphasized)
+                        Text(
+                            stringResource(R.string.settings_tag_style_body),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = Spacing.xxs, bottom = Spacing.l),
+                        )
+                        ConnectedToggleRow(
+                            options = listOf(
+                                ToggleOption(TagStyle.Icons, stringResource(R.string.settings_tag_style_icons), DakilioSymbols.AutoAwesome),
+                                ToggleOption(TagStyle.Chips, stringResource(R.string.settings_tag_style_chips), DakilioSymbols.Sell),
+                            ),
+                            selected = state.tagStyle,
+                            onSelect = viewModel::setTagStyle,
                         )
                     }
                 }

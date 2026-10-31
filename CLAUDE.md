@@ -74,6 +74,8 @@ The layout follows NowInAndroid: `app` → `feature:*:impl` → `feature:*:api` 
 - **Deleting a diary** is blocked for the last remaining diary. Entries that belong only to the deleted diary are either moved to another diary or deleted together with their photo files.
 - **Two editor layouts.** New entries go through the mood → tags → note step wizard. Existing entries open `EntryOverview`, a single page (one row of mood faces, then the tags, then the note) for quick edits. Both share `EntryEditorViewModel`, `tagGroupItems` and `NoteFields`.
 - **Diaries suggest tag groups.** In the editor, groups suggested by any selected diary are expanded; the rest are collapsed under "More groups". When none are suggested, all groups are expanded.
+  - Every group in the editor is a collapsible panel (`TagPicker.kt`). What the user folds open or shut lasts only for that editor session (`toggledGroups` in `EntryEditorScreen`).
+  - The tag style is a user setting (`UserSettings.tagStyle`): a Daylio-style icon grid (the default) or chips. Read-only tag displays (post cards, search) always use chips.
 - **Photos** come through the system Photo Picker, so no permission is needed. `LocalPhotoRepository.import` re-encodes each image to at most 2560 px JPEG, which strips EXIF (including GPS), into `filesDir/photos`.
   - Files imported during an editor session are deleted if the draft is abandoned.
   - `sweepOrphans()` runs at startup.

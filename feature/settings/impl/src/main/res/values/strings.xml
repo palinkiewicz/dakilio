@@ -8,6 +8,11 @@
     <string name="settings_theme_system">System</string>
     <string name="settings_theme_light">Light</string>
     <string name="settings_theme_dark">Dark</string>
+    <string name="settings_editor">Entry editor</string>
+    <string name="settings_tag_style">Tag style</string>
+    <string name="settings_tag_style_body">How tags look when you add or edit an entry.</string>
+    <string name="settings_tag_style_icons">Icons</string>
+    <string name="settings_tag_style_chips">Chips</string>
     <string name="settings_starter">Starter content</string>
     <string name="settings_remove_samples">Remove sample entries</string>
     <plurals name="settings_remove_samples_body">

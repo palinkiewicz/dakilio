@@ -96,6 +96,9 @@ internal fun EntryEditorScreen(
     val haptics = rememberHaptics()
     var confirmDiscard by rememberSaveable { mutableStateOf(false) }
     var confirmDelete by rememberSaveable { mutableStateOf(false) }
+    // Tag groups the user folded open or shut, against their default. Lives for this editor only.
+    var toggledGroups by rememberSaveable { mutableStateOf(emptySet<Long>()) }
+    val toggleGroup = { id: Long -> toggledGroups = if (id in toggledGroups) toggledGroups - id else toggledGroups + id }
 
     val requestClose = {
         if (viewModel.hasUnsavedChanges()) confirmDiscard = true else onClose()
@@ -189,6 +192,8 @@ internal fun EntryEditorScreen(
                             title = viewModel.title,
                             note = viewModel.note,
                             bodyRequired = bodyRequired,
+                            toggledGroups = toggledGroups,
+                            onToggleGroup = toggleGroup,
                             onSelectMood = viewModel::selectMood,
                             onToggleTag = viewModel::toggleTag,
                             onManageTags = onManageTags,
@@ -223,6 +228,9 @@ internal fun EntryEditorScreen(
                                     suggested = current.suggestedGroups,
                                     others = current.otherGroups,
                                     selectedIds = current.tagIds,
+                                    style = current.tagStyle,
+                                    toggledGroups = toggledGroups,
+                                    onToggleGroup = toggleGroup,
                                     onToggle = viewModel::toggleTag,
                                     onManageTags = onManageTags,
                                     modifier = Modifier.fillMaxSize(),
