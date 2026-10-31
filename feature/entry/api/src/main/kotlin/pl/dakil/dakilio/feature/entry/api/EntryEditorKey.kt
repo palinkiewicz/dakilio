@@ -4,9 +4,10 @@ import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 
 /**
- * The full-screen entry wizard. Without [postId] it creates a new entry; the presets let callers
- * start it pre-filled (the timeline's diary filter, an empty day's date, a mood tapped on the
- * check-in card).
+ * The full-screen entry editor. Without [postId] it runs the mood → tags → note wizard for a new
+ * entry; the presets let callers start it pre-filled (the timeline's diary filter, an empty day's
+ * date, a mood tapped on the check-in card). With [postId] it opens the all-in-one page for quick
+ * edits of an existing entry.
  */
 @Serializable
 data class EntryEditorKey(

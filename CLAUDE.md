@@ -72,6 +72,7 @@ The layout follows NowInAndroid: `app` → `feature:*:impl` → `feature:*:api` 
   - Don't swap it for a red→yellow→green ramp: yellow and green collapse for protanopes.
 - **Deleting tags or groups archives them** (`is_archived`), with an Undo snackbar. Old entries keep showing archived tags; pickers and the customization screen hide them.
 - **Deleting a diary** is blocked for the last remaining diary. Entries that belong only to the deleted diary are either moved to another diary or deleted together with their photo files.
+- **Two editor layouts.** New entries go through the mood → tags → note step wizard. Existing entries open `EntryOverview`, a single page (one row of mood faces, then the tags, then the note) for quick edits. Both share `EntryEditorViewModel`, `tagGroupItems` and `NoteFields`.
 - **Diaries suggest tag groups.** In the editor, groups suggested by any selected diary are expanded; the rest are collapsed under "More groups". When none are suggested, all groups are expanded.
 - **Photos** come through the system Photo Picker, so no permission is needed. `LocalPhotoRepository.import` re-encodes each image to at most 2560 px JPEG, which strips EXIF (including GPS), into `filesDir/photos`.
   - Files imported during an editor session are deleted if the draft is abandoned.

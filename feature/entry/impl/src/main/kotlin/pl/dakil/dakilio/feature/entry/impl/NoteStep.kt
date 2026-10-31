@@ -65,6 +65,28 @@ internal fun NoteStep(
     onRemovePhoto: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    Column(modifier.verticalScroll(rememberScrollState()).padding(vertical = Spacing.s)) {
+        StepHeader(
+            stringResource(R.string.entry_note_title),
+            stringResource(R.string.entry_note_body),
+            Modifier.padding(horizontal = Spacing.gutter),
+        )
+        NoteFields(title, note, photos, importing, bodyRequired, onAddPhotos, onRemovePhoto)
+    }
+}
+
+/** Title, note and photo strip, without a header or scrolling of its own. */
+@Composable
+internal fun NoteFields(
+    title: TextFieldState,
+    note: TextFieldState,
+    photos: List<EditorPhoto>,
+    importing: Int,
+    bodyRequired: Boolean,
+    onAddPhotos: (List<android.net.Uri>) -> Unit,
+    onRemovePhoto: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(MAX_PICK), onAddPhotos)
     val fieldColors = TextFieldDefaults.colors(
         focusedContainerColor = Color.Transparent,
@@ -72,12 +94,7 @@ internal fun NoteStep(
         focusedIndicatorColor = Color.Transparent,
         unfocusedIndicatorColor = Color.Transparent,
     )
-    Column(modifier.verticalScroll(rememberScrollState()).padding(vertical = Spacing.s)) {
-        StepHeader(
-            stringResource(R.string.entry_note_title),
-            stringResource(R.string.entry_note_body),
-            Modifier.padding(horizontal = Spacing.gutter),
-        )
+    Column(modifier) {
         AnimatedVisibility(
             visible = bodyRequired,
             enter = expandVertically() + fadeIn(),
