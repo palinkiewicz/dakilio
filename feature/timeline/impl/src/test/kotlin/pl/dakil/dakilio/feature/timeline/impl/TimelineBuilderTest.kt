@@ -3,13 +3,13 @@ package pl.dakil.dakilio.feature.timeline.impl
 import java.time.LocalDate
 import java.time.LocalTime
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.model.Post
 import pl.dakil.dakilio.feature.timeline.impl.TimelineItem.DayHeader
 import pl.dakil.dakilio.feature.timeline.impl.TimelineItem.EmptyDay
-import pl.dakil.dakilio.feature.timeline.impl.TimelineItem.NoEntries
 import pl.dakil.dakilio.feature.timeline.impl.TimelineItem.OtherDiaries
 import pl.dakil.dakilio.feature.timeline.impl.TimelineItem.PostItem
 import pl.dakil.dakilio.feature.timeline.impl.TimelineItem.QuietStretch
@@ -75,10 +75,35 @@ class TimelineBuilderTest {
         val items = buildTimeline(listOf(inJourney, inWork, inBoth, onlyWork), listOf(journey, work), 1L, today)
 
         assertEquals(setOf(inJourney.id, inBoth.id), items.filterIsInstance<PostItem>().map { it.post.id }.toSet())
-        val chips = items.filterIsInstance<OtherDiaries>()
-        assertEquals(listOf(1, 1), chips.map { it.chips.single().count })
-        // A day with entries only elsewhere still gets a header saying nothing is here.
-        assertTrue(NoEntries(today.minusDays(2)) in items)
+        // "Also this day" only sits under days with entries in the filter.
+        val chips = items.filterIsInstance<OtherDiaries>().single()
+        assertEquals(today.minusDays(1), chips.date)
+        assertEquals(1, chips.chips.single().count)
+        // A day with entries only elsewhere is a compact empty row hinting at those diaries.
+        assertTrue(EmptyDay(today.minusDays(2), listOf(work)) in items)
+        assertFalse(items.any { it is DayHeader && it.date == today.minusDays(2) })
+    }
+
+    @Test
+    fun `days with entries only in other diaries join quiet stretches and surface their diaries`() {
+        val posts = listOf(post(1), post(3, diaries = longArrayOf(2)), post(6))
+        val collapsed = buildTimeline(posts, listOf(journey, work), 1L, today)
+        val stretch = collapsed.filterIsInstance<QuietStretch>().single() // 2..5 days ago
+        assertEquals(today.minusDays(2), stretch.newest)
+        assertEquals(today.minusDays(5), stretch.oldest)
+        assertEquals(listOf(work), stretch.otherDiaries)
+
+        val expanded = buildTimeline(posts, listOf(journey, work), 1L, today, setOf(today.minusDays(2).toEpochDay()))
+        assertTrue(EmptyDay(today.minusDays(3), listOf(work)) in expanded)
+        assertTrue(EmptyDay(today.minusDays(4)) in expanded)
+    }
+
+    @Test
+    fun `today keeps its check-in card and other-diary chips when its entries are elsewhere`() {
+        val items = buildTimeline(listOf(post(0, diaries = longArrayOf(2))), listOf(journey, work), 1L, today)
+        assertEquals(DayHeader(today, emptyList()), items[0])
+        assertEquals(TodayPrompt(today), items[1])
+        assertEquals(work, (items[2] as OtherDiaries).chips.single().diary)
     }
 
     @Test

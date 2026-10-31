@@ -50,6 +50,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -63,6 +65,7 @@ import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.icon.symbolForKey
 import pl.dakil.dakilio.core.designsystem.theme.SegmentedShapes
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
+import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.PostPhoto
 import pl.dakil.dakilio.core.ui.DakilioFormats
@@ -200,12 +203,9 @@ internal fun TimelineScreen(
                                     .padding(top = if (item.index > 0) SegmentedShapes.gap else 0.dp)
                                     .sharedContainer(EntryEditorKey.postSharedElementKey(item.post.id), SegmentedShapes.of(item.index, item.count)),
                             )
-                            is TimelineItem.NoEntries -> NoEntriesRow(
-                                onAdd = { onOpenEntry(EntryEditorKey(presetDiaryId = selectedDiary, presetEpochDay = item.date.toEpochDay())) },
-                                modifier = itemModifier,
-                            )
                             is TimelineItem.EmptyDay -> EmptyDayRow(
                                 date = item.date,
+                                otherDiaries = item.otherDiaries,
                                 today = state.today,
                                 formats = formats,
                                 onAdd = { onOpenEntry(EntryEditorKey(presetDiaryId = selectedDiary, presetEpochDay = item.date.toEpochDay())) },
@@ -361,28 +361,14 @@ private fun CheckInCard(moods: List<Mood>, onMood: (Mood) -> Unit, modifier: Mod
 }
 
 @Composable
-private fun NoEntriesRow(onAdd: () -> Unit, modifier: Modifier) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceContainerLow, RoundedCornerShape(20.dp))
-            .padding(start = Spacing.l, end = Spacing.xs),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            stringResource(R.string.timeline_no_entries),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.weight(1f),
-        )
-        IconButton(onClick = onAdd) {
-            DakilioIcon(DakilioSymbols.Add, contentDescription = stringResource(R.string.timeline_new_entry))
-        }
-    }
-}
-
-@Composable
-private fun EmptyDayRow(date: LocalDate, today: LocalDate, formats: DakilioFormats, onAdd: () -> Unit, modifier: Modifier) {
+private fun EmptyDayRow(
+    date: LocalDate,
+    otherDiaries: List<Diary>,
+    today: LocalDate,
+    formats: DakilioFormats,
+    onAdd: () -> Unit,
+    modifier: Modifier,
+) {
     val label = relativeDayLabel(date, today, formats)
     Row(
         modifier = modifier.fillMaxWidth().padding(start = Spacing.xs, top = Spacing.xs),
@@ -396,7 +382,10 @@ private fun EmptyDayRow(date: LocalDate, today: LocalDate, formats: DakilioForma
         )
         Column(Modifier.weight(1f).padding(start = Spacing.s)) {
             Text(label, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(stringResource(R.string.timeline_no_entries), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(R.string.timeline_no_entries), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
+                if (otherDiaries.isNotEmpty()) DiaryHint(otherDiaries, Modifier.padding(start = Spacing.s))
+            }
         }
         IconButton(onClick = onAdd) {
             DakilioIcon(
@@ -430,7 +419,29 @@ private fun QuietStretchRow(stretch: TimelineItem.QuietStretch, formats: Dakilio
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
+            if (stretch.otherDiaries.isNotEmpty()) DiaryHint(stretch.otherDiaries, Modifier.padding(end = Spacing.s))
             DakilioIcon(DakilioSymbols.ExpandMore, contentDescription = null, modifier = Modifier.graphicsLayer { rotationZ = rotation })
+        }
+    }
+}
+
+private const val DIARY_HINT_MAX = 3
+
+/** A quiet, read-only hint of the diaries that have entries on an otherwise empty day. */
+@Composable
+private fun DiaryHint(diaries: List<Diary>, modifier: Modifier = Modifier) {
+    val description = stringResource(R.string.timeline_entries_in, diaries.joinToString { it.name })
+    val tint = MaterialTheme.colorScheme.outline
+    Row(
+        modifier = modifier.clearAndSetSemantics { contentDescription = description },
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        diaries.take(DIARY_HINT_MAX).forEach { diary ->
+            DakilioIcon(symbolForKey(diary.iconKey), contentDescription = null, tint = tint, modifier = Modifier.size(16.dp))
+        }
+        if (diaries.size > DIARY_HINT_MAX) {
+            Text("+${diaries.size - DIARY_HINT_MAX}", style = MaterialTheme.typography.labelSmall, color = tint)
         }
     }
 }

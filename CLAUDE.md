@@ -85,7 +85,8 @@ The layout follows NowInAndroid: `app` → `feature:*:impl` → `feature:*:api` 
   - today's check-in card;
   - "No entries" rows;
   - runs of 3 or more empty days collapsed into an expandable quiet stretch;
-  - "Also this day" chips for entries in other diaries.
+  - "Also this day" chips for entries in other diaries, only under days that have entries in the selected diary (and today);
+  - days with entries only in other diaries are compact empty rows (and can join quiet stretches), with a small read-only `DiaryHint` of those diaries' icons.
 - **Insights** follow the `dataviz` skill's rules: stat tiles, a stacked bar with 2dp gaps, legends that carry the mood faces, and single-hue bars. `InsightsCalculator` is pure and tested. Streaks ignore the selected range.
 - **Dates use the app's language** (`ui_format_language`, currently `en`) combined with the device region, so they never mix with untranslated UI.
 - **Container transforms:** the FAB and the post cards grow into the editor, and the search icon grows into Search. This works through `sharedContainer(key)` together with `NavTransitions.sharedContainer` entry metadata. Tabs use a fade-through transition (`NavTransitions.topLevel`).

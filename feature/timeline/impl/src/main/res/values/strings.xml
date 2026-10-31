@@ -21,6 +21,7 @@
     <string name="timeline_quiet_range">%1$s – %2$s</string>
     <string name="timeline_other_diary">%1$s · %2$d</string>
     <string name="timeline_also_in">Also this day</string>
+    <string name="timeline_entries_in">Entries in %s</string>
     <string name="timeline_empty_title">Your journey starts here</string>
     <string name="timeline_empty_body">Capture a mood, a few tags or a thought. It only takes a moment.</string>
     <string name="timeline_empty_action">Write your first entry</string>
