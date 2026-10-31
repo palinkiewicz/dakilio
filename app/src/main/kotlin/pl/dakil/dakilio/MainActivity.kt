@@ -8,12 +8,14 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import pl.dakil.dakilio.core.designsystem.theme.DakilioTheme
 import pl.dakil.dakilio.core.model.ThemeMode
+import pl.dakil.dakilio.core.ui.LocalShowHints
 import pl.dakil.dakilio.ui.DakilioApp
 
 @AndroidEntryPoint
@@ -25,6 +27,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
+            val showHints by viewModel.showHints.collectAsStateWithLifecycle()
             val mode = themeMode ?: return@setContent
             val dark = when (mode) {
                 ThemeMode.System -> isSystemInDarkTheme()
@@ -37,7 +40,9 @@ class MainActivity : ComponentActivity() {
                 onDispose { }
             }
             DakilioTheme(darkTheme = dark) {
-                DakilioApp()
+                CompositionLocalProvider(LocalShowHints provides showHints) {
+                    DakilioApp()
+                }
             }
         }
     }

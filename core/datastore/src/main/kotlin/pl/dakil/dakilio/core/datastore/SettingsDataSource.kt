@@ -27,6 +27,7 @@ class SettingsDataSource @Inject constructor(
                 sampleHintDismissed = prefs[SAMPLE_HINT_DISMISSED] ?: false,
                 tagStyle = prefs[TAG_STYLE]?.let { name -> TagStyle.entries.firstOrNull { it.name == name } }
                     ?: TagStyle.Icons,
+                showHints = prefs[SHOW_HINTS] ?: true,
             )
         }
         .distinctUntilChanged()
@@ -47,10 +48,15 @@ class SettingsDataSource @Inject constructor(
         dataStore.edit { it[TAG_STYLE] = style.name }
     }
 
+    suspend fun setShowHints(show: Boolean) {
+        dataStore.edit { it[SHOW_HINTS] = show }
+    }
+
     private companion object {
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val LAST_ENTRY_DIARIES = stringSetPreferencesKey("last_entry_diary_ids")
         val SAMPLE_HINT_DISMISSED = booleanPreferencesKey("sample_hint_dismissed")
         val TAG_STYLE = stringPreferencesKey("tag_style")
+        val SHOW_HINTS = booleanPreferencesKey("show_hints")
     }
 }

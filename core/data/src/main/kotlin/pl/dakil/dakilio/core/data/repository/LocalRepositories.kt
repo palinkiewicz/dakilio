@@ -161,4 +161,6 @@ internal class LocalSettingsRepository @Inject constructor(
     override suspend fun setSampleHintDismissed(dismissed: Boolean) = dataSource.setSampleHintDismissed(dismissed)
 
     override suspend fun setTagStyle(style: TagStyle) = dataSource.setTagStyle(style)
+
+    override suspend fun setShowHints(show: Boolean) = dataSource.setShowHints(show)
 }

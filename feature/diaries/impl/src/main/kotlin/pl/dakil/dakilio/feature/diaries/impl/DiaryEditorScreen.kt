@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -73,6 +74,7 @@ import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.icon.symbolForKey
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.model.Diary
+import pl.dakil.dakilio.core.ui.Hint
 import pl.dakil.dakilio.core.ui.component.IconPicker
 
 @Composable
@@ -158,12 +160,15 @@ internal fun DiaryEditorScreen(viewModel: DiaryEditorViewModel, onClose: () -> U
                 )
 
                 SectionHeader(stringResource(R.string.diaries_suggested_title), Modifier.padding(top = Spacing.m))
-                Text(
-                    stringResource(R.string.diaries_suggested_body),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(start = Spacing.xs, bottom = Spacing.m),
-                )
+                Hint {
+                    Text(
+                        stringResource(R.string.diaries_suggested_body),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(start = Spacing.xs),
+                    )
+                }
+                Spacer(Modifier.height(Spacing.m))
                 Column(verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)) {
                     current.groups.forEachIndexed { index, group ->
                         val checked = group.id in current.suggestedGroupIds

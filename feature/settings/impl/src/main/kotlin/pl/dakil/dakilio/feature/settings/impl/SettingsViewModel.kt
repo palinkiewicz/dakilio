@@ -17,6 +17,7 @@ import pl.dakil.dakilio.core.model.ThemeMode
 data class SettingsUiState(
     val themeMode: ThemeMode = ThemeMode.System,
     val tagStyle: TagStyle = TagStyle.Icons,
+    val showHints: Boolean = true,
     val samplePostCount: Int = 0,
 )
 
@@ -27,7 +28,7 @@ class SettingsViewModel @Inject constructor(
 ) : ViewModel() {
     val uiState: StateFlow<SettingsUiState> =
         combine(settingsRepository.settings, postRepository.samplePostCount) { settings, samples ->
-            SettingsUiState(settings.themeMode, settings.tagStyle, samples)
+            SettingsUiState(settings.themeMode, settings.tagStyle, settings.showHints, samples)
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
     fun setThemeMode(mode: ThemeMode) {
@@ -36,6 +37,10 @@ class SettingsViewModel @Inject constructor(
 
     fun setTagStyle(style: TagStyle) {
         viewModelScope.launch { settingsRepository.setTagStyle(style) }
+    }
+
+    fun setShowHints(show: Boolean) {
+        viewModelScope.launch { settingsRepository.setShowHints(show) }
     }
 
     fun removeSamples(onDone: () -> Unit) {

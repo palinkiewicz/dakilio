@@ -9,6 +9,7 @@ import androidx.compose.ui.res.stringResource
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.model.TagGroup
 import pl.dakil.dakilio.core.model.TagStyle
+import pl.dakil.dakilio.core.ui.hintOrNull
 
 /**
  * The wizard's tag step. Every group is a collapsible panel; the ones suggested by the selected
@@ -32,7 +33,7 @@ internal fun TagStep(
         verticalArrangement = Arrangement.spacedBy(Spacing.s),
     ) {
         item(key = "header") {
-            StepHeader(stringResource(R.string.entry_tags_title), stringResource(R.string.entry_tags_body))
+            StepHeader(stringResource(R.string.entry_tags_title), hintOrNull(stringResource(R.string.entry_tags_body)))
         }
         tagGroupItems(
             suggested = suggested,

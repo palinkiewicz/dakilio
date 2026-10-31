@@ -40,6 +40,7 @@ import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.model.Mood
+import pl.dakil.dakilio.core.ui.hintOrNull
 import pl.dakil.dakilio.core.ui.mood.MoodBadge
 import pl.dakil.dakilio.core.ui.mood.moodColors
 
@@ -51,7 +52,7 @@ internal fun MoodStep(moods: List<Mood>, selectedId: Long?, onSelect: (Long) -> 
         modifier = modifier.verticalScroll(rememberScrollState()).padding(horizontal = Spacing.gutter, vertical = Spacing.s),
         verticalArrangement = Arrangement.spacedBy(Spacing.s),
     ) {
-        StepHeader(stringResource(R.string.entry_mood_title), stringResource(R.string.entry_mood_body))
+        StepHeader(stringResource(R.string.entry_mood_title), hintOrNull(stringResource(R.string.entry_mood_body)))
         moods.asReversed().forEach { mood ->
             MoodOption(
                 mood = mood,
@@ -115,14 +116,16 @@ private fun MoodOption(mood: Mood, selected: Boolean, dimmed: Boolean, onClick: 
 }
 
 @Composable
-internal fun StepHeader(title: String, body: String, modifier: Modifier = Modifier) {
+internal fun StepHeader(title: String, body: String?, modifier: Modifier = Modifier) {
     Column(modifier.padding(top = Spacing.m, bottom = Spacing.m, start = Spacing.xs)) {
         Text(title, style = MaterialTheme.typography.headlineMediumEmphasized)
-        Text(
-            body,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = Spacing.xs),
-        )
+        body?.let {
+            Text(
+                it,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = Spacing.xs),
+            )
+        }
     }
 }

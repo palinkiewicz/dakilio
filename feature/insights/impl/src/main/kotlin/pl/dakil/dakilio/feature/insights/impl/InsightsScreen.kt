@@ -61,9 +61,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlin.math.roundToInt
 import java.time.DayOfWeek
 import java.time.LocalDate
-import kotlin.math.roundToInt
 import pl.dakil.dakilio.core.designsystem.component.ConnectedToggleRow
 import pl.dakil.dakilio.core.designsystem.component.PolygonShape
 import pl.dakil.dakilio.core.designsystem.component.ToggleOption
@@ -76,6 +76,7 @@ import pl.dakil.dakilio.core.ui.DakilioFormats
 import pl.dakil.dakilio.core.ui.bottomBarPadding
 import pl.dakil.dakilio.core.ui.component.DiaryFilterRow
 import pl.dakil.dakilio.core.ui.component.EmptyState
+import pl.dakil.dakilio.core.ui.hintOrNull
 import pl.dakil.dakilio.core.ui.mood.MoodBadge
 import pl.dakil.dakilio.core.ui.mood.moodColors
 import pl.dakil.dakilio.core.ui.rememberFormats
@@ -377,7 +378,7 @@ private fun JourneyMapCard(insights: Insights, moods: List<Mood>, today: LocalDa
     val noMoodFill = colors.outlineVariant
     val emptyFill = colors.surfaceContainerHighest
     InsightCard {
-        CardTitle(stringResource(R.string.insights_journey_map), stringResource(R.string.insights_journey_map_body))
+        CardTitle(stringResource(R.string.insights_journey_map), hintOrNull(stringResource(R.string.insights_journey_map_body)))
         val weeks = insights.heatmap.chunked(7)
         BoxWithConstraints(Modifier.padding(top = Spacing.l).fillMaxWidth()) {
             val gap = 4.dp

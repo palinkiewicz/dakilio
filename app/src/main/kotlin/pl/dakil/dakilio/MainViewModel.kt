@@ -17,4 +17,8 @@ class MainViewModel @Inject constructor(settingsRepository: SettingsRepository) 
     val themeMode: StateFlow<ThemeMode?> = settingsRepository.settings
         .map<_, ThemeMode?> { it.themeMode }
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    val showHints: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.showHints }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
 }

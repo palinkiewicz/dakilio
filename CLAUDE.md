@@ -57,7 +57,7 @@ The layout follows NowInAndroid: `app` → `feature:*:impl` → `feature:*:api` 
   - `DefaultData` seeds everything inside `RoomDatabase.Callback.onCreate`: the 5-mood scale, the "Your Journey" diary, tag groups and 12 **sample entries with photos** copied from `assets/sample/`.
   - Sample posts use the reserved ids `DefaultData.SAMPLE_POST_IDS` (1..12). Removal relies on those ids. SQLite `AUTOINCREMENT` never reuses ids, so user posts can't collide with them.
 - `core:data`: repository interfaces and `Local*` implementations, bound in `DataModule`. Feature modules see only models and these interfaces, never entities or DAOs. `PostRepository.posts` is a single `Flow<List<Post>>`. Timeline, search and insights all derive from it in memory on the Default dispatcher; there is no Paging and no FTS.
-- `core:datastore`: user preferences only (theme, the last-used diaries of the editor, the sample-hint flag). User content lives in Room.
+- `core:datastore`: user preferences only (theme, the last-used diaries of the editor, the sample-hint flag, tag style, beginner hints). User content lives in Room.
 - `core:designsystem`: the theme, the Google Sans Flex typography (rounded `ROND` axis for display and headline styles), shapes, the symbol catalog, haptics, `MorphShape`/`PolygonShape`, and generic expressive primitives.
 - `core:ui`: domain-aware components (`MoodBadge`, `PostCard`, diary selectors, `IconPicker`, `PhotoViewer`), formatters, `NavTransitions`, and `Modifier.sharedContainer`.
 - `core:navigation`: Navigation 3 with **one back stack per bottom-bar tab** (`NavigationState` and `Navigator`). Back from another tab's root returns to the Timeline tab. The entries of each stack are decorated separately so state and ViewModels survive tab switches.
@@ -101,5 +101,8 @@ The layout follows NowInAndroid: `app` → `feature:*:impl` → `feature:*:api` 
   - segmented groups (`SegmentedShapes`, `segmentedItemColors()`);
   - `raisedToggleColors()` for toggles on container-colored backgrounds;
   - haptics through `rememberHaptics()`.
+- **Beginner hints:** any line that teaches how to use the UI (as opposed to describing state) goes through `Hint { }` or `hintOrNull()` from `core/ui/Hints.kt`, so the "Show beginner hints" setting (`UserSettings.showHints`, provided as `LocalShowHints` in `MainActivity`) covers it.
+  - Never hints: empty states, counts, validation, dialog warnings, setting descriptions, placeholders and screen taglines.
+  - Layouts must look right without the hint: put spacing on the neighbours, not on the hint.
 - Use `DakilioIcon(DakilioSymbols.X, filled = selected)` for icons. Tags and diaries store symbol keys, which `symbolForKey()` resolves.
 - Keep new logic Android-free where possible so it can be host-tested. The existing tests cover the timeline builder, the insights calculator, search, streaks and entry validation.

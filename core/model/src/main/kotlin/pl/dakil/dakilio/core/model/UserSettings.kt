@@ -11,4 +11,6 @@ data class UserSettings(
     val lastEntryDiaryIds: Set<Long> = emptySet(),
     val sampleHintDismissed: Boolean = false,
     val tagStyle: TagStyle = TagStyle.Icons,
+    /** Beginner how-to lines across the app (see `Hint` in core:ui). */
+    val showHints: Boolean = true,
 )

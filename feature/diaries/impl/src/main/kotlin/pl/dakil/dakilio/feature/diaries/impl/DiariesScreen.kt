@@ -35,6 +35,7 @@ import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.icon.symbolForKey
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
+import pl.dakil.dakilio.core.ui.Hint
 
 @Composable
 internal fun DiariesScreen(viewModel: DiariesViewModel, onBack: () -> Unit, onOpenDiary: (Long?) -> Unit) {
@@ -103,12 +104,14 @@ internal fun DiariesScreen(viewModel: DiariesViewModel, onBack: () -> Unit, onOp
                     ) { Text(row.diary.name, style = MaterialTheme.typography.titleMediumEmphasized) }
                 }
                 item(key = "hint") {
-                    Text(
-                        stringResource(R.string.diaries_hint),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(horizontal = Spacing.xs, vertical = Spacing.l).animateItem(),
-                    )
+                    Hint {
+                        Text(
+                            stringResource(R.string.diaries_hint),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(horizontal = Spacing.xs, vertical = Spacing.l).animateItem(),
+                        )
+                    }
                 }
             }
         }

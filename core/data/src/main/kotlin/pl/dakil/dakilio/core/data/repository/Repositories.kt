@@ -86,4 +86,6 @@ interface SettingsRepository {
     suspend fun setSampleHintDismissed(dismissed: Boolean)
 
     suspend fun setTagStyle(style: TagStyle)
+
+    suspend fun setShowHints(show: Boolean)
 }

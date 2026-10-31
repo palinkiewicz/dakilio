@@ -33,7 +33,7 @@ import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbol
 fun EmptyState(
     symbol: DakilioSymbol,
     title: String,
-    body: String,
+    body: String?,
     modifier: Modifier = Modifier,
     action: (@Composable () -> Unit)? = null,
 ) {
@@ -66,7 +66,7 @@ fun EmptyState(
             DakilioIcon(symbol, contentDescription = null, filled = true, tint = colors.onPrimaryContainer, modifier = Modifier.size(48.dp))
         }
         Text(title, style = MaterialTheme.typography.headlineSmallEmphasized, textAlign = TextAlign.Center)
-        Text(body, style = MaterialTheme.typography.bodyLarge, color = colors.onSurfaceVariant, textAlign = TextAlign.Center)
+        body?.let { Text(it, style = MaterialTheme.typography.bodyLarge, color = colors.onSurfaceVariant, textAlign = TextAlign.Center) }
         action?.invoke()
     }
 }

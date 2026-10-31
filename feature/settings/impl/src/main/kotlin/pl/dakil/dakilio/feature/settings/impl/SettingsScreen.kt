@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,6 +22,8 @@ import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
@@ -127,6 +130,32 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
                         )
                     }
                 }
+
+                SectionHeader(stringResource(R.string.settings_guidance))
+                SegmentedListItem(
+                    onClick = {
+                        haptics.toggle(!state.showHints)
+                        viewModel.setShowHints(!state.showHints)
+                    },
+                    shapes = ListItemDefaults.segmentedShapes(0, 1),
+                    colors = segmentedItemColors(),
+                    leadingContent = { ShapedIcon(DakilioSymbols.Lightbulb, polygon = MaterialShapes.Sunny) },
+                    supportingContent = { Text(stringResource(R.string.settings_hints_body)) },
+                    trailingContent = {
+                        Switch(
+                            checked = state.showHints,
+                            onCheckedChange = {
+                                haptics.toggle(it)
+                                viewModel.setShowHints(it)
+                            },
+                            thumbContent = if (state.showHints) {
+                                { DakilioIcon(DakilioSymbols.Check, contentDescription = null, modifier = Modifier.size(SwitchDefaults.IconSize)) }
+                            } else {
+                                null
+                            },
+                        )
+                    },
+                ) { Text(stringResource(R.string.settings_hints)) }
 
                 SectionHeader(stringResource(R.string.settings_starter))
                 if (state.samplePostCount > 0) {

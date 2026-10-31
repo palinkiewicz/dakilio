@@ -78,6 +78,7 @@ import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.PostPhoto
 import pl.dakil.dakilio.core.ui.DakilioFormats
+import pl.dakil.dakilio.core.ui.Hint
 import pl.dakil.dakilio.core.ui.bottomBarPadding
 import pl.dakil.dakilio.core.ui.component.DiaryFilterRow
 import pl.dakil.dakilio.core.ui.component.EmptyState
@@ -447,11 +448,14 @@ private fun CheckInCard(moods: List<Mood>, onMood: (Mood) -> Unit, modifier: Mod
     ) {
         Column(Modifier.padding(Spacing.xl)) {
             Text(stringResource(R.string.timeline_check_in_title), style = MaterialTheme.typography.headlineSmallEmphasized)
-            Text(
-                stringResource(R.string.timeline_check_in_body),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(top = Spacing.xs, bottom = Spacing.l),
-            )
+            Hint {
+                Text(
+                    stringResource(R.string.timeline_check_in_body),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(top = Spacing.xs),
+                )
+            }
+            Spacer(Modifier.height(Spacing.l))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 moods.asReversed().forEach { mood ->
                     val interaction = remember { MutableInteractionSource() }

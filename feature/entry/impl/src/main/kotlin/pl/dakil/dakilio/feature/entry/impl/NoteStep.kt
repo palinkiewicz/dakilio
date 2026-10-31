@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
@@ -42,12 +43,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.text.KeyboardOptions
 import coil3.compose.AsyncImage
 import java.io.File
 import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
+import pl.dakil.dakilio.core.ui.hintOrNull
 
 private const val MAX_PICK = 10
 private val ThumbSize = 104.dp
@@ -68,7 +69,7 @@ internal fun NoteStep(
     Column(modifier.verticalScroll(rememberScrollState()).padding(vertical = Spacing.s)) {
         StepHeader(
             stringResource(R.string.entry_note_title),
-            stringResource(R.string.entry_note_body),
+            hintOrNull(stringResource(R.string.entry_note_body)),
             Modifier.padding(horizontal = Spacing.gutter),
         )
         NoteFields(title, note, photos, importing, bodyRequired, onAddPhotos, onRemovePhoto)

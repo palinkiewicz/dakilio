@@ -13,6 +13,9 @@
     <string name="settings_tag_style_body">How tags look when you add or edit an entry.</string>
     <string name="settings_tag_style_icons">Icons</string>
     <string name="settings_tag_style_chips">Chips</string>
+    <string name="settings_guidance">Guidance</string>
+    <string name="settings_hints">Show beginner hints</string>
+    <string name="settings_hints_body">Short how-to lines under titles, like “Pick the closest mood”</string>
     <string name="settings_starter">Starter content</string>
     <string name="settings_remove_samples">Remove sample entries</string>
     <plurals name="settings_remove_samples_body">
