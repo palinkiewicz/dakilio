@@ -39,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.animateFloatingActionButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -117,6 +118,18 @@ internal fun TimelineScreen(
     var viewer by remember { mutableStateOf<Pair<List<PostPhoto>, Int>?>(null) }
     val ready = state as? TimelineUiState.Ready
     val selectedDiary = ready?.selectedDiaryId
+
+    // An "Also this day" chip switches diaries *and* lands on its day. Without this the list keeps
+    // its position by the first visible item's key, falling back to its index: often a different day.
+    var pendingJump by remember { mutableStateOf<DayJump?>(null) }
+    SideEffect {
+        val jump = pendingJump ?: return@SideEffect
+        if (ready?.selectedDiaryId != jump.diaryId) return@SideEffect
+        val index = ready.items.indexOfDay(jump.date)
+        // Applied on the next measure, i.e. the very frame that shows the switched list.
+        if (index >= 0) listState.requestScrollToItem(index)
+        pendingJump = null
+    }
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -220,7 +233,15 @@ internal fun TimelineScreen(
                                 },
                                 modifier = itemModifier,
                             )
-                            is TimelineItem.OtherDiaries -> OtherDiariesRow(item, onSelectDiary, itemModifier)
+                            is TimelineItem.OtherDiaries -> OtherDiariesRow(
+                                item = item,
+                                onSelectDiary = { diaryId ->
+                                    haptics.tick()
+                                    pendingJump = DayJump(diaryId, item.date)
+                                    onSelectDiary(diaryId)
+                                },
+                                modifier = itemModifier,
+                            )
                         }
                     }
                     if (state.isEmpty) {
@@ -245,6 +266,9 @@ internal fun TimelineScreen(
 
     viewer?.let { (photos, index) -> PhotoViewer(photos, index, onDismiss = { viewer = null }) }
 }
+
+/** A diary switch that should land on [date] once the list shows [diaryId]. */
+private data class DayJump(val diaryId: Long, val date: LocalDate)
 
 private fun greetingRes(greeting: Greeting) = when (greeting) {
     Greeting.Morning -> R.string.timeline_greeting_morning
@@ -447,7 +471,7 @@ private fun DiaryHint(diaries: List<Diary>, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun OtherDiariesRow(item: TimelineItem.OtherDiaries, onSelectDiary: (Long?) -> Unit, modifier: Modifier) {
+private fun OtherDiariesRow(item: TimelineItem.OtherDiaries, onSelectDiary: (Long) -> Unit, modifier: Modifier) {
     Column(modifier.fillMaxWidth().padding(top = Spacing.s)) {
         Text(
             stringResource(R.string.timeline_also_in),

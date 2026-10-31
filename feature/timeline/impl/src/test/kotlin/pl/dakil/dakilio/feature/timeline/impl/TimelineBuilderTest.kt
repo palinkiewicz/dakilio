@@ -107,6 +107,15 @@ class TimelineBuilderTest {
     }
 
     @Test
+    fun `indexOfDay finds the day header a diary switch should land on`() {
+        val posts = listOf(post(1, diaries = longArrayOf(1)), post(2, diaries = longArrayOf(1, 2)), post(5, diaries = longArrayOf(2)))
+        val items = buildTimeline(posts, listOf(journey, work), 2L, today)
+        val index = items.indexOfDay(today.minusDays(2))
+        assertEquals(DayHeader(today.minusDays(2), emptyList()), items[index])
+        assertEquals(-1, items.indexOfDay(today.minusDays(1))) // only in Journey: a compact empty row here
+    }
+
+    @Test
     fun `diaries are labelled on cards only when showing all of several diaries`() {
         val p = post(1, diaries = longArrayOf(1, 2))
         val all = buildTimeline(listOf(p), listOf(journey, work), null, today).filterIsInstance<PostItem>().single()

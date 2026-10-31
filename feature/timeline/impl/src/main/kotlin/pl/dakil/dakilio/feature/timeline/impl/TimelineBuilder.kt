@@ -56,6 +56,10 @@ sealed interface TimelineItem {
 
 data class DiaryCount(val diary: Diary, val count: Int)
 
+/** Index of [date]'s day header, or -1 when that day has no header (no entries in the filter). */
+internal fun List<TimelineItem>.indexOfDay(date: LocalDate): Int =
+    indexOfFirst { it is TimelineItem.DayHeader && it.date == date }
+
 /** Runs of at least this many empty days collapse into a [TimelineItem.QuietStretch]. */
 internal const val QUIET_STRETCH_MIN_DAYS = 3
 
