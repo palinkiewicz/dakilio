@@ -9,6 +9,8 @@
     <string name="more_tags_body">Groups, labels and icons</string>
     <string name="more_diaries">Diaries</string>
     <string name="more_diaries_body">Names, icons and suggested tags</string>
+    <string name="more_archive">Archived</string>
+    <string name="more_archive_body">Restore or delete archived moods and tags</string>
     <string name="more_section_data">Data</string>
     <string name="more_import_daylio">Import from Daylio</string>
     <string name="more_import_daylio_body">Replace everything with a .daylio backup</string>

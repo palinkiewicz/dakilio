@@ -25,20 +25,10 @@
     <string name="tags_delete">Delete</string>
     <string name="tags_tag_deleted">“%1$s” deleted</string>
     <string name="tags_tag_archived">“%1$s” archived</string>
-    <string name="tags_archive">Archive</string>
-    <string name="tags_delete_title">Delete “%1$s”?</string>
-    <string name="tags_delete_unused_body">No entries use this tag, so nothing else changes.</string>
-    <plurals name="tags_delete_used_body">
-        <item quantity="one">“%1$s” is used in %2$d entry. Archive it to keep it on that entry (it only leaves the picker), or delete it from the entry too.</item>
-        <item quantity="other">“%1$s” is used in %2$d entries. Archive it to keep it on those entries (it only leaves the picker), or delete it from all of them.</item>
-    </plurals>
-    <plurals name="tags_delete_emptied">
-        <item quantity="one">Deleting also removes %d entry that has nothing but this tag.</item>
-        <item quantity="other">Deleting also removes %d entries that have nothing but this tag.</item>
-    </plurals>
     <string name="tags_group_deleted">Group “%1$s” deleted</string>
+    <string name="tags_group_archived">Group “%1$s” archived</string>
     <string name="tags_undo">Undo</string>
     <string name="tags_empty_title">No tag groups yet</string>
     <string name="tags_empty_body">Create a group like “Activities” or “People”, then fill it with tags.</string>
-    <string name="tags_archived_note">Deleting a tag that entries use lets you archive it (it leaves the picker but stays on those entries) or delete it everywhere.</string>
+    <string name="tags_archived_note">Deleting a tag or group that entries use lets you archive it (it leaves the picker but stays on those entries) or delete it everywhere. Archived ones can be restored from More → Archived.</string>
 </resources>

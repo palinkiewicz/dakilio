@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import pl.dakil.dakilio.core.data.repository.TagRepository
+import pl.dakil.dakilio.core.model.GroupUsage
 import pl.dakil.dakilio.core.model.TagGroup
 import pl.dakil.dakilio.core.model.TagUsage
 
@@ -24,8 +25,16 @@ class TagsViewModel @Inject constructor(private val repository: TagRepository) :
 
     fun renameGroup(id: Long, name: String) = launch { repository.renameGroup(id, name.trim()) }
 
-    /** Deleting archives, so entries keep their tags and the action can be undone. */
-    fun deleteGroup(id: Long) = launch { repository.setGroupArchived(id, true) }
+    /** Counts the entries using the group's tags, so the delete dialog can offer the right choices. */
+    fun groupUsage(id: Long, onResult: (GroupUsage) -> Unit) {
+        viewModelScope.launch { onResult(repository.groupUsage(id)) }
+    }
+
+    /** Hides the group from pickers; entries keep its tags, and it can be restored. */
+    fun archiveGroup(id: Long) = launch { repository.setGroupArchived(id, true) }
+
+    /** Deletes the group and its tags for good (and entries they leave empty). */
+    fun deleteGroup(id: Long) = launch { repository.deleteGroup(id) }
 
     fun restoreGroup(id: Long) = launch { repository.setGroupArchived(id, false) }
 

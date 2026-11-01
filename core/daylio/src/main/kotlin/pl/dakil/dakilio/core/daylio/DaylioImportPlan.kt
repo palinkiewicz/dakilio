@@ -22,7 +22,13 @@ data class ImportPlan(
 
 data class PlannedMood(val level: Int, val label: String, val archived: Boolean, val position: Int)
 
-data class PlannedGroup(val name: String, val position: Int, val tags: List<PlannedTag>)
+/**
+ * Daylio's backup has no archived state for groups, so a group counts as archived when it has tags
+ * and every one of them is archived (otherwise it would sit empty in Dakilio's pickers).
+ */
+data class PlannedGroup(val name: String, val position: Int, val tags: List<PlannedTag>) {
+    val archived: Boolean get() = tags.isNotEmpty() && tags.all { it.archived }
+}
 
 data class PlannedTag(val label: String, val iconKey: String, val archived: Boolean, val position: Int)
 

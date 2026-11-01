@@ -4,6 +4,7 @@ import java.time.Clock
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -20,7 +21,9 @@ import pl.dakil.dakilio.core.database.entity.PostEntity
 import pl.dakil.dakilio.core.database.entity.TagEntity
 import pl.dakil.dakilio.core.database.entity.TagGroupEntity
 import pl.dakil.dakilio.core.datastore.SettingsDataSource
+import pl.dakil.dakilio.core.model.ArchivedTags
 import pl.dakil.dakilio.core.model.Diary
+import pl.dakil.dakilio.core.model.GroupUsage
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.MOOD_LEVELS
 import pl.dakil.dakilio.core.model.Post
@@ -33,6 +36,8 @@ import pl.dakil.dakilio.core.model.UserSettings
 
 internal class LocalMoodRepository @Inject constructor(private val dao: MoodDao) : MoodRepository {
     override val moods: Flow<List<Mood>> = dao.observeActiveMoods().map { list -> list.map { it.asModel() } }
+
+    override val archivedMoods: Flow<List<Mood>> = dao.observeArchivedMoods().map { list -> list.map { it.asModel() } }
 
     override suspend fun addAlias(level: Int, label: String) {
         require(level in 1..MOOD_LEVELS)
@@ -99,12 +104,30 @@ internal class LocalDiaryRepository @Inject constructor(
 internal class LocalTagRepository @Inject constructor(private val dao: TagDao) : TagRepository {
     override val groups: Flow<List<TagGroup>> = dao.observeActiveGroups().map { list -> list.map { it.asModel() } }
 
+    override val archived: Flow<ArchivedTags> = combine(
+        dao.observeArchivedGroups(),
+        dao.observeActiveGroupsWithArchivedTags(),
+    ) { archivedGroups, activeGroups ->
+        ArchivedTags(
+            groups = archivedGroups.map { group -> group.asModel(keep = { true }) },
+            tags = activeGroups.map { group -> group.asModel(keep = { it.isArchived }) },
+        )
+    }
+
     override suspend fun createGroup(name: String): Long =
         dao.insertGroup(TagGroupEntity(name = name, position = dao.nextGroupPosition()))
 
     override suspend fun renameGroup(id: Long, name: String) = dao.renameGroup(id, name)
 
     override suspend fun setGroupArchived(id: Long, archived: Boolean) = dao.setGroupArchived(id, archived)
+
+    override suspend fun groupUsage(id: Long) = GroupUsage(
+        tags = dao.groupTagCount(id),
+        entries = dao.groupUsageCount(id),
+        emptied = dao.groupEmptiedCount(id),
+    )
+
+    override suspend fun deleteGroup(id: Long) = dao.deleteGroup(id)
 
     override suspend fun saveTag(id: Long?, groupId: Long, label: String, iconKey: String): Long {
         val existing = id?.let { dao.getTag(it) }
@@ -124,7 +147,8 @@ internal class LocalTagRepository @Inject constructor(private val dao: TagDao) :
         }
     }
 
-    override suspend fun setTagArchived(id: Long, archived: Boolean) = dao.setTagArchived(id, archived)
+    override suspend fun setTagArchived(id: Long, archived: Boolean) =
+        if (archived) dao.setTagArchived(id, true) else dao.restoreTag(id)
 
     override suspend fun tagUsage(id: Long) = TagUsage(entries = dao.usageCount(id), emptied = dao.emptiedCount(id))
 

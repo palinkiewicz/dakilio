@@ -76,6 +76,7 @@ writingTemplates[]             9 note templates (HTML bodies)                 �
 - **Groups:**
   - `name` and `order` map onto Dakilio's `tag_group.name` and `position`.
   - `id_predefined` (−1 for custom groups) and `is_expanded` can be ignored.
+  - Groups have **no `state` field** in the backups seen so far, so there's no archived state to read. Dakilio archives an imported group when it has tags and **all of them are archived**; otherwise it would show up as an empty group in the pickers.
   - **Merge** with an existing group of the same name, ignoring case. The sample's Emotions and Health groups exist in Dakilio's seed data too.
 - **Tags:**
   - `name` → `label`, `order` → `position`, `id_tag_group` → the group.

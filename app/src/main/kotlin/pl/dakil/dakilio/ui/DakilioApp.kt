@@ -41,6 +41,7 @@ import pl.dakil.dakilio.core.navigation.rememberNavigationState
 import pl.dakil.dakilio.core.ui.LocalBottomBarPadding
 import pl.dakil.dakilio.core.ui.LocalSharedTransitionScope
 import pl.dakil.dakilio.core.ui.NavTransitions
+import pl.dakil.dakilio.feature.archive.impl.archiveEntry
 import pl.dakil.dakilio.feature.diaries.impl.diariesEntries
 import pl.dakil.dakilio.feature.entry.impl.entryEditorEntry
 import pl.dakil.dakilio.feature.insights.api.InsightsKey
@@ -94,6 +95,7 @@ fun DakilioApp(hasIncomingBackup: Boolean = false) {
         tagsEntry(navigator)
         diariesEntries(navigator)
         settingsEntry(navigator)
+        archiveEntry(navigator)
     }
 
     SharedTransitionLayout(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {

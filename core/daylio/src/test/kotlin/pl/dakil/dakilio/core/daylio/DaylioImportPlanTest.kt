@@ -50,6 +50,12 @@ class DaylioImportPlanTest {
     }
 
     @Test
+    fun groupWithOnlyArchivedTagsIsArchived() {
+        // "Custom Group" holds just the archived "Custom activity #1"; the others have active tags.
+        assertEquals(listOf(false, false, true, false), plan.groups.map { it.archived })
+    }
+
+    @Test
     fun tagIconsAreGuessed() {
         val health = plan.groups[1].tags.associate { it.label to it.iconKey }
         assertEquals(mapOf("walk" to "directions_walk", "drink water" to "water_drop", "good sleep" to "hotel"), health)

@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -27,7 +26,6 @@ import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumFlexibleTopAppBar
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -48,7 +46,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
@@ -59,6 +56,8 @@ import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.ui.Hint
+import pl.dakil.dakilio.core.ui.component.DeleteAliasDialog
+import pl.dakil.dakilio.core.ui.component.ReplaceAliasDialog
 import pl.dakil.dakilio.core.ui.mood.MoodBadge
 
 private sealed interface MoodDialog {
@@ -182,7 +181,7 @@ internal fun MoodsScreen(viewModel: MoodsViewModel, onBack: () -> Unit) {
         )
         is MoodDialog.Replace -> ReplaceAliasDialog(
             alias = d.alias,
-            levels = levels.orEmpty(),
+            moods = levels.orEmpty().flatten(),
             onDismiss = { dialog = null },
             onConfirm = { target ->
                 haptics.confirm()
@@ -286,79 +285,5 @@ private fun NameDialog(title: String, initial: String, onDismiss: () -> Unit, on
                 TextButton(onClick = onDismiss) { Text(stringResource(R.string.moods_cancel)) }
             }
         },
-    )
-}
-
-/** No entries: a plain confirmation. Entries: show how many, and offer archive or replace. */
-@Composable
-private fun DeleteAliasDialog(
-    alias: Mood,
-    usage: Int,
-    onDismiss: () -> Unit,
-    onDelete: () -> Unit,
-    onArchive: () -> Unit,
-    onReplace: () -> Unit,
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        icon = { DakilioIcon(DakilioSymbols.Delete, contentDescription = null) },
-        title = { Text(stringResource(R.string.moods_delete_title, alias.label)) },
-        text = {
-            Text(
-                if (usage == 0) {
-                    stringResource(R.string.moods_delete_unused_body)
-                } else {
-                    pluralStringResource(R.plurals.moods_delete_used_body, usage, alias.label, usage)
-                },
-            )
-        },
-        confirmButton = {
-            if (usage == 0) {
-                TextButton(onClick = onDelete) { Text(stringResource(R.string.moods_delete)) }
-            } else {
-                Row {
-                    TextButton(onClick = onArchive) { Text(stringResource(R.string.moods_archive)) }
-                    TextButton(onClick = onReplace) { Text(stringResource(R.string.moods_replace)) }
-                }
-            }
-        },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.moods_cancel)) } },
-    )
-}
-
-/** Pick where the alias's entries go; defaults to its level's primary. */
-@Composable
-private fun ReplaceAliasDialog(alias: Mood, levels: List<List<Mood>>, onDismiss: () -> Unit, onConfirm: (Mood) -> Unit) {
-    val choices = levels.flatten().filter { it.id != alias.id }
-    var target by remember { mutableStateOf(choices.firstOrNull { it.isPrimary && it.level == alias.level }) }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.moods_replace_title, alias.label)) },
-        text = {
-            LazyColumn(Modifier.heightIn(max = 420.dp)) {
-                items(choices, key = { it.id }) { mood ->
-                    val selected = mood.id == target?.id
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .selectable(selected = selected, role = Role.RadioButton, onClick = { target = mood })
-                            .padding(vertical = Spacing.xs),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        RadioButton(selected = selected, onClick = null)
-                        MoodBadge(mood, size = 32.dp, modifier = Modifier.padding(start = Spacing.s))
-                        Text(
-                            mood.label,
-                            style = if (mood.isPrimary) MaterialTheme.typography.bodyLargeEmphasized else MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(start = Spacing.m),
-                        )
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = { target?.let(onConfirm) }, enabled = target != null) { Text(stringResource(R.string.moods_replace_confirm)) }
-        },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.moods_cancel)) } },
     )
 }

@@ -12,6 +12,9 @@ abstract class MoodDao {
     @Query("SELECT * FROM mood WHERE is_archived = 0 ORDER BY level, is_primary DESC, position, id")
     abstract fun observeActiveMoods(): Flow<List<MoodEntity>>
 
+    @Query("SELECT * FROM mood WHERE is_archived = 1 ORDER BY level, position, id")
+    abstract fun observeArchivedMoods(): Flow<List<MoodEntity>>
+
     @Query("SELECT * FROM mood WHERE id = :id")
     abstract suspend fun get(id: Long): MoodEntity?
 

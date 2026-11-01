@@ -26,3 +26,21 @@ data class Tag(
  *   empty entry.
  */
 data class TagUsage(val entries: Int, val emptied: Int)
+
+/**
+ * How a tag group is used, for choosing between archiving and deleting it.
+ *
+ * @property tags tags in the group, archived ones included (deleting the group deletes them all).
+ * @property entries entries carrying at least one of those tags.
+ * @property emptied those of them whose only content is tags from this group; deleting the group
+ *   deletes them too.
+ */
+data class GroupUsage(val tags: Int, val entries: Int, val emptied: Int)
+
+/**
+ * Everything tag-related that's archived.
+ *
+ * @property groups archived groups, each with all its tags (archived or not).
+ * @property tags active groups that hold archived tags, each with only those tags.
+ */
+data class ArchivedTags(val groups: List<TagGroup>, val tags: List<TagGroup>)

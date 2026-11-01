@@ -45,6 +45,8 @@ ui folder_open
 ui drive_file_move
 ui open_in_new
 ui gavel
+ui inventory_2
+ui unarchive
 emotions sentiment_very_satisfied
 emotions sentiment_satisfied
 emotions sentiment_neutral

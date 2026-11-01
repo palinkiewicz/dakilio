@@ -2,7 +2,9 @@ package pl.dakil.dakilio.core.data.repository
 
 import android.net.Uri
 import kotlinx.coroutines.flow.Flow
+import pl.dakil.dakilio.core.model.ArchivedTags
 import pl.dakil.dakilio.core.model.Diary
+import pl.dakil.dakilio.core.model.GroupUsage
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.Post
 import pl.dakil.dakilio.core.model.PostDraft
@@ -16,6 +18,9 @@ import pl.dakil.dakilio.core.daylio.ImportStats
 interface MoodRepository {
     /** Every pickable (non-archived) mood: by level, worst first; primary before its aliases. */
     val moods: Flow<List<Mood>>
+
+    /** Archived aliases, by level, worst first. */
+    val archivedMoods: Flow<List<Mood>>
 
     suspend fun addAlias(level: Int, label: String)
 
@@ -56,14 +61,23 @@ interface TagRepository {
     /** Active groups with their active tags, in display order. */
     val groups: Flow<List<TagGroup>>
 
+    /** Archived groups and archived tags, for the Archived screen. */
+    val archived: Flow<ArchivedTags>
+
     suspend fun createGroup(name: String): Long
 
     suspend fun renameGroup(id: Long, name: String)
 
     suspend fun setGroupArchived(id: Long, archived: Boolean)
 
+    suspend fun groupUsage(id: Long): GroupUsage
+
+    /** Deletes the group and its tags for good: they leave every entry, and entries left empty are deleted. */
+    suspend fun deleteGroup(id: Long)
+
     suspend fun saveTag(id: Long?, groupId: Long, label: String, iconKey: String): Long
 
+    /** Restoring a tag whose group is archived restores the group too. */
     suspend fun setTagArchived(id: Long, archived: Boolean)
 
     suspend fun tagUsage(id: Long): TagUsage

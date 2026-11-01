@@ -57,10 +57,13 @@ import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.icon.symbolForKey
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
+import pl.dakil.dakilio.core.model.GroupUsage
 import pl.dakil.dakilio.core.model.Tag
 import pl.dakil.dakilio.core.model.TagGroup
 import pl.dakil.dakilio.core.model.TagUsage
 import pl.dakil.dakilio.core.ui.Hint
+import pl.dakil.dakilio.core.ui.component.DeleteGroupDialog
+import pl.dakil.dakilio.core.ui.component.DeleteTagDialog
 import pl.dakil.dakilio.core.ui.component.EmptyState
 
 /** What the tag editor sheet is editing: an existing tag, or a new one in [groupId]. */
@@ -82,11 +85,13 @@ internal fun TagsScreen(viewModel: TagsViewModel, onBack: () -> Unit) {
     var editing by remember { mutableStateOf<TagEdit?>(null) }
     var groupDialog by remember { mutableStateOf<GroupDialog?>(null) }
     var deleting by remember { mutableStateOf<Pair<Tag, TagUsage>?>(null) }
+    var deletingGroup by remember { mutableStateOf<Pair<TagGroup, GroupUsage>?>(null) }
 
     val undoLabel = stringResource(R.string.tags_undo)
     val tagDeleted = stringResource(R.string.tags_tag_deleted)
     val tagArchived = stringResource(R.string.tags_tag_archived)
     val groupDeleted = stringResource(R.string.tags_group_deleted)
+    val groupArchived = stringResource(R.string.tags_group_archived)
     fun offerUndo(message: String, undo: () -> Unit) {
         scope.launch {
             snackbar.currentSnackbarData?.dismiss()
@@ -140,11 +145,7 @@ internal fun TagsScreen(viewModel: TagsViewModel, onBack: () -> Unit) {
                             onEditTag = { editing = TagEdit(it, group.id) },
                             onAddTag = { editing = TagEdit(null, group.id) },
                             onRename = { groupDialog = GroupDialog.Rename(group) },
-                            onDelete = {
-                                haptics.confirm()
-                                viewModel.deleteGroup(group.id)
-                                offerUndo(groupDeleted.format(group.name)) { viewModel.restoreGroup(group.id) }
-                            },
+                            onDelete = { viewModel.groupUsage(group.id) { usage -> deletingGroup = group to usage } },
                             modifier = Modifier.animateItem(),
                         )
                     }
@@ -199,6 +200,29 @@ internal fun TagsScreen(viewModel: TagsViewModel, onBack: () -> Unit) {
                 scope.launch {
                     snackbar.currentSnackbarData?.dismiss()
                     snackbar.showSnackbar(tagDeleted.format(tag.label), withDismissAction = true)
+                }
+            },
+        )
+    }
+
+    deletingGroup?.let { (group, usage) ->
+        DeleteGroupDialog(
+            group = group,
+            usage = usage,
+            onDismiss = { deletingGroup = null },
+            onArchive = {
+                haptics.confirm()
+                viewModel.archiveGroup(group.id)
+                deletingGroup = null
+                offerUndo(groupArchived.format(group.name)) { viewModel.restoreGroup(group.id) }
+            },
+            onDelete = {
+                haptics.confirm()
+                viewModel.deleteGroup(group.id)
+                deletingGroup = null
+                scope.launch {
+                    snackbar.currentSnackbarData?.dismiss()
+                    snackbar.showSnackbar(groupDeleted.format(group.name), withDismissAction = true)
                 }
             },
         )
@@ -327,38 +351,6 @@ private fun GroupNameDialog(initial: String, title: String, onDismiss: () -> Uni
         confirmButton = {
             TextButton(onClick = { onConfirm(name.text.toString()) }, enabled = name.text.isNotBlank()) {
                 Text(stringResource(R.string.tags_save))
-            }
-        },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.tags_cancel)) } },
-    )
-}
-
-
-/** No entries: a plain confirmation. Entries: say how many, and offer archive or delete everywhere. */
-@Composable
-private fun DeleteTagDialog(tag: Tag, usage: TagUsage, onDismiss: () -> Unit, onArchive: () -> Unit, onDelete: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        icon = { DakilioIcon(DakilioSymbols.Delete, contentDescription = null) },
-        title = { Text(stringResource(R.string.tags_delete_title, tag.label)) },
-        text = {
-            Text(
-                when {
-                    usage.entries == 0 -> stringResource(R.string.tags_delete_unused_body)
-                    usage.emptied == 0 -> pluralStringResource(R.plurals.tags_delete_used_body, usage.entries, tag.label, usage.entries)
-                    else -> pluralStringResource(R.plurals.tags_delete_used_body, usage.entries, tag.label, usage.entries) + "\n\n" +
-                        pluralStringResource(R.plurals.tags_delete_emptied, usage.emptied, usage.emptied)
-                },
-            )
-        },
-        confirmButton = {
-            Row {
-                if (usage.entries > 0) {
-                    TextButton(onClick = onArchive) { Text(stringResource(R.string.tags_archive)) }
-                }
-                TextButton(onClick = onDelete) {
-                    Text(stringResource(R.string.tags_delete), color = MaterialTheme.colorScheme.error)
-                }
             }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.tags_cancel)) } },

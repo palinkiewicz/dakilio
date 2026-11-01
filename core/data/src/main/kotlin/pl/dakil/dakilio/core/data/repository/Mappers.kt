@@ -39,12 +39,13 @@ internal fun PopulatedDiary.asModel() = Diary(
     suggestedGroupIds = suggestedGroupIds.toSet(),
 )
 
-internal fun PopulatedTagGroup.asModel() = TagGroup(
+/** [keep] picks which tags to include; by default only active ones. */
+internal fun PopulatedTagGroup.asModel(keep: (TagEntity) -> Boolean = { !it.isArchived }) = TagGroup(
     id = group.id,
     name = group.name,
     position = group.position,
     tags = tags.asSequence()
-        .filterNot { it.isArchived }
+        .filter(keep)
         .sortedWith(compareBy({ it.position }, { it.id }))
         .map { it.asModel() }
         .toList(),

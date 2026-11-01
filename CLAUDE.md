@@ -60,7 +60,7 @@ The layout follows NowInAndroid: `app` → `feature:*:impl` → `feature:*:api` 
 - `core:daylio` (pure JVM, host-tested): reads `.daylio` backups (`DaylioArchive`), converts note HTML to text (`daylioHtmlToText`), guesses tag icons (`daylioTagIcon`) and maps a backup onto Dakilio's model (`planImport` → `ImportPlan`). Uses kotlinx-serialization-json.
 - `core:datastore`: user preferences only (theme, the last-used diaries of the editor, the sample-hint flag, tag style, beginner hints). User content lives in Room.
 - `core:designsystem`: the theme, the Google Sans Flex typography (rounded `ROND` axis for display and headline styles), shapes, the symbol catalog, haptics, `MorphShape`/`PolygonShape`, and generic expressive primitives.
-- `core:ui`: domain-aware components (`MoodBadge`, `PostCard`, diary selectors, `IconPicker`, `PhotoViewer`), formatters, `NavTransitions`, and `Modifier.sharedContainer`.
+- `core:ui`: domain-aware components (`MoodBadge`, `PostCard`, diary selectors, `IconPicker`, `PhotoViewer`, the delete dialogs), formatters, `NavTransitions`, and `Modifier.sharedContainer`.
 - `core:navigation`: Navigation 3 with **one back stack per bottom-bar tab** (`NavigationState` and `Navigator`). Back from another tab's root returns to the Timeline tab. The entries of each stack are decorated separately so state and ViewModels survive tab switches.
 - Feature `api` modules contain only `@Serializable` NavKeys. `impl` modules expose `EntryProviderScope<NavKey>.xxxEntry(navigator)`, which `app/ui/DakilioApp.kt` wires up. A feature may depend only on other features' `api` modules.
 - ViewModels use `hiltViewModel()`. Keyed screens (the entry editor and the diary editor) use Hilt assisted injection with their NavKey.
@@ -80,7 +80,8 @@ The layout follows NowInAndroid: `app` → `feature:*:impl` → `feature:*:api` 
 - **Deleting a tag** first counts its entries (`TagRepository.tagUsage`). An unused tag is just deleted. A used one offers:
   - **archive** (`is_archived`, with an Undo snackbar): old entries keep showing it, while pickers and the customization screen hide it;
   - **delete** for good: it's removed from every entry, and entries left with nothing at all (no mood, text, photos or other tags) are deleted too, since the editor never saves an empty entry. The dialog states both counts.
-- **Deleting a tag group** archives it, with an Undo snackbar.
+- **Deleting a tag group** follows the same rules (`TagRepository.groupUsage`). A group none of whose tags are used is just deleted. A used one offers **archive** (with an Undo snackbar) or **delete** for good, which deletes its tags, removes them from every entry and deletes entries left with nothing but tags from that group.
+- **The Archived screen** (More → Archived, `feature:archive`) lists archived mood aliases, archived tag groups (with all their tags) and archived tags of active groups. Each can be restored or deleted for good; an archived alias with entries can only be deleted by replacing it. Restoring a tag whose group is archived restores the group too. The delete dialogs (`DeleteTagDialog`, `DeleteGroupDialog`, `DeleteAliasDialog`, `ReplaceAliasDialog`) live in `core:ui` so the Tags, Moods and Archived screens share them.
 - **Deleting a diary** is blocked for the last remaining diary. Entries that belong only to the deleted diary are either moved to another diary or deleted together with their photo files.
 - **Two editor layouts.** New entries go through the mood → tags → note step wizard. Existing entries open `EntryOverview`, a single page (one row of mood faces, then the tags, then the note) for quick edits. Its tags start folded into read-only chips of every selected tag (archived ones included); Edit or a tap on the chips unfolds the groups for that session. Both share `EntryEditorViewModel`, `tagGroupItems` and `NoteFields`.
 - **Diaries suggest tag groups.** In the editor, groups suggested by any selected diary are expanded; the rest are collapsed under "More groups". When none are suggested, all groups are expanded.
@@ -89,6 +90,7 @@ The layout follows NowInAndroid: `app` → `feature:*:impl` → `feature:*:api` 
 - **Daylio import replaces everything** (More → Import from Daylio, `feature:importer`). It doesn't merge: after a warning and a confirmation, every entry, photo, diary, tag group, tag and mood alias is deleted, and the backup goes into a fresh "Your Journey" diary.
   - The swap is one transaction (`ImportDao.replaceAll`). Photos are copied (re-encoded through `PhotoRepository.importBytes`) before it, and they're deleted again if it fails.
   - The 5 primaries are kept and renamed: a renamed Daylio base mood keeps its name, the others get the seed names. Daylio's custom moods become aliases; archived ones only if entries use them.
+  - Daylio stores no archived state for groups, so a group whose tags are all archived is imported as an archived group.
   - `sqlite_sequence` is never reset, so imported entries can't take the reserved sample ids.
   - Daylio names its assets `/assets/...`, which Android 14+ `ZipFile` rejects by default. `allowRootedZipEntries()` installs a `ZipPathValidator` that allows the leading slash but still rejects `..`.
   - Voice notes and favourites are skipped and counted in the preview.

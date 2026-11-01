@@ -48,6 +48,8 @@ object DakilioSymbols {
     val DriveFileMove = DakilioSymbol("drive_file_move", R.drawable.sym_drive_file_move, R.drawable.sym_drive_file_move_fill, SymbolCategory.Ui)
     val OpenInNew = DakilioSymbol("open_in_new", R.drawable.sym_open_in_new, R.drawable.sym_open_in_new_fill, SymbolCategory.Ui)
     val Gavel = DakilioSymbol("gavel", R.drawable.sym_gavel, R.drawable.sym_gavel_fill, SymbolCategory.Ui)
+    val Inventory2 = DakilioSymbol("inventory_2", R.drawable.sym_inventory_2, R.drawable.sym_inventory_2_fill, SymbolCategory.Ui)
+    val Unarchive = DakilioSymbol("unarchive", R.drawable.sym_unarchive, R.drawable.sym_unarchive_fill, SymbolCategory.Ui)
     val SentimentVerySatisfied = DakilioSymbol("sentiment_very_satisfied", R.drawable.sym_sentiment_very_satisfied, R.drawable.sym_sentiment_very_satisfied_fill, SymbolCategory.Emotions)
     val SentimentSatisfied = DakilioSymbol("sentiment_satisfied", R.drawable.sym_sentiment_satisfied, R.drawable.sym_sentiment_satisfied_fill, SymbolCategory.Emotions)
     val SentimentNeutral = DakilioSymbol("sentiment_neutral", R.drawable.sym_sentiment_neutral, R.drawable.sym_sentiment_neutral_fill, SymbolCategory.Emotions)
@@ -217,6 +219,8 @@ object DakilioSymbols {
         DriveFileMove,
         OpenInNew,
         Gavel,
+        Inventory2,
+        Unarchive,
         SentimentVerySatisfied,
         SentimentSatisfied,
         SentimentNeutral,

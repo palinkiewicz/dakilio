@@ -133,7 +133,7 @@ internal class LocalDaylioImportRepository @Inject constructor(
                     aliases = plan.aliases.map { MoodEntity(level = it.level, label = it.label, isPrimary = false, position = it.position, isArchived = it.archived) },
                     groups = plan.groups.map { group ->
                         ReplaceGroup(
-                            TagGroupEntity(name = group.name, position = group.position),
+                            TagGroupEntity(name = group.name, position = group.position, isArchived = group.archived),
                             group.tags.map { TagEntity(groupId = 0, label = it.label, iconKey = it.iconKey, position = it.position, isArchived = it.archived) },
                         )
                     },

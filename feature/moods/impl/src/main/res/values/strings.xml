@@ -17,16 +17,6 @@
     <string name="moods_save">Save</string>
     <string name="moods_cancel">Cancel</string>
     <string name="moods_delete">Delete</string>
-    <string name="moods_delete_title">Delete “%s”?</string>
-    <string name="moods_delete_unused_body">No entries use this alias, so nothing else changes.</string>
-    <plurals name="moods_delete_used_body">
-        <item quantity="one">“%1$s” is used in %2$d entry. Archive it to keep that entry as it is, or replace it with another mood.</item>
-        <item quantity="other">“%1$s” is used in %2$d entries. Archive it to keep those entries as they are, or replace it with another mood.</item>
-    </plurals>
-    <string name="moods_archive">Archive</string>
-    <string name="moods_replace">Replace…</string>
-    <string name="moods_replace_title">Replace “%s” with</string>
-    <string name="moods_replace_confirm">Replace</string>
     <string name="moods_archived">Archived “%s”</string>
     <string name="moods_undo">Undo</string>
     <plurals name="moods_replaced">

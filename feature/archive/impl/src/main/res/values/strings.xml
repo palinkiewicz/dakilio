@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="archive_title">Archived</string>
+    <string name="archive_subtitle">Out of the pickers, still on old entries</string>
+    <string name="archive_back">Back</string>
+    <string name="archive_section_moods">Moods</string>
+    <string name="archive_section_groups">Tag groups</string>
+    <string name="archive_section_tags">Tags</string>
+    <string name="archive_alias_of">Alias of %s</string>
+    <plurals name="archive_tag_count">
+        <item quantity="one">%d tag</item>
+        <item quantity="other">%d tags</item>
+    </plurals>
+    <plurals name="archive_archived_tag_count">
+        <item quantity="one">%d archived tag</item>
+        <item quantity="other">%d archived tags</item>
+    </plurals>
+    <string name="archive_tags_hint">Tap a tag to restore it or delete it for good.</string>
+    <string name="archive_mood_menu">Options for %s</string>
+    <string name="archive_group_menu">Options for %s</string>
+    <string name="archive_restore">Restore</string>
+    <string name="archive_delete">Delete</string>
+    <string name="archive_restored">“%1$s” restored</string>
+    <string name="archive_deleted">“%1$s” deleted</string>
+    <plurals name="archive_mood_replaced">
+        <item quantity="one">Moved %1$d entry to “%2$s”</item>
+        <item quantity="other">Moved %1$d entries to “%2$s”</item>
+    </plurals>
+    <string name="archive_empty_title">Nothing archived</string>
+    <string name="archive_empty_body">Moods and tags you archive leave the pickers but stay on your old entries. They show up here, ready to restore.</string>
+</resources>
