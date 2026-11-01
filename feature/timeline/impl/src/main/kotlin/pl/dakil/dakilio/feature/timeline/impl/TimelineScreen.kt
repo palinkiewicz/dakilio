@@ -1,6 +1,12 @@
 package pl.dakil.dakilio.feature.timeline.impl
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animate
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,6 +25,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -36,6 +43,8 @@ import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumFloatingActionButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SmallFloatingActionButton
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -45,9 +54,11 @@ import androidx.compose.material3.animateFloatingActionButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -69,6 +80,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
+import kotlinx.coroutines.launch
 import pl.dakil.dakilio.core.designsystem.component.pressScale
 import pl.dakil.dakilio.core.designsystem.component.rememberHaptics
 import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
@@ -131,6 +143,8 @@ internal fun TimelineScreen(
     val listState = rememberLazyListState()
     val formats = rememberFormats()
     val haptics = rememberHaptics()
+    val scope = rememberCoroutineScope()
+    val showScrollToTop by remember { derivedStateOf { listState.firstVisibleItemIndex >= SCROLL_TO_TOP_THRESHOLD } }
     var viewer by remember { mutableStateOf<Pair<List<PostPhoto>, Int>?>(null) }
     val ready = state as? TimelineUiState.Ready
     val selectedDiary = ready?.selectedDiaryId
@@ -202,17 +216,38 @@ internal fun TimelineScreen(
             }
         },
         floatingActionButton = {
-            MediumFloatingActionButton(
-                onClick = {
-                    haptics.tick()
-                    onOpenEntry(EntryEditorKey(presetDiaryId = selectedDiary))
-                },
-                modifier = Modifier
-                    .padding(bottom = bottomBarPadding())
-                    .animateFloatingActionButton(visible = ready != null, alignment = Alignment.BottomEnd)
-                    .sharedContainer(EntryEditorKey.NEW_ENTRY_SHARED_KEY, RoundedCornerShape(20.dp)),
+            Column(
+                modifier = Modifier.padding(bottom = bottomBarPadding()),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(Spacing.m),
             ) {
-                DakilioIcon(DakilioSymbols.Add, contentDescription = stringResource(R.string.timeline_new_entry), modifier = Modifier.size(28.dp))
+                AnimatedVisibility(
+                    visible = ready != null && showScrollToTop,
+                    enter = scaleIn(MaterialTheme.motionScheme.fastSpatialSpec()) + fadeIn(MaterialTheme.motionScheme.fastEffectsSpec()),
+                    exit = scaleOut(MaterialTheme.motionScheme.fastSpatialSpec()) + fadeOut(MaterialTheme.motionScheme.fastEffectsSpec()),
+                ) {
+                    SmallFloatingActionButton(
+                        onClick = {
+                            haptics.tick()
+                            scope.launch { scrollToTop(listState, scrollBehavior) }
+                        },
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    ) {
+                        DakilioIcon(DakilioSymbols.ArrowUpward, contentDescription = stringResource(R.string.timeline_scroll_to_top))
+                    }
+                }
+                MediumFloatingActionButton(
+                    onClick = {
+                        haptics.tick()
+                        onOpenEntry(EntryEditorKey(presetDiaryId = selectedDiary))
+                    },
+                    modifier = Modifier
+                        .animateFloatingActionButton(visible = ready != null, alignment = Alignment.BottomEnd)
+                        .sharedContainer(EntryEditorKey.NEW_ENTRY_SHARED_KEY, RoundedCornerShape(20.dp)),
+                ) {
+                    DakilioIcon(DakilioSymbols.Add, contentDescription = stringResource(R.string.timeline_new_entry), modifier = Modifier.size(28.dp))
+                }
             }
         },
     ) { padding ->
@@ -315,6 +350,23 @@ internal fun TimelineScreen(
             },
         )
     }
+}
+
+/** Rows scrolled past before the "scroll to top" button shows up. */
+private const val SCROLL_TO_TOP_THRESHOLD = 4
+
+/** Beyond this many rows, the list first jumps close to the top so the animated part stays short. */
+private const val SCROLL_TO_TOP_JUMP = 12
+
+/**
+ * Smoothly scrolls the timeline back to today and re-expands the large app bar, which a
+ * programmatic scroll doesn't do on its own (it bypasses nested scrolling).
+ */
+private suspend fun scrollToTop(listState: LazyListState, scrollBehavior: TopAppBarScrollBehavior) {
+    if (listState.firstVisibleItemIndex > SCROLL_TO_TOP_JUMP) listState.scrollToItem(SCROLL_TO_TOP_JUMP)
+    listState.animateScrollToItem(0)
+    val barState = scrollBehavior.state
+    animate(barState.heightOffset, 0f) { value, _ -> barState.heightOffset = value }
 }
 
 @Composable

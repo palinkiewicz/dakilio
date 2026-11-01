@@ -9,6 +9,7 @@ object DakilioSymbols {
     val Block = DakilioSymbol("block", R.drawable.sym_block, R.drawable.sym_block_fill, SymbolCategory.Ui)
     val Search = DakilioSymbol("search", R.drawable.sym_search, R.drawable.sym_search_fill, SymbolCategory.Ui)
     val ArrowBack = DakilioSymbol("arrow_back", R.drawable.sym_arrow_back, R.drawable.sym_arrow_back_fill, SymbolCategory.Ui)
+    val ArrowUpward = DakilioSymbol("arrow_upward", R.drawable.sym_arrow_upward, R.drawable.sym_arrow_upward_fill, SymbolCategory.Ui)
     val Check = DakilioSymbol("check", R.drawable.sym_check, R.drawable.sym_check_fill, SymbolCategory.Ui)
     val MoreVert = DakilioSymbol("more_vert", R.drawable.sym_more_vert, R.drawable.sym_more_vert_fill, SymbolCategory.Ui)
     val MoreHoriz = DakilioSymbol("more_horiz", R.drawable.sym_more_horiz, R.drawable.sym_more_horiz_fill, SymbolCategory.Ui)
@@ -177,6 +178,7 @@ object DakilioSymbols {
         Block,
         Search,
         ArrowBack,
+        ArrowUpward,
         Check,
         MoreVert,
         MoreHoriz,
