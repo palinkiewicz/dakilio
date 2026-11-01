@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Dakilio is an open-source, privacy-first Android mood journal: a smaller alternative to Daylio. It uses Kotlin, Jetpack Compose and Material 3 Expressive. Package: `pl.dakil.dakilio`.
 
-`.materials/poc.md` is the product spec and the source of truth. `.materials/dakilio_early_stage_ideas.md` is background on *why* things are the way they are, not a backlog.
+`.materials/poc.md` is the product spec and the source of truth. `.materials/dakilio_early_stage_ideas.md` is background on *why* things are the way they are, not a backlog. `.materials/daylio_format.md` documents the `.daylio` backup format (reverse-engineered) and how it maps onto Dakilio; read it before working on the importer.
 
 ## Commands
 
