@@ -27,6 +27,7 @@ import pl.dakil.dakilio.core.model.Post
 import pl.dakil.dakilio.core.model.PostDraft
 import pl.dakil.dakilio.core.model.TagGroup
 import pl.dakil.dakilio.core.model.TagStyle
+import pl.dakil.dakilio.core.model.TagUsage
 import pl.dakil.dakilio.core.model.ThemeMode
 import pl.dakil.dakilio.core.model.UserSettings
 
@@ -124,6 +125,10 @@ internal class LocalTagRepository @Inject constructor(private val dao: TagDao) :
     }
 
     override suspend fun setTagArchived(id: Long, archived: Boolean) = dao.setTagArchived(id, archived)
+
+    override suspend fun tagUsage(id: Long) = TagUsage(entries = dao.usageCount(id), emptied = dao.emptiedCount(id))
+
+    override suspend fun deleteTag(id: Long) = dao.deleteTag(id)
 }
 
 internal class LocalPostRepository @Inject constructor(

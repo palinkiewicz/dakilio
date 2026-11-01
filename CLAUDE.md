@@ -76,7 +76,10 @@ The layout follows NowInAndroid: `app` → `feature:*:impl` → `feature:*:api` 
 - **Mood visuals belong to the level.** `MoodVisuals.kt` holds one rest/active MaterialShapes polygon pair and face curvature per level, plus the per-level *light-mode* mark color. Aliases share their level's face and color. Dark-mode tones are derived in OKLCH at runtime (`deriveMoodColors`).
   - The default palette (crimson, orange, periwinkle, green, teal) is a diverging scale that was validated for colour-vision-deficiency separation in both themes.
   - Don't swap it for a red→yellow→green ramp: yellow and green collapse for protanopes.
-- **Deleting tags or groups archives them** (`is_archived`), with an Undo snackbar. Old entries keep showing archived tags; pickers and the customization screen hide them.
+- **Deleting a tag** first counts its entries (`TagRepository.tagUsage`). An unused tag is just deleted. A used one offers:
+  - **archive** (`is_archived`, with an Undo snackbar): old entries keep showing it, while pickers and the customization screen hide it;
+  - **delete** for good: it's removed from every entry, and entries left with nothing at all (no mood, text, photos or other tags) are deleted too, since the editor never saves an empty entry. The dialog states both counts.
+- **Deleting a tag group** archives it, with an Undo snackbar.
 - **Deleting a diary** is blocked for the last remaining diary. Entries that belong only to the deleted diary are either moved to another diary or deleted together with their photo files.
 - **Two editor layouts.** New entries go through the mood → tags → note step wizard. Existing entries open `EntryOverview`, a single page (one row of mood faces, then the tags, then the note) for quick edits. Both share `EntryEditorViewModel`, `tagGroupItems` and `NoteFields`.
 - **Diaries suggest tag groups.** In the editor, groups suggested by any selected diary are expanded; the rest are collapsed under "More groups". When none are suggested, all groups are expanded.

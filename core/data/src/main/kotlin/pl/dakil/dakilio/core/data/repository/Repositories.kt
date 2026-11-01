@@ -8,6 +8,7 @@ import pl.dakil.dakilio.core.model.Post
 import pl.dakil.dakilio.core.model.PostDraft
 import pl.dakil.dakilio.core.model.TagGroup
 import pl.dakil.dakilio.core.model.TagStyle
+import pl.dakil.dakilio.core.model.TagUsage
 import pl.dakil.dakilio.core.model.ThemeMode
 import pl.dakil.dakilio.core.model.UserSettings
 
@@ -63,6 +64,11 @@ interface TagRepository {
     suspend fun saveTag(id: Long?, groupId: Long, label: String, iconKey: String): Long
 
     suspend fun setTagArchived(id: Long, archived: Boolean)
+
+    suspend fun tagUsage(id: Long): TagUsage
+
+    /** Deletes the tag for good: it disappears from every entry, and entries left empty are deleted. */
+    suspend fun deleteTag(id: Long)
 }
 
 interface PostRepository {

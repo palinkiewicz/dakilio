@@ -11,36 +11,80 @@ import pl.dakil.dakilio.core.database.entity.TagEntity
 import pl.dakil.dakilio.core.database.entity.TagGroupEntity
 
 @Dao
-interface TagDao {
+abstract class TagDao {
     /** Active groups with all their tags (archived tags are filtered by the repository). */
     @Transaction
     @Query("SELECT * FROM tag_group WHERE is_archived = 0 ORDER BY position, id")
-    fun observeActiveGroups(): Flow<List<PopulatedTagGroup>>
+    abstract fun observeActiveGroups(): Flow<List<PopulatedTagGroup>>
 
     @Query("SELECT COALESCE(MAX(position), -1) + 1 FROM tag_group")
-    suspend fun nextGroupPosition(): Int
+    abstract suspend fun nextGroupPosition(): Int
 
     @Query("SELECT COALESCE(MAX(position), -1) + 1 FROM tag WHERE group_id = :groupId")
-    suspend fun nextTagPosition(groupId: Long): Int
+    abstract suspend fun nextTagPosition(groupId: Long): Int
 
     @Insert
-    suspend fun insertGroup(group: TagGroupEntity): Long
+    abstract suspend fun insertGroup(group: TagGroupEntity): Long
 
     @Query("UPDATE tag_group SET name = :name WHERE id = :id")
-    suspend fun renameGroup(id: Long, name: String)
+    abstract suspend fun renameGroup(id: Long, name: String)
 
     @Query("UPDATE tag_group SET is_archived = :archived WHERE id = :id")
-    suspend fun setGroupArchived(id: Long, archived: Boolean)
+    abstract suspend fun setGroupArchived(id: Long, archived: Boolean)
 
     @Insert
-    suspend fun insertTag(tag: TagEntity): Long
+    abstract suspend fun insertTag(tag: TagEntity): Long
 
     @Update
-    suspend fun updateTag(tag: TagEntity)
+    abstract suspend fun updateTag(tag: TagEntity)
 
     @Query("SELECT * FROM tag WHERE id = :id")
-    suspend fun getTag(id: Long): TagEntity?
+    abstract suspend fun getTag(id: Long): TagEntity?
 
     @Query("UPDATE tag SET is_archived = :archived WHERE id = :id")
-    suspend fun setTagArchived(id: Long, archived: Boolean)
+    abstract suspend fun setTagArchived(id: Long, archived: Boolean)
+
+    @Query("SELECT COUNT(*) FROM post_tag WHERE tag_id = :tagId")
+    abstract suspend fun usageCount(tagId: Long): Int
+
+    /** Entries that only exist because of this tag: no mood, text, photos or other tags. */
+    @Query(
+        """
+        SELECT COUNT(*)
+        FROM post p
+        WHERE p.id IN (SELECT post_id FROM post_tag WHERE tag_id = :tagId)
+          AND p.mood_id IS NULL
+          AND TRIM(COALESCE(p.title, '')) = ''
+          AND TRIM(COALESCE(p.note, '')) = ''
+          AND NOT EXISTS (SELECT 1 FROM post_photo ph WHERE ph.post_id = p.id)
+          AND NOT EXISTS (SELECT 1 FROM post_tag pt WHERE pt.post_id = p.id AND pt.tag_id != :tagId)
+        """,
+    )
+    abstract suspend fun emptiedCount(tagId: Long): Int
+
+    @Query(
+        """
+        DELETE FROM post WHERE id IN (
+        SELECT p.id
+        FROM post p
+        WHERE p.id IN (SELECT post_id FROM post_tag WHERE tag_id = :tagId)
+          AND p.mood_id IS NULL
+          AND TRIM(COALESCE(p.title, '')) = ''
+          AND TRIM(COALESCE(p.note, '')) = ''
+          AND NOT EXISTS (SELECT 1 FROM post_photo ph WHERE ph.post_id = p.id)
+          AND NOT EXISTS (SELECT 1 FROM post_tag pt WHERE pt.post_id = p.id AND pt.tag_id != :tagId)
+        )
+        """,
+    )
+    protected abstract suspend fun deleteEmptiedPosts(tagId: Long)
+
+    @Query("DELETE FROM tag WHERE id = :tagId")
+    protected abstract suspend fun deleteTagRow(tagId: Long)
+
+    /** Removes the tag from every entry (post_tag cascades), deleting entries it leaves empty. */
+    @Transaction
+    open suspend fun deleteTag(tagId: Long) {
+        deleteEmptiedPosts(tagId)
+        deleteTagRow(tagId)
+    }
 }

@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import pl.dakil.dakilio.core.data.repository.TagRepository
 import pl.dakil.dakilio.core.model.TagGroup
+import pl.dakil.dakilio.core.model.TagUsage
 
 @HiltViewModel
 class TagsViewModel @Inject constructor(private val repository: TagRepository) : ViewModel() {
@@ -31,9 +32,18 @@ class TagsViewModel @Inject constructor(private val repository: TagRepository) :
     fun saveTag(id: Long?, groupId: Long, label: String, iconKey: String) =
         launch { repository.saveTag(id, groupId, label.trim(), iconKey) }
 
-    fun deleteTag(id: Long) = launch { repository.setTagArchived(id, true) }
+    /** Counts the tag's entries, so the delete dialog can offer the right choices. */
+    fun tagUsage(id: Long, onResult: (TagUsage) -> Unit) {
+        viewModelScope.launch { onResult(repository.tagUsage(id)) }
+    }
+
+    /** Hides the tag from pickers; entries keep it, and it can be restored. */
+    fun archiveTag(id: Long) = launch { repository.setTagArchived(id, true) }
 
     fun restoreTag(id: Long) = launch { repository.setTagArchived(id, false) }
+
+    /** Removes the tag from every entry for good (and entries it leaves empty). */
+    fun deleteTag(id: Long) = launch { repository.deleteTag(id) }
 
     private fun launch(block: suspend () -> Unit) {
         viewModelScope.launch { block() }
