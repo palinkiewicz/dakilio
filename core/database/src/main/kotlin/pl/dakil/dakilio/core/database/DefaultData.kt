@@ -11,10 +11,17 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 import pl.dakil.dakilio.core.database.entity.DiaryEntity
+import pl.dakil.dakilio.core.model.SuggestedGroup
+import pl.dakil.dakilio.core.model.SuggestedTag
 
 /**
  * Everything a fresh install starts with: the 5 primary moods, the "Your Journey" diary, a set of
  * tag groups, and a handful of sample entries (with photos) so the app can be shown off right away.
+ *
+ * The tag groups double as the suggestions of [suggestedGroups]: the first-run intro deletes the
+ * ones the user didn't pick (by their fixed ids, [seedGroupId]), and the Tags screen can add any of
+ * them again later. Nothing here may need the database before seeding, so the intro can show the
+ * suggestions while the database doesn't exist yet.
  *
  * Runs inside Room's creation transaction, before the first query returns, with fixed ids so the
  * sample entries can reference tags and so [SAMPLE_POST_IDS] can find them again for removal.
@@ -40,6 +47,18 @@ object DefaultData {
         position = 0,
         createdAt = now,
     )
+
+    /** Every seed tag group, localized, in seed order. Pure resource lookups: no database access. */
+    fun suggestedGroups(context: Context): List<SuggestedGroup> = Group.entries.map { group ->
+        SuggestedGroup(
+            key = group.name,
+            name = context.getString(group.label),
+            tags = SeedTag.entries.filter { it.group == group }.map { SuggestedTag(context.getString(it.label), it.iconKey) },
+        )
+    }
+
+    /** The fixed id the seed gives the group with this [SuggestedGroup.key], or null for an unknown key. */
+    fun seedGroupId(key: String): Long? = Group.entries.firstOrNull { it.name == key }?.id
 
     /** The primary mood of each level, worst first. Its id equals its level (sample entries rely on it). */
     private val primaryMoods = listOf(

@@ -8,6 +8,5 @@ android {
 
 dependencies {
     api(projects.feature.importer.api)
-    implementation(projects.feature.timeline.api)
     implementation(libs.androidx.activity.compose)
 }

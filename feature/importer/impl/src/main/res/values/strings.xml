@@ -9,7 +9,6 @@
     <string name="import_pick_button">Choose file</string>
     <string name="import_daylio_title">Daylio is installed</string>
     <string name="import_daylio_body">Open its backup screen, export a backup and pick Dakilio in the share menu. It comes straight back here.</string>
-    <string name="import_daylio_open">Open Daylio backup</string>
     <string name="import_pick_privacy">The file is read on this device only. Nothing is uploaded.</string>
     <string name="import_reading">Reading the backup…</string>
 

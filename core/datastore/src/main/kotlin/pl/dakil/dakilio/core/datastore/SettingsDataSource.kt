@@ -32,6 +32,22 @@ class SettingsDataSource @Inject constructor(
         }
         .distinctUntilChanged()
 
+    /**
+     * Where the first-run intro stands: [IntroProgress.started] once it was shown, [IntroProgress.done]
+     * once it was finished. Kept out of [UserSettings], which the whole UI observes.
+     */
+    val introProgress: Flow<IntroProgress> = dataStore.data
+        .map { prefs -> IntroProgress(started = prefs[INTRO_STARTED] ?: false, done = prefs[INTRO_DONE] ?: false) }
+        .distinctUntilChanged()
+
+    suspend fun setIntroStarted() {
+        dataStore.edit { it[INTRO_STARTED] = true }
+    }
+
+    suspend fun setIntroDone() {
+        dataStore.edit { it[INTRO_DONE] = true }
+    }
+
     suspend fun setThemeMode(mode: ThemeMode) {
         dataStore.edit { it[THEME_MODE] = mode.name }
     }
@@ -58,5 +74,9 @@ class SettingsDataSource @Inject constructor(
         val SAMPLE_HINT_DISMISSED = booleanPreferencesKey("sample_hint_dismissed")
         val TAG_STYLE = stringPreferencesKey("tag_style")
         val SHOW_HINTS = booleanPreferencesKey("show_hints")
+        val INTRO_STARTED = booleanPreferencesKey("intro_started")
+        val INTRO_DONE = booleanPreferencesKey("intro_done")
     }
 }
+
+data class IntroProgress(val started: Boolean, val done: Boolean)

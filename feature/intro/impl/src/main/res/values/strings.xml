@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="intro_back">Back</string>
+    <string name="intro_continue">Continue</string>
+
+    <!-- Language -->
+    <string name="intro_welcome_title">Welcome to Dakilio</string>
+    <string name="intro_welcome_body">A private mood journal that stays on this phone. First, pick a language: the starter moods, tags and examples are written in it.</string>
+    <string name="intro_language_header">Language</string>
+    <!-- Each language is listed in its own name. -->
+    <string name="intro_language_english">English</string>
+    <string name="intro_language_more">More languages are on the way.</string>
+
+    <!-- Daylio -->
+    <string name="intro_daylio_title">Coming from Daylio?</string>
+    <string name="intro_daylio_body">Bring your entries, photos, moods and tags along. Dakilio then starts from your backup instead of the examples.</string>
+    <string name="intro_daylio_card_title">Export a backup</string>
+    <string name="intro_daylio_card_body">Open Daylio\'s backup screen, export a backup and pick Dakilio in the share menu. It comes straight back here.</string>
+    <string name="intro_daylio_pick">I already have a backup file</string>
+    <string name="intro_daylio_skip">Start fresh</string>
+
+    <!-- Tag groups -->
+    <string name="intro_groups_title">Pick your tags</string>
+    <string name="intro_groups_body">Tags note what your day was made of. Keep the groups that fit your life.</string>
+    <string name="intro_groups_hint">Tap a group to leave it out. You can add, rename or remove tags any time in More → Tags.</string>
+    <plurals name="intro_groups_count">
+        <item quantity="one">%1$d of %2$d groups</item>
+        <item quantity="other">%1$d of %2$d groups</item>
+    </plurals>
+    <string name="intro_get_started">Get started</string>
+</resources>

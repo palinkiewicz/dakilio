@@ -91,7 +91,13 @@ fun DakilioApp(hasIncomingBackup: Boolean = false) {
         searchEntry(navigator)
         entryEditorEntry(navigator)
         moodsEntry(navigator)
-        daylioImportEntry(navigator)
+        daylioImportEntry(
+            onBack = navigator::goBack,
+            onDone = {
+                navigator.goBack()
+                navigator.navigate(TimelineKey)
+            },
+        )
         tagsEntry(navigator)
         diariesEntries(navigator)
         settingsEntry(navigator)

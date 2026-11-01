@@ -42,6 +42,25 @@ abstract class TagDao {
     @Insert
     abstract suspend fun insertGroup(group: TagGroupEntity): Long
 
+    /** Adds a group at the end, with [tags] in the given order. Returns the group's id. */
+    @Transaction
+    open suspend fun insertGroupWithTags(name: String, tags: List<Pair<String, String>>): Long {
+        val groupId = insertGroup(TagGroupEntity(name = name, position = nextGroupPosition()))
+        tags.forEachIndexed { position, (label, iconKey) ->
+            insertTag(TagEntity(groupId = groupId, label = label, iconKey = iconKey, position = position))
+        }
+        return groupId
+    }
+
+    @Query("SELECT EXISTS (SELECT 1 FROM tag_group WHERE id = :id)")
+    abstract suspend fun groupExists(id: Long): Boolean
+
+    /** Deletes these groups for good, like [deleteGroup], in one transaction; missing ids are skipped. */
+    @Transaction
+    open suspend fun deleteGroups(ids: Collection<Long>) {
+        ids.filter { groupExists(it) }.forEach { deleteGroup(it) }
+    }
+
     @Query("UPDATE tag_group SET name = :name WHERE id = :id")
     abstract suspend fun renameGroup(id: Long, name: String)
 

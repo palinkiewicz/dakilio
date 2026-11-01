@@ -24,6 +24,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
@@ -42,6 +43,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -86,6 +88,7 @@ internal fun TagsScreen(viewModel: TagsViewModel, onBack: () -> Unit) {
     var groupDialog by remember { mutableStateOf<GroupDialog?>(null) }
     var deleting by remember { mutableStateOf<Pair<Tag, TagUsage>?>(null) }
     var deletingGroup by remember { mutableStateOf<Pair<TagGroup, GroupUsage>?>(null) }
+    var suggesting by rememberSaveable { mutableStateOf(false) }
 
     val undoLabel = stringResource(R.string.tags_undo)
     val tagDeleted = stringResource(R.string.tags_tag_deleted)
@@ -111,6 +114,11 @@ internal fun TagsScreen(viewModel: TagsViewModel, onBack: () -> Unit) {
                         DakilioIcon(DakilioSymbols.ArrowBack, contentDescription = stringResource(R.string.tags_back))
                     }
                 },
+                actions = {
+                    IconButton(onClick = { suggesting = true }) {
+                        DakilioIcon(DakilioSymbols.AutoAwesome, contentDescription = stringResource(R.string.tags_suggested))
+                    }
+                },
                 scrollBehavior = scrollBehavior,
             )
         },
@@ -132,6 +140,12 @@ internal fun TagsScreen(viewModel: TagsViewModel, onBack: () -> Unit) {
                     title = stringResource(R.string.tags_empty_title),
                     body = stringResource(R.string.tags_empty_body),
                     modifier = Modifier.align(Alignment.Center),
+                    action = {
+                        FilledTonalButton(onClick = { suggesting = true }) {
+                            DakilioIcon(DakilioSymbols.AutoAwesome, contentDescription = null, modifier = Modifier.padding(end = Spacing.s))
+                            Text(stringResource(R.string.tags_suggested_browse))
+                        }
+                    },
                 )
                 else -> LazyColumn(
                     state = listState,
@@ -162,6 +176,15 @@ internal fun TagsScreen(viewModel: TagsViewModel, onBack: () -> Unit) {
                 }
             }
         }
+    }
+
+    if (suggesting) {
+        SuggestedGroupsSheet(
+            suggestions = viewModel.suggestions,
+            groups = groups.orEmpty(),
+            onAdd = { viewModel.addSuggestedGroup(it.key) },
+            onDismiss = { suggesting = false },
+        )
     }
 
     editing?.let { edit ->

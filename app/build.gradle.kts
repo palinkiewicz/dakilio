@@ -113,6 +113,7 @@ dependencies {
     implementation(projects.feature.settings.impl)
     implementation(projects.feature.importer.impl)
     implementation(projects.feature.archive.impl)
+    implementation(projects.feature.intro.impl)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)

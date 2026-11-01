@@ -25,6 +25,16 @@ fun TagPill(
     modifier: Modifier = Modifier,
     containerColor: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
     contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+) = TagPill(tag.label, tag.iconKey, modifier, containerColor, contentColor)
+
+/** [TagPill] for a tag that doesn't exist yet (a suggestion). */
+@Composable
+fun TagPill(
+    label: String,
+    iconKey: String,
+    modifier: Modifier = Modifier,
+    containerColor: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
+    contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
 ) {
     Row(
         modifier = modifier
@@ -33,9 +43,9 @@ fun TagPill(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        DakilioIcon(symbolForKey(tag.iconKey), contentDescription = null, tint = contentColor, modifier = Modifier.size(16.dp))
+        DakilioIcon(symbolForKey(iconKey), contentDescription = null, tint = contentColor, modifier = Modifier.size(16.dp))
         Text(
-            tag.label,
+            label,
             style = MaterialTheme.typography.labelMedium,
             color = contentColor,
             maxLines = 1,

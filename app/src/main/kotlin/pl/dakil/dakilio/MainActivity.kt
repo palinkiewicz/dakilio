@@ -20,6 +20,7 @@ import pl.dakil.dakilio.core.ui.LocalShowHints
 import pl.dakil.dakilio.feature.importer.impl.IncomingBackups
 import javax.inject.Inject
 import pl.dakil.dakilio.ui.DakilioApp
+import pl.dakil.dakilio.ui.IntroFlow
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -36,7 +37,9 @@ class MainActivity : ComponentActivity() {
             val incomingBackup by incomingBackups.pending.collectAsStateWithLifecycle()
             val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
             val showHints by viewModel.showHints.collectAsStateWithLifecycle()
+            val showIntro by viewModel.showIntro.collectAsStateWithLifecycle()
             val mode = themeMode ?: return@setContent
+            val intro = showIntro ?: return@setContent
             val dark = when (mode) {
                 ThemeMode.System -> isSystemInDarkTheme()
                 ThemeMode.Light -> false
@@ -49,7 +52,11 @@ class MainActivity : ComponentActivity() {
             }
             DakilioTheme(darkTheme = dark) {
                 CompositionLocalProvider(LocalShowHints provides showHints) {
-                    DakilioApp(hasIncomingBackup = incomingBackup != null)
+                    if (intro) {
+                        IntroFlow(hasIncomingBackup = incomingBackup != null, onFinished = viewModel::finishIntro)
+                    } else {
+                        DakilioApp(hasIncomingBackup = incomingBackup != null)
+                    }
                 }
             }
         }

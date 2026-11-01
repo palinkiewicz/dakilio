@@ -1,5 +1,6 @@
 package pl.dakil.dakilio.core.database
 
+import android.content.Context
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import pl.dakil.dakilio.core.database.dao.DiaryDao
@@ -38,4 +39,11 @@ abstract class DakilioDatabase : RoomDatabase() {
     abstract fun tagDao(): TagDao
     abstract fun postDao(): PostDao
     abstract fun importDao(): ImportDao
+
+    companion object {
+        const val NAME = "dakilio.db"
+
+        /** Whether the database was ever created (and seeded) on this device. Doesn't open it. */
+        fun exists(context: Context): Boolean = context.getDatabasePath(NAME).exists()
+    }
 }

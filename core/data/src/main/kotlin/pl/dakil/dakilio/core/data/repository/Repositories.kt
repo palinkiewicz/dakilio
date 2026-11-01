@@ -8,6 +8,7 @@ import pl.dakil.dakilio.core.model.GroupUsage
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.Post
 import pl.dakil.dakilio.core.model.PostDraft
+import pl.dakil.dakilio.core.model.SuggestedGroup
 import pl.dakil.dakilio.core.model.TagGroup
 import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TagUsage
@@ -129,6 +130,37 @@ interface SettingsRepository {
     suspend fun setTagStyle(style: TagStyle)
 
     suspend fun setShowHints(show: Boolean)
+}
+
+/**
+ * The first-run intro and the tag group suggestions it shares with the Tags screen.
+ *
+ * Until the intro is over, nothing here opens the database: Room seeds it on first open with
+ * localized names, so it must not happen before the user has picked a language.
+ */
+interface OnboardingRepository {
+    /** The ready-made tag groups (the ones a fresh install is seeded with). No database access. */
+    val suggestedGroups: List<SuggestedGroup>
+
+    /**
+     * Whether to show the intro on this launch. True for a fresh install and for an intro that was
+     * left halfway; false once finished, and for installs from before the intro existed.
+     */
+    suspend fun shouldShowIntro(): Boolean
+
+    /** Remembers that the intro was shown, so leaving it halfway brings it back next time. */
+    suspend fun markIntroStarted()
+
+    suspend fun finishIntro()
+
+    /**
+     * Keeps only the seed groups with these keys: the others are deleted for good (their tags leave
+     * the sample entries, and samples left empty go too). Opens, and so seeds, the database.
+     */
+    suspend fun keepStarterGroups(keys: Set<String>)
+
+    /** Adds the suggestion as a new group at the end, with all its tags. */
+    suspend fun addSuggestedGroup(key: String)
 }
 
 /** What's in Dakilio right now, i.e. what a Daylio import would delete. */

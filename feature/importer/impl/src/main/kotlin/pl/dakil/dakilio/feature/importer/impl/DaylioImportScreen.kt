@@ -26,7 +26,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.LoadingIndicator
@@ -56,7 +55,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.graphics.shapes.RoundedPolygon
-import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pl.dakil.dakilio.core.data.repository.DaylioImportResult
 import pl.dakil.dakilio.core.data.repository.DaylioPreview
@@ -67,6 +65,9 @@ import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbol
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
+import pl.dakil.dakilio.core.ui.component.DaylioBackupCard
+import pl.dakil.dakilio.core.ui.openDaylioBackup
+import pl.dakil.dakilio.core.ui.rememberDaylioInstalled
 import pl.dakil.dakilio.core.ui.rememberFormats
 
 @Composable
@@ -78,13 +79,8 @@ internal fun DaylioImportScreen(viewModel: DaylioImportViewModel, onBack: () -> 
     var confirming by rememberSaveable { mutableStateOf(false) }
     val importing = state is ImportUiState.Importing
 
-    // Re-checked on every resume, so installing or removing Daylio meanwhile shows or hides the card.
     val context = LocalContext.current
-    var daylioInstalled by remember { mutableStateOf(false) }
-    LifecycleResumeEffect(Unit) {
-        daylioInstalled = isDaylioInstalled(context)
-        onPauseOrDispose { }
-    }
+    var daylioInstalled by rememberDaylioInstalled()
     val openHaptics = rememberHaptics()
     val openDaylio = {
         openHaptics.confirm()
@@ -187,28 +183,12 @@ private fun ColumnScope.PickStep(onPick: () -> Unit, daylioInstalled: Boolean, o
         Text(stringResource(R.string.import_pick_button))
     }
     if (daylioInstalled) {
-        Surface(
-            shape = RoundedCornerShape(28.dp),
-            color = MaterialTheme.colorScheme.surfaceContainer,
-            modifier = Modifier.fillMaxWidth().padding(top = Spacing.l),
-        ) {
-            Row(Modifier.padding(Spacing.xl)) {
-                DakilioIcon(DakilioSymbols.Lightbulb, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                Column(Modifier.padding(start = Spacing.l)) {
-                    Text(stringResource(R.string.import_daylio_title), style = MaterialTheme.typography.titleMediumEmphasized)
-                    Text(
-                        stringResource(R.string.import_daylio_body),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(top = Spacing.xs),
-                    )
-                    FilledTonalButton(onClick = onOpenDaylio, modifier = Modifier.padding(top = Spacing.m)) {
-                        Text(stringResource(R.string.import_daylio_open))
-                        DakilioIcon(DakilioSymbols.OpenInNew, contentDescription = null, modifier = Modifier.padding(start = Spacing.s))
-                    }
-                }
-            }
-        }
+        DaylioBackupCard(
+            title = stringResource(R.string.import_daylio_title),
+            body = stringResource(R.string.import_daylio_body),
+            onOpenDaylio = onOpenDaylio,
+            modifier = Modifier.padding(top = Spacing.l),
+        )
     }
     Row(Modifier.fillMaxWidth().padding(top = Spacing.l), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
         DakilioIcon(DakilioSymbols.Shield, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)

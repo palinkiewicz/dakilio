@@ -29,7 +29,7 @@ internal object DatabaseModule {
         @ApplicationContext context: Context,
         photoDirectory: PhotoDirectory,
         clock: Clock,
-    ): DakilioDatabase = Room.databaseBuilder(context, DakilioDatabase::class.java, "dakilio.db")
+    ): DakilioDatabase = Room.databaseBuilder(context, DakilioDatabase::class.java, DakilioDatabase.NAME)
         .addCallback(
             object : RoomDatabase.Callback() {
                 override fun onCreate(db: SupportSQLiteDatabase) {

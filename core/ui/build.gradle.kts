@@ -11,4 +11,5 @@ dependencies {
     api(projects.core.model)
     api(libs.coil.compose)
     implementation(libs.androidx.navigation3.ui)
+    implementation(libs.androidx.lifecycle.runtime.compose)
 }

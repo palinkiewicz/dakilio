@@ -9,17 +9,27 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import pl.dakil.dakilio.core.data.repository.OnboardingRepository
 import pl.dakil.dakilio.core.data.repository.TagRepository
 import pl.dakil.dakilio.core.model.GroupUsage
+import pl.dakil.dakilio.core.model.SuggestedGroup
 import pl.dakil.dakilio.core.model.TagGroup
 import pl.dakil.dakilio.core.model.TagUsage
 
 @HiltViewModel
-class TagsViewModel @Inject constructor(private val repository: TagRepository) : ViewModel() {
+class TagsViewModel @Inject constructor(
+    private val repository: TagRepository,
+    private val onboarding: OnboardingRepository,
+) : ViewModel() {
     /** `null` while loading. */
     val groups: StateFlow<List<TagGroup>?> = repository.groups
         .map<List<TagGroup>, List<TagGroup>?> { it }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    /** The ready-made groups a fresh install starts with. */
+    val suggestions: List<SuggestedGroup> get() = onboarding.suggestedGroups
+
+    fun addSuggestedGroup(key: String) = launch { onboarding.addSuggestedGroup(key) }
 
     fun createGroup(name: String) = launch { repository.createGroup(name.trim()) }
 

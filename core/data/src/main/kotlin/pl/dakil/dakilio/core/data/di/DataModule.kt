@@ -10,11 +10,13 @@ import pl.dakil.dakilio.core.data.repository.DiaryRepository
 import pl.dakil.dakilio.core.data.repository.LocalDaylioImportRepository
 import pl.dakil.dakilio.core.data.repository.LocalDiaryRepository
 import pl.dakil.dakilio.core.data.repository.LocalMoodRepository
+import pl.dakil.dakilio.core.data.repository.LocalOnboardingRepository
 import pl.dakil.dakilio.core.data.repository.LocalPhotoRepository
 import pl.dakil.dakilio.core.data.repository.LocalPostRepository
 import pl.dakil.dakilio.core.data.repository.LocalSettingsRepository
 import pl.dakil.dakilio.core.data.repository.LocalTagRepository
 import pl.dakil.dakilio.core.data.repository.MoodRepository
+import pl.dakil.dakilio.core.data.repository.OnboardingRepository
 import pl.dakil.dakilio.core.data.repository.PhotoRepository
 import pl.dakil.dakilio.core.data.repository.PostRepository
 import pl.dakil.dakilio.core.data.repository.SettingsRepository
@@ -34,6 +36,8 @@ internal interface DataModule {
     @Binds @Singleton fun photos(impl: LocalPhotoRepository): PhotoRepository
 
     @Binds @Singleton fun settings(impl: LocalSettingsRepository): SettingsRepository
+
+    @Binds @Singleton fun onboarding(impl: LocalOnboardingRepository): OnboardingRepository
 
     /** Unscoped: it holds the opened file, so every screen gets its own. */
     @Binds fun daylioImport(impl: LocalDaylioImportRepository): DaylioImportRepository

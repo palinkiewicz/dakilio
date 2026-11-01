@@ -19,6 +19,7 @@ import kotlinx.coroutines.withContext
 import pl.dakil.dakilio.core.common.DakilioDispatchers
 import pl.dakil.dakilio.core.common.Dispatcher
 import pl.dakil.dakilio.core.common.PhotoDirectory
+import pl.dakil.dakilio.core.database.DakilioDatabase
 import pl.dakil.dakilio.core.database.dao.PostDao
 
 internal class LocalPhotoRepository @Inject constructor(
@@ -80,6 +81,9 @@ internal class LocalPhotoRepository @Inject constructor(
     }
 
     override suspend fun sweepOrphans() = withContext(io) {
+        // A fresh install has nothing to sweep, and querying would create (and seed) the database
+        // before the first-run intro has let the user pick a language.
+        if (!DakilioDatabase.exists(context)) return@withContext
         val referenced = postDao.allPhotoFileNames().toSet()
         // Leave recent files alone: they may belong to an entry that is still being written.
         val cutoff = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(1)
