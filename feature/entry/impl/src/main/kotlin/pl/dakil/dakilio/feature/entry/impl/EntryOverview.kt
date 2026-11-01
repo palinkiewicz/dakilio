@@ -6,6 +6,17 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Surface
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.saveable.rememberSaveable
+import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
+import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
+import pl.dakil.dakilio.core.model.Tag
+import pl.dakil.dakilio.core.ui.component.TagPill
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -43,8 +54,8 @@ import pl.dakil.dakilio.core.ui.mood.moodColors
 import pl.dakil.dakilio.core.ui.mood.screenRect
 
 /**
- * The all-in-one editor for an existing entry: one row of mood faces, the tags, then the note, all
- * on a single page for quick fixes. New entries go through the step wizard instead.
+ * The all-in-one editor for an existing entry: one row of mood faces, the tags (folded into read-only
+ * chips until Edit is tapped), then the note, all on a single page for quick fixes. New entries go through the step wizard instead.
  */
 @Composable
 internal fun EntryOverview(
@@ -62,6 +73,8 @@ internal fun EntryOverview(
     onRemovePhoto: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    // Tags start folded into read-only chips so the note is a short scroll away.
+    var tagsExpanded by rememberSaveable { mutableStateOf(false) }
     LazyColumn(
         modifier = modifier.imePadding(),
         contentPadding = PaddingValues(top = Spacing.s, bottom = Spacing.xl),
@@ -77,18 +90,34 @@ internal fun EntryOverview(
                 modifier = Modifier.padding(horizontal = Spacing.gutter, vertical = Spacing.xs),
             )
         }
-        item(key = "tags-label") { SectionLabel(R.string.entry_step_tags, Modifier.animateItem().padding(top = Spacing.l)) }
-        tagGroupItems(
-            suggested = state.suggestedGroups,
-            others = state.otherGroups,
-            selectedIds = state.tagIds,
-            style = state.tagStyle,
-            toggledGroups = toggledGroups,
-            onToggleGroup = onToggleGroup,
-            onToggle = onToggleTag,
-            onManageTags = onManageTags,
-            horizontalPadding = Spacing.gutter,
-        )
+        item(key = "tags-label") {
+            TagsHeader(
+                expanded = tagsExpanded,
+                onExpandedChange = { tagsExpanded = it },
+                modifier = Modifier.animateItem().padding(top = Spacing.s),
+            )
+        }
+        if (!tagsExpanded) {
+            item(key = "tags-summary") {
+                SelectedTagsSummary(
+                    tags = state.selectedTags,
+                    onClick = { tagsExpanded = true },
+                    modifier = Modifier.animateItem().padding(horizontal = Spacing.gutter),
+                )
+            }
+        } else {
+            tagGroupItems(
+                suggested = state.suggestedGroups,
+                others = state.otherGroups,
+                selectedIds = state.tagIds,
+                style = state.tagStyle,
+                toggledGroups = toggledGroups,
+                onToggleGroup = onToggleGroup,
+                onToggle = onToggleTag,
+                onManageTags = onManageTags,
+                horizontalPadding = Spacing.gutter,
+            )
+        }
         item(key = "note-label") { SectionLabel(R.string.entry_step_note, Modifier.animateItem().padding(top = Spacing.m)) }
         item(key = "note") {
             NoteFields(
@@ -101,6 +130,69 @@ internal fun EntryOverview(
                 onRemovePhoto = onRemovePhoto,
                 modifier = Modifier.animateItem(),
             )
+        }
+    }
+}
+
+/** The Tags section label with an Edit/Done button that unfolds the tag groups. */
+@Composable
+private fun TagsHeader(expanded: Boolean, onExpandedChange: (Boolean) -> Unit, modifier: Modifier = Modifier) {
+    val haptics = rememberHaptics()
+    Row(
+        modifier.fillMaxWidth().padding(end = Spacing.gutter - Spacing.s),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        SectionLabel(R.string.entry_step_tags, Modifier.weight(1f))
+        TextButton(onClick = {
+            haptics.tick()
+            onExpandedChange(!expanded)
+        }) {
+            DakilioIcon(
+                if (expanded) DakilioSymbols.Check else DakilioSymbols.Edit,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+            )
+            Text(
+                stringResource(if (expanded) R.string.entry_tags_done else R.string.entry_tags_edit),
+                modifier = Modifier.padding(start = Spacing.s),
+            )
+        }
+    }
+}
+
+/** The entry's tags as read-only chips (all of them, unlike the timeline card); tapping edits them. */
+@Composable
+private fun SelectedTagsSummary(tags: List<Tag>, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val haptics = rememberHaptics()
+    Surface(
+        onClick = {
+            haptics.tick()
+            onClick()
+        },
+        shape = RoundedCornerShape(24.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        Row(
+            Modifier.heightIn(min = 56.dp).padding(horizontal = Spacing.l, vertical = Spacing.m),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (tags.isEmpty()) {
+                Text(
+                    stringResource(R.string.entry_tags_none_selected),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f),
+                )
+            } else {
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.weight(1f),
+                ) {
+                    tags.forEach { TagPill(it) }
+                }
+            }
         }
     }
 }

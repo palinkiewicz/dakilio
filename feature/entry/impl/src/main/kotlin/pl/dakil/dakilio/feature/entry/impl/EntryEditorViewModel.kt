@@ -34,6 +34,7 @@ import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.MoodDisplayOrder
 import pl.dakil.dakilio.core.model.PostDraft
+import pl.dakil.dakilio.core.model.Tag
 import pl.dakil.dakilio.core.model.TagGroup
 import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.feature.entry.api.EntryEditorKey
@@ -52,6 +53,8 @@ internal data class EditorForm(
     val ownMood: Mood? = null,
     val diaryIds: Set<Long> = emptySet(),
     val tagIds: Set<Long> = emptySet(),
+    /** The saved entry's own tags, so archived ones still show among the selected tags. */
+    val ownTags: List<Tag> = emptyList(),
     val photos: List<EditorPhoto> = emptyList(),
     val importingPhotos: Int = 0,
     val dirty: Boolean = false,
@@ -72,6 +75,8 @@ data class EditorUiState(
     val suggestedGroups: List<TagGroup>,
     val otherGroups: List<TagGroup>,
     val tagIds: Set<Long>,
+    /** The selected tags in group order, followed by archived ones the entry already had. */
+    val selectedTags: List<Tag>,
     val tagStyle: TagStyle,
     val photos: List<EditorPhoto>,
     val importingPhotos: Int,
@@ -133,6 +138,7 @@ class EntryEditorViewModel @AssistedInject constructor(
                 suggestedGroups = suggested,
                 otherGroups = other,
                 tagIds = form.tagIds,
+                selectedTags = selectedTags(groups, form),
                 tagStyle = settings.tagStyle,
                 photos = form.photos,
                 importingPhotos = form.importingPhotos,
@@ -160,6 +166,7 @@ class EntryEditorViewModel @AssistedInject constructor(
                 ownMood = existing.mood,
                 diaryIds = existing.diaryIds,
                 tagIds = existing.tags.map { it.id }.toSet(),
+                ownTags = existing.tags,
                 photos = existing.photos.map { EditorPhoto(it.fileName, it.path) },
             )
             return
@@ -276,4 +283,10 @@ class EntryEditorViewModel @AssistedInject constructor(
     private companion object {
         const val AUTO_ADVANCE_MS = 420L
     }
+}
+
+private fun selectedTags(groups: List<TagGroup>, form: EditorForm): List<Tag> {
+    val shown = groups.flatMap { it.tags }.filter { it.id in form.tagIds }
+    val shownIds = shown.map { it.id }.toSet()
+    return shown + form.ownTags.filter { it.id in form.tagIds && it.id !in shownIds }
 }
