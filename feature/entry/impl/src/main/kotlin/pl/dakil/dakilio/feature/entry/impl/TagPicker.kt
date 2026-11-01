@@ -183,8 +183,8 @@ private fun TagGroupPanel(
     }
 }
 
-private val IconCellMinWidth = 76.dp
-private val IconSize = 52.dp
+private val IconCellMinWidth = 64.dp
+private val IconSize = 48.dp
 private val tagMorph by lazy { Morph(MaterialShapes.Circle, MaterialShapes.Cookie9Sided) }
 
 /** Daylio-style dense grid: an icon button per tag with its label underneath, in even columns. */
@@ -197,7 +197,7 @@ private fun TagIconGrid(tags: List<Tag>, selectedIds: Set<Long>, onToggle: (Long
         modifier = modifier.fillMaxWidth(),
     ) { measurables, constraints ->
         val width = constraints.maxWidth
-        val columns = maxOf(4, width / IconCellMinWidth.roundToPx())
+        val columns = maxOf(5, width / IconCellMinWidth.roundToPx())
         val cell = width / columns
         val gap = Spacing.s.roundToPx()
         val rows = measurables.map { it.measure(Constraints.fixedWidth(cell)) }.chunked(columns)
@@ -251,7 +251,7 @@ private fun TagIconButton(tag: Tag, selected: Boolean, onToggle: () -> Unit, mod
                 contentDescription = null,
                 filled = selected,
                 tint = lerp(colors.onSurfaceVariant, colors.onPrimary, progress),
-                modifier = Modifier.size(26.dp).graphicsLayer { rotationZ = -progress * 20f },
+                modifier = Modifier.size(24.dp).graphicsLayer { rotationZ = -progress * 20f },
             )
         }
         Text(
