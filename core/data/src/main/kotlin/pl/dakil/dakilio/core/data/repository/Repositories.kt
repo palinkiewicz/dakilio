@@ -11,6 +11,7 @@ import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TagUsage
 import pl.dakil.dakilio.core.model.ThemeMode
 import pl.dakil.dakilio.core.model.UserSettings
+import pl.dakil.dakilio.core.daylio.ImportStats
 
 interface MoodRepository {
     /** Every pickable (non-archived) mood: by level, worst first; primary before its aliases. */
@@ -91,6 +92,9 @@ interface PhotoRepository {
     /** Copies a picked image into app storage (downscaled, re-encoded, metadata stripped). */
     suspend fun import(uri: Uri): String?
 
+    /** Like [import], for an image held in memory; [rotationDegrees] applies when it has no EXIF orientation. */
+    suspend fun importBytes(bytes: ByteArray, rotationDegrees: Int = 0): String?
+
     fun pathOf(fileName: String): String
 
     suspend fun delete(fileNames: Collection<String>)
@@ -111,4 +115,32 @@ interface SettingsRepository {
     suspend fun setTagStyle(style: TagStyle)
 
     suspend fun setShowHints(show: Boolean)
+}
+
+/** What's in Dakilio right now, i.e. what a Daylio import would delete. */
+data class CurrentContent(val entries: Int, val photos: Int, val diaries: Int, val tags: Int)
+
+data class DaylioPreview(
+    val stats: ImportStats,
+    /** The backup's version differs from the one the importer was checked against. */
+    val untestedVersion: Boolean,
+    /** Photos the entries reference that aren't in the archive. */
+    val missingPhotos: Int,
+    val current: CurrentContent,
+)
+
+data class DaylioImportResult(val entries: Int, val photos: Int, val photosFailed: Int)
+
+/**
+ * Imports a `.daylio` backup, **replacing** every entry, photo, diary, tag group, tag and mood alias.
+ * Stateful: [open] a file, then [import] it; [close] releases the temporary copy. Errors in [open]
+ * are [pl.dakil.dakilio.core.daylio.DaylioImportException]s where the file is the problem.
+ */
+interface DaylioImportRepository {
+    suspend fun open(uri: Uri): DaylioPreview
+
+    /** Copies the photos (reporting progress), then swaps the content in one transaction. */
+    suspend fun import(onProgress: (done: Int, total: Int) -> Unit): DaylioImportResult
+
+    fun close()
 }

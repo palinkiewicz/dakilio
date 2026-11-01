@@ -9,6 +9,9 @@
     <string name="more_tags_body">Groups, labels and icons</string>
     <string name="more_diaries">Diaries</string>
     <string name="more_diaries_body">Names, icons and suggested tags</string>
+    <string name="more_section_data">Data</string>
+    <string name="more_import_daylio">Import from Daylio</string>
+    <string name="more_import_daylio_body">Replace everything with a .daylio backup</string>
     <string name="more_section_app">App</string>
     <string name="more_settings">Settings</string>
     <string name="more_settings_body">Theme and starter content</string>

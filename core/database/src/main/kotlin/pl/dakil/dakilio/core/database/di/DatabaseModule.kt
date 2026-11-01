@@ -15,6 +15,7 @@ import pl.dakil.dakilio.core.common.PhotoDirectory
 import pl.dakil.dakilio.core.database.DakilioDatabase
 import pl.dakil.dakilio.core.database.DefaultData
 import pl.dakil.dakilio.core.database.dao.DiaryDao
+import pl.dakil.dakilio.core.database.dao.ImportDao
 import pl.dakil.dakilio.core.database.dao.MoodDao
 import pl.dakil.dakilio.core.database.dao.PostDao
 import pl.dakil.dakilio.core.database.dao.TagDao
@@ -45,4 +46,6 @@ internal object DatabaseModule {
     @Provides fun tagDao(db: DakilioDatabase): TagDao = db.tagDao()
 
     @Provides fun postDao(db: DakilioDatabase): PostDao = db.postDao()
+
+    @Provides fun importDao(db: DakilioDatabase): ImportDao = db.importDao()
 }

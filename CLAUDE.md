@@ -57,6 +57,7 @@ The layout follows NowInAndroid: `app` → `feature:*:impl` → `feature:*:api` 
   - `DefaultData` seeds everything inside `RoomDatabase.Callback.onCreate`: the 5 primary moods (ids 1..5 = their level), the "Your Journey" diary, tag groups and 12 **sample entries with photos** copied from `assets/sample/`.
   - Sample posts use the reserved ids `DefaultData.SAMPLE_POST_IDS` (1..12). Removal relies on those ids. SQLite `AUTOINCREMENT` never reuses ids, so user posts can't collide with them.
 - `core:data`: repository interfaces and `Local*` implementations, bound in `DataModule`. Feature modules see only models and these interfaces, never entities or DAOs. `PostRepository.posts` is a single `Flow<List<Post>>`. Timeline, search and insights all derive from it in memory on the Default dispatcher; there is no Paging and no FTS.
+- `core:daylio` (pure JVM, host-tested): reads `.daylio` backups (`DaylioArchive`), converts note HTML to text (`daylioHtmlToText`), guesses tag icons (`daylioTagIcon`) and maps a backup onto Dakilio's model (`planImport` → `ImportPlan`). Uses kotlinx-serialization-json.
 - `core:datastore`: user preferences only (theme, the last-used diaries of the editor, the sample-hint flag, tag style, beginner hints). User content lives in Room.
 - `core:designsystem`: the theme, the Google Sans Flex typography (rounded `ROND` axis for display and headline styles), shapes, the symbol catalog, haptics, `MorphShape`/`PolygonShape`, and generic expressive primitives.
 - `core:ui`: domain-aware components (`MoodBadge`, `PostCard`, diary selectors, `IconPicker`, `PhotoViewer`), formatters, `NavTransitions`, and `Modifier.sharedContainer`.
@@ -85,6 +86,12 @@ The layout follows NowInAndroid: `app` → `feature:*:impl` → `feature:*:api` 
 - **Diaries suggest tag groups.** In the editor, groups suggested by any selected diary are expanded; the rest are collapsed under "More groups". When none are suggested, all groups are expanded.
   - Every group in the editor is a collapsible panel (`TagPicker.kt`). What the user folds open or shut lasts only for that editor session (`toggledGroups` in `EntryEditorScreen`).
   - The tag style is a user setting (`UserSettings.tagStyle`): a Daylio-style icon grid (the default) or chips. Read-only tag displays (post cards, search) always use chips.
+- **Daylio import replaces everything** (More → Import from Daylio, `feature:importer`). It doesn't merge: after a warning and a confirmation, every entry, photo, diary, tag group, tag and mood alias is deleted, and the backup goes into a fresh "Your Journey" diary.
+  - The swap is one transaction (`ImportDao.replaceAll`). Photos are copied (re-encoded through `PhotoRepository.importBytes`) before it, and they're deleted again if it fails.
+  - The 5 primaries are kept and renamed: a renamed Daylio base mood keeps its name, the others get the seed names. Daylio's custom moods become aliases; archived ones only if entries use them.
+  - `sqlite_sequence` is never reset, so imported entries can't take the reserved sample ids.
+  - Daylio names its assets `/assets/...`, which Android 14+ `ZipFile` rejects by default. `allowRootedZipEntries()` installs a `ZipPathValidator` that allows the leading slash but still rejects `..`.
+  - Voice notes and favourites are skipped and counted in the preview.
 - **Photos** come through the system Photo Picker, so no permission is needed. `LocalPhotoRepository.import` re-encodes each image to at most 2560 px JPEG, which strips EXIF (including GPS), into `filesDir/photos`.
   - Files imported during an editor session are deleted if the draft is abandoned.
   - `sweepOrphans()` runs at startup.
@@ -115,4 +122,4 @@ The layout follows NowInAndroid: `app` → `feature:*:impl` → `feature:*:api` 
   - Never hints: empty states, counts, validation, dialog warnings, setting descriptions, placeholders and screen taglines.
   - Layouts must look right without the hint: put spacing on the neighbours, not on the hint.
 - Use `DakilioIcon(DakilioSymbols.X, filled = selected)` for icons. Tags and diaries store symbol keys, which `symbolForKey()` resolves.
-- Keep new logic Android-free where possible so it can be host-tested. The existing tests cover the timeline builder, the insights calculator, search, streaks and entry validation.
+- Keep new logic Android-free where possible so it can be host-tested. The existing tests cover the timeline builder, the insights calculator, search, streaks, entry validation and the Daylio reader and planner.

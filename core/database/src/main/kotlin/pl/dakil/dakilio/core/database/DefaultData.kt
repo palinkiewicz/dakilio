@@ -10,6 +10,7 @@ import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
+import pl.dakil.dakilio.core.database.entity.DiaryEntity
 
 /**
  * Everything a fresh install starts with: the 5 primary moods, the "Your Journey" diary, a set of
@@ -24,6 +25,21 @@ object DefaultData {
     val SAMPLE_POST_IDS: LongRange = 1L..12L
 
     private const val SAMPLE_ASSET_DIR = "sample"
+    private const val DEFAULT_DIARY_ICON = "explore"
+
+    /** The default name of the [level]'s primary mood. */
+    fun primaryMoodLabel(context: Context, level: Int): String = context.getString(primaryMoods[level - 1])
+
+    /** The group for imported activities that come without one. */
+    fun importFallbackGroupName(context: Context): String = context.getString(R.string.import_group_daylio)
+
+    /** The "Your Journey" diary a fresh install (and a Daylio import) starts with. */
+    fun defaultDiary(context: Context, now: Long): DiaryEntity = DiaryEntity(
+        name = context.getString(R.string.seed_diary_journey),
+        iconKey = DEFAULT_DIARY_ICON,
+        position = 0,
+        createdAt = now,
+    )
 
     /** The primary mood of each level, worst first. Its id equals its level (sample entries rely on it). */
     private val primaryMoods = listOf(
@@ -171,7 +187,7 @@ object DefaultData {
             "diary",
             "id" to DEFAULT_DIARY_ID,
             "name" to context.getString(R.string.seed_diary_journey),
-            "icon_key" to "explore",
+            "icon_key" to DEFAULT_DIARY_ICON,
             "position" to 0,
             "created_at" to now,
         )

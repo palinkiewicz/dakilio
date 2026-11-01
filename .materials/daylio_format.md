@@ -19,7 +19,7 @@ A `.daylio` file is a plain **ZIP** archive (deflate). The sample has three memb
 | `/assets/audio/2026/11/7ff6cf360f5ab334dfd7a0690d5063f3` | 47 KB | a voice note: an MP4/M4A (`ftypmp42`) |
 
 Notes on the container:
-- **The asset names start with a slash** (`/assets/...`). `java.util.zip.ZipFile.getEntry("/assets/…")` works with the exact name. Never use a member name as an output path (zip-slip); we only ever *look entries up*, we never extract by name.
+- **The asset names start with a slash** (`/assets/...`). `java.util.zip.ZipFile.getEntry("/assets/…")` works with the exact name. **But on Android 14+, for apps targeting SDK 34+, the system zip-path validator makes `ZipFile`'s constructor throw `ZipException` for names starting with `/`.** The importer installs its own `ZipPathValidator` callback that still rejects `..` but allows the leading slash (`allowRootedZipEntries()` in `LocalDaylioImportRepository`). Host (JVM) tests can't catch this. Never use a member name as an output path (zip-slip); we only ever *look entries up*, we never extract by name.
 - **Asset folders are `YYYY/MM` of the asset's own `createdAt`**, with a 1-based month, *not* the entry's date. The photo of the 29 Oct entry lives under `2026/11`. Find assets by **file name = `checksum`**, not by rebuilding the path.
 - **The `checksum` is not a reliable content hash.** It equals the MD5 of the audio file, but *not* of the photo, which Daylio probably hashed before recompressing it. Use it only as the lookup key, and never verify against it.
 - **The Base64 is MIME-style:** 76-character lines separated by `\n`. In Kotlin, decode with `java.util.Base64.getMimeDecoder()`, which is fine on minSdk 29.
@@ -173,6 +173,8 @@ If Dakilio later gets Markdown notes, the same converter can emit `**bold**`, `*
 | 15 | Voice notes and favourites have no Dakilio counterpart | skip them, and show both counts in the preview |
 
 ## 9. Suggested shape of the importer (for the later implementation plan)
+> **Implemented as a replace, not a merge.** The importer (`core:daylio`, `ImportDao.replaceAll`, `feature:importer`) wipes all user content and imports the backup into a fresh "Your Journey" diary. So the merge-by-name rules (§3 renaming offer, §4 merging, pitfall 9), the target-diary choice (§5) and the `external_id` dedupe (pitfall 10) don't apply. See CLAUDE.md, "Daylio import replaces everything".
+
 - **`core:daylio`** (pure JVM, host-tested), containing:
   - `DaylioBackup` data classes, parsed with **kotlinx-serialization-json**. It's a new, small dependency: only `-core` is in the project today. Configure it with `ignoreUnknownKeys`.
   - `readBackup(zipBytes or File)`: ZIP → Base64 → JSON → model, plus asset lookup by checksum.

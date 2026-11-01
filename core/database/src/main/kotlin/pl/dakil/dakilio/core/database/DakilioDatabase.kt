@@ -3,6 +3,7 @@ package pl.dakil.dakilio.core.database
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import pl.dakil.dakilio.core.database.dao.DiaryDao
+import pl.dakil.dakilio.core.database.dao.ImportDao
 import pl.dakil.dakilio.core.database.dao.MoodDao
 import pl.dakil.dakilio.core.database.dao.PostDao
 import pl.dakil.dakilio.core.database.dao.TagDao
@@ -36,4 +37,5 @@ abstract class DakilioDatabase : RoomDatabase() {
     abstract fun diaryDao(): DiaryDao
     abstract fun tagDao(): TagDao
     abstract fun postDao(): PostDao
+    abstract fun importDao(): ImportDao
 }

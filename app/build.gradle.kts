@@ -111,6 +111,7 @@ dependencies {
     implementation(projects.feature.tags.impl)
     implementation(projects.feature.diaries.impl)
     implementation(projects.feature.settings.impl)
+    implementation(projects.feature.importer.impl)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)

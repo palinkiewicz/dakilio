@@ -6,6 +6,7 @@ import androidx.navigation3.runtime.NavKey
 import pl.dakil.dakilio.core.navigation.Navigator
 import pl.dakil.dakilio.core.ui.NavTransitions
 import pl.dakil.dakilio.feature.diaries.api.DiariesKey
+import pl.dakil.dakilio.feature.importer.api.DaylioImportKey
 import pl.dakil.dakilio.feature.more.api.MoreKey
 import pl.dakil.dakilio.feature.settings.api.SettingsKey
 import pl.dakil.dakilio.feature.moods.api.MoodsKey
@@ -19,6 +20,7 @@ fun EntryProviderScope<NavKey>.moreEntry(navigator: Navigator) {
             onOpenTags = { navigator.navigate(TagsKey) },
             onOpenDiaries = { navigator.navigate(DiariesKey) },
             onOpenSettings = { navigator.navigate(SettingsKey) },
+            onOpenImport = { navigator.navigate(DaylioImportKey) },
         )
     }
 }

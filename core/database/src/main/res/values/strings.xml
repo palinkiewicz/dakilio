@@ -15,6 +15,8 @@
     <string name="seed_group_health">Health</string>
     <string name="seed_group_journey">Journey</string>
     <string name="seed_group_weather">Weather</string>
+    <!-- Collects imported Daylio activities that have no group. -->
+    <string name="import_group_daylio">Daylio</string>
 
     <string name="seed_tag_happy">Happy</string>
     <string name="seed_tag_grateful">Grateful</string>

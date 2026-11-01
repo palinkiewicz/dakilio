@@ -46,6 +46,7 @@ import pl.dakil.dakilio.feature.insights.api.InsightsKey
 import pl.dakil.dakilio.feature.insights.impl.insightsEntry
 import pl.dakil.dakilio.feature.more.api.MoreKey
 import pl.dakil.dakilio.feature.moods.impl.moodsEntry
+import pl.dakil.dakilio.feature.importer.impl.daylioImportEntry
 import pl.dakil.dakilio.feature.more.impl.moreEntry
 import pl.dakil.dakilio.feature.search.impl.searchEntry
 import pl.dakil.dakilio.feature.settings.impl.settingsEntry
@@ -79,6 +80,7 @@ fun DakilioApp() {
         searchEntry(navigator)
         entryEditorEntry(navigator)
         moodsEntry(navigator)
+        daylioImportEntry(navigator)
         tagsEntry(navigator)
         diariesEntries(navigator)
         settingsEntry(navigator)

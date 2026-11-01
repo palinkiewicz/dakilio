@@ -12,4 +12,5 @@ dependencies {
     implementation(projects.feature.tags.api)
     implementation(projects.feature.diaries.api)
     implementation(projects.feature.settings.api)
+    implementation(projects.feature.importer.api)
 }

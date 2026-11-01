@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="import_title">Import from Daylio</string>
+    <string name="import_subtitle">Bring your Daylio history along</string>
+    <string name="import_back">Back</string>
+
+    <string name="import_pick_title">Pick a Daylio backup</string>
+    <string name="import_pick_body">In Daylio, make a backup under More → Backup &amp; Restore and save the .daylio file on this phone. Then pick it here.</string>
+    <string name="import_pick_button">Choose file</string>
+    <string name="import_pick_privacy">The file is read on this device only. Nothing is uploaded.</string>
+    <string name="import_reading">Reading the backup…</string>
+
+    <string name="import_preview_title">Ready to import</string>
+    <string name="import_preview_range">%1$s – %2$s</string>
+    <string name="import_stat_entries">Entries</string>
+    <string name="import_stat_photos">Photos</string>
+    <string name="import_stat_tags">Activities</string>
+    <string name="import_stat_groups">Groups</string>
+    <string name="import_stat_moods">Extra moods</string>
+    <string name="import_skipped_title">Not imported</string>
+    <plurals name="import_skipped_voice">
+        <item quantity="one">%d voice note (Dakilio has no audio)</item>
+        <item quantity="other">%d voice notes (Dakilio has no audio)</item>
+    </plurals>
+    <plurals name="import_skipped_favorites">
+        <item quantity="one">The favourite mark on %d entry</item>
+        <item quantity="other">The favourite marks on %d entries</item>
+    </plurals>
+    <plurals name="import_skipped_photos">
+        <item quantity="one">%d photo missing from the file</item>
+        <item quantity="other">%d photos missing from the file</item>
+    </plurals>
+    <plurals name="import_skipped_references">
+        <item quantity="one">%d broken reference to an activity, mood or file</item>
+        <item quantity="other">%d broken references to activities, moods or files</item>
+    </plurals>
+    <plurals name="import_skipped_entries">
+        <item quantity="one">%d entry with an unknown mood</item>
+        <item quantity="other">%d entries with an unknown mood</item>
+    </plurals>
+    <string name="import_untested_version">This backup comes from a Daylio version Dakilio hasn\'t been tested with. Check the result after importing.</string>
+
+    <string name="import_warning_title">This replaces everything in Dakilio</string>
+    <string name="import_warning_body">%1$s, %2$s, %3$s and %4$s will be deleted, including the sample entries. Your Daylio entries go into a fresh \"Your Journey\" diary.</string>
+    <plurals name="import_count_entries">
+        <item quantity="one">%d entry</item>
+        <item quantity="other">%d entries</item>
+    </plurals>
+    <plurals name="import_count_photos">
+        <item quantity="one">%d photo</item>
+        <item quantity="other">%d photos</item>
+    </plurals>
+    <plurals name="import_count_diaries">
+        <item quantity="one">%d diary</item>
+        <item quantity="other">%d diaries</item>
+    </plurals>
+    <plurals name="import_count_tags">
+        <item quantity="one">%d tag</item>
+        <item quantity="other">%d tags</item>
+    </plurals>
+    <string name="import_start">Import and replace</string>
+    <string name="import_other_file">Pick another file</string>
+
+    <string name="import_confirm_title">Replace all your data?</string>
+    <string name="import_confirm_body">Everything currently in Dakilio will be deleted for good and replaced with the Daylio backup. This can\'t be undone.</string>
+    <string name="import_confirm_yes">Replace</string>
+    <string name="import_confirm_no">Cancel</string>
+
+    <string name="import_progress_title">Importing…</string>
+    <string name="import_progress_photos">Copying photos: %1$d of %2$d</string>
+    <string name="import_progress_saving">Saving your entries…</string>
+    <string name="import_progress_keep_open">Keep this screen open until it\'s done.</string>
+
+    <string name="import_done_title">Welcome aboard!</string>
+    <plurals name="import_done_entries">
+        <item quantity="one">%d entry imported</item>
+        <item quantity="other">%d entries imported</item>
+    </plurals>
+    <plurals name="import_done_photos">
+        <item quantity="one">with %d photo</item>
+        <item quantity="other">with %d photos</item>
+    </plurals>
+    <plurals name="import_done_photos_failed">
+        <item quantity="one">%d photo couldn\'t be read and was left out.</item>
+        <item quantity="other">%d photos couldn\'t be read and were left out.</item>
+    </plurals>
+    <string name="import_done_button">Go to timeline</string>
+
+    <string name="import_error_title">Couldn\'t import this file</string>
+    <string name="import_error_not_zip">This doesn\'t look like a Daylio backup. Pick the .daylio file Daylio exported.</string>
+    <string name="import_error_missing_backup">The file has no Daylio data inside.</string>
+    <string name="import_error_too_large">The file is too large to import.</string>
+    <string name="import_error_malformed">The backup is damaged or in a format Dakilio can\'t read.</string>
+    <string name="import_error_version">This Daylio backup version isn\'t supported.</string>
+    <string name="import_error_unknown">Something went wrong while reading the file.</string>
+    <string name="import_error_import_failed">Something went wrong while importing. Nothing was changed.</string>
+</resources>

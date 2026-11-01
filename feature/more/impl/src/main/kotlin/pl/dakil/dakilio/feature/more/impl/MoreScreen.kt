@@ -56,6 +56,7 @@ internal fun MoreScreen(
     onOpenTags: () -> Unit,
     onOpenDiaries: () -> Unit,
     onOpenSettings: () -> Unit,
+    onOpenImport: () -> Unit,
 ) {
     val showSampleHint by viewModel.showSampleHint.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -83,6 +84,10 @@ internal fun MoreScreen(
                     MoreItem(DakilioSymbols.Sell, stringResource(R.string.more_tags), stringResource(R.string.more_tags_body), onOpenTags),
                     MoreItem(DakilioSymbols.Book2, stringResource(R.string.more_diaries), stringResource(R.string.more_diaries_body), onOpenDiaries),
                 ),
+            )
+            Group(
+                stringResource(R.string.more_section_data),
+                listOf(MoreItem(DakilioSymbols.DriveFileMove, stringResource(R.string.more_import_daylio), stringResource(R.string.more_import_daylio_body), onOpenImport)),
             )
             Group(
                 stringResource(R.string.more_section_app),

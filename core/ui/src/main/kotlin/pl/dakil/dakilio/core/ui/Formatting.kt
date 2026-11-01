@@ -23,6 +23,7 @@ class DakilioFormats(private val locale: Locale, is24Hour: Boolean) {
     private val weekdayShort = DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "EEE"), locale)
     private val dayMonth = DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "dMMMM"), locale)
     private val dayMonthShort = DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "dMMM"), locale)
+    private val dayMonthYear = DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "dMMMyyyy"), locale)
     private val monthYear = DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "MMMMyyyy"), locale)
     private val fullDate = DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "EEEEdMMMM"), locale)
     private val fullDateYear = DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "EEEEdMMMMyyyy"), locale)
@@ -33,6 +34,8 @@ class DakilioFormats(private val locale: Locale, is24Hour: Boolean) {
     fun dayMonth(date: LocalDate): String = dayMonth.format(date)
     fun dayMonthShort(date: LocalDate): String = dayMonthShort.format(date)
     fun weekdayNarrow(day: DayOfWeek): String = day.getDisplayName(TextStyle.NARROW, locale)
+    fun dayMonthYear(date: LocalDate): String = dayMonthYear.format(date)
+
     fun monthYear(date: LocalDate): String = monthYear.format(date).replaceFirstChar { it.titlecase() }
 
     fun fullDate(date: LocalDate, today: LocalDate): String =
