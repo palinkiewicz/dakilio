@@ -7,6 +7,9 @@
     <string name="import_pick_title">Pick a Daylio backup</string>
     <string name="import_pick_body">In Daylio, make a backup under More → Backup &amp; Restore and save the .daylio file on this phone. Then pick it here.</string>
     <string name="import_pick_button">Choose file</string>
+    <string name="import_daylio_title">Daylio is installed</string>
+    <string name="import_daylio_body">Open its backup screen, export a .daylio file to this phone, then come back and choose it.</string>
+    <string name="import_daylio_open">Open Daylio backup</string>
     <string name="import_pick_privacy">The file is read on this device only. Nothing is uploaded.</string>
     <string name="import_reading">Reading the backup…</string>
 

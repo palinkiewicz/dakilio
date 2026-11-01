@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Lets the import screen see whether Daylio is installed (package visibility, Android 11+). -->
+    <queries>
+        <package android:name="net.daylio" />
+    </queries>
+</manifest>

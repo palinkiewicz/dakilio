@@ -3,6 +3,7 @@
 # Regenerate with: python3 -I tools/fetch-icons.py
 ui add
 ui close
+ui block
 ui search
 ui arrow_back
 ui check
@@ -41,6 +42,7 @@ ui palette
 ui delete_sweep
 ui folder_open
 ui drive_file_move
+ui open_in_new
 ui gavel
 emotions sentiment_very_satisfied
 emotions sentiment_satisfied

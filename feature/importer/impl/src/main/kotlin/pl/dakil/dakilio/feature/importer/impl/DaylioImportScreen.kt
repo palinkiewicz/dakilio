@@ -26,6 +26,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.LoadingIndicator
@@ -49,11 +50,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.graphics.shapes.RoundedPolygon
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pl.dakil.dakilio.core.data.repository.DaylioImportResult
 import pl.dakil.dakilio.core.data.repository.DaylioPreview
@@ -74,6 +77,19 @@ internal fun DaylioImportScreen(viewModel: DaylioImportViewModel, onBack: () -> 
     val pick = { picker.launch(arrayOf("*/*")) }
     var confirming by rememberSaveable { mutableStateOf(false) }
     val importing = state is ImportUiState.Importing
+
+    // Re-checked on every resume, so installing or removing Daylio meanwhile shows or hides the card.
+    val context = LocalContext.current
+    var daylioInstalled by remember { mutableStateOf(false) }
+    LifecycleResumeEffect(Unit) {
+        daylioInstalled = isDaylioInstalled(context)
+        onPauseOrDispose { }
+    }
+    val openHaptics = rememberHaptics()
+    val openDaylio = {
+        openHaptics.confirm()
+        if (!openDaylioBackup(context)) daylioInstalled = false
+    }
 
     // Leaving mid-import would cancel it; the swap itself is atomic, but keep the user here.
     BackHandler(enabled = importing) {}
@@ -116,7 +132,7 @@ internal fun DaylioImportScreen(viewModel: DaylioImportViewModel, onBack: () -> 
                     verticalArrangement = Arrangement.spacedBy(Spacing.m),
                 ) {
                     when (current) {
-                        ImportUiState.Pick -> PickStep(onPick = pick)
+                        ImportUiState.Pick -> PickStep(onPick = pick, daylioInstalled = daylioInstalled, onOpenDaylio = openDaylio)
                         ImportUiState.Reading -> Busy(stringResource(R.string.import_reading))
                         is ImportUiState.Preview -> PreviewStep(current.preview, onImport = { confirming = true }, onPickOther = viewModel::reset)
                         is ImportUiState.Importing -> ImportingStep(current.done, current.total)
@@ -151,7 +167,7 @@ internal fun DaylioImportScreen(viewModel: DaylioImportViewModel, onBack: () -> 
 }
 
 @Composable
-private fun ColumnScope.PickStep(onPick: () -> Unit) {
+private fun ColumnScope.PickStep(onPick: () -> Unit, daylioInstalled: Boolean, onOpenDaylio: () -> Unit) {
     Hero(DakilioSymbols.DriveFileMove, MaterialShapes.Cookie9Sided)
     Text(
         stringResource(R.string.import_pick_title),
@@ -169,6 +185,30 @@ private fun ColumnScope.PickStep(onPick: () -> Unit) {
     Button(onClick = onPick, modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = Spacing.s)) {
         DakilioIcon(DakilioSymbols.FolderOpen, contentDescription = null, modifier = Modifier.padding(end = Spacing.s))
         Text(stringResource(R.string.import_pick_button))
+    }
+    if (daylioInstalled) {
+        Surface(
+            shape = RoundedCornerShape(28.dp),
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            modifier = Modifier.fillMaxWidth().padding(top = Spacing.l),
+        ) {
+            Row(Modifier.padding(Spacing.xl)) {
+                DakilioIcon(DakilioSymbols.Lightbulb, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                Column(Modifier.padding(start = Spacing.l)) {
+                    Text(stringResource(R.string.import_daylio_title), style = MaterialTheme.typography.titleMediumEmphasized)
+                    Text(
+                        stringResource(R.string.import_daylio_body),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = Spacing.xs),
+                    )
+                    FilledTonalButton(onClick = onOpenDaylio, modifier = Modifier.padding(top = Spacing.m)) {
+                        Text(stringResource(R.string.import_daylio_open))
+                        DakilioIcon(DakilioSymbols.OpenInNew, contentDescription = null, modifier = Modifier.padding(start = Spacing.s))
+                    }
+                }
+            }
+        }
     }
     Row(Modifier.fillMaxWidth().padding(top = Spacing.l), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
         DakilioIcon(DakilioSymbols.Shield, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)

@@ -45,6 +45,7 @@ object DakilioSymbols {
     val DeleteSweep = DakilioSymbol("delete_sweep", R.drawable.sym_delete_sweep, R.drawable.sym_delete_sweep_fill, SymbolCategory.Ui)
     val FolderOpen = DakilioSymbol("folder_open", R.drawable.sym_folder_open, R.drawable.sym_folder_open_fill, SymbolCategory.Ui)
     val DriveFileMove = DakilioSymbol("drive_file_move", R.drawable.sym_drive_file_move, R.drawable.sym_drive_file_move_fill, SymbolCategory.Ui)
+    val OpenInNew = DakilioSymbol("open_in_new", R.drawable.sym_open_in_new, R.drawable.sym_open_in_new_fill, SymbolCategory.Ui)
     val Gavel = DakilioSymbol("gavel", R.drawable.sym_gavel, R.drawable.sym_gavel_fill, SymbolCategory.Ui)
     val SentimentVerySatisfied = DakilioSymbol("sentiment_very_satisfied", R.drawable.sym_sentiment_very_satisfied, R.drawable.sym_sentiment_very_satisfied_fill, SymbolCategory.Emotions)
     val SentimentSatisfied = DakilioSymbol("sentiment_satisfied", R.drawable.sym_sentiment_satisfied, R.drawable.sym_sentiment_satisfied_fill, SymbolCategory.Emotions)
@@ -173,6 +174,7 @@ object DakilioSymbols {
     val all: List<DakilioSymbol> = listOf(
         Add,
         Close,
+        Block,
         Search,
         ArrowBack,
         Check,
@@ -211,6 +213,7 @@ object DakilioSymbols {
         DeleteSweep,
         FolderOpen,
         DriveFileMove,
+        OpenInNew,
         Gavel,
         SentimentVerySatisfied,
         SentimentSatisfied,
