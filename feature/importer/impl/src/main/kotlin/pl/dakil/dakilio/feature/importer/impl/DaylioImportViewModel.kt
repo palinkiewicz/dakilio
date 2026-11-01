@@ -11,6 +11,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import pl.dakil.dakilio.core.data.repository.DaylioImportRepository
@@ -38,13 +39,25 @@ internal sealed interface ImportUiState {
 @HiltViewModel
 internal class DaylioImportViewModel @Inject constructor(
     private val repository: DaylioImportRepository,
+    incoming: IncomingBackups,
 ) : ViewModel() {
     private val _state = MutableStateFlow<ImportUiState>(ImportUiState.Pick)
     val state: StateFlow<ImportUiState> = _state.asStateFlow()
 
     private var job: Job? = null
 
+    init {
+        // A file shared to Dakilio replaces whatever is on screen, unless an import is already running.
+        viewModelScope.launch {
+            incoming.pending.filterNotNull().collect {
+                val uri = incoming.take() ?: return@collect
+                if (_state.value !is ImportUiState.Importing) open(uri)
+            }
+        }
+    }
+
     fun open(uri: Uri) {
+        if (_state.value is ImportUiState.Importing) return
         job?.cancel()
         _state.value = ImportUiState.Reading
         job = viewModelScope.launch {

@@ -21,13 +21,19 @@ internal fun isDaylioInstalled(context: Context): Boolean = try {
 
 /**
  * Opens Daylio's backup screen, falling back to Daylio's main screen if that one can't be started.
- * Started without FLAG_ACTIVITY_NEW_TASK so Back from Daylio returns here. Returns false if neither worked.
+ * Returns false if neither worked.
+ *
+ * Daylio gets its own task (FLAG_ACTIVITY_NEW_TASK). If its screen sat on top of Dakilio's task, sharing
+ * the backup back would not bring that task forward: Android would start a second MainActivity inside
+ * Daylio's flow instead of delivering the file to the running one.
  */
 internal fun openDaylioBackup(context: Context): Boolean {
-    val backup = Intent().setComponent(ComponentName(DAYLIO_PACKAGE, DAYLIO_BACKUP_ACTIVITY))
+    val backup = Intent()
+        .setComponent(ComponentName(DAYLIO_PACKAGE, DAYLIO_BACKUP_ACTIVITY))
+        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     if (tryStart(context, backup)) return true
     val launch = context.packageManager.getLaunchIntentForPackage(DAYLIO_PACKAGE) ?: return false
-    return tryStart(context, launch)
+    return tryStart(context, launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
 }
 
 private fun tryStart(context: Context, intent: Intent): Boolean = try {

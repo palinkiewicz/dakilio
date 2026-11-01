@@ -17,10 +17,58 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!--
+            Receives backups shared to Dakilio or opened with it, wherever the sending app puts it, and
+            hands them to MainActivity in Dakilio's own task. No UI, never in recents.
+        -->
+        <activity
+            android:name=".BackupReceiverActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.NoDisplay">
+            <!--
+                .daylio backups, mirroring Daylio's own filters: Daylio uses "application/daylio", but
+                Android doesn't know the extension, so most apps hand the file over as a generic binary.
+                SEND can't match on the file name, so it goes by type only; the importer checks the contents.
+            -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/daylio" />
+                <data android:mimeType="application/octet-stream" />
+            </intent-filter>
+            <!-- "Open with" for a backup tapped in a file manager. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="content" />
+                <data android:mimeType="application/daylio" />
+                <data android:mimeType="application/octet-stream" />
+            </intent-filter>
+            <!--
+                Any reported type, as long as the path ends in ".daylio". Paths only match with a host set.
+                pathPattern's ".*" stops at the first dot, so names with more dots need their own patterns.
+            -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="content" />
+                <data android:host="*" />
+                <data android:mimeType="*/*" />
+                <data android:pathPattern=".*\\.daylio" />
+                <data android:pathPattern=".*\\..*\\.daylio" />
+                <data android:pathPattern=".*\\..*\\..*\\.daylio" />
+                <data android:pathPattern=".*\\..*\\..*\\..*\\.daylio" />
             </intent-filter>
         </activity>
     </application>
