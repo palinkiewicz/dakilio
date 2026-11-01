@@ -21,9 +21,4 @@ class MoodPickingTest {
         assertEquals(MoodTap.OpenAliases, moodTap(listOf(bad, sad), selected = sad))
         assertEquals(MoodTap.Clear, moodTap(listOf(good), selected = good))
     }
-
-    @Test
-    fun `levels are listed best first, primary before aliases`() {
-        assertEquals(listOf(listOf(good), listOf(bad, sad)), listOf(sad, good, bad).levelsBestFirst())
-    }
 }

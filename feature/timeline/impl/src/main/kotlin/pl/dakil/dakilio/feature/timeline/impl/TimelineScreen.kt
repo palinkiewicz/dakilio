@@ -52,9 +52,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -77,6 +79,7 @@ import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.PostPhoto
+import pl.dakil.dakilio.core.model.levelsBestFirst
 import pl.dakil.dakilio.core.ui.DakilioFormats
 import pl.dakil.dakilio.core.ui.Hint
 import pl.dakil.dakilio.core.ui.bottomBarPadding
@@ -85,7 +88,9 @@ import pl.dakil.dakilio.core.ui.component.EmptyState
 import pl.dakil.dakilio.core.ui.component.PhotoViewer
 import pl.dakil.dakilio.core.ui.component.PostCard
 import pl.dakil.dakilio.core.ui.dayTitle
+import pl.dakil.dakilio.core.ui.mood.MoodAliasOverlay
 import pl.dakil.dakilio.core.ui.mood.MoodBadge
+import pl.dakil.dakilio.core.ui.mood.screenRect
 import pl.dakil.dakilio.core.ui.relativeDayLabel
 import pl.dakil.dakilio.core.ui.rememberFormats
 import pl.dakil.dakilio.core.ui.sharedContainer
@@ -440,6 +445,24 @@ private fun DayHeader(item: TimelineItem.DayHeader, today: LocalDate, formats: D
 @Composable
 private fun CheckInCard(moods: List<Mood>, onMood: (Mood) -> Unit, modifier: Modifier) {
     val haptics = rememberHaptics()
+    val levels = moods.levelsBestFirst()
+    val anchors = remember { mutableMapOf<Int, Rect>() }
+    var openLevel by remember { mutableStateOf<Int?>(null) }
+    val open = openLevel?.let { level -> levels.firstOrNull { it.first().level == level } }
+    if (open != null) {
+        MoodAliasOverlay(
+            moods = open,
+            selectedId = null,
+            anchor = anchors[open.first().level] ?: Rect.Zero,
+            wide = false,
+            faceSize = 52.dp,
+            onPick = {
+                openLevel = null
+                onMood(it)
+            },
+            onDismiss = { openLevel = null },
+        )
+    }
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(SegmentedShapes.outer),
@@ -457,19 +480,22 @@ private fun CheckInCard(moods: List<Mood>, onMood: (Mood) -> Unit, modifier: Mod
             }
             Spacer(Modifier.height(Spacing.l))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                moods.asReversed().forEach { mood ->
+                levels.forEach { levelMoods ->
+                    val primary = levelMoods.first()
                     val interaction = remember { MutableInteractionSource() }
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
+                            .onGloballyPositioned { anchors[primary.level] = it.screenRect() }
                             .pressScale(interaction, 0.88f)
                             .clickable(interactionSource = interaction, indication = null) {
                                 haptics.confirm()
-                                onMood(mood)
+                                // Nothing is selected yet, so a level with aliases lists them right away.
+                                if (levelMoods.size > 1) openLevel = primary.level else onMood(primary)
                             },
                     ) {
-                        MoodBadge(mood, size = 52.dp)
-                        Text(mood.label, style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(top = Spacing.xs))
+                        MoodBadge(primary, size = 52.dp, hasAliases = levelMoods.size > 1)
+                        Text(primary.label, style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(top = Spacing.xs))
                     }
                 }
             }

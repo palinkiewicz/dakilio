@@ -185,8 +185,8 @@ class EntryEditorViewModel @AssistedInject constructor(
      *   first tap on a level with aliases, so the user can still open them with a second tap.
      */
     fun selectMood(id: Long, advance: Boolean = true) {
-        if (form.value.moodId == id) return
-        form.update { it.copy(moodId = id, dirty = true) }
+        // Re-picking the current mood (from the alias list) keeps it, but may still move on.
+        if (form.value.moodId != id) form.update { it.copy(moodId = id, dirty = true) }
         // New entries glide on to the next step once a mood lands; edits stay put.
         if (advance && key.postId == null) {
             viewModelScope.launch {

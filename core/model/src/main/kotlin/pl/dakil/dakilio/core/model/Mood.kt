@@ -30,3 +30,6 @@ fun List<Mood>.primaryOf(level: Int): Mood? = firstOrNull { it.isPrimary && it.l
 
 /** Every level's moods, primary first, then aliases. Levels without moods are absent. */
 fun List<Mood>.byLevel(): Map<Int, List<Mood>> = sortedWith(MoodDisplayOrder).groupBy { it.level }
+
+/** Levels best first (how pickers lay them out), each with its moods primary first. */
+fun List<Mood>.levelsBestFirst(): List<List<Mood>> = byLevel().toSortedMap(reverseOrder()).values.toList()

@@ -6,6 +6,7 @@ import pl.dakil.dakilio.core.designsystem.R
 object DakilioSymbols {
     val Add = DakilioSymbol("add", R.drawable.sym_add, R.drawable.sym_add_fill, SymbolCategory.Ui)
     val Close = DakilioSymbol("close", R.drawable.sym_close, R.drawable.sym_close_fill, SymbolCategory.Ui)
+    val Block = DakilioSymbol("block", R.drawable.sym_block, R.drawable.sym_block_fill, SymbolCategory.Ui)
     val Search = DakilioSymbol("search", R.drawable.sym_search, R.drawable.sym_search_fill, SymbolCategory.Ui)
     val ArrowBack = DakilioSymbol("arrow_back", R.drawable.sym_arrow_back, R.drawable.sym_arrow_back_fill, SymbolCategory.Ui)
     val Check = DakilioSymbol("check", R.drawable.sym_check, R.drawable.sym_check_fill, SymbolCategory.Ui)

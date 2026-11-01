@@ -36,8 +36,11 @@ import pl.dakil.dakilio.core.designsystem.component.pressScale
 import pl.dakil.dakilio.core.designsystem.component.rememberHaptics
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.model.Mood
+import pl.dakil.dakilio.core.model.levelsBestFirst
+import pl.dakil.dakilio.core.ui.mood.MoodAliasOverlay
 import pl.dakil.dakilio.core.ui.mood.MoodBadge
 import pl.dakil.dakilio.core.ui.mood.moodColors
+import pl.dakil.dakilio.core.ui.mood.screenRect
 
 /**
  * The all-in-one editor for an existing entry: one row of mood faces, the tags, then the note, all
@@ -185,6 +188,7 @@ private fun MoodRow(
             selectedId = selectedId,
             anchor = anchors[open.first().level] ?: Rect.Zero,
             wide = false,
+            faceSize = 52.dp,
             onPick = {
                 onSelect(it.id)
                 openLevel = null

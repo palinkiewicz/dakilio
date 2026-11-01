@@ -29,4 +29,9 @@ class MoodTest {
         assertEquals(listOf(bad, low, sad), levels[2])
         assertEquals(listOf(great), levels[5])
     }
+
+    @Test
+    fun `levelsBestFirst lists levels best first, primary before aliases`() {
+        assertEquals(listOf(listOf(great), listOf(bad, low, sad)), listOf(sad, great, low, bad).levelsBestFirst())
+    }
 }

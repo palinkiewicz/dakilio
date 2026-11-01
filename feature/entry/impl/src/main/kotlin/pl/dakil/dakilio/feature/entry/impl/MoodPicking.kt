@@ -27,7 +27,3 @@ internal fun moodTap(levelMoods: List<Mood>, selected: Mood?): MoodTap {
         else -> MoodTap.Clear
     }
 }
-
-/** The editor's levels, best first (like the check-in card), each with its moods primary first. */
-internal fun List<Mood>.levelsBestFirst(): List<List<Mood>> =
-    sortedWith(MoodDisplayOrder).groupBy { it.level }.toSortedMap(reverseOrder()).values.toList()

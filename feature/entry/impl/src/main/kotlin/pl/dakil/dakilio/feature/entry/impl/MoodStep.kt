@@ -44,9 +44,12 @@ import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.model.Mood
+import pl.dakil.dakilio.core.model.levelsBestFirst
 import pl.dakil.dakilio.core.ui.hintOrNull
+import pl.dakil.dakilio.core.ui.mood.MoodAliasOverlay
 import pl.dakil.dakilio.core.ui.mood.MoodBadge
 import pl.dakil.dakilio.core.ui.mood.moodColors
+import pl.dakil.dakilio.core.ui.mood.screenRect
 
 /**
  * The hero step: big, tactile mood buttons, best mood on top. Same two-tap rule as the edit page: the
@@ -99,6 +102,7 @@ internal fun MoodStep(
             selectedId = selectedId,
             anchor = anchors[open.first().level] ?: Rect.Zero,
             wide = true,
+            faceSize = 56.dp,
             onPick = {
                 onSelect(it.id, true)
                 openLevel = null

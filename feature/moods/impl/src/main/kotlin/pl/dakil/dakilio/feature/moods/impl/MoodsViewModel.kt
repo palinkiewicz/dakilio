@@ -11,13 +11,13 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import pl.dakil.dakilio.core.data.repository.MoodRepository
 import pl.dakil.dakilio.core.model.Mood
-import pl.dakil.dakilio.core.model.byLevel
+import pl.dakil.dakilio.core.model.levelsBestFirst
 
 @HiltViewModel
 class MoodsViewModel @Inject constructor(private val moodRepository: MoodRepository) : ViewModel() {
     /** Each level's moods (primary first, then aliases), best level first. `null` while loading. */
     val levels: StateFlow<List<List<Mood>>?> = moodRepository.moods
-        .map { moods -> moods.byLevel().toSortedMap(reverseOrder()).values.toList() }
+        .map { it.levelsBestFirst() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     fun rename(id: Long, label: String) {
