@@ -3,6 +3,8 @@
     <string name="more_app_name">Dakilio</string>
     <string name="more_tagline">Private by design. No account, no internet permission, your entries never leave this device.</string>
     <string name="more_section_customize">Customize</string>
+    <string name="more_moods">Moods</string>
+    <string name="more_moods_body">Names and aliases</string>
     <string name="more_tags">Tags</string>
     <string name="more_tags_body">Groups, labels and icons</string>
     <string name="more_diaries">Diaries</string>

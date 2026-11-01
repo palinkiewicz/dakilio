@@ -24,6 +24,7 @@ import pl.dakil.dakilio.core.data.repository.PostRepository
 import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.Streaks
+import pl.dakil.dakilio.core.model.primaries
 
 enum class Greeting { Morning, Afternoon, Evening, Night }
 
@@ -73,7 +74,7 @@ class TimelineViewModel @Inject constructor(
                 items = buildTimeline(posts, diaries, filter, today, expanded),
                 diaries = diaries,
                 selectedDiaryId = filter,
-                moods = moods,
+                moods = moods.primaries(), // the check-in card offers one face per level
                 today = today,
                 firstDay = bounds.start,
                 lastDay = bounds.endInclusive,

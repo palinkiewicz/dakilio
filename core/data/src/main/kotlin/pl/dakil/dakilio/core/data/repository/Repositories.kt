@@ -12,8 +12,25 @@ import pl.dakil.dakilio.core.model.ThemeMode
 import pl.dakil.dakilio.core.model.UserSettings
 
 interface MoodRepository {
-    /** The active mood scale, worst to best. */
+    /** Every pickable (non-archived) mood: by level, worst first; primary before its aliases. */
     val moods: Flow<List<Mood>>
+
+    suspend fun addAlias(level: Int, label: String)
+
+    /** Renames a primary or an alias. */
+    suspend fun rename(id: Long, label: String)
+
+    /** How many entries use this exact mood. */
+    suspend fun usageCount(id: Long): Int
+
+    /** Hides an alias from pickers; its entries keep it. No-op for primaries. */
+    suspend fun setAliasArchived(id: Long, archived: Boolean)
+
+    /** Moves the alias's entries to [targetId], then deletes the alias. Returns how many moved. */
+    suspend fun replaceAlias(id: Long, targetId: Long): Int
+
+    /** Deletes an alias no entry uses. No-op for primaries or aliases still in use. */
+    suspend fun deleteUnusedAlias(id: Long)
 }
 
 interface DiaryRepository {

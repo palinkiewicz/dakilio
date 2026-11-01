@@ -13,10 +13,10 @@ import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
-import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlin.math.sqrt
 import pl.dakil.dakilio.core.designsystem.theme.LocalDarkTheme
+import pl.dakil.dakilio.core.model.MOOD_LEVELS
 import pl.dakil.dakilio.core.model.Mood
 
 /**
@@ -29,23 +29,27 @@ class MoodGlyph(rest: RoundedPolygon, active: RoundedPolygon, val smile: Float) 
     val morph: Morph = Morph(rest, active)
 }
 
-private val glyphs: Map<String, MoodGlyph> by lazy {
-    mapOf(
-        "mood_awful" to MoodGlyph(MaterialShapes.SoftBoom, MaterialShapes.Boom, smile = -1f),
-        "mood_bad" to MoodGlyph(MaterialShapes.Cookie4Sided, MaterialShapes.Clover4Leaf, smile = -0.5f),
-        "mood_okay" to MoodGlyph(MaterialShapes.Circle, MaterialShapes.Cookie12Sided, smile = 0f),
-        "mood_good" to MoodGlyph(MaterialShapes.Cookie9Sided, MaterialShapes.Flower, smile = 0.55f),
-        "mood_great" to MoodGlyph(MaterialShapes.Sunny, MaterialShapes.VerySunny, smile = 1f),
+/** One face per level, worst first. Aliases share their level's face; only the name differs. */
+private val glyphsByLevel: List<MoodGlyph> by lazy {
+    listOf(
+        MoodGlyph(MaterialShapes.SoftBoom, MaterialShapes.Boom, smile = -1f),
+        MoodGlyph(MaterialShapes.Cookie4Sided, MaterialShapes.Clover4Leaf, smile = -0.5f),
+        MoodGlyph(MaterialShapes.Circle, MaterialShapes.Cookie12Sided, smile = 0f),
+        MoodGlyph(MaterialShapes.Cookie9Sided, MaterialShapes.Flower, smile = 0.55f),
+        MoodGlyph(MaterialShapes.Sunny, MaterialShapes.VerySunny, smile = 1f),
     )
 }
 
-private val glyphsByScale: List<MoodGlyph> by lazy {
-    listOf("mood_awful", "mood_bad", "mood_okay", "mood_good", "mood_great").map(glyphs::getValue)
-}
+/**
+ * Light-mode mark color per level, worst first: a diverging scale (warm = heavy, cool = light) with a
+ * calm periwinkle middle (crimson, orange, periwinkle, green, teal), validated for CVD and
+ * normal-vision separation of neighbours. Dark tones are derived at runtime ([deriveMoodColors]).
+ */
+private val seedColorsByLevel = listOf(0xFFBD1F44, 0xFFE98420, 0xFF7A6BC1, 0xFF6BC456, 0xFF009298).map { Color(it.toInt()) }
 
-/** Unknown (future, user-defined) icon keys fall back to the glyph nearest the mood's value. */
-fun moodGlyph(mood: Mood): MoodGlyph = glyphs[mood.iconKey]
-    ?: glyphsByScale[(mood.value * (glyphsByScale.size - 1)).roundToInt().coerceIn(0, glyphsByScale.lastIndex)]
+private fun levelIndex(level: Int) = (level - 1).coerceIn(0, MOOD_LEVELS - 1)
+
+fun moodGlyph(mood: Mood): MoodGlyph = glyphsByLevel[levelIndex(mood.level)]
 
 @Immutable
 data class MoodColors(
@@ -62,11 +66,11 @@ data class MoodColors(
 @Composable
 fun moodColors(mood: Mood): MoodColors {
     val dark = LocalDarkTheme.current
-    return remember(mood.colorArgb, dark) { deriveMoodColors(Color(mood.colorArgb), dark) }
+    return remember(mood.level, dark) { deriveMoodColors(seedColorsByLevel[levelIndex(mood.level)], dark) }
 }
 
 /**
- * Stored mood colors are light-mode mark colors. Dark mode remaps their OKLCH lightness into the
+ * The seed colors are light-mode mark colors. Dark mode remaps their OKLCH lightness into the
  * dark-surface band (lifting it only as far as needed to keep the hue saturated), so the same five
  * moods stay distinguishable — including under color-vision deficiency — in both themes.
  */

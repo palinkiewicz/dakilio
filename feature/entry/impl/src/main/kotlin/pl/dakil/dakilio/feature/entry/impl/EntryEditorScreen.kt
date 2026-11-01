@@ -194,7 +194,8 @@ internal fun EntryEditorScreen(
                             bodyRequired = bodyRequired,
                             toggledGroups = toggledGroups,
                             onToggleGroup = toggleGroup,
-                            onSelectMood = viewModel::selectMood,
+                            onSelectMood = { viewModel.selectMood(it) },
+                            onClearMood = viewModel::clearMood,
                             onToggleTag = viewModel::toggleTag,
                             onManageTags = onManageTags,
                             onAddPhotos = viewModel::addPhotos,
@@ -223,7 +224,13 @@ internal fun EntryEditorScreen(
                             modifier = Modifier.weight(1f),
                         ) { step ->
                             when (step) {
-                                EditorStep.Mood -> MoodStep(current.moods, current.moodId, viewModel::selectMood, Modifier.fillMaxSize())
+                                EditorStep.Mood -> MoodStep(
+                                    moods = current.moods,
+                                    selectedId = current.moodId,
+                                    onSelect = viewModel::selectMood,
+                                    onClear = viewModel::clearMood,
+                                    modifier = Modifier.fillMaxSize(),
+                                )
                                 EditorStep.Tags -> TagStep(
                                     suggested = current.suggestedGroups,
                                     others = current.otherGroups,

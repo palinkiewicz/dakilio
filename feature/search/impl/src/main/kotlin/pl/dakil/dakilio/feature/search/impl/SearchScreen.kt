@@ -131,12 +131,12 @@ internal fun SearchScreen(viewModel: SearchViewModel, onBack: () -> Unit, onOpen
                 horizontalArrangement = Arrangement.spacedBy(Spacing.s),
             ) {
                 state.moods.asReversed().forEach { mood ->
-                    val selected = mood.id in state.moodIds
+                    val selected = mood.level in state.moodLevels
                     FilterChip(
                         selected = selected,
                         onClick = {
                             haptics.toggle(!selected)
-                            viewModel.toggleMood(mood.id)
+                            viewModel.toggleMoodLevel(mood.level)
                         },
                         label = { Text(mood.label) },
                         leadingIcon = { MoodBadge(mood, size = 20.dp, active = selected) },

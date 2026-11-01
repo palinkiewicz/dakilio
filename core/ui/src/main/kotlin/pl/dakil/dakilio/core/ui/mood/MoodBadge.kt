@@ -41,8 +41,10 @@ fun MoodBadge(
     active: Boolean = false,
     /** 0..1 how muted the badge should look (unselected options while another is picked). */
     dimmed: Float = 0f,
+    /** Marks a level with aliases: a small dot hinting that a second tap offers more names. */
+    hasAliases: Boolean = false,
 ) {
-    val glyph = remember(mood.iconKey, mood.value) { moodGlyph(mood) }
+    val glyph = remember(mood.level) { moodGlyph(mood) }
     val colors = moodColors(mood)
     val motion = MaterialTheme.motionScheme
     val progress by animateFloatAsState(if (active) 1f else 0f, motion.slowSpatialSpec(), label = "moodMorph")
@@ -65,6 +67,16 @@ fun MoodBadge(
         )
         Canvas(Modifier.matchParentSize()) {
             drawFace(color = face, smile = (glyph.smile + progress * 0.35f).coerceIn(-1f, 1.2f), excitement = progress)
+        }
+        if (hasAliases) {
+            val ring = MaterialTheme.colorScheme.surface
+            Canvas(Modifier.matchParentSize()) {
+                val area = this.size // the composable's `size` parameter shadows DrawScope.size
+                val radius = area.minDimension * 0.1f
+                val center = Offset(area.width - radius * 1.2f, area.height - radius * 1.2f)
+                drawCircle(ring, radius * 1.45f, center)
+                drawCircle(container, radius, center)
+            }
         }
     }
 }

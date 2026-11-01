@@ -418,7 +418,7 @@ private fun JourneyMapCard(insights: Insights, moods: List<Mood>, today: LocalDa
             horizontalArrangement = Arrangement.spacedBy(Spacing.m),
             verticalArrangement = Arrangement.spacedBy(Spacing.xs),
         ) {
-            moods.sortedBy { it.tier }.forEach { mood ->
+            moods.sortedBy { it.level }.forEach { mood ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     MoodBadge(mood, size = 16.dp)
                     Text(mood.label, style = MaterialTheme.typography.labelSmall, color = colors.onSurfaceVariant, modifier = Modifier.padding(start = Spacing.xs))

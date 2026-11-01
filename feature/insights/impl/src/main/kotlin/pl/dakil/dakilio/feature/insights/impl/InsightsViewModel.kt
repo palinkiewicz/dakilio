@@ -20,6 +20,7 @@ import pl.dakil.dakilio.core.data.repository.MoodRepository
 import pl.dakil.dakilio.core.data.repository.PostRepository
 import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.model.Mood
+import pl.dakil.dakilio.core.model.primaries
 
 sealed interface InsightsUiState {
     data object Loading : InsightsUiState
@@ -49,12 +50,14 @@ class InsightsViewModel @Inject constructor(
 
     val uiState: StateFlow<InsightsUiState> =
         combine(postRepository.posts, diaryRepository.diaries, moodRepository.moods, range, selectedDiaryId) { posts, diaries, moods, range, selected ->
+            // Charts work per level: aliases fold into their level's primary.
+            val primaries = moods.primaries()
             val filter = selected?.takeIf { id -> diaries.any { it.id == id } }
             val filtered = if (filter == null) posts else posts.filter { filter in it.diaryIds }
             val today = LocalDate.now(clock)
             InsightsUiState.Ready(
-                insights = calculateInsights(filtered, moods, range, today),
-                moods = moods,
+                insights = calculateInsights(filtered, primaries, range, today),
+                moods = primaries,
                 range = range,
                 diaries = diaries,
                 selectedDiaryId = filter,

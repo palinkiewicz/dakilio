@@ -8,6 +8,7 @@ android {
 
 dependencies {
     api(projects.feature.more.api)
+    implementation(projects.feature.moods.api)
     implementation(projects.feature.tags.api)
     implementation(projects.feature.diaries.api)
     implementation(projects.feature.settings.api)

@@ -1,20 +1,32 @@
 package pl.dakil.dakilio.core.model
 
+/** The scale always has this many levels: 1 = worst … 5 = best. */
+const val MOOD_LEVELS = 5
+
 /**
- * One grade of a mood scale. [tier] runs 1 (worst) .. scale size (best); [value] is the same grade
- * normalized to 0.0–1.0 so analytics stay comparable if the scale ever changes size.
+ * A mood the user can pick. Every [level] has exactly one [isPrimary] mood (renamable, never removed)
+ * and any number of aliases: other names for the same level ("Sad" next to "Bad"). Analytics only
+ * look at the level, through [value]; entries keep the exact mood so they show the chosen name.
  */
 data class Mood(
     val id: Long,
-    val moodSetId: Long,
-    val tier: Int,
-    val value: Float,
+    val level: Int,
     val label: String,
-    val iconKey: String,
-    val colorArgb: Int,
+    val isPrimary: Boolean,
+    /** Order among the level's aliases (the primary always comes first). */
+    val position: Int,
 ) {
-    companion object {
-        fun normalize(tier: Int, scaleSize: Int): Float =
-            if (scaleSize <= 1) 1f else (tier - 1).toFloat() / (scaleSize - 1)
-    }
+    /** [level] normalized to 0.0–1.0, for averages and the heatmap. */
+    val value: Float get() = (level - 1f) / (MOOD_LEVELS - 1)
 }
+
+/** The level's moods in display order: primary first, then aliases by position. */
+val MoodDisplayOrder: Comparator<Mood> = compareBy<Mood> { it.level }.thenByDescending { it.isPrimary }.thenBy { it.position }
+
+/** One primary per level, worst first. */
+fun List<Mood>.primaries(): List<Mood> = filter { it.isPrimary }.sortedBy { it.level }
+
+fun List<Mood>.primaryOf(level: Int): Mood? = firstOrNull { it.isPrimary && it.level == level }
+
+/** Every level's moods, primary first, then aliases. Levels without moods are absent. */
+fun List<Mood>.byLevel(): Map<Int, List<Mood>> = sortedWith(MoodDisplayOrder).groupBy { it.level }

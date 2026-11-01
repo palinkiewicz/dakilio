@@ -17,15 +17,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import pl.dakil.dakilio.core.designsystem.component.pressScale
 import pl.dakil.dakilio.core.designsystem.component.rememberHaptics
@@ -47,6 +52,7 @@ internal fun EntryOverview(
     toggledGroups: Set<Long>,
     onToggleGroup: (Long) -> Unit,
     onSelectMood: (Long) -> Unit,
+    onClearMood: () -> Unit,
     onToggleTag: (Long) -> Unit,
     onManageTags: () -> Unit,
     onAddPhotos: (List<android.net.Uri>) -> Unit,
@@ -64,6 +70,7 @@ internal fun EntryOverview(
                 moods = state.moods,
                 selectedId = state.moodId,
                 onSelect = onSelectMood,
+                onClear = onClearMood,
                 modifier = Modifier.padding(horizontal = Spacing.gutter, vertical = Spacing.xs),
             )
         }
@@ -105,18 +112,34 @@ private fun SectionLabel(@StringRes text: Int, modifier: Modifier = Modifier) {
     )
 }
 
-/** Every mood face in one row, best first (matching the timeline's check-in card). Tap again to clear. */
+/**
+ * One face per level in a row, best first (matching the timeline's check-in card). The first tap
+ * picks a level's primary; tapping the selected level again opens its aliases (marked with a dot),
+ * or clears the mood when it has none.
+ */
 @Composable
-private fun MoodRow(moods: List<Mood>, selectedId: Long?, onSelect: (Long) -> Unit, modifier: Modifier = Modifier) {
+private fun MoodRow(
+    moods: List<Mood>,
+    selectedId: Long?,
+    onSelect: (Long) -> Unit,
+    onClear: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val haptics = rememberHaptics()
+    val selected = moods.firstOrNull { it.id == selectedId }
+    val levels = moods.levelsBestFirst()
+    val anchors = remember { mutableMapOf<Int, Rect>() }
+    var openLevel by remember { mutableStateOf<Int?>(null) }
     Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-        moods.asReversed().forEach { mood ->
-            val selected = mood.id == selectedId
-            val dimmed = selectedId != null && !selected
+        levels.forEach { levelMoods ->
+            val primary = levelMoods.first()
+            val isSelected = selected?.level == primary.level
+            val shown = if (isSelected) selected!! else primary
+            val dimmed = selected != null && !isSelected
             val interaction = remember { MutableInteractionSource() }
             val label by animateColorAsState(
                 when {
-                    selected -> moodColors(mood).accent
+                    isSelected -> moodColors(shown).accent
                     dimmed -> MaterialTheme.colorScheme.outline
                     else -> MaterialTheme.colorScheme.onSurfaceVariant
                 },
@@ -127,26 +150,50 @@ private fun MoodRow(moods: List<Mood>, selectedId: Long?, onSelect: (Long) -> Un
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .weight(1f)
+                    .onGloballyPositioned { anchors[primary.level] = it.screenRect() }
                     .pressScale(interaction, 0.88f)
                     .clickable(interactionSource = interaction, indication = null) {
                         haptics.confirm()
-                        onSelect(mood.id)
+                        when (val tap = moodTap(levelMoods, selected)) {
+                            is MoodTap.Select -> onSelect(tap.id)
+                            MoodTap.OpenAliases -> openLevel = primary.level
+                            MoodTap.Clear -> onClear()
+                        }
                     }
                     .semantics {
                         role = Role.RadioButton
-                        this.selected = selected
+                        this.selected = isSelected
                     },
             ) {
-                MoodBadge(mood, size = 52.dp, active = selected, dimmed = if (dimmed) 1f else 0f)
+                MoodBadge(shown, size = 52.dp, active = isSelected, dimmed = if (dimmed) 1f else 0f, hasAliases = levelMoods.size > 1)
                 Text(
-                    mood.label,
-                    style = if (selected) MaterialTheme.typography.labelLargeEmphasized else MaterialTheme.typography.labelMedium,
+                    shown.label,
+                    style = if (isSelected) MaterialTheme.typography.labelLargeEmphasized else MaterialTheme.typography.labelMedium,
                     color = label,
                     textAlign = TextAlign.Center,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.padding(top = Spacing.xs),
                 )
             }
         }
+    }
+    val open = openLevel?.let { level -> levels.firstOrNull { it.first().level == level } }
+    if (open != null) {
+        MoodAliasOverlay(
+            moods = open,
+            selectedId = selectedId,
+            anchor = anchors[open.first().level] ?: Rect.Zero,
+            wide = false,
+            onPick = {
+                onSelect(it.id)
+                openLevel = null
+            },
+            onClear = {
+                onClear()
+                openLevel = null
+            },
+            onDismiss = { openLevel = null },
+        )
     }
 }

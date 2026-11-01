@@ -16,12 +16,10 @@ import pl.dakil.dakilio.core.model.TagGroup
 
 internal fun MoodEntity.asModel() = Mood(
     id = id,
-    moodSetId = moodSetId,
-    tier = tier,
-    value = value,
+    level = level,
     label = label,
-    iconKey = iconKey,
-    colorArgb = colorArgb,
+    isPrimary = isPrimary,
+    position = position,
 )
 
 internal fun TagEntity.asModel() = Tag(

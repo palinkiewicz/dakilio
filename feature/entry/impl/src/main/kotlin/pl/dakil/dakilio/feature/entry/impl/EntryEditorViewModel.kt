@@ -32,6 +32,7 @@ import pl.dakil.dakilio.core.data.repository.SettingsRepository
 import pl.dakil.dakilio.core.data.repository.TagRepository
 import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.model.Mood
+import pl.dakil.dakilio.core.model.MoodDisplayOrder
 import pl.dakil.dakilio.core.model.PostDraft
 import pl.dakil.dakilio.core.model.TagGroup
 import pl.dakil.dakilio.core.model.TagStyle
@@ -47,6 +48,8 @@ internal data class EditorForm(
     val dateTime: LocalDateTime = LocalDateTime.MIN,
     val step: EditorStep = EditorStep.Mood,
     val moodId: Long? = null,
+    /** The saved entry's own mood, kept pickable even if it has since been archived. */
+    val ownMood: Mood? = null,
     val diaryIds: Set<Long> = emptySet(),
     val tagIds: Set<Long> = emptySet(),
     val photos: List<EditorPhoto> = emptyList(),
@@ -121,7 +124,9 @@ class EntryEditorViewModel @AssistedInject constructor(
                 dateTime = form.dateTime,
                 today = LocalDate.now(clock),
                 step = form.step,
-                moods = moods,
+                moods = form.ownMood?.takeIf { own -> moods.none { it.id == own.id } }
+                    ?.let { (moods + it).sortedWith(MoodDisplayOrder) }
+                    ?: moods,
                 moodId = form.moodId,
                 diaries = diaries,
                 diaryIds = form.diaryIds,
@@ -152,6 +157,7 @@ class EntryEditorViewModel @AssistedInject constructor(
                 loaded = true,
                 dateTime = existing.dateTime,
                 moodId = existing.mood?.id,
+                ownMood = existing.mood,
                 diaryIds = existing.diaryIds,
                 tagIds = existing.tags.map { it.id }.toSet(),
                 photos = existing.photos.map { EditorPhoto(it.fileName, it.path) },
@@ -174,17 +180,23 @@ class EntryEditorViewModel @AssistedInject constructor(
 
     fun goTo(step: EditorStep) = form.update { it.copy(step = step) }
 
-    fun selectMood(id: Long) {
-        val selected = form.value.moodId != id
-        form.update { it.copy(moodId = if (selected) id else null, dirty = true) }
+    /**
+     * @param advance whether a new entry may glide on to the tag step. The wizard passes false for a
+     *   first tap on a level with aliases, so the user can still open them with a second tap.
+     */
+    fun selectMood(id: Long, advance: Boolean = true) {
+        if (form.value.moodId == id) return
+        form.update { it.copy(moodId = id, dirty = true) }
         // New entries glide on to the next step once a mood lands; edits stay put.
-        if (selected && key.postId == null) {
+        if (advance && key.postId == null) {
             viewModelScope.launch {
                 delay(AUTO_ADVANCE_MS)
                 form.update { if (it.moodId == id && it.step == EditorStep.Mood) it.copy(step = EditorStep.Tags) else it }
             }
         }
     }
+
+    fun clearMood() = form.update { it.copy(moodId = null, dirty = true) }
 
     fun toggleDiary(id: Long) = form.update {
         val ids = if (id in it.diaryIds) it.diaryIds - id else it.diaryIds + id

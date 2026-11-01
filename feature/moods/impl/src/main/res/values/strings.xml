@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="moods_title">Moods</string>
+    <string name="moods_subtitle">Five levels, named your way</string>
+    <string name="moods_back">Back</string>
+    <string name="moods_hint">Aliases are extra names for a level, like “Sad” next to “Bad”. They share its face and count as that level in Insights. In the editor, tap a selected face again to pick one.</string>
+    <string name="moods_no_aliases">No aliases</string>
+    <plurals name="moods_alias_count">
+        <item quantity="one">%d alias</item>
+        <item quantity="other">%d aliases</item>
+    </plurals>
+    <string name="moods_rename_primary">Rename %s</string>
+    <string name="moods_add_alias">Add alias</string>
+    <string name="moods_rename_title">Rename mood</string>
+    <string name="moods_new_alias_title">New alias for “%s”</string>
+    <string name="moods_name">Name</string>
+    <string name="moods_save">Save</string>
+    <string name="moods_cancel">Cancel</string>
+    <string name="moods_delete">Delete</string>
+    <string name="moods_delete_title">Delete “%s”?</string>
+    <string name="moods_delete_unused_body">No entries use this alias, so nothing else changes.</string>
+    <plurals name="moods_delete_used_body">
+        <item quantity="one">“%1$s” is used in %2$d entry. Archive it to keep that entry as it is, or replace it with another mood.</item>
+        <item quantity="other">“%1$s” is used in %2$d entries. Archive it to keep those entries as they are, or replace it with another mood.</item>
+    </plurals>
+    <string name="moods_archive">Archive</string>
+    <string name="moods_replace">Replace…</string>
+    <string name="moods_replace_title">Replace “%s” with</string>
+    <string name="moods_replace_confirm">Replace</string>
+    <string name="moods_archived">Archived “%s”</string>
+    <string name="moods_undo">Undo</string>
+    <plurals name="moods_replaced">
+        <item quantity="one">Moved %1$d entry to “%2$s”</item>
+        <item quantity="other">Moved %1$d entries to “%2$s”</item>
+    </plurals>
+</resources>

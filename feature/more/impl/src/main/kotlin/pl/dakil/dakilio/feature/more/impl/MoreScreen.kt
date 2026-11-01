@@ -52,6 +52,7 @@ private data class MoreItem(
 @Composable
 internal fun MoreScreen(
     viewModel: MoreViewModel,
+    onOpenMoods: () -> Unit,
     onOpenTags: () -> Unit,
     onOpenDiaries: () -> Unit,
     onOpenSettings: () -> Unit,
@@ -78,6 +79,7 @@ internal fun MoreScreen(
             Group(
                 stringResource(R.string.more_section_customize),
                 listOf(
+                    MoreItem(DakilioSymbols.Mood, stringResource(R.string.more_moods), stringResource(R.string.more_moods_body), onOpenMoods),
                     MoreItem(DakilioSymbols.Sell, stringResource(R.string.more_tags), stringResource(R.string.more_tags_body), onOpenTags),
                     MoreItem(DakilioSymbols.Book2, stringResource(R.string.more_diaries), stringResource(R.string.more_diaries_body), onOpenDiaries),
                 ),

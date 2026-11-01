@@ -9,7 +9,6 @@ import pl.dakil.dakilio.core.database.dao.TagDao
 import pl.dakil.dakilio.core.database.entity.DiaryEntity
 import pl.dakil.dakilio.core.database.entity.DiarySuggestedGroupCrossRef
 import pl.dakil.dakilio.core.database.entity.MoodEntity
-import pl.dakil.dakilio.core.database.entity.MoodSetEntity
 import pl.dakil.dakilio.core.database.entity.PostDiaryCrossRef
 import pl.dakil.dakilio.core.database.entity.PostEntity
 import pl.dakil.dakilio.core.database.entity.PostPhotoEntity
@@ -19,7 +18,6 @@ import pl.dakil.dakilio.core.database.entity.TagGroupEntity
 
 @Database(
     entities = [
-        MoodSetEntity::class,
         MoodEntity::class,
         DiaryEntity::class,
         TagGroupEntity::class,

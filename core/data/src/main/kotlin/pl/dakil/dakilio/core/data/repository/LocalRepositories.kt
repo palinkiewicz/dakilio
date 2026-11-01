@@ -15,12 +15,14 @@ import pl.dakil.dakilio.core.database.dao.MoodDao
 import pl.dakil.dakilio.core.database.dao.PostDao
 import pl.dakil.dakilio.core.database.dao.TagDao
 import pl.dakil.dakilio.core.database.entity.DiaryEntity
+import pl.dakil.dakilio.core.database.entity.MoodEntity
 import pl.dakil.dakilio.core.database.entity.PostEntity
 import pl.dakil.dakilio.core.database.entity.TagEntity
 import pl.dakil.dakilio.core.database.entity.TagGroupEntity
 import pl.dakil.dakilio.core.datastore.SettingsDataSource
 import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.model.Mood
+import pl.dakil.dakilio.core.model.MOOD_LEVELS
 import pl.dakil.dakilio.core.model.Post
 import pl.dakil.dakilio.core.model.PostDraft
 import pl.dakil.dakilio.core.model.TagGroup
@@ -28,8 +30,34 @@ import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.ThemeMode
 import pl.dakil.dakilio.core.model.UserSettings
 
-internal class LocalMoodRepository @Inject constructor(dao: MoodDao) : MoodRepository {
+internal class LocalMoodRepository @Inject constructor(private val dao: MoodDao) : MoodRepository {
     override val moods: Flow<List<Mood>> = dao.observeActiveMoods().map { list -> list.map { it.asModel() } }
+
+    override suspend fun addAlias(level: Int, label: String) {
+        require(level in 1..MOOD_LEVELS)
+        val name = label.trim().ifEmpty { return }
+        dao.insert(MoodEntity(level = level, label = name, isPrimary = false, position = dao.maxAliasPosition(level) + 1))
+    }
+
+    override suspend fun rename(id: Long, label: String) {
+        val name = label.trim().ifEmpty { return }
+        dao.rename(id, name)
+    }
+
+    override suspend fun usageCount(id: Long): Int = dao.usageCount(id)
+
+    override suspend fun setAliasArchived(id: Long, archived: Boolean) = dao.setArchived(id, archived)
+
+    override suspend fun replaceAlias(id: Long, targetId: Long): Int {
+        if (id == targetId) return 0
+        val alias = dao.get(id)?.takeIf { !it.isPrimary } ?: return 0
+        dao.get(targetId) ?: return 0
+        return dao.replaceAlias(alias.id, targetId)
+    }
+
+    override suspend fun deleteUnusedAlias(id: Long) {
+        if (dao.usageCount(id) == 0) dao.deleteAlias(id)
+    }
 }
 
 internal class LocalDiaryRepository @Inject constructor(

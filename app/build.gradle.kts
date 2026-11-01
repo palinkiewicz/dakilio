@@ -107,6 +107,7 @@ dependencies {
     implementation(projects.feature.entry.impl)
     implementation(projects.feature.insights.impl)
     implementation(projects.feature.more.impl)
+    implementation(projects.feature.moods.impl)
     implementation(projects.feature.tags.impl)
     implementation(projects.feature.diaries.impl)
     implementation(projects.feature.settings.impl)

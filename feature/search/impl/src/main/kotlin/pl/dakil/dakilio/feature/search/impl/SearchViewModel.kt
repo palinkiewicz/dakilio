@@ -24,13 +24,14 @@ import pl.dakil.dakilio.core.common.Dispatcher
 import pl.dakil.dakilio.core.data.repository.MoodRepository
 import pl.dakil.dakilio.core.data.repository.PostRepository
 import pl.dakil.dakilio.core.model.Mood
+import pl.dakil.dakilio.core.model.primaries
 import pl.dakil.dakilio.core.model.Post
 
 data class SearchDay(val date: LocalDate, val posts: List<Post>)
 
 data class SearchUiState(
     val moods: List<Mood> = emptyList(),
-    val moodIds: Set<Long> = emptySet(),
+    val moodLevels: Set<Int> = emptySet(),
     val withPhotosOnly: Boolean = false,
     val active: Boolean = false,
     val query: String = "",
@@ -57,8 +58,8 @@ class SearchViewModel @Inject constructor(
             val filters = toggles.copy(query = text)
             val results = posts.search(filters)
             SearchUiState(
-                moods = moods,
-                moodIds = filters.moodIds,
+                moods = moods.primaries(),
+                moodLevels = filters.moodLevels,
                 withPhotosOnly = filters.withPhotosOnly,
                 active = filters.isActive,
                 query = text.trim(),
@@ -70,7 +71,7 @@ class SearchViewModel @Inject constructor(
             .flowOn(default)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SearchUiState())
 
-    fun toggleMood(id: Long) = toggles.update { it.copy(moodIds = if (id in it.moodIds) it.moodIds - id else it.moodIds + id) }
+    fun toggleMoodLevel(level: Int) = toggles.update { it.copy(moodLevels = if (level in it.moodLevels) it.moodLevels - level else it.moodLevels + level) }
 
     fun togglePhotosOnly() = toggles.update { it.copy(withPhotosOnly = !it.withPhotosOnly) }
 }

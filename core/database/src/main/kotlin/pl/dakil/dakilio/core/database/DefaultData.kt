@@ -10,10 +10,9 @@ import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
-import pl.dakil.dakilio.core.model.Mood
 
 /**
- * Everything a fresh install starts with: the 5-grade mood scale, the "Your Journey" diary, a set of
+ * Everything a fresh install starts with: the 5 primary moods, the "Your Journey" diary, a set of
  * tag groups, and a handful of sample entries (with photos) so the app can be shown off right away.
  *
  * Runs inside Room's creation transaction, before the first query returns, with fixed ids so the
@@ -21,22 +20,18 @@ import pl.dakil.dakilio.core.model.Mood
  * SQLite AUTOINCREMENT never reuses ids, so the user's own entries can't collide with that range.
  */
 object DefaultData {
-    const val MOOD_SET_ID = 1L
     const val DEFAULT_DIARY_ID = 1L
     val SAMPLE_POST_IDS: LongRange = 1L..12L
 
     private const val SAMPLE_ASSET_DIR = "sample"
 
-    private class SeedMood(val tier: Int, @StringRes val label: Int, val iconKey: String, val color: Int)
-
-    // Diverging scale (warm = heavy, cool = light) with a calm periwinkle middle. Light-mode mark colors,
-    // validated for CVD and normal-vision separation of neighbours; dark tones are derived at runtime.
-    private val moods = listOf(
-        SeedMood(1, R.string.seed_mood_awful, "mood_awful", 0xFFBD1F44.toInt()),
-        SeedMood(2, R.string.seed_mood_bad, "mood_bad", 0xFFE98420.toInt()),
-        SeedMood(3, R.string.seed_mood_okay, "mood_okay", 0xFF7A6BC1.toInt()),
-        SeedMood(4, R.string.seed_mood_good, "mood_good", 0xFF6BC456.toInt()),
-        SeedMood(5, R.string.seed_mood_great, "mood_great", 0xFF009298.toInt()),
+    /** The primary mood of each level, worst first. Its id equals its level (sample entries rely on it). */
+    private val primaryMoods = listOf(
+        R.string.seed_mood_awful,
+        R.string.seed_mood_bad,
+        R.string.seed_mood_okay,
+        R.string.seed_mood_good,
+        R.string.seed_mood_great,
     )
 
     private enum class Group(@StringRes val label: Int) {
@@ -101,7 +96,7 @@ object DefaultData {
     private class SamplePost(
         val daysAgo: Long,
         val time: LocalTime,
-        val moodTier: Int?,
+        val moodLevel: Int?,
         @StringRes val title: Int? = null,
         @StringRes val note: Int? = null,
         val tags: List<SeedTag> = emptyList(),
@@ -112,70 +107,63 @@ object DefaultData {
     // (a single "No entries" day) and 7–10 days ago (a collapsed quiet stretch).
     private val samplePosts = listOf(
         SamplePost(
-            1, LocalTime.of(19, 40), moodTier = 5, R.string.sample_hike_title, R.string.sample_hike_note,
+            1, LocalTime.of(19, 40), moodLevel = 5, R.string.sample_hike_title, R.string.sample_hike_note,
             listOf(SeedTag.Hiking, SeedTag.Nature, SeedTag.Friends, SeedTag.Grateful),
             photos = listOf("sample_ridge_sunset.jpg"),
         ),
         SamplePost(
-            1, LocalTime.of(8, 10), moodTier = 4, R.string.sample_morning_title, R.string.sample_morning_note,
+            1, LocalTime.of(8, 10), moodLevel = 4, R.string.sample_morning_title, R.string.sample_morning_note,
             listOf(SeedTag.Reading, SeedTag.Calm),
         ),
         SamplePost(
-            2, LocalTime.of(18, 25), moodTier = 3, note = R.string.sample_meetings_note,
+            2, LocalTime.of(18, 25), moodLevel = 3, note = R.string.sample_meetings_note,
             tags = listOf(SeedTag.Work, SeedTag.Tired, SeedTag.Cloudy),
         ),
         SamplePost(
-            2, LocalTime.of(7, 45), moodTier = 4, R.string.sample_walk_title,
+            2, LocalTime.of(7, 45), moodLevel = 4, R.string.sample_walk_title,
             tags = listOf(SeedTag.Walk, SeedTag.Nature, SeedTag.Sunny),
         ),
         SamplePost(
-            4, LocalTime.of(20, 15), moodTier = 4, R.string.sample_pierogi_title, R.string.sample_pierogi_note,
+            4, LocalTime.of(20, 15), moodLevel = 4, R.string.sample_pierogi_title, R.string.sample_pierogi_note,
             listOf(SeedTag.Cooking, SeedTag.Family, SeedTag.Happy),
         ),
         // Tags only: no mood, no text.
-        SamplePost(4, LocalTime.of(13, 5), moodTier = null, tags = listOf(SeedTag.Friends, SeedTag.Gaming, SeedTag.Music)),
+        SamplePost(4, LocalTime.of(13, 5), moodLevel = null, tags = listOf(SeedTag.Friends, SeedTag.Gaming, SeedTag.Music)),
         SamplePost(
-            5, LocalTime.of(17, 50), moodTier = 2, R.string.sample_deadline_title, R.string.sample_deadline_note,
+            5, LocalTime.of(17, 50), moodLevel = 2, R.string.sample_deadline_title, R.string.sample_deadline_note,
             listOf(SeedTag.Stressed, SeedTag.Work, SeedTag.Rain),
         ),
         // Text only: no mood, no tags.
-        SamplePost(5, LocalTime.of(22, 5), moodTier = null, R.string.sample_ideas_title, R.string.sample_ideas_note),
+        SamplePost(5, LocalTime.of(22, 5), moodLevel = null, R.string.sample_ideas_title, R.string.sample_ideas_note),
         SamplePost(
-            6, LocalTime.of(16, 30), moodTier = 5, R.string.sample_city_title, R.string.sample_city_note,
+            6, LocalTime.of(16, 30), moodLevel = 5, R.string.sample_city_title, R.string.sample_city_note,
             listOf(SeedTag.Travel, SeedTag.NewPlace, SeedTag.Excited),
             photos = listOf("sample_old_town_evening.jpg", "sample_old_town_alley.jpg"),
         ),
         // Mood only.
-        SamplePost(11, LocalTime.of(7, 30), moodTier = 3),
+        SamplePost(11, LocalTime.of(7, 30), moodLevel = 3),
         SamplePost(
-            11, LocalTime.of(18, 40), moodTier = 4, R.string.sample_run_title,
+            11, LocalTime.of(18, 40), moodLevel = 4, R.string.sample_run_title,
             tags = listOf(SeedTag.Exercise, SeedTag.Sunny),
         ),
         SamplePost(
-            12, LocalTime.of(21, 0), moodTier = 1, R.string.sample_cold_title, R.string.sample_cold_note,
+            12, LocalTime.of(21, 0), moodLevel = 1, R.string.sample_cold_title, R.string.sample_cold_note,
             listOf(SeedTag.Sick, SeedTag.Alone),
         ),
     )
 
     fun seed(db: SupportSQLiteDatabase, context: Context, photoDirectory: File, clock: Clock) {
         val now = clock.millis()
-        db.insertRow(
-            "mood_set",
-            "id" to MOOD_SET_ID,
-            "scale_size" to moods.size,
-            "created_at" to now,
-            "is_active" to 1,
-        )
-        moods.forEach { mood ->
+        primaryMoods.forEachIndexed { index, label ->
+            val level = index + 1
             db.insertRow(
                 "mood",
-                "id" to mood.tier.toLong(),
-                "mood_set_id" to MOOD_SET_ID,
-                "tier" to mood.tier,
-                "value" to Mood.normalize(mood.tier, moods.size),
-                "label" to context.getString(mood.label),
-                "icon_key" to mood.iconKey,
-                "color_argb" to mood.color,
+                "id" to level.toLong(),
+                "level" to level,
+                "label" to context.getString(label),
+                "is_primary" to 1,
+                "position" to 0,
+                "is_archived" to 0,
             )
         }
 
@@ -222,7 +210,7 @@ object DefaultData {
                 "timestamp" to dateTime.toInstant(offset).toEpochMilli(),
                 "utc_offset_min" to offset.totalSeconds / 60,
                 "local_date" to dateTime.toLocalDate().toEpochDay(),
-                "mood_id" to sample.moodTier?.toLong(),
+                "mood_id" to sample.moodLevel?.toLong(),
                 "title" to sample.title?.let(context::getString),
                 "note" to sample.note?.let(context::getString),
                 "created_at" to now,

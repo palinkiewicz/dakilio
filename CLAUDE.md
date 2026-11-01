@@ -52,9 +52,9 @@ The system JDK on this machine is a JRE without `javac`, so always use Android S
 
 The layout follows NowInAndroid: `app` → `feature:*:impl` → `feature:*:api` / `core:*`.
 
-- `core:model` (pure JVM): domain models, plus pure logic that has to be host-testable (`EntryValidation`, `Streaks`, `Mood.normalize`).
+- `core:model` (pure JVM): domain models, plus pure logic that has to be host-testable (`EntryValidation`, `Streaks`, the mood helpers `primaries()`/`byLevel()`).
 - `core:database`: the Room schema, exported to `core/database/schemas/`. Bump the version and add a migration for any schema change.
-  - `DefaultData` seeds everything inside `RoomDatabase.Callback.onCreate`: the 5-mood scale, the "Your Journey" diary, tag groups and 12 **sample entries with photos** copied from `assets/sample/`.
+  - `DefaultData` seeds everything inside `RoomDatabase.Callback.onCreate`: the 5 primary moods (ids 1..5 = their level), the "Your Journey" diary, tag groups and 12 **sample entries with photos** copied from `assets/sample/`.
   - Sample posts use the reserved ids `DefaultData.SAMPLE_POST_IDS` (1..12). Removal relies on those ids. SQLite `AUTOINCREMENT` never reuses ids, so user posts can't collide with them.
 - `core:data`: repository interfaces and `Local*` implementations, bound in `DataModule`. Feature modules see only models and these interfaces, never entities or DAOs. `PostRepository.posts` is a single `Flow<List<Post>>`. Timeline, search and insights all derive from it in memory on the Default dispatcher; there is no Paging and no FTS.
 - `core:datastore`: user preferences only (theme, the last-used diaries of the editor, the sample-hint flag, tag style, beginner hints). User content lives in Room.
@@ -66,8 +66,13 @@ The layout follows NowInAndroid: `app` → `feature:*:impl` → `feature:*:api` 
 
 ### Non-obvious decisions
 
-- **Moods are versioned data, not an enum.** `mood_set` holds the scales; `mood` stores a `tier` (1..N) and a normalized `value` from 0.0 to 1.0. `post.mood_id` is `ON DELETE RESTRICT`, because changing a scale must create a new set instead of deleting moods. Analytics always use `value`.
-- **Mood visuals are keyed by `icon_key`.** `MoodVisuals.kt` maps `mood_awful` … `mood_great` to a pair of rest/active MaterialShapes polygons and a face curvature. The stored `color_argb` is the *light-mode* mark color. Dark-mode tones are derived in OKLCH at runtime (`deriveMoodColors`).
+- **Moods: a fixed 5-level scale with aliases** (like Daylio). The level count is a constant (`MOOD_LEVELS`), deliberately not configurable: a variable scale would break per-level charts, the validated palette and `.daylio` import.
+  - Each level has exactly one primary mood (`is_primary`), which can be renamed but never removed, plus any number of aliases: other names for the same level ("Sad" next to "Bad").
+  - Entries point at the exact mood, so they keep the chosen name. Analytics and the search filter group by `level`; `Mood.value` is computed as `(level - 1) / 4` for averages.
+  - Deleting an alias with no entries just deletes it. With entries, the user either **archives** it (`is_archived`: hidden from pickers, old entries keep it) or **replaces** it (its entries move to another mood, then it's deleted). `post.mood_id` is `ON DELETE RESTRICT`, so a mood is never deleted under entries.
+  - Picking: the first tap on a face selects the level's primary. A level with aliases shows a dot (`MoodBadge(hasAliases)`), and tapping the selected face again opens `MoodAliasOverlay`, a dimmed full-screen stack of that level's moods. The rules are the pure `moodTap()` in `MoodPicking.kt`. The wizard doesn't auto-advance on a first tap of a level with aliases.
+  - Customization lives in `feature:moods` (More → Moods).
+- **Mood visuals belong to the level.** `MoodVisuals.kt` holds one rest/active MaterialShapes polygon pair and face curvature per level, plus the per-level *light-mode* mark color. Aliases share their level's face and color. Dark-mode tones are derived in OKLCH at runtime (`deriveMoodColors`).
   - The default palette (crimson, orange, periwinkle, green, teal) is a diverging scale that was validated for colour-vision-deficiency separation in both themes.
   - Don't swap it for a red→yellow→green ramp: yellow and green collapse for protanopes.
 - **Deleting tags or groups archives them** (`is_archived`), with an Undo snackbar. Old entries keep showing archived tags; pickers and the customization screen hide them.

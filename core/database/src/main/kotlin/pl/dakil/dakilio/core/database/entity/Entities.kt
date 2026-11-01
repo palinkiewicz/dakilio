@@ -6,32 +6,21 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
-/** A versioned mood scale. Only one is active; old entries keep pointing at the set they used. */
-@Entity(tableName = "mood_set")
-data class MoodSetEntity(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    @ColumnInfo(name = "scale_size") val scaleSize: Int,
-    @ColumnInfo(name = "created_at") val createdAt: Long,
-    @ColumnInfo(name = "is_active") val isActive: Boolean,
-)
-
-@Entity(
-    tableName = "mood",
-    foreignKeys = [
-        ForeignKey(MoodSetEntity::class, ["id"], ["mood_set_id"], onDelete = ForeignKey.CASCADE),
-    ],
-    indices = [Index(value = ["mood_set_id", "tier"], unique = true)],
-)
+/**
+ * A pickable mood on the fixed 5-level scale. Each level has exactly one primary (seeded, renamable,
+ * never removed) plus optional aliases. Faces and colors belong to the level, so they live in code.
+ */
+@Entity(tableName = "mood", indices = [Index("level")])
 data class MoodEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    @ColumnInfo(name = "mood_set_id") val moodSetId: Long,
-    /** 1 = worst … scale size = best; also the display order. */
-    val tier: Int,
-    /** [tier] normalized to 0.0–1.0, stored so analytics can simply AVG() it. */
-    val value: Float,
+    /** 1 = worst … 5 = best. */
+    val level: Int,
     val label: String,
-    @ColumnInfo(name = "icon_key") val iconKey: String,
-    @ColumnInfo(name = "color_argb") val colorArgb: Int,
+    @ColumnInfo(name = "is_primary") val isPrimary: Boolean,
+    /** Order among the level's aliases. */
+    val position: Int,
+    /** Archived aliases stay attached to old entries but are hidden from pickers. */
+    @ColumnInfo(name = "is_archived") val isArchived: Boolean = false,
 )
 
 @Entity(tableName = "diary")
@@ -84,7 +73,7 @@ data class DiarySuggestedGroupCrossRef(
 @Entity(
     tableName = "post",
     foreignKeys = [
-        // RESTRICT: moods are never deleted under entries; scale changes create a new mood set.
+        // RESTRICT: a mood is only deleted after its entries were moved to another one.
         ForeignKey(MoodEntity::class, ["id"], ["mood_id"], onDelete = ForeignKey.RESTRICT),
     ],
     indices = [Index("local_date"), Index("mood_id"), Index("timestamp")],
