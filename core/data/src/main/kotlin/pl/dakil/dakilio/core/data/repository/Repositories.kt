@@ -55,11 +55,11 @@ interface DiaryRepository {
 
     suspend fun saveDiary(id: Long?, name: String, iconKey: String, suggestedGroupIds: Set<Long>): Long
 
-    /** Entries that belong to this diary only, i.e. would be orphaned by deleting it. */
-    suspend fun exclusivePostCount(diaryId: Long): Int
+    /** How many entries are in this diary. */
+    suspend fun postCount(diaryId: Long): Int
 
-    /** Moves exclusive entries to [moveExclusiveTo], or deletes them (and their photos) when null. */
-    suspend fun deleteDiary(diaryId: Long, moveExclusiveTo: Long?)
+    /** Moves the diary's entries to [moveEntriesTo], or deletes them (and their photos) when null. */
+    suspend fun deleteDiary(diaryId: Long, moveEntriesTo: Long?)
 }
 
 interface TagRepository {
@@ -151,7 +151,7 @@ interface SettingsRepository {
 
     suspend fun setThemeMode(mode: ThemeMode)
 
-    suspend fun setLastEntryDiaryIds(ids: Set<Long>)
+    suspend fun setLastEntryDiaryId(id: Long)
 
     suspend fun setSampleHintDismissed(dismissed: Boolean)
 

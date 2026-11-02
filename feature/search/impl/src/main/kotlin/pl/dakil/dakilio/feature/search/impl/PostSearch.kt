@@ -103,7 +103,7 @@ internal fun List<Post>.search(filters: SearchFilters, today: LocalDate): List<P
     return filter { post ->
         (filters.moodLevels.isEmpty() || post.mood?.level in filters.moodLevels) &&
             post.matchesTags(filters) &&
-            (filters.diaryIds.isEmpty() || post.diaryIds.any { it in filters.diaryIds }) &&
+            (filters.diaryIds.isEmpty() || post.diaryId in filters.diaryIds) &&
             (filters.period?.contains(post.date, today) ?: true) &&
             (filters.weekdays.isEmpty() || post.date.dayOfWeek.value in filters.weekdays) &&
             filters.has.all { post.has(it) } &&

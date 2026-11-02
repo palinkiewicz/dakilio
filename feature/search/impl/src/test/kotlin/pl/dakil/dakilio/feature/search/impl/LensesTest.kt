@@ -24,7 +24,7 @@ class LensesTest {
         title = null,
         note = note,
         tags = tags.toList(),
-        diaryIds = setOf(1),
+        diaryId = 1,
         photos = if (photo) listOf(PostPhoto(id, "$id.jpg", "/$id.jpg")) else emptyList(),
     )
 

@@ -98,9 +98,9 @@ class DiaryEditorViewModel @AssistedInject constructor(
         }
     }
 
-    suspend fun exclusiveEntryCount(): Int = key.diaryId?.let { diaryRepository.exclusivePostCount(it) } ?: 0
+    suspend fun entryCount(): Int = key.diaryId?.let { diaryRepository.postCount(it) } ?: 0
 
-    /** [moveTo] null deletes the diary's exclusive entries along with it. */
+    /** [moveTo] null deletes the diary's entries along with it. */
     fun delete(moveTo: Long?) {
         val id = key.diaryId ?: return
         viewModelScope.launch {

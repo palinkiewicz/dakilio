@@ -21,14 +21,14 @@ class TimelineBuilderTest {
     private val work = Diary(2, "Work", "work", 1, emptySet())
     private var nextId = 1L
 
-    private fun post(daysAgo: Long, hour: Int = 12, vararg diaries: Long = longArrayOf(1)) = Post(
+    private fun post(daysAgo: Long, hour: Int = 12, diary: Long = 1) = Post(
         id = nextId++,
         dateTime = today.minusDays(daysAgo).atTime(LocalTime.of(hour, 0)),
         mood = null,
         title = "t",
         note = null,
         tags = emptyList(),
-        diaryIds = diaries.toSet(),
+        diaryId = diary,
         photos = emptyList(),
     )
 
@@ -68,17 +68,17 @@ class TimelineBuilderTest {
 
     @Test
     fun `filtering by diary summarizes the other diaries per day`() {
-        val inJourney = post(1, diaries = longArrayOf(1))
-        val inWork = post(1, diaries = longArrayOf(2))
-        val inBoth = post(1, diaries = longArrayOf(1, 2))
-        val onlyWork = post(2, diaries = longArrayOf(2))
-        val items = buildTimeline(listOf(inJourney, inWork, inBoth, onlyWork), listOf(journey, work), 1L, today)
+        val inJourney = post(1, diary = 1)
+        val inWork = post(1, diary = 2)
+        val alsoInWork = post(1, diary = 2)
+        val onlyWork = post(2, diary = 2)
+        val items = buildTimeline(listOf(inJourney, inWork, alsoInWork, onlyWork), listOf(journey, work), 1L, today)
 
-        assertEquals(setOf(inJourney.id, inBoth.id), items.filterIsInstance<PostItem>().map { it.post.id }.toSet())
+        assertEquals(listOf(inJourney.id), items.filterIsInstance<PostItem>().map { it.post.id })
         // "Also this day" only sits under days with entries in the filter.
         val chips = items.filterIsInstance<OtherDiaries>().single()
         assertEquals(today.minusDays(1), chips.date)
-        assertEquals(1, chips.chips.single().count)
+        assertEquals(2, chips.chips.single().count)
         // A day with entries only elsewhere is a compact empty row hinting at those diaries.
         assertTrue(EmptyDay(today.minusDays(2), listOf(work)) in items)
         assertFalse(items.any { it is DayHeader && it.date == today.minusDays(2) })
@@ -86,7 +86,7 @@ class TimelineBuilderTest {
 
     @Test
     fun `days with entries only in other diaries join quiet stretches and surface their diaries`() {
-        val posts = listOf(post(1), post(3, diaries = longArrayOf(2)), post(6))
+        val posts = listOf(post(1), post(3, diary = 2), post(6))
         val collapsed = buildTimeline(posts, listOf(journey, work), 1L, today)
         val stretch = collapsed.filterIsInstance<QuietStretch>().single() // 2..5 days ago
         assertEquals(today.minusDays(2), stretch.newest)
@@ -100,7 +100,7 @@ class TimelineBuilderTest {
 
     @Test
     fun `today keeps its check-in card and other-diary chips when its entries are elsewhere`() {
-        val items = buildTimeline(listOf(post(0, diaries = longArrayOf(2))), listOf(journey, work), 1L, today)
+        val items = buildTimeline(listOf(post(0, diary = 2)), listOf(journey, work), 1L, today)
         assertEquals(DayHeader(today, emptyList()), items[0])
         assertEquals(TodayPrompt(today), items[1])
         assertEquals(work, (items[2] as OtherDiaries).chips.single().diary)
@@ -125,7 +125,7 @@ class TimelineBuilderTest {
 
     @Test
     fun `locateDay lands a diary switch on the day header`() {
-        val posts = listOf(post(1, diaries = longArrayOf(1)), post(2, diaries = longArrayOf(1, 2)))
+        val posts = listOf(post(1, diary = 1), post(2, diary = 2))
         val items = buildTimeline(posts, listOf(journey, work), 2L, today)
         val at = items.locateDay(today.minusDays(2)) as DayLocation.At
         assertEquals(DayHeader(today.minusDays(2), emptyList()), items[at.index])
@@ -139,10 +139,10 @@ class TimelineBuilderTest {
 
     @Test
     fun `diaries are labelled on cards only when showing all of several diaries`() {
-        val p = post(1, diaries = longArrayOf(1, 2))
+        val p = post(1, diary = 2)
         val all = buildTimeline(listOf(p), listOf(journey, work), null, today).filterIsInstance<PostItem>().single()
-        val filtered = buildTimeline(listOf(p), listOf(journey, work), 1L, today).filterIsInstance<PostItem>().single()
-        assertEquals(listOf(journey, work), all.diaries)
-        assertEquals(emptyList<Diary>(), filtered.diaries)
+        val filtered = buildTimeline(listOf(p), listOf(journey, work), 2L, today).filterIsInstance<PostItem>().single()
+        assertEquals(work, all.diary)
+        assertEquals(null, filtered.diary)
     }
 }

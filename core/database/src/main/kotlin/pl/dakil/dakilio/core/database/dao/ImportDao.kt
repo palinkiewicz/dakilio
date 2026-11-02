@@ -6,7 +6,6 @@ import androidx.room.Query
 import androidx.room.Transaction
 import pl.dakil.dakilio.core.database.entity.DiaryEntity
 import pl.dakil.dakilio.core.database.entity.MoodEntity
-import pl.dakil.dakilio.core.database.entity.PostDiaryCrossRef
 import pl.dakil.dakilio.core.database.entity.PostEntity
 import pl.dakil.dakilio.core.database.entity.PostPhotoEntity
 import pl.dakil.dakilio.core.database.entity.PostTagCrossRef
@@ -28,7 +27,10 @@ class ReplaceData(
 class ReplaceGroup(val group: TagGroupEntity, val tags: List<TagEntity>)
 
 class ReplacePost(
-    /** `id` and `mood_id` are ignored: the mood comes from [moodLevel] and [aliasIndex]. */
+    /**
+     * `id`, `mood_id` and `diary_id` are ignored: the mood comes from [moodLevel] and [aliasIndex], and
+     * every entry goes into the new diary.
+     */
     val post: PostEntity,
     val moodLevel: Int,
     /** An index into [ReplaceData.aliases], or null for the level's primary. */
@@ -93,9 +95,6 @@ abstract class ImportDao {
     protected abstract suspend fun insertPostTags(refs: List<PostTagCrossRef>)
 
     @Insert
-    protected abstract suspend fun insertPostDiary(ref: PostDiaryCrossRef)
-
-    @Insert
     protected abstract suspend fun insertPhotos(photos: List<PostPhotoEntity>)
 
     /**
@@ -134,8 +133,7 @@ abstract class ImportDao {
 
         data.posts.forEach { item ->
             val moodId = item.aliasIndex?.let(aliasIds::get) ?: primaryIds.getValue(item.moodLevel)
-            val postId = insertPost(item.post.copy(id = 0, moodId = moodId))
-            insertPostDiary(PostDiaryCrossRef(postId, diaryId))
+            val postId = insertPost(item.post.copy(id = 0, moodId = moodId, diaryId = diaryId))
             insertPostTags(item.tags.map { (group, tag) -> tagIds[group][tag] }.distinct().map { PostTagCrossRef(postId, it) })
             insertPhotos(item.photoFileNames.mapIndexed { index, name -> PostPhotoEntity(postId = postId, fileName = name, position = index) })
         }

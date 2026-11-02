@@ -23,7 +23,8 @@ sealed interface TimelineItem {
         override val key = "today-prompt"
     }
 
-    data class PostItem(val post: Post, val index: Int, val count: Int, val diaries: List<Diary>) : TimelineItem {
+    /** [diary] labels the card when the list mixes diaries. */
+    data class PostItem(val post: Post, val index: Int, val count: Int, val diary: Diary?) : TimelineItem {
         override val key = "post-${post.id}"
     }
 
@@ -123,8 +124,6 @@ fun buildTimeline(
         lastMonth = month
     }
 
-    fun otherDiaryIds(post: Post) = post.diaryIds.filter { it != selectedDiaryId }
-
     fun flushEmptyRun() {
         if (emptyRun.isEmpty()) return
         if (emptyRun.size >= QUIET_STRETCH_MIN_DAYS) {
@@ -150,9 +149,9 @@ fun buildTimeline(
     var date = newest
     while (!date.isBefore(oldest)) {
         val dayPosts = postsByDate[date].orEmpty()
-        val (visible, hidden) = dayPosts.partition { selectedDiaryId == null || selectedDiaryId in it.diaryIds }
+        val (visible, hidden) = dayPosts.partition { selectedDiaryId == null || it.diaryId == selectedDiaryId }
         if (visible.isEmpty() && date != today) {
-            emptyRun += date to hidden.flatMap { otherDiaryIds(it) }.distinct().mapNotNull(diaryById::get).sortedBy { it.position }
+            emptyRun += date to hidden.map { it.diaryId }.distinct().mapNotNull(diaryById::get).sortedBy { it.position }
         } else {
             flushEmptyRun()
             monthDivider(date)
@@ -160,15 +159,13 @@ fun buildTimeline(
             items += TimelineItem.DayHeader(date, sorted.mapNotNull { it.mood })
             when {
                 sorted.isNotEmpty() -> sorted.forEachIndexed { index, post ->
-                    val postDiaries = if (labelDiaries) post.diaryIds.mapNotNull(diaryById::get).sortedBy { it.position } else emptyList()
-                    items += TimelineItem.PostItem(post, index, sorted.size, postDiaries)
+                    items += TimelineItem.PostItem(post, index, sorted.size, if (labelDiaries) diaryById[post.diaryId] else null)
                 }
                 else -> items += TimelineItem.TodayPrompt(date) // only today gets here without posts
             }
             if (hidden.isNotEmpty()) {
                 val counts = hidden
-                    .flatMap(::otherDiaryIds)
-                    .groupingBy { it }
+                    .groupingBy { it.diaryId }
                     .eachCount()
                     .mapNotNull { (id, count) -> diaryById[id]?.let { DiaryCount(it, count) } }
                     .sortedBy { it.diary.position }

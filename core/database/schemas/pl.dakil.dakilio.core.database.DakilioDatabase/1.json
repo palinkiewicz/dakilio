@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "25a5b3749f808dd586e0c12d22896b79",
+    "identityHash": "45b517600f488c7e27fe65fb789086e4",
     "entities": [
       {
         "tableName": "mood",
@@ -107,7 +107,7 @@
       },
       {
         "tableName": "tag_group",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `position` INTEGER NOT NULL, `is_archived` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `position` INTEGER NOT NULL, `is_archived` INTEGER NOT NULL, `color_key` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -132,6 +132,11 @@
             "columnName": "is_archived",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "colorKey",
+            "columnName": "color_key",
+            "affinity": "TEXT"
           }
         ],
         "primaryKey": {
@@ -143,7 +148,7 @@
       },
       {
         "tableName": "tag",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `group_id` INTEGER NOT NULL, `label` TEXT NOT NULL, `icon_key` TEXT NOT NULL, `position` INTEGER NOT NULL, `is_archived` INTEGER NOT NULL, FOREIGN KEY(`group_id`) REFERENCES `tag_group`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `group_id` INTEGER NOT NULL, `label` TEXT NOT NULL, `icon_key` TEXT NOT NULL, `position` INTEGER NOT NULL, `is_archived` INTEGER NOT NULL, `color_key` TEXT, FOREIGN KEY(`group_id`) REFERENCES `tag_group`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -180,6 +185,11 @@
             "columnName": "is_archived",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "colorKey",
+            "columnName": "color_key",
+            "affinity": "TEXT"
           }
         ],
         "primaryKey": {
@@ -275,7 +285,7 @@
       },
       {
         "tableName": "post",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `timestamp` INTEGER NOT NULL, `utc_offset_min` INTEGER NOT NULL, `local_date` INTEGER NOT NULL, `mood_id` INTEGER, `title` TEXT, `note` TEXT, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, FOREIGN KEY(`mood_id`) REFERENCES `mood`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `timestamp` INTEGER NOT NULL, `utc_offset_min` INTEGER NOT NULL, `local_date` INTEGER NOT NULL, `mood_id` INTEGER, `diary_id` INTEGER NOT NULL, `title` TEXT, `note` TEXT, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, FOREIGN KEY(`mood_id`) REFERENCES `mood`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`diary_id`) REFERENCES `diary`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
         "fields": [
           {
             "fieldPath": "id",
@@ -305,6 +315,12 @@
             "fieldPath": "moodId",
             "columnName": "mood_id",
             "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "diaryId",
+            "columnName": "diary_id",
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "title",
@@ -355,6 +371,15 @@
             "createSql": "CREATE INDEX IF NOT EXISTS `index_post_mood_id` ON `${TABLE_NAME}` (`mood_id`)"
           },
           {
+            "name": "index_post_diary_id",
+            "unique": false,
+            "columnNames": [
+              "diary_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_post_diary_id` ON `${TABLE_NAME}` (`diary_id`)"
+          },
+          {
             "name": "index_post_timestamp",
             "unique": false,
             "columnNames": [
@@ -375,59 +400,10 @@
             "referencedColumns": [
               "id"
             ]
-          }
-        ]
-      },
-      {
-        "tableName": "post_diary",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`post_id` INTEGER NOT NULL, `diary_id` INTEGER NOT NULL, PRIMARY KEY(`post_id`, `diary_id`), FOREIGN KEY(`post_id`) REFERENCES `post`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`diary_id`) REFERENCES `diary`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
-        "fields": [
-          {
-            "fieldPath": "postId",
-            "columnName": "post_id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "diaryId",
-            "columnName": "diary_id",
-            "affinity": "INTEGER",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "post_id",
-            "diary_id"
-          ]
-        },
-        "indices": [
-          {
-            "name": "index_post_diary_diary_id",
-            "unique": false,
-            "columnNames": [
-              "diary_id"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_post_diary_diary_id` ON `${TABLE_NAME}` (`diary_id`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "post",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "post_id"
-            ],
-            "referencedColumns": [
-              "id"
-            ]
           },
           {
             "table": "diary",
-            "onDelete": "CASCADE",
+            "onDelete": "RESTRICT",
             "onUpdate": "NO ACTION",
             "columns": [
               "diary_id"
@@ -557,11 +533,77 @@
             ]
           }
         ]
+      },
+      {
+        "tableName": "habit",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `tag_id` INTEGER NOT NULL, `days_per_week` INTEGER NOT NULL, `position` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, FOREIGN KEY(`tag_id`) REFERENCES `tag`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tagId",
+            "columnName": "tag_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "daysPerWeek",
+            "columnName": "days_per_week",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "position",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_habit_tag_id",
+            "unique": true,
+            "columnNames": [
+              "tag_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_habit_tag_id` ON `${TABLE_NAME}` (`tag_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "tag",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "tag_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '25a5b3749f808dd586e0c12d22896b79')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '45b517600f488c7e27fe65fb789086e4')"
     ]
   }
 }

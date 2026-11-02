@@ -3,7 +3,7 @@ package pl.dakil.dakilio.core.model
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-/** A journal entry. Every part except the date and at least one diary is optional. */
+/** A journal entry in exactly one diary. Every other part except the date is optional. */
 data class Post(
     val id: Long,
     /** Wall-clock time where the entry was written; entries stay on "their" day across time zones. */
@@ -12,7 +12,7 @@ data class Post(
     val title: String?,
     val note: String?,
     val tags: List<Tag>,
-    val diaryIds: Set<Long>,
+    val diaryId: Long,
     val photos: List<PostPhoto>,
 ) {
     val date: LocalDate get() = dateTime.toLocalDate()
@@ -33,6 +33,6 @@ data class PostDraft(
     val title: String?,
     val note: String?,
     val tagIds: Set<Long>,
-    val diaryIds: Set<Long>,
+    val diaryId: Long,
     val photoFileNames: List<String>,
 )

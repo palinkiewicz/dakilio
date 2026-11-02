@@ -53,7 +53,7 @@ class InsightsViewModel @Inject constructor(
             // Charts work per level: aliases fold into their level's primary.
             val primaries = moods.primaries()
             val filter = selected?.takeIf { id -> diaries.any { it.id == id } }
-            val filtered = if (filter == null) posts else posts.filter { filter in it.diaryIds }
+            val filtered = if (filter == null) posts else posts.filter { it.diaryId == filter }
             val today = LocalDate.now(clock)
             InsightsUiState.Ready(
                 insights = calculateInsights(filtered, primaries, range, today),

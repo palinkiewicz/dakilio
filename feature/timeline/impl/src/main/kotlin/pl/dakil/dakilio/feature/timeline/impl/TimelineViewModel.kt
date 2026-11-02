@@ -69,7 +69,7 @@ class TimelineViewModel @Inject constructor(
             // A filter pointing at a deleted diary falls back to "All".
             val filter = selected?.takeIf { id -> diaries.any { it.id == id } }
             val visibleDays = posts.asSequence()
-                .filter { filter == null || filter in it.diaryIds }
+                .filter { filter == null || it.diaryId == filter }
                 .map { it.date }
                 .toSet()
             val bounds = timelineBounds(posts, today)

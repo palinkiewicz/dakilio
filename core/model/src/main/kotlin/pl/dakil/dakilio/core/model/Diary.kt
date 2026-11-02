@@ -1,6 +1,6 @@
 package pl.dakil.dakilio.core.model
 
-/** A category of entries ("Your Journey", "Work", …). Entries can belong to several diaries. */
+/** A category of entries ("Your Journey", "Work", …). Each entry belongs to exactly one diary. */
 data class Diary(
     val id: Long,
     val name: String,

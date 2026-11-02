@@ -7,7 +7,6 @@ import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import pl.dakil.dakilio.core.database.entity.PopulatedPost
-import pl.dakil.dakilio.core.database.entity.PostDiaryCrossRef
 import pl.dakil.dakilio.core.database.entity.PostEntity
 import pl.dakil.dakilio.core.database.entity.PostPhotoEntity
 import pl.dakil.dakilio.core.database.entity.PostTagCrossRef
@@ -44,17 +43,11 @@ abstract class PostDao {
     @Query("DELETE FROM post_tag WHERE post_id = :postId")
     protected abstract suspend fun clearTags(postId: Long)
 
-    @Query("DELETE FROM post_diary WHERE post_id = :postId")
-    protected abstract suspend fun clearDiaries(postId: Long)
-
     @Query("DELETE FROM post_photo WHERE post_id = :postId")
     protected abstract suspend fun clearPhotos(postId: Long)
 
     @Insert
     protected abstract suspend fun insertTags(refs: List<PostTagCrossRef>)
-
-    @Insert
-    protected abstract suspend fun insertDiaries(refs: List<PostDiaryCrossRef>)
 
     @Insert
     protected abstract suspend fun insertPhotos(photos: List<PostPhotoEntity>)
@@ -67,7 +60,6 @@ abstract class PostDao {
     open suspend fun save(
         post: PostEntity,
         tagIds: Collection<Long>,
-        diaryIds: Collection<Long>,
         photoFileNames: List<String>,
     ): Long {
         val id = if (post.id == 0L) {
@@ -75,12 +67,10 @@ abstract class PostDao {
         } else {
             update(post)
             clearTags(post.id)
-            clearDiaries(post.id)
             clearPhotos(post.id)
             post.id
         }
         insertTags(tagIds.map { PostTagCrossRef(id, it) })
-        insertDiaries(diaryIds.map { PostDiaryCrossRef(id, it) })
         insertPhotos(photoFileNames.mapIndexed { index, name -> PostPhotoEntity(postId = id, fileName = name, position = index) })
         return id
     }

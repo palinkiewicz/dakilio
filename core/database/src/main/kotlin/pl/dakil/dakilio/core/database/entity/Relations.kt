@@ -14,8 +14,6 @@ data class PopulatedPost(
         associateBy = Junction(PostTagCrossRef::class, parentColumn = "post_id", entityColumn = "tag_id"),
     )
     val tags: List<TagEntity>,
-    @Relation(parentColumn = "id", entityColumn = "post_id", entity = PostDiaryCrossRef::class, projection = ["diary_id"])
-    val diaryIds: List<Long>,
     @Relation(parentColumn = "id", entityColumn = "post_id")
     val photos: List<PostPhotoEntity>,
 )

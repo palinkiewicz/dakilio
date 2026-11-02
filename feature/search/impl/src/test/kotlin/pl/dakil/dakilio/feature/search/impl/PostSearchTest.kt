@@ -24,10 +24,10 @@ class PostSearchTest {
         title = "Wycieczka w góry",
         note = "Zachód słońca na grani",
         tags = listOf(hiking, friends),
-        diaryIds = setOf(1),
+        diaryId = 1,
         photos = listOf(PostPhoto(1, "a.jpg", "/a.jpg")),
     )
-    private val work = hike.copy(id = 2, mood = null, title = "Meetings", note = null, tags = listOf(friends), photos = emptyList(), diaryIds = setOf(2))
+    private val work = hike.copy(id = 2, mood = null, title = "Meetings", note = null, tags = listOf(friends), photos = emptyList(), diaryId = 2)
     private val posts = listOf(hike, work)
 
     private fun search(filters: SearchFilters, from: List<Post> = posts) = from.search(filters, today)

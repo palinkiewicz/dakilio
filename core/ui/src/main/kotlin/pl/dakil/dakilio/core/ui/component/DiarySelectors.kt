@@ -1,7 +1,5 @@
 package pl.dakil.dakilio.core.ui.component
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -15,14 +13,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
 import pl.dakil.dakilio.core.designsystem.component.raisedToggleColors
 import pl.dakil.dakilio.core.designsystem.component.rememberHaptics
 import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
@@ -74,41 +68,33 @@ fun DiaryFilterRow(
 }
 
 /**
- * Multi-select diary picker for the entry editor. At least one diary must stay selected: trying to
- * clear the last one shakes it with a "reject" haptic instead.
+ * Single-select diary picker for the entry editor: an entry is in exactly one diary, so the checked
+ * one stays checked when tapped again.
  */
 @Composable
-fun DiaryMultiSelector(
+fun DiarySelector(
     diaries: List<Diary>,
-    selectedIds: Set<Long>,
-    onToggle: (Long) -> Unit,
+    selectedId: Long?,
+    onSelect: (Long) -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp),
 ) {
     val haptics = rememberHaptics()
-    val scope = rememberCoroutineScope()
     Row(
         modifier = modifier.horizontalScroll(rememberScrollState()).padding(contentPadding),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         diaries.forEach { diary ->
-            val shake = remember { Animatable(0f) }
-            val checked = diary.id in selectedIds
+            val checked = diary.id == selectedId
             DiaryToggle(
                 label = diary.name,
                 symbol = if (checked) DakilioSymbols.Check else symbolForKey(diary.iconKey),
                 checked = checked,
-                modifier = Modifier.graphicsLayer { translationX = shake.value },
                 onClick = {
-                    if (checked && selectedIds.size == 1) {
-                        haptics.reject()
-                        scope.launch {
-                            shake.animateTo(0f, spring(dampingRatio = 0.2f, stiffness = 1200f), initialVelocity = 1800f)
-                        }
-                    } else {
-                        haptics.toggle(!checked)
-                        onToggle(diary.id)
+                    if (!checked) {
+                        haptics.toggle(true)
+                        onSelect(diary.id)
                     }
                 },
             )

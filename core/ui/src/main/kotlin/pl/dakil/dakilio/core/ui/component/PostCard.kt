@@ -77,8 +77,8 @@ fun PostCard(
     modifier: Modifier = Modifier,
     index: Int = 0,
     count: Int = 1,
-    /** Diaries to label the card with (only when the list mixes diaries). */
-    diaries: List<Diary> = emptyList(),
+    /** Diary to label the card with (only when the list mixes diaries). */
+    diary: Diary? = null,
     highlight: String? = null,
     onPhotoClick: (Int) -> Unit = {},
 ) {
@@ -111,7 +111,7 @@ fun PostCard(
             if (post.mood != null) MoodBadge(post.mood!!, size = BadgeSize) else NoMoodBadge(size = BadgeSize)
             Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                MetaRow(post, formats, diaries)
+                MetaRow(post, formats, diary)
                 post.title?.let {
                     Text(
                         highlighted(it, highlight),
@@ -152,7 +152,7 @@ fun PostCard(
 }
 
 @Composable
-private fun MetaRow(post: Post, formats: DakilioFormats, diaries: List<Diary>) {
+private fun MetaRow(post: Post, formats: DakilioFormats, diary: Diary?) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         val mood = post.mood
         Text(
@@ -166,7 +166,7 @@ private fun MetaRow(post: Post, formats: DakilioFormats, diaries: List<Diary>) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Spacer(Modifier.weight(1f))
-        diaries.forEach { diary ->
+        if (diary != null) {
             DakilioIcon(
                 symbolForKey(diary.iconKey),
                 contentDescription = diary.name,

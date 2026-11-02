@@ -89,18 +89,18 @@ internal class LocalDiaryRepository @Inject constructor(
         return diaryDao.save(entity, suggestedGroupIds)
     }
 
-    override suspend fun exclusivePostCount(diaryId: Long): Int = diaryDao.exclusivePostIds(diaryId).size
+    override suspend fun postCount(diaryId: Long): Int = diaryDao.postIds(diaryId).size
 
-    override suspend fun deleteDiary(diaryId: Long, moveExclusiveTo: Long?) {
-        if (moveExclusiveTo == null) {
-            val orphans = diaryDao.exclusivePostIds(diaryId)
-            if (orphans.isNotEmpty()) {
-                val files = postDao.photoFileNames(orphans)
-                postDao.delete(orphans)
+    override suspend fun deleteDiary(diaryId: Long, moveEntriesTo: Long?) {
+        if (moveEntriesTo == null) {
+            val entries = diaryDao.postIds(diaryId)
+            if (entries.isNotEmpty()) {
+                val files = postDao.photoFileNames(entries)
+                postDao.delete(entries)
                 photos.delete(files)
             }
         }
-        diaryDao.delete(diaryId, moveExclusiveTo)
+        diaryDao.delete(diaryId, moveEntriesTo)
     }
 }
 
@@ -190,12 +190,13 @@ internal class LocalPostRepository @Inject constructor(
             utcOffsetMinutes = offset.totalSeconds / 60,
             localDate = draft.dateTime.toLocalDate().toEpochDay(),
             moodId = draft.moodId,
+            diaryId = draft.diaryId,
             title = draft.title?.trim()?.takeIf { it.isNotEmpty() },
             note = draft.note?.trim()?.takeIf { it.isNotEmpty() },
             createdAt = previous?.post?.createdAt ?: now,
             updatedAt = now,
         )
-        val id = dao.save(entity, draft.tagIds, draft.diaryIds, draft.photoFileNames)
+        val id = dao.save(entity, draft.tagIds, draft.photoFileNames)
         previous?.photos?.map { it.fileName }?.minus(draft.photoFileNames.toSet())?.let { photos.delete(it) }
         return id
     }
@@ -222,7 +223,7 @@ internal class LocalSettingsRepository @Inject constructor(
 
     override suspend fun setThemeMode(mode: ThemeMode) = dataSource.setThemeMode(mode)
 
-    override suspend fun setLastEntryDiaryIds(ids: Set<Long>) = dataSource.setLastEntryDiaryIds(ids)
+    override suspend fun setLastEntryDiaryId(id: Long) = dataSource.setLastEntryDiaryId(id)
 
     override suspend fun setSampleHintDismissed(dismissed: Boolean) = dataSource.setSampleHintDismissed(dismissed)
 

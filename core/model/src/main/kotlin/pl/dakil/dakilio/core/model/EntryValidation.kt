@@ -11,9 +11,9 @@ object EntryValidation {
         title: String,
         note: String,
         photoCount: Int,
-        diaryCount: Int,
+        hasDiary: Boolean,
     ): Boolean {
-        if (diaryCount == 0) return false
+        if (!hasDiary) return false
         if (hasMood || tagCount > 0) return true
         return title.isNotBlank() || note.isNotBlank() || photoCount > 0
     }

@@ -12,8 +12,8 @@ enum class PreviewLength(val noteLines: Int?) { Short(4), Medium(8), Long(16), F
 
 data class UserSettings(
     val themeMode: ThemeMode = ThemeMode.System,
-    /** Diaries of the last saved entry; the editor's default when the timeline shows "All". */
-    val lastEntryDiaryIds: Set<Long> = emptySet(),
+    /** Diary of the last saved entry; the editor's default when the timeline shows "All". */
+    val lastEntryDiaryId: Long? = null,
     val sampleHintDismissed: Boolean = false,
     val tagStyle: TagStyle = TagStyle.Icons,
     /** Beginner how-to lines across the app (see `Hint` in core:ui). */

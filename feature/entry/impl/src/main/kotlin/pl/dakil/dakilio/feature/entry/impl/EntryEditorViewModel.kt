@@ -54,7 +54,8 @@ internal data class EditorForm(
     val moodId: Long? = null,
     /** The saved entry's own mood, kept pickable even if it has since been archived. */
     val ownMood: Mood? = null,
-    val diaryIds: Set<Long> = emptySet(),
+    /** Set once loaded: an entry is always in exactly one diary. */
+    val diaryId: Long? = null,
     val tagIds: Set<Long> = emptySet(),
     /** The saved entry's own tags, so archived ones still show among the selected tags. */
     val ownTags: List<Tag> = emptyList(),
@@ -73,8 +74,8 @@ data class EditorUiState(
     val moods: List<Mood>,
     val moodId: Long?,
     val diaries: List<Diary>,
-    val diaryIds: Set<Long>,
-    /** Groups suggested by the selected diaries (all groups when none are suggested). */
+    val diaryId: Long?,
+    /** Groups suggested by the entry's diary (all groups when none are suggested). */
     val suggestedGroups: List<TagGroup>,
     val otherGroups: List<TagGroup>,
     val tagIds: Set<Long>,
@@ -126,7 +127,7 @@ class EntryEditorViewModel @AssistedInject constructor(
             settingsRepository.settings,
         ) { form, moods, diaries, groups, settings ->
             if (!form.loaded) return@combine null
-            val suggestedIds = diaries.filter { it.id in form.diaryIds }.flatMap { it.suggestedGroupIds }.toSet()
+            val suggestedIds = diaries.firstOrNull { it.id == form.diaryId }?.suggestedGroupIds.orEmpty()
             val (suggested, other) = if (suggestedIds.isEmpty()) groups to emptyList() else groups.partition { it.id in suggestedIds }
             EditorUiState(
                 loaded = true,
@@ -139,7 +140,7 @@ class EntryEditorViewModel @AssistedInject constructor(
                     ?: moods,
                 moodId = form.moodId,
                 diaries = diaries,
-                diaryIds = form.diaryIds,
+                diaryId = form.diaryId,
                 suggestedGroups = suggested,
                 otherGroups = other,
                 tagIds = form.tagIds,
@@ -169,7 +170,7 @@ class EntryEditorViewModel @AssistedInject constructor(
                 dateTime = existing.dateTime,
                 moodId = existing.mood?.id,
                 ownMood = existing.mood,
-                diaryIds = existing.diaryIds,
+                diaryId = existing.diaryId,
                 tagIds = existing.tags.map { it.id }.toSet(),
                 ownTags = existing.tags,
                 photos = existing.photos.map { EditorPhoto(it.fileName, it.path) },
@@ -178,15 +179,15 @@ class EntryEditorViewModel @AssistedInject constructor(
         }
         val now = LocalDateTime.now(clock).truncatedTo(ChronoUnit.MINUTES)
         val known = diaries.map { it.id }.toSet()
-        val diaryIds = key.presetDiaryId?.takeIf { it in known }?.let(::setOf)
-            ?: settingsRepository.settings.first().lastEntryDiaryIds.intersect(known).takeIf { it.isNotEmpty() }
-            ?: setOfNotNull(diaries.firstOrNull()?.id)
+        val diaryId = key.presetDiaryId?.takeIf { it in known }
+            ?: settingsRepository.settings.first().lastEntryDiaryId?.takeIf { it in known }
+            ?: diaries.firstOrNull()?.id
         form.value = EditorForm(
             loaded = true,
             dateTime = key.presetEpochDay?.let { LocalDate.ofEpochDay(it).atTime(now.toLocalTime()) } ?: now,
             step = if (key.presetMoodId != null) EditorStep.Tags else EditorStep.Mood,
             moodId = key.presetMoodId,
-            diaryIds = diaryIds,
+            diaryId = diaryId,
         )
     }
 
@@ -210,10 +211,7 @@ class EntryEditorViewModel @AssistedInject constructor(
 
     fun clearMood() = form.update { it.copy(moodId = null, dirty = true) }
 
-    fun toggleDiary(id: Long) = form.update {
-        val ids = if (id in it.diaryIds) it.diaryIds - id else it.diaryIds + id
-        if (ids.isEmpty()) it else it.copy(diaryIds = ids, dirty = true)
-    }
+    fun selectDiary(id: Long) = form.update { if (it.diaryId == id) it else it.copy(diaryId = id, dirty = true) }
 
     fun toggleTag(id: Long) = form.update {
         it.copy(tagIds = if (id in it.tagIds) it.tagIds - id else it.tagIds + id, dirty = true)
@@ -251,7 +249,8 @@ class EntryEditorViewModel @AssistedInject constructor(
 
     fun save() {
         val current = form.value
-        if (current.finished || current.importingPhotos > 0) return
+        val diaryId = current.diaryId
+        if (current.finished || current.importingPhotos > 0 || diaryId == null) return
         viewModelScope.launch {
             // Habits: compare the week's counts around the save, so only a newly counted day bumps.
             val date = current.dateTime.toLocalDate()
@@ -264,7 +263,7 @@ class EntryEditorViewModel @AssistedInject constructor(
                     title = title.text.toString(),
                     note = note.text.toString(),
                     tagIds = current.tagIds,
-                    diaryIds = current.diaryIds,
+                    diaryId = diaryId,
                     photoFileNames = current.photos.map { it.fileName },
                 ),
             )
@@ -273,7 +272,7 @@ class EntryEditorViewModel @AssistedInject constructor(
                 val bumps = Habits.bumps(habitRepository.habitList(), countsBefore, habitRepository.weekCounts(date), Habits.weekStart(date))
                 habitProgressEvents.post(bumps)
             }
-            settingsRepository.setLastEntryDiaryIds(current.diaryIds)
+            settingsRepository.setLastEntryDiaryId(diaryId)
             form.update { it.copy(finished = true) }
         }
     }

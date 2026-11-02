@@ -14,7 +14,7 @@
         <item quantity="other">%d suggested groups</item>
     </plurals>
     <string name="diaries_all_groups">all tag groups</string>
-    <string name="diaries_hint">Entries can live in several diaries at once. With two or more, a diary switcher appears on the timeline.</string>
+    <string name="diaries_hint">Each entry lives in one diary, picked at the top of the editor. With two or more diaries, a diary switcher appears on the timeline.</string>
     <string name="diaries_save">Save</string>
     <string name="diaries_close">Close</string>
     <string name="diaries_name">Name</string>
@@ -26,10 +26,10 @@
     <string name="diaries_delete">Delete diary</string>
     <string name="diaries_last_diary">This is your only diary, so it can\'t be deleted.</string>
     <string name="diaries_delete_title">Delete “%1$s”?</string>
-    <string name="diaries_delete_body_none">It has no entries of its own; shared entries stay in their other diaries.</string>
+    <string name="diaries_delete_body_none">It has no entries.</string>
     <plurals name="diaries_delete_body">
-        <item quantity="one">%d entry is only in this diary. What should happen to it?</item>
-        <item quantity="other">%d entries are only in this diary. What should happen to them?</item>
+        <item quantity="one">It has %d entry. What should happen to it?</item>
+        <item quantity="other">It has %d entries. What should happen to them?</item>
     </plurals>
     <string name="diaries_move_to">Move to %1$s</string>
     <string name="diaries_delete_entries">Delete them too</string>

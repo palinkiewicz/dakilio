@@ -234,12 +234,12 @@ object DefaultData {
                 "utc_offset_min" to offset.totalSeconds / 60,
                 "local_date" to dateTime.toLocalDate().toEpochDay(),
                 "mood_id" to sample.moodLevel?.toLong(),
+                "diary_id" to DEFAULT_DIARY_ID,
                 "title" to sample.title?.let(context::getString),
                 "note" to sample.note?.let(context::getString),
                 "created_at" to now,
                 "updated_at" to now,
             )
-            db.insertRow("post_diary", "post_id" to postId, "diary_id" to DEFAULT_DIARY_ID)
             sample.tags.forEach { tag -> db.insertRow("post_tag", "post_id" to postId, "tag_id" to tag.id) }
             sample.photos.forEachIndexed { position, fileName ->
                 val copied = runCatching {

@@ -5,8 +5,8 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.core.stringSetPreferencesKey
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -26,7 +26,7 @@ class SettingsDataSource @Inject constructor(
             UserSettings(
                 themeMode = prefs[THEME_MODE]?.let { name -> ThemeMode.entries.firstOrNull { it.name == name } }
                     ?: ThemeMode.System,
-                lastEntryDiaryIds = prefs[LAST_ENTRY_DIARIES].orEmpty().mapNotNull(String::toLongOrNull).toSet(),
+                lastEntryDiaryId = prefs[LAST_ENTRY_DIARY],
                 sampleHintDismissed = prefs[SAMPLE_HINT_DISMISSED] ?: false,
                 tagStyle = prefs[TAG_STYLE]?.let { name -> TagStyle.entries.firstOrNull { it.name == name } }
                     ?: TagStyle.Icons,
@@ -60,8 +60,8 @@ class SettingsDataSource @Inject constructor(
         dataStore.edit { it[THEME_MODE] = mode.name }
     }
 
-    suspend fun setLastEntryDiaryIds(ids: Set<Long>) {
-        dataStore.edit { it[LAST_ENTRY_DIARIES] = ids.map(Long::toString).toSet() }
+    suspend fun setLastEntryDiaryId(id: Long) {
+        dataStore.edit { it[LAST_ENTRY_DIARY] = id }
     }
 
     suspend fun setSampleHintDismissed(dismissed: Boolean) {
@@ -94,7 +94,7 @@ class SettingsDataSource @Inject constructor(
 
     private companion object {
         val THEME_MODE = stringPreferencesKey("theme_mode")
-        val LAST_ENTRY_DIARIES = stringSetPreferencesKey("last_entry_diary_ids")
+        val LAST_ENTRY_DIARY = longPreferencesKey("last_entry_diary_id")
         val SAMPLE_HINT_DISMISSED = booleanPreferencesKey("sample_hint_dismissed")
         val TAG_STYLE = stringPreferencesKey("tag_style")
         val SHOW_HINTS = booleanPreferencesKey("show_hints")

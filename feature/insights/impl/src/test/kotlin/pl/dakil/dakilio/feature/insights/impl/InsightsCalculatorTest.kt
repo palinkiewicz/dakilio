@@ -26,7 +26,7 @@ class InsightsCalculatorTest {
         title = null,
         note = null,
         tags = tags.toList(),
-        diaryIds = setOf(1),
+        diaryId = 1,
         photos = emptyList(),
     )
 

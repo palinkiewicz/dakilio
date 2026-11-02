@@ -12,7 +12,6 @@
     <string name="ui_close">Close</string>
     <string name="ui_selected_icon">Selected icon</string>
     <string name="ui_more_photos">+%1$d</string>
-    <string name="ui_diary_required">An entry needs at least one diary</string>
     <string name="mood_clear">Clear mood</string>
     <string name="ui_daylio_open">Open Daylio backup</string>
     <!-- Delete dialogs (tags, tag groups, mood aliases) -->

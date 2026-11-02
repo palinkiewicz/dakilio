@@ -80,7 +80,7 @@ import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbol
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.model.EntryValidation
-import pl.dakil.dakilio.core.ui.component.DiaryMultiSelector
+import pl.dakil.dakilio.core.ui.component.DiarySelector
 import pl.dakil.dakilio.core.ui.rememberFormats
 import pl.dakil.dakilio.core.ui.relativeDayLabel
 import pl.dakil.dakilio.core.ui.sharedContainer
@@ -121,7 +121,7 @@ internal fun EntryEditorScreen(
             title = viewModel.title.text.toString(),
             note = viewModel.note.text.toString(),
             photoCount = current.photos.size,
-            diaryCount = current.diaryIds.size,
+            hasDiary = current.diaryId != null,
         ) && current.importingPhotos == 0
         val bodyRequired = current.moodId == null && current.tagIds.isEmpty() && !canSave
         val save = {
@@ -179,10 +179,10 @@ internal fun EntryEditorScreen(
                         onTime = viewModel::setTime,
                     )
                     if (current.diaries.size > 1) {
-                        DiaryMultiSelector(
+                        DiarySelector(
                             diaries = current.diaries,
-                            selectedIds = current.diaryIds,
-                            onToggle = viewModel::toggleDiary,
+                            selectedId = current.diaryId,
+                            onSelect = viewModel::selectDiary,
                             modifier = Modifier.padding(top = Spacing.s),
                         )
                     }

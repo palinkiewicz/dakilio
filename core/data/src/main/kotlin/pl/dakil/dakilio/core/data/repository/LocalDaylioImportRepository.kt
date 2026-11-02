@@ -110,6 +110,7 @@ internal class LocalDaylioImportRepository @Inject constructor(
                         utcOffsetMinutes = entry.utcOffsetMinutes,
                         localDate = entry.localDate,
                         moodId = null,
+                        diaryId = 0,
                         title = entry.title,
                         note = entry.note,
                         createdAt = now,
@@ -146,7 +147,7 @@ internal class LocalDaylioImportRepository @Inject constructor(
             withContext(NonCancellable) {
                 runCatching { photos.delete(oldFiles.toSet() - newFiles.toSet()) }
                 runCatching {
-                    settings.setLastEntryDiaryIds(setOf(diaryId))
+                    settings.setLastEntryDiaryId(diaryId)
                     settings.setSampleHintDismissed(true)
                 }
             }

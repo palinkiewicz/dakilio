@@ -65,6 +65,6 @@ internal fun PopulatedPost.asModel(pathOf: (String) -> String, groupColors: Map<
     title = post.title,
     note = post.note,
     tags = tags.sortedWith(compareBy({ it.groupId }, { it.position })).map { it.asModel(groupColors[it.groupId]) },
-    diaryIds = diaryIds.toSet(),
+    diaryId = post.diaryId,
     photos = photos.sortedBy { it.position }.map { PostPhoto(it.id, it.fileName, pathOf(it.fileName)) },
 )

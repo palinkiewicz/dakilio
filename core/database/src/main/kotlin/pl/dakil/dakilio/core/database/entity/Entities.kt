@@ -79,8 +79,10 @@ data class DiarySuggestedGroupCrossRef(
     foreignKeys = [
         // RESTRICT: a mood is only deleted after its entries were moved to another one.
         ForeignKey(MoodEntity::class, ["id"], ["mood_id"], onDelete = ForeignKey.RESTRICT),
+        // RESTRICT: a diary is only deleted after its entries were moved to another one or deleted.
+        ForeignKey(DiaryEntity::class, ["id"], ["diary_id"], onDelete = ForeignKey.RESTRICT),
     ],
-    indices = [Index("local_date"), Index("mood_id"), Index("timestamp")],
+    indices = [Index("local_date"), Index("mood_id"), Index("diary_id"), Index("timestamp")],
 )
 data class PostEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
@@ -91,24 +93,12 @@ data class PostEntity(
     /** Local calendar day (epoch day) for fast per-day grouping and streaks. */
     @ColumnInfo(name = "local_date") val localDate: Long,
     @ColumnInfo(name = "mood_id") val moodId: Long?,
+    /** The one diary the entry belongs to. */
+    @ColumnInfo(name = "diary_id") val diaryId: Long,
     val title: String?,
     val note: String?,
     @ColumnInfo(name = "created_at") val createdAt: Long,
     @ColumnInfo(name = "updated_at") val updatedAt: Long,
-)
-
-@Entity(
-    tableName = "post_diary",
-    primaryKeys = ["post_id", "diary_id"],
-    foreignKeys = [
-        ForeignKey(PostEntity::class, ["id"], ["post_id"], onDelete = ForeignKey.CASCADE),
-        ForeignKey(DiaryEntity::class, ["id"], ["diary_id"], onDelete = ForeignKey.CASCADE),
-    ],
-    indices = [Index("diary_id")],
-)
-data class PostDiaryCrossRef(
-    @ColumnInfo(name = "post_id") val postId: Long,
-    @ColumnInfo(name = "diary_id") val diaryId: Long,
 )
 
 @Entity(

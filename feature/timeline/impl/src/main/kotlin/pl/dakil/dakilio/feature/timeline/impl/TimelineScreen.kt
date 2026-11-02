@@ -304,7 +304,7 @@ internal fun TimelineScreen(
                                 onClick = { onOpenEntry(EntryEditorKey(postId = item.post.id)) },
                                 index = item.index,
                                 count = item.count,
-                                diaries = item.diaries,
+                                diary = item.diary,
                                 onPhotoClick = { viewer = item.post.photos to it },
                                 modifier = itemModifier
                                     .padding(top = if (item.index > 0) SegmentedShapes.gap else 0.dp)

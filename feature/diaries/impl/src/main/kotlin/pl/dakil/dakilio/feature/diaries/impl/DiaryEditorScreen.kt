@@ -209,7 +209,7 @@ internal fun DiaryEditorScreen(viewModel: DiaryEditorViewModel, onClose: () -> U
                         )
                     } else {
                         OutlinedButton(
-                            onClick = { scope.launch { deleteCount = viewModel.exclusiveEntryCount() } },
+                            onClick = { scope.launch { deleteCount = viewModel.entryCount() } },
                             colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
                             modifier = Modifier.padding(top = Spacing.xxl, bottom = Spacing.xl),
                         ) {
@@ -247,7 +247,7 @@ internal fun DiaryEditorScreen(viewModel: DiaryEditorViewModel, onClose: () -> U
     if (count != null && current != null) {
         DeleteDiaryDialog(
             name = viewModel.name.text.toString(),
-            exclusiveCount = count,
+            entryCount = count,
             otherDiaries = current.otherDiaries,
             onDismiss = { deleteCount = null },
             onConfirm = { moveTo ->
@@ -262,12 +262,12 @@ internal fun DiaryEditorScreen(viewModel: DiaryEditorViewModel, onClose: () -> U
 @Composable
 private fun DeleteDiaryDialog(
     name: String,
-    exclusiveCount: Int,
+    entryCount: Int,
     otherDiaries: List<Diary>,
     onDismiss: () -> Unit,
     onConfirm: (moveTo: Long?) -> Unit,
 ) {
-    // null = delete the exclusive entries; otherwise the diary to move them into.
+    // null = delete the diary's entries; otherwise the diary to move them into.
     var target by rememberSaveable { mutableStateOf(otherDiaries.firstOrNull()?.id) }
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -275,10 +275,10 @@ private fun DeleteDiaryDialog(
         title = { Text(stringResource(R.string.diaries_delete_title, name)) },
         text = {
             Column {
-                if (exclusiveCount == 0) {
+                if (entryCount == 0) {
                     Text(stringResource(R.string.diaries_delete_body_none))
                 } else {
-                    Text(pluralStringResource(R.plurals.diaries_delete_body, exclusiveCount, exclusiveCount))
+                    Text(pluralStringResource(R.plurals.diaries_delete_body, entryCount, entryCount))
                     otherDiaries.forEach { diary ->
                         ChoiceRow(stringResource(R.string.diaries_move_to, diary.name), selected = target == diary.id) { target = diary.id }
                     }
@@ -287,7 +287,7 @@ private fun DeleteDiaryDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = { onConfirm(if (exclusiveCount == 0) otherDiaries.firstOrNull()?.id else target) }) {
+            TextButton(onClick = { onConfirm(if (entryCount == 0) otherDiaries.firstOrNull()?.id else target) }) {
                 Text(stringResource(R.string.diaries_delete_confirm), color = MaterialTheme.colorScheme.error)
             }
         },

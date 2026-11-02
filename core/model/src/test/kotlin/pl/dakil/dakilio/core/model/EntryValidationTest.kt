@@ -11,8 +11,8 @@ class EntryValidationTest {
         title: String = "",
         note: String = "",
         photos: Int = 0,
-        diaries: Int = 1,
-    ) = EntryValidation.canSave(hasMood, tags, title, note, photos, diaries)
+        hasDiary: Boolean = true,
+    ) = EntryValidation.canSave(hasMood, tags, title, note, photos, hasDiary)
 
     @Test fun `mood alone is enough`() = assertTrue(canSave(hasMood = true))
 
@@ -26,5 +26,5 @@ class EntryValidationTest {
         assertTrue(canSave(photos = 1))
     }
 
-    @Test fun `an entry must belong to a diary`() = assertFalse(canSave(hasMood = true, diaries = 0))
+    @Test fun `an entry must belong to a diary`() = assertFalse(canSave(hasMood = true, hasDiary = false))
 }
