@@ -168,6 +168,18 @@ interface SettingsRepository {
     suspend fun setCompactTags(compact: Boolean)
 }
 
+/** Recent searches, newest first, kept on the device. Entries are opaque strings encoded by the search screen. */
+interface SearchHistoryRepository {
+    val recent: Flow<List<String>>
+
+    /** Records [entry] as the newest search; a repeat moves up instead of appearing twice. */
+    suspend fun push(entry: String)
+
+    suspend fun remove(entry: String)
+
+    suspend fun clear()
+}
+
 /**
  * The first-run intro and the tag group suggestions it shares with the Tags screen.
  *

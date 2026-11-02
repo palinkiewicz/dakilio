@@ -54,6 +54,7 @@ object DefaultData {
             key = group.name,
             name = context.getString(group.label),
             tags = SeedTag.entries.filter { it.group == group }.map { SuggestedTag(context.getString(it.label), it.iconKey) },
+            colorKey = group.colorKey,
         )
     }
 
@@ -69,13 +70,17 @@ object DefaultData {
         R.string.seed_mood_great,
     )
 
-    private enum class Group(@StringRes val label: Int) {
-        Emotions(R.string.seed_group_emotions),
-        People(R.string.seed_group_people),
-        Activities(R.string.seed_group_activities),
-        Health(R.string.seed_group_health),
-        Journey(R.string.seed_group_journey),
-        Weather(R.string.seed_group_weather),
+    /**
+     * @property colorKey the default color of the group's tags, a `TagColor` key (core:ui). Each fits
+     *   the group's meaning, and together they're the most distinct six of the palette.
+     */
+    private enum class Group(@StringRes val label: Int, val colorKey: String) {
+        Emotions(R.string.seed_group_emotions, "pink"), // the heart
+        People(R.string.seed_group_people, "orange"), // warmth of company
+        Activities(R.string.seed_group_activities, "violet"), // play and creativity
+        Health(R.string.seed_group_health, "green"), // wellness
+        Journey(R.string.seed_group_journey, "brown"), // earth, trails and roads
+        Weather(R.string.seed_group_weather, "sky"), // the sky
         ;
 
         val id: Long get() = ordinal + 1L
@@ -211,7 +216,14 @@ object DefaultData {
             "created_at" to now,
         )
         Group.entries.forEach { group ->
-            db.insertRow("tag_group", "id" to group.id, "name" to context.getString(group.label), "position" to group.ordinal, "is_archived" to 0)
+            db.insertRow(
+                "tag_group",
+                "id" to group.id,
+                "name" to context.getString(group.label),
+                "position" to group.ordinal,
+                "is_archived" to 0,
+                "color_key" to group.colorKey,
+            )
             db.insertRow("diary_suggested_group", "diary_id" to DEFAULT_DIARY_ID, "group_id" to group.id)
         }
         SeedTag.entries.groupBy { it.group }.forEach { (_, tags) ->

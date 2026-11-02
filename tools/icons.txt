@@ -48,6 +48,10 @@ ui gavel
 ui inventory_2
 ui unarchive
 ui language
+ui history
+ui shuffle
+ui event_repeat
+ui arrow_drop_down
 emotions sentiment_very_satisfied
 emotions sentiment_satisfied
 emotions sentiment_neutral

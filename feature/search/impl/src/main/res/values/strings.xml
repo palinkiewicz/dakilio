@@ -3,13 +3,69 @@
     <string name="search_hint">Search your journey</string>
     <string name="search_back">Back</string>
     <string name="search_clear">Clear</string>
-    <string name="search_with_photos">With photos</string>
-    <string name="search_start_title">Find anything you wrote</string>
-    <string name="search_start_body">Search titles, notes and tags, or filter by mood.</string>
     <string name="search_none_title">Nothing found</string>
     <string name="search_none_body">Try another word or loosen the filters.</string>
+    <string name="search_empty_title">Nothing to search yet</string>
+    <string name="search_empty_body">Entries you write will show up here.</string>
     <plurals name="search_results">
         <item quantity="one">%d entry</item>
         <item quantity="other">%d entries</item>
     </plurals>
+    <string name="search_clear_all">Clear all</string>
+    <string name="search_narrow_down">Narrow down</string>
+    <string name="search_tag_suggestions">Filter by tag</string>
+    <string name="search_no_tag_matches">No tag matches “%s”</string>
+
+    <!-- Facet bar -->
+    <string name="search_facet_mood">Mood</string>
+    <string name="search_facet_tags">Tags</string>
+    <string name="search_facet_diary">Diary</string>
+    <string name="search_facet_when">When</string>
+    <string name="search_facet_has">Has</string>
+    <!-- A facet with several values: the first one, then how many more ("Walk +2"). -->
+    <string name="search_facet_more">%1$s +%2$d</string>
+    <string name="search_facet_clear">Clear %s</string>
+
+    <!-- Sheets -->
+    <string name="search_sheet_done">Done</string>
+    <string name="search_tag_match_any">Any of them</string>
+    <string name="search_tag_match_all">All of them</string>
+    <string name="search_no_tags">You have no tags yet.</string>
+    <string name="search_period">Period</string>
+    <string name="search_weekdays">Days of the week</string>
+    <string name="search_period_any">Any time</string>
+    <string name="search_period_7d">7 days</string>
+    <string name="search_period_30d">30 days</string>
+    <string name="search_period_year">This year</string>
+    <string name="search_period_on_this_day">On this day</string>
+    <string name="search_period_custom">Pick dates…</string>
+    <string name="search_period_range">%1$s – %2$s</string>
+    <string name="search_period_ok">OK</string>
+    <string name="search_period_cancel">Cancel</string>
+    <string name="search_has_photos">Photos</string>
+    <string name="search_has_photos_body">At least one photo</string>
+    <string name="search_has_text">Written text</string>
+    <string name="search_has_text_body">A title or a note</string>
+    <string name="search_has_long">Long note</string>
+    <plurals name="search_has_long_body">
+        <item quantity="one">A note of %d word or more</item>
+        <item quantity="other">A note of %d words or more</item>
+    </plurals>
+
+    <!-- Idle screen -->
+    <string name="search_recent">Recent</string>
+    <string name="search_recent_clear">Clear</string>
+    <string name="search_recent_remove">Remove from recent</string>
+    <string name="search_look_back">Look back</string>
+    <string name="search_lens_on_this_day">On this day</string>
+    <string name="search_lens_bright">Bright days</string>
+    <string name="search_lens_tough">Tough days</string>
+    <string name="search_lens_photos">Photo memories</string>
+    <string name="search_lens_long">Long reads</string>
+    <string name="search_lens_shuffle">Shuffle</string>
+    <string name="search_lens_shuffle_body">A random memory</string>
+    <string name="search_your_tags">Your tags</string>
+    <string name="search_tags_frequent">Frequent</string>
+    <string name="search_tags_forgotten">Forgotten</string>
+    <string name="search_hash_hint">Tip: type # in the search field to filter by a tag.</string>
 </resources>

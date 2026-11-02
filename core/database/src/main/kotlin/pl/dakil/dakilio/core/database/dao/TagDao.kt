@@ -52,8 +52,8 @@ abstract class TagDao {
 
     /** Adds a group at the end, with [tags] in the given order. Returns the group's id. */
     @Transaction
-    open suspend fun insertGroupWithTags(name: String, tags: List<Pair<String, String>>): Long {
-        val groupId = insertGroup(TagGroupEntity(name = name, position = nextGroupPosition()))
+    open suspend fun insertGroupWithTags(name: String, colorKey: String?, tags: List<Pair<String, String>>): Long {
+        val groupId = insertGroup(TagGroupEntity(name = name, position = nextGroupPosition(), colorKey = colorKey))
         tags.forEachIndexed { position, (label, iconKey) ->
             insertTag(TagEntity(groupId = groupId, label = label, iconKey = iconKey, position = position))
         }

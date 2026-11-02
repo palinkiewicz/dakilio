@@ -21,6 +21,7 @@ import pl.dakil.dakilio.core.database.entity.MoodEntity
 import pl.dakil.dakilio.core.database.entity.PostEntity
 import pl.dakil.dakilio.core.database.entity.TagEntity
 import pl.dakil.dakilio.core.database.entity.TagGroupEntity
+import pl.dakil.dakilio.core.datastore.SearchHistoryDataSource
 import pl.dakil.dakilio.core.datastore.SettingsDataSource
 import pl.dakil.dakilio.core.model.ArchivedTags
 import pl.dakil.dakilio.core.model.Diary
@@ -236,4 +237,16 @@ internal class LocalSettingsRepository @Inject constructor(
     override suspend fun setPreviewLength(length: PreviewLength) = dataSource.setPreviewLength(length)
 
     override suspend fun setCompactTags(compact: Boolean) = dataSource.setCompactTags(compact)
+}
+
+internal class LocalSearchHistoryRepository @Inject constructor(
+    private val dataSource: SearchHistoryDataSource,
+) : SearchHistoryRepository {
+    override val recent: Flow<List<String>> = dataSource.recent
+
+    override suspend fun push(entry: String) = dataSource.push(entry)
+
+    override suspend fun remove(entry: String) = dataSource.remove(entry)
+
+    override suspend fun clear() = dataSource.clear()
 }

@@ -47,6 +47,6 @@ internal class LocalOnboardingRepository @Inject constructor(
 
     override suspend fun addSuggestedGroup(key: String) {
         val group = DefaultData.suggestedGroups(context).firstOrNull { it.key == key } ?: return
-        tagDao.insertGroupWithTags(group.name, group.tags.map { it.label to it.iconKey })
+        tagDao.insertGroupWithTags(group.name, group.colorKey, group.tags.map { it.label to it.iconKey })
     }
 }

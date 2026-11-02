@@ -15,12 +15,14 @@ import pl.dakil.dakilio.core.data.repository.LocalMoodRepository
 import pl.dakil.dakilio.core.data.repository.LocalOnboardingRepository
 import pl.dakil.dakilio.core.data.repository.LocalPhotoRepository
 import pl.dakil.dakilio.core.data.repository.LocalPostRepository
+import pl.dakil.dakilio.core.data.repository.LocalSearchHistoryRepository
 import pl.dakil.dakilio.core.data.repository.LocalSettingsRepository
 import pl.dakil.dakilio.core.data.repository.LocalTagRepository
 import pl.dakil.dakilio.core.data.repository.MoodRepository
 import pl.dakil.dakilio.core.data.repository.OnboardingRepository
 import pl.dakil.dakilio.core.data.repository.PhotoRepository
 import pl.dakil.dakilio.core.data.repository.PostRepository
+import pl.dakil.dakilio.core.data.repository.SearchHistoryRepository
 import pl.dakil.dakilio.core.data.repository.SettingsRepository
 import pl.dakil.dakilio.core.data.repository.TagRepository
 
@@ -38,6 +40,8 @@ internal interface DataModule {
     @Binds @Singleton fun photos(impl: LocalPhotoRepository): PhotoRepository
 
     @Binds @Singleton fun settings(impl: LocalSettingsRepository): SettingsRepository
+
+    @Binds @Singleton fun searchHistory(impl: LocalSearchHistoryRepository): SearchHistoryRepository
 
     @Binds @Singleton fun habits(impl: LocalHabitRepository): HabitRepository
 

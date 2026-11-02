@@ -31,6 +31,7 @@ import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.model.SuggestedGroup
+import pl.dakil.dakilio.core.ui.color.tagColors
 
 private val checkMorph by lazy { Morph(MaterialShapes.Circle, MaterialShapes.Cookie9Sided) }
 
@@ -78,9 +79,10 @@ fun SuggestedGroupCard(
     }
 }
 
-/** A suggested group's name with [trailing] next to it, then its tags as pills. */
+/** A suggested group's name with [trailing] next to it, then its tags as pills in the group's color. */
 @Composable
 fun SuggestedGroupContent(group: SuggestedGroup, modifier: Modifier = Modifier, trailing: @Composable () -> Unit) {
+    val tones = tagColors(group.colorKey)
     Column(modifier.padding(start = Spacing.xl, end = Spacing.l, top = Spacing.l, bottom = Spacing.xl)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(group.name, style = MaterialTheme.typography.titleMediumEmphasized, modifier = Modifier.weight(1f))
@@ -91,7 +93,14 @@ fun SuggestedGroupContent(group: SuggestedGroup, modifier: Modifier = Modifier, 
             verticalArrangement = Arrangement.spacedBy(Spacing.xs),
             modifier = Modifier.padding(top = Spacing.s, end = Spacing.s),
         ) {
-            group.tags.forEach { TagPill(it.label, it.iconKey) }
+            group.tags.forEach {
+                TagPill(
+                    it.label,
+                    it.iconKey,
+                    containerColor = tones?.soft ?: MaterialTheme.colorScheme.surfaceContainerHighest,
+                    contentColor = tones?.accent ?: MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
     }
 }
