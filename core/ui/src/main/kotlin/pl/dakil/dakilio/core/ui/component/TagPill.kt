@@ -17,15 +17,20 @@ import androidx.compose.ui.unit.dp
 import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
 import pl.dakil.dakilio.core.designsystem.icon.symbolForKey
 import pl.dakil.dakilio.core.model.Tag
+import pl.dakil.dakilio.core.ui.color.tagColors
 
-/** Compact, read-only tag label used on entry cards. */
+/** Compact, read-only tag label used on entry cards, in the tag's color when it has one. */
 @Composable
-fun TagPill(
-    tag: Tag,
-    modifier: Modifier = Modifier,
-    containerColor: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
-    contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-) = TagPill(tag.label, tag.iconKey, modifier, containerColor, contentColor)
+fun TagPill(tag: Tag, modifier: Modifier = Modifier) {
+    val colors = tagColors(tag.color)
+    TagPill(
+        label = tag.label,
+        iconKey = tag.iconKey,
+        modifier = modifier,
+        containerColor = colors?.soft ?: MaterialTheme.colorScheme.surfaceContainerHighest,
+        contentColor = colors?.accent ?: MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+}
 
 /** [TagPill] for a tag that doesn't exist yet (a suggestion). */
 @Composable

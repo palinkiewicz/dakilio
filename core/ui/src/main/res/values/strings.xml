@@ -59,4 +59,18 @@
         <item quantity="one">“%1$s” is used in %2$d entry. To delete it, move that entry to another mood.</item>
         <item quantity="other">“%1$s” is used in %2$d entries. To delete it, move those entries to another mood.</item>
     </plurals>
+
+    <!-- Tag colors (the palette of the Tag colors extra) -->
+    <string name="ui_tag_color_red">Red</string>
+    <string name="ui_tag_color_orange">Orange</string>
+    <string name="ui_tag_color_amber">Amber</string>
+    <string name="ui_tag_color_lime">Lime</string>
+    <string name="ui_tag_color_green">Green</string>
+    <string name="ui_tag_color_teal">Teal</string>
+    <string name="ui_tag_color_sky">Sky</string>
+    <string name="ui_tag_color_blue">Blue</string>
+    <string name="ui_tag_color_violet">Violet</string>
+    <string name="ui_tag_color_pink">Pink</string>
+    <string name="ui_tag_color_brown">Brown</string>
+    <string name="ui_tag_color_slate">Slate</string>
 </resources>

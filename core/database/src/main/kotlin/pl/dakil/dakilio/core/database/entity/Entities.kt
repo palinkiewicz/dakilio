@@ -38,6 +38,8 @@ data class TagGroupEntity(
     val name: String,
     val position: Int,
     @ColumnInfo(name = "is_archived") val isArchived: Boolean = false,
+    /** Default color of the group's tags (a palette key), or `null`. */
+    @ColumnInfo(name = "color_key") val colorKey: String? = null,
 )
 
 @Entity(
@@ -54,6 +56,8 @@ data class TagEntity(
     @ColumnInfo(name = "icon_key") val iconKey: String,
     val position: Int,
     @ColumnInfo(name = "is_archived") val isArchived: Boolean = false,
+    /** The tag's own color (a palette key), or `null` to use its group's. */
+    @ColumnInfo(name = "color_key") val colorKey: String? = null,
 )
 
 @Entity(

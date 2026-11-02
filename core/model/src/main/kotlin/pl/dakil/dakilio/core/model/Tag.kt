@@ -1,13 +1,21 @@
 package pl.dakil.dakilio.core.model
 
+/** @property colorKey the default color of the group's tags (the Tag colors extra), or `null`. */
 data class TagGroup(
     val id: Long,
     val name: String,
     val position: Int,
     val tags: List<Tag>,
+    val colorKey: String? = null,
 )
 
-/** Archived tags are hidden from pickers but still shown on the entries that used them. */
+/**
+ * Archived tags are hidden from pickers but still shown on the entries that used them.
+ *
+ * @property colorKey the tag's own color (the Tag colors extra), or `null` to use its group's.
+ * @property color the color the tag shows in: its own, else its group's, else `null`. Filled in by
+ *   the data layer, so displays never need the group.
+ */
 data class Tag(
     val id: Long,
     val groupId: Long,
@@ -15,6 +23,8 @@ data class Tag(
     val iconKey: String,
     val position: Int,
     val isArchived: Boolean = false,
+    val colorKey: String? = null,
+    val color: String? = colorKey,
 )
 
 /**

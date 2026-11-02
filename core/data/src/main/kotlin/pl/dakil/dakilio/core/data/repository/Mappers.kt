@@ -22,13 +22,16 @@ internal fun MoodEntity.asModel() = Mood(
     position = position,
 )
 
-internal fun TagEntity.asModel() = Tag(
+/** [groupColor] is the group's default color, which the tag shows unless it has its own. */
+internal fun TagEntity.asModel(groupColor: String?) = Tag(
     id = id,
     groupId = groupId,
     label = label,
     iconKey = iconKey,
     position = position,
     isArchived = isArchived,
+    colorKey = colorKey,
+    color = colorKey ?: groupColor,
 )
 
 internal fun PopulatedDiary.asModel() = Diary(
@@ -47,11 +50,13 @@ internal fun PopulatedTagGroup.asModel(keep: (TagEntity) -> Boolean = { !it.isAr
     tags = tags.asSequence()
         .filter(keep)
         .sortedWith(compareBy({ it.position }, { it.id }))
-        .map { it.asModel() }
+        .map { it.asModel(group.colorKey) }
         .toList(),
+    colorKey = group.colorKey,
 )
 
-internal fun PopulatedPost.asModel(pathOf: (String) -> String) = Post(
+/** [groupColors] maps each tag group's id to its default tag color. */
+internal fun PopulatedPost.asModel(pathOf: (String) -> String, groupColors: Map<Long, String?> = emptyMap()) = Post(
     id = post.id,
     dateTime = Instant.ofEpochMilli(post.timestamp)
         .atOffset(ZoneOffset.ofTotalSeconds(post.utcOffsetMinutes * 60))
@@ -59,7 +64,7 @@ internal fun PopulatedPost.asModel(pathOf: (String) -> String) = Post(
     mood = mood?.asModel(),
     title = post.title,
     note = post.note,
-    tags = tags.sortedWith(compareBy({ it.groupId }, { it.position })).map { it.asModel() },
+    tags = tags.sortedWith(compareBy({ it.groupId }, { it.position })).map { it.asModel(groupColors[it.groupId]) },
     diaryIds = diaryIds.toSet(),
     photos = photos.sortedBy { it.position }.map { PostPhoto(it.id, it.fileName, pathOf(it.fileName)) },
 )

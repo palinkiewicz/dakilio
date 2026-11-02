@@ -85,6 +85,15 @@ interface TagRepository {
 
     /** Deletes the tag for good: it disappears from every entry, and entries left empty are deleted. */
     suspend fun deleteTag(id: Long)
+
+    /** Active tags that show a color, their own or their group's (the Tag colors extra). */
+    val coloredTagCount: Flow<Int>
+
+    /** Sets the default color of the group's tags; `null` clears it. */
+    suspend fun setGroupColor(id: Long, colorKey: String?)
+
+    /** Sets the tag's own color; `null` makes it use its group's again. */
+    suspend fun setTagColor(id: Long, colorKey: String?)
 }
 
 interface PostRepository {

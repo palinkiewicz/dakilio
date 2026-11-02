@@ -1,6 +1,7 @@
 package pl.dakil.dakilio.core.database
 
 import android.content.Context
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import pl.dakil.dakilio.core.database.dao.DiaryDao
@@ -30,8 +31,12 @@ import pl.dakil.dakilio.core.database.entity.TagGroupEntity
         PostTagCrossRef::class,
         PostPhotoEntity::class,
     ],
-    version = 1,
+    version = 2,
     exportSchema = true,
+    autoMigrations = [
+        // 2: tag and tag_group get a nullable color_key (the Tag colors extra).
+        AutoMigration(from = 1, to = 2),
+    ],
 )
 abstract class DakilioDatabase : RoomDatabase() {
     abstract fun moodDao(): MoodDao

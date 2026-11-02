@@ -44,7 +44,7 @@ include(":core:ui")
 include(":core:navigation")
 include(":core:daylio")
 
-listOf("timeline", "search", "entry", "insights", "more", "moods", "tags", "diaries", "settings", "importer", "archive", "intro").forEach { feature ->
+listOf("timeline", "search", "entry", "insights", "more", "moods", "tags", "diaries", "settings", "importer", "archive", "intro", "extras", "tagcolors").forEach { feature ->
     include(":feature:$feature:api")
     include(":feature:$feature:impl")
 }

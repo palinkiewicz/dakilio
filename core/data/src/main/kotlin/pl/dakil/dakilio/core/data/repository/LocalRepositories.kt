@@ -6,6 +6,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import pl.dakil.dakilio.core.common.DakilioDispatchers
@@ -153,23 +154,30 @@ internal class LocalTagRepository @Inject constructor(private val dao: TagDao) :
     override suspend fun tagUsage(id: Long) = TagUsage(entries = dao.usageCount(id), emptied = dao.emptiedCount(id))
 
     override suspend fun deleteTag(id: Long) = dao.deleteTag(id)
+
+    override val coloredTagCount: Flow<Int> = dao.observeColoredTagCount().distinctUntilChanged()
+
+    override suspend fun setGroupColor(id: Long, colorKey: String?) = dao.setGroupColor(id, colorKey)
+
+    override suspend fun setTagColor(id: Long, colorKey: String?) = dao.setTagColor(id, colorKey)
 }
 
 internal class LocalPostRepository @Inject constructor(
     private val dao: PostDao,
+    private val tagDao: TagDao,
     private val photos: PhotoRepository,
     private val clock: Clock,
     @Dispatcher(DakilioDispatchers.Default) private val default: CoroutineDispatcher,
 ) : PostRepository {
-    override val posts: Flow<List<Post>> = dao.observePosts()
-        .map { list -> list.map { it.asModel(photos::pathOf) } }
-        .flowOn(default)
+    override val posts: Flow<List<Post>> = combine(dao.observePosts(), tagDao.observeGroupColors()) { list, groupColors ->
+        list.map { it.asModel(photos::pathOf, groupColors) }
+    }.flowOn(default)
 
     override val samplePostCount: Flow<Int> = dao
         .observeCountInRange(DefaultData.SAMPLE_POST_IDS.first, DefaultData.SAMPLE_POST_IDS.last)
         .distinctUntilChanged()
 
-    override suspend fun getPost(id: Long): Post? = dao.getPost(id)?.asModel(photos::pathOf)
+    override suspend fun getPost(id: Long): Post? = dao.getPost(id)?.asModel(photos::pathOf, tagDao.observeGroupColors().first())
 
     override suspend fun savePost(draft: PostDraft): Long {
         val offset = clock.zone.rules.getOffset(draft.dateTime)

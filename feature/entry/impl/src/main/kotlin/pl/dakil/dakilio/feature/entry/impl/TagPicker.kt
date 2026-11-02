@@ -59,6 +59,7 @@ import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.model.Tag
 import pl.dakil.dakilio.core.model.TagGroup
 import pl.dakil.dakilio.core.model.TagStyle
+import pl.dakil.dakilio.core.ui.color.tagColors
 
 /**
  * The tag groups as lazy items, each a collapsible panel: groups suggested by the selected diaries
@@ -213,15 +214,18 @@ private fun TagIconGrid(tags: List<Tag>, selectedIds: Set<Long>, onToggle: (Long
     }
 }
 
-/** Selecting fills the circle and morphs it into a cookie, swapping to the filled glyph. */
+/** Selecting fills the circle (in the tag's color, if it has one) and morphs it into a cookie, swapping to the filled glyph. */
 @Composable
 private fun TagIconButton(tag: Tag, selected: Boolean, onToggle: () -> Unit, modifier: Modifier = Modifier) {
     val haptics = rememberHaptics()
     val colors = MaterialTheme.colorScheme
+    val tagColors = tagColors(tag.color)
+    val fill = tagColors?.container ?: colors.primary
+    val onFill = tagColors?.onContainer ?: colors.onPrimary
     val interaction = remember { MutableInteractionSource() }
     val progress by animateFloatAsState(if (selected) 1f else 0f, MaterialTheme.motionScheme.fastSpatialSpec(), label = "tagMorph")
     val label by animateColorAsState(
-        if (selected) colors.primary else colors.onSurfaceVariant,
+        if (selected) tagColors?.accent ?: colors.primary else colors.onSurfaceVariant,
         MaterialTheme.motionScheme.fastEffectsSpec(),
         label = "tagLabel",
     )
@@ -243,14 +247,14 @@ private fun TagIconButton(tag: Tag, selected: Boolean, onToggle: () -> Unit, mod
             Modifier
                 .size(IconSize)
                 .graphicsLayer { rotationZ = progress * 20f }
-                .background(lerp(colors.surfaceContainerHigh, colors.primary, progress), MorphShape(tagMorph, progress)),
+                .background(lerp(colors.surfaceContainerHigh, fill, progress), MorphShape(tagMorph, progress)),
             contentAlignment = Alignment.Center,
         ) {
             DakilioIcon(
                 symbolForKey(tag.iconKey),
                 contentDescription = null,
                 filled = selected,
-                tint = lerp(colors.onSurfaceVariant, colors.onPrimary, progress),
+                tint = lerp(colors.onSurfaceVariant, onFill, progress),
                 modifier = Modifier.size(24.dp).graphicsLayer { rotationZ = -progress * 20f },
             )
         }
@@ -277,16 +281,25 @@ internal fun TagChips(tags: List<Tag>, selectedIds: Set<Long>, onToggle: (Long) 
     }
 }
 
-/** Expressive toggle chip: selecting fills it, swaps to the filled glyph and squares off the pill. */
+/** Expressive toggle chip: selecting fills it (in the tag's color, if it has one), swaps to the filled glyph and squares off the pill. */
 @Composable
 private fun TagToggleChip(tag: Tag, selected: Boolean, onToggle: () -> Unit) {
     val haptics = rememberHaptics()
     val motion = MaterialTheme.motionScheme
     val colors = MaterialTheme.colorScheme
+    val tagColors = tagColors(tag.color)
     val interaction = remember { MutableInteractionSource() }
     val corner by animateDpAsState(if (selected) 12.dp else 20.dp, motion.fastSpatialSpec(), label = "chipCorner")
-    val container by animateColorAsState(if (selected) colors.primary else colors.surfaceContainerHigh, motion.fastEffectsSpec(), label = "chipColor")
-    val content by animateColorAsState(if (selected) colors.onPrimary else colors.onSurfaceVariant, motion.fastEffectsSpec(), label = "chipContent")
+    val container by animateColorAsState(
+        if (selected) tagColors?.container ?: colors.primary else colors.surfaceContainerHigh,
+        motion.fastEffectsSpec(),
+        label = "chipColor",
+    )
+    val content by animateColorAsState(
+        if (selected) tagColors?.onContainer ?: colors.onPrimary else colors.onSurfaceVariant,
+        motion.fastEffectsSpec(),
+        label = "chipContent",
+    )
     Surface(
         onClick = {
             haptics.toggle(!selected)
