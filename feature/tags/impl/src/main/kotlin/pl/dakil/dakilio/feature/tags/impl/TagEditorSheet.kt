@@ -48,6 +48,7 @@ import pl.dakil.dakilio.core.designsystem.icon.symbolForKey
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.model.TagGroup
 import pl.dakil.dakilio.core.ui.color.tagColors
+import pl.dakil.dakilio.core.ui.component.ColorRow
 import pl.dakil.dakilio.core.ui.component.IconPicker
 
 private const val DEFAULT_TAG_ICON = "label"
@@ -142,9 +143,10 @@ internal fun TagEditorSheet(
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(horizontal = Spacing.xl),
             )
-            TagColorRow(
+            ColorRow(
                 selectedKey = colorKey,
-                groupColorKey = groupColorKey,
+                fallbackLabel = stringResource(R.string.tags_color_use_group),
+                fallbackColor = tagColors(groupColorKey)?.container,
                 onSelect = {
                     spins++
                     colorKey = it

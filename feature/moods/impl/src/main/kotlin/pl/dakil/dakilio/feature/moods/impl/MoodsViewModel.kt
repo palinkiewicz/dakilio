@@ -20,8 +20,12 @@ class MoodsViewModel @Inject constructor(private val moodRepository: MoodReposit
         .map { it.levelsBestFirst() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
-    fun rename(id: Long, label: String) {
-        viewModelScope.launch { moodRepository.rename(id, label) }
+    /** Saves a mood's name and color (`null` to use its primary's, or the level's). */
+    fun save(mood: Mood, label: String, colorKey: String?) {
+        viewModelScope.launch {
+            moodRepository.rename(mood.id, label)
+            if (colorKey != mood.colorKey) moodRepository.setColor(mood.id, colorKey)
+        }
     }
 
     fun addAlias(level: Int, label: String) {

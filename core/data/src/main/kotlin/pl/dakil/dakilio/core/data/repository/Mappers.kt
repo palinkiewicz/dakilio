@@ -14,12 +14,15 @@ import pl.dakil.dakilio.core.model.PostPhoto
 import pl.dakil.dakilio.core.model.Tag
 import pl.dakil.dakilio.core.model.TagGroup
 
-internal fun MoodEntity.asModel() = Mood(
+/** [primaryColor] is the color of the level's primary, which the mood shows unless it has its own. */
+internal fun MoodEntity.asModel(primaryColor: String?) = Mood(
     id = id,
     level = level,
     label = label,
     isPrimary = isPrimary,
     position = position,
+    colorKey = colorKey,
+    color = colorKey ?: primaryColor,
 )
 
 /** [groupColor] is the group's default color, which the tag shows unless it has its own. */
@@ -55,13 +58,20 @@ internal fun PopulatedTagGroup.asModel(keep: (TagEntity) -> Boolean = { !it.isAr
     colorKey = group.colorKey,
 )
 
-/** [groupColors] maps each tag group's id to its default tag color. */
-internal fun PopulatedPost.asModel(pathOf: (String) -> String, groupColors: Map<Long, String?> = emptyMap()) = Post(
+/**
+ * [groupColors] maps each tag group's id to its default tag color; [primaryColors] maps each mood
+ * level to its primary's color.
+ */
+internal fun PopulatedPost.asModel(
+    pathOf: (String) -> String,
+    groupColors: Map<Long, String?> = emptyMap(),
+    primaryColors: Map<Int, String?> = emptyMap(),
+) = Post(
     id = post.id,
     dateTime = Instant.ofEpochMilli(post.timestamp)
         .atOffset(ZoneOffset.ofTotalSeconds(post.utcOffsetMinutes * 60))
         .toLocalDateTime(),
-    mood = mood?.asModel(),
+    mood = mood?.let { it.asModel(primaryColors[it.level]) },
     title = post.title,
     note = post.note,
     tags = tags.sortedWith(compareBy({ it.groupId }, { it.position })).map { it.asModel(groupColors[it.groupId]) },

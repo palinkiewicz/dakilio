@@ -2,6 +2,7 @@ package pl.dakil.dakilio.core.database.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.MapColumn
 import androidx.room.Query
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
@@ -14,6 +15,10 @@ abstract class MoodDao {
 
     @Query("SELECT * FROM mood WHERE is_archived = 1 ORDER BY level, position, id")
     abstract fun observeArchivedMoods(): Flow<List<MoodEntity>>
+
+    /** Each level's primary color, which aliases without their own show. */
+    @Query("SELECT level, color_key FROM mood WHERE is_primary = 1")
+    abstract fun observePrimaryColors(): Flow<Map<@MapColumn("level") Int, @MapColumn("color_key") String?>>
 
     @Query("SELECT * FROM mood WHERE id = :id")
     abstract suspend fun get(id: Long): MoodEntity?
@@ -29,6 +34,9 @@ abstract class MoodDao {
 
     @Query("UPDATE mood SET label = :label WHERE id = :id")
     abstract suspend fun rename(id: Long, label: String)
+
+    @Query("UPDATE mood SET color_key = :colorKey WHERE id = :id")
+    abstract suspend fun setColor(id: Long, colorKey: String?)
 
     @Query("UPDATE mood SET is_archived = :archived WHERE id = :id AND is_primary = 0")
     abstract suspend fun setArchived(id: Long, archived: Boolean)

@@ -9,9 +9,12 @@
         <item quantity="one">%d alias</item>
         <item quantity="other">%d aliases</item>
     </plurals>
-    <string name="moods_rename_primary">Rename %s</string>
+    <string name="moods_rename_primary">Edit %s</string>
     <string name="moods_add_alias">Add alias</string>
-    <string name="moods_rename_title">Rename mood</string>
+    <string name="moods_edit_title">Edit mood</string>
+    <string name="moods_color">Color</string>
+    <string name="moods_color_level">Level color</string>
+    <string name="moods_color_use_primary">Use “%s” color</string>
     <string name="moods_new_alias_title">New alias for “%s”</string>
     <string name="moods_name">Name</string>
     <string name="moods_save">Save</string>

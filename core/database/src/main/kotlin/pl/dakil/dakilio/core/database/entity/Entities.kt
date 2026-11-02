@@ -21,6 +21,11 @@ data class MoodEntity(
     val position: Int,
     /** Archived aliases stay attached to old entries but are hidden from pickers. */
     @ColumnInfo(name = "is_archived") val isArchived: Boolean = false,
+    /**
+     * The mood's own color (a palette key), or `null`: an alias then uses its level primary's, and a
+     * primary the level's built-in color.
+     */
+    @ColumnInfo(name = "color_key") val colorKey: String? = null,
 )
 
 @Entity(tableName = "diary")

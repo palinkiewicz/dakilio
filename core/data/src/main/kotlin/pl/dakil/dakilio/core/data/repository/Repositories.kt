@@ -32,6 +32,9 @@ interface MoodRepository {
     /** Renames a primary or an alias. */
     suspend fun rename(id: Long, label: String)
 
+    /** Sets a mood's own color (a palette key), or `null` to use its primary's (or the level's). */
+    suspend fun setColor(id: Long, colorKey: String?)
+
     /** How many entries use this exact mood. */
     suspend fun usageCount(id: Long): Int
 

@@ -38,9 +38,13 @@ import pl.dakil.dakilio.core.model.ThemeMode
 import pl.dakil.dakilio.core.model.UserSettings
 
 internal class LocalMoodRepository @Inject constructor(private val dao: MoodDao) : MoodRepository {
-    override val moods: Flow<List<Mood>> = dao.observeActiveMoods().map { list -> list.map { it.asModel() } }
+    override val moods: Flow<List<Mood>> = combine(dao.observeActiveMoods(), dao.observePrimaryColors()) { list, colors ->
+        list.map { it.asModel(colors[it.level]) }
+    }
 
-    override val archivedMoods: Flow<List<Mood>> = dao.observeArchivedMoods().map { list -> list.map { it.asModel() } }
+    override val archivedMoods: Flow<List<Mood>> = combine(dao.observeArchivedMoods(), dao.observePrimaryColors()) { list, colors ->
+        list.map { it.asModel(colors[it.level]) }
+    }
 
     override suspend fun addAlias(level: Int, label: String) {
         require(level in 1..MOOD_LEVELS)
@@ -52,6 +56,8 @@ internal class LocalMoodRepository @Inject constructor(private val dao: MoodDao)
         val name = label.trim().ifEmpty { return }
         dao.rename(id, name)
     }
+
+    override suspend fun setColor(id: Long, colorKey: String?) = dao.setColor(id, colorKey)
 
     override suspend fun usageCount(id: Long): Int = dao.usageCount(id)
 
@@ -166,19 +172,25 @@ internal class LocalTagRepository @Inject constructor(private val dao: TagDao) :
 internal class LocalPostRepository @Inject constructor(
     private val dao: PostDao,
     private val tagDao: TagDao,
+    private val moodDao: MoodDao,
     private val photos: PhotoRepository,
     private val clock: Clock,
     @Dispatcher(DakilioDispatchers.Default) private val default: CoroutineDispatcher,
 ) : PostRepository {
-    override val posts: Flow<List<Post>> = combine(dao.observePosts(), tagDao.observeGroupColors()) { list, groupColors ->
-        list.map { it.asModel(photos::pathOf, groupColors) }
+    override val posts: Flow<List<Post>> = combine(
+        dao.observePosts(),
+        tagDao.observeGroupColors(),
+        moodDao.observePrimaryColors(),
+    ) { list, groupColors, primaryColors ->
+        list.map { it.asModel(photos::pathOf, groupColors, primaryColors) }
     }.flowOn(default)
 
     override val samplePostCount: Flow<Int> = dao
         .observeCountInRange(DefaultData.SAMPLE_POST_IDS.first, DefaultData.SAMPLE_POST_IDS.last)
         .distinctUntilChanged()
 
-    override suspend fun getPost(id: Long): Post? = dao.getPost(id)?.asModel(photos::pathOf, tagDao.observeGroupColors().first())
+    override suspend fun getPost(id: Long): Post? =
+        dao.getPost(id)?.asModel(photos::pathOf, tagDao.observeGroupColors().first(), moodDao.observePrimaryColors().first())
 
     override suspend fun savePost(draft: PostDraft): Long {
         val offset = clock.zone.rules.getOffset(draft.dateTime)

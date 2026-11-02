@@ -5,6 +5,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -39,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,12 +58,16 @@ import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.ui.Hint
+import pl.dakil.dakilio.core.ui.component.ColorRow
 import pl.dakil.dakilio.core.ui.component.DeleteAliasDialog
 import pl.dakil.dakilio.core.ui.component.ReplaceAliasDialog
 import pl.dakil.dakilio.core.ui.mood.MoodBadge
+import pl.dakil.dakilio.core.ui.mood.levelColors
+import pl.dakil.dakilio.core.ui.mood.moodColors
 
 private sealed interface MoodDialog {
-    data class Rename(val mood: Mood) : MoodDialog
+    /** Renaming and coloring a mood; [primary] is its level's (the mood itself for a primary). */
+    data class Edit(val mood: Mood, val primary: Mood) : MoodDialog
     data class AddAlias(val primary: Mood) : MoodDialog
 
     /** Deleting an alias: with no entries it's a plain confirmation; otherwise archive or replace. */
@@ -122,7 +128,7 @@ internal fun MoodsScreen(viewModel: MoodsViewModel, onBack: () -> Unit) {
                 items(current, key = { it.first().level }) { levelMoods ->
                     LevelCard(
                         moods = levelMoods,
-                        onRename = { dialog = MoodDialog.Rename(it) },
+                        onEdit = { dialog = MoodDialog.Edit(it, levelMoods.first()) },
                         onAddAlias = { dialog = MoodDialog.AddAlias(levelMoods.first()) },
                         modifier = Modifier.animateItem(),
                     )
@@ -133,12 +139,12 @@ internal fun MoodsScreen(viewModel: MoodsViewModel, onBack: () -> Unit) {
 
     when (val d = dialog) {
         null -> Unit
-        is MoodDialog.Rename -> NameDialog(
-            title = stringResource(R.string.moods_rename_title),
-            initial = d.mood.label,
+        is MoodDialog.Edit -> EditMoodDialog(
+            mood = d.mood,
+            primary = d.primary,
             onDismiss = { dialog = null },
-            onConfirm = {
-                viewModel.rename(d.mood.id, it)
+            onConfirm = { label, colorKey ->
+                viewModel.save(d.mood, label, colorKey)
                 dialog = null
             },
             onDelete = if (d.mood.isPrimary) {
@@ -199,7 +205,7 @@ internal fun MoodsScreen(viewModel: MoodsViewModel, onBack: () -> Unit) {
 
 /** One level: its primary (renamable, never removed) and its aliases, plus a chip to add one. */
 @Composable
-private fun LevelCard(moods: List<Mood>, onRename: (Mood) -> Unit, onAddAlias: () -> Unit, modifier: Modifier = Modifier) {
+private fun LevelCard(moods: List<Mood>, onEdit: (Mood) -> Unit, onAddAlias: () -> Unit, modifier: Modifier = Modifier) {
     val primary = moods.first()
     val aliases = moods.drop(1)
     Surface(
@@ -222,7 +228,7 @@ private fun LevelCard(moods: List<Mood>, onRename: (Mood) -> Unit, onAddAlias: (
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                IconButton(onClick = { onRename(primary) }) {
+                IconButton(onClick = { onEdit(primary) }) {
                     DakilioIcon(DakilioSymbols.Edit, contentDescription = stringResource(R.string.moods_rename_primary, primary.label))
                 }
             }
@@ -232,7 +238,7 @@ private fun LevelCard(moods: List<Mood>, onRename: (Mood) -> Unit, onAddAlias: (
                 verticalArrangement = Arrangement.spacedBy(Spacing.s),
             ) {
                 aliases.forEach { alias ->
-                    AliasChip(label = alias.label, onClick = { onRename(alias) })
+                    AliasChip(label = alias.label, onClick = { onEdit(alias) })
                 }
                 AliasChip(label = stringResource(R.string.moods_add_alias), onClick = onAddAlias, add = true)
             }
@@ -258,19 +264,73 @@ private fun AliasChip(label: String, onClick: () -> Unit, add: Boolean = false) 
     }
 }
 
+/**
+ * Renames a mood and picks its color, with a live preview of its face. Without a color of its own,
+ * an alias shows its primary's and a primary its level's built-in one.
+ */
 @Composable
-private fun NameDialog(title: String, initial: String, onDismiss: () -> Unit, onConfirm: (String) -> Unit, onDelete: (() -> Unit)?) {
+private fun EditMoodDialog(
+    mood: Mood,
+    primary: Mood,
+    onDismiss: () -> Unit,
+    onConfirm: (label: String, colorKey: String?) -> Unit,
+    onDelete: (() -> Unit)?,
+) {
+    var colorKey by rememberSaveable(mood.id) { mutableStateOf(mood.colorKey) }
+    val fallback = if (mood.isPrimary) levelColors(mood.level) else moodColors(primary)
+    NameDialog(
+        title = stringResource(R.string.moods_edit_title),
+        initial = mood.label,
+        onDismiss = onDismiss,
+        onConfirm = { onConfirm(it, colorKey) },
+        onDelete = onDelete,
+    ) {
+        Row(Modifier.padding(top = Spacing.l), verticalAlignment = Alignment.CenterVertically) {
+            MoodBadge(mood.copy(colorKey = colorKey, color = colorKey ?: primary.color.takeUnless { mood.isPrimary }), size = 40.dp)
+            Text(
+                stringResource(R.string.moods_color),
+                style = MaterialTheme.typography.labelLargeEmphasized,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(start = Spacing.m),
+            )
+        }
+        ColorRow(
+            selectedKey = colorKey,
+            fallbackLabel = if (mood.isPrimary) {
+                stringResource(R.string.moods_color_level)
+            } else {
+                stringResource(R.string.moods_color_use_primary, primary.label)
+            },
+            fallbackColor = fallback.container,
+            onSelect = { colorKey = it },
+            modifier = Modifier.padding(top = Spacing.s),
+        )
+    }
+}
+
+@Composable
+private fun NameDialog(
+    title: String,
+    initial: String,
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit,
+    onDelete: (() -> Unit)?,
+    extra: @Composable ColumnScope.() -> Unit = {},
+) {
     val name = rememberTextFieldState(initial)
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = {
-            OutlinedTextField(
-                state = name,
-                label = { Text(stringResource(R.string.moods_name)) },
-                lineLimits = TextFieldLineLimits.SingleLine,
-                modifier = Modifier.fillMaxWidth(),
-            )
+            Column {
+                OutlinedTextField(
+                    state = name,
+                    label = { Text(stringResource(R.string.moods_name)) },
+                    lineLimits = TextFieldLineLimits.SingleLine,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                extra()
+            }
         },
         confirmButton = {
             TextButton(onClick = { onConfirm(name.text.toString()) }, enabled = name.text.isNotBlank()) {

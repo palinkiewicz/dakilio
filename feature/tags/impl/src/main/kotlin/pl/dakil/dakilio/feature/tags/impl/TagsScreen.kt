@@ -70,6 +70,7 @@ import pl.dakil.dakilio.core.model.TagUsage
 import pl.dakil.dakilio.core.ui.Hint
 import pl.dakil.dakilio.core.ui.color.TagColor
 import pl.dakil.dakilio.core.ui.color.tagColors
+import pl.dakil.dakilio.core.ui.component.ColorDot
 import pl.dakil.dakilio.core.ui.component.DeleteGroupDialog
 import pl.dakil.dakilio.core.ui.component.DeleteTagDialog
 import pl.dakil.dakilio.core.ui.component.EmptyState
@@ -390,7 +391,7 @@ private fun GroupColorButton(group: TagGroup, onClick: () -> Unit) {
         if (color == null) {
             DakilioIcon(DakilioSymbols.Palette, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         } else {
-            ColorDot(color, size = 24.dp)
+            ColorDot(tagColors(color).container, size = 24.dp)
         }
     }
 }

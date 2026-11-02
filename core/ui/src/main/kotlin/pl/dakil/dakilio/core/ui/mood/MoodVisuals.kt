@@ -9,6 +9,7 @@ import androidx.graphics.shapes.Morph
 import androidx.graphics.shapes.RoundedPolygon
 import pl.dakil.dakilio.core.designsystem.theme.LocalDarkTheme
 import pl.dakil.dakilio.core.ui.color.AccentColors
+import pl.dakil.dakilio.core.ui.color.TagColor
 import pl.dakil.dakilio.core.ui.color.deriveAccentColors
 import pl.dakil.dakilio.core.model.MOOD_LEVELS
 import pl.dakil.dakilio.core.model.Mood
@@ -38,6 +39,7 @@ private val glyphsByLevel: List<MoodGlyph> by lazy {
  * Light-mode mark color per level, worst first: a diverging scale (warm = heavy, cool = light) with a
  * calm periwinkle middle (crimson, orange, periwinkle, green, teal), validated for CVD and
  * normal-vision separation of neighbours. Dark tones are derived at runtime ([deriveAccentColors]).
+ * A mood shows these unless it (or its level's primary) has a palette color of its own ([Mood.color]).
  */
 private val seedColorsByLevel = listOf(0xFFBD1F44, 0xFFE98420, 0xFF7A6BC1, 0xFF6BC456, 0xFF009298).map { Color(it.toInt()) }
 
@@ -45,11 +47,19 @@ private fun levelIndex(level: Int) = (level - 1).coerceIn(0, MOOD_LEVELS - 1)
 
 fun moodGlyph(mood: Mood): MoodGlyph = glyphsByLevel[levelIndex(mood.level)]
 
-/** A mood's colors in the current theme; aliases share their level's. */
+/** A mood's colors in the current theme: its own color, else its primary's, else its level's. */
 typealias MoodColors = AccentColors
 
 @Composable
 fun moodColors(mood: Mood): MoodColors {
     val dark = LocalDarkTheme.current
-    return remember(mood.level, dark) { deriveAccentColors(seedColorsByLevel[levelIndex(mood.level)], dark) }
+    val seed = TagColor.fromKey(mood.color)?.seed ?: seedColorsByLevel[levelIndex(mood.level)]
+    return remember(seed, dark) { deriveAccentColors(seed, dark) }
+}
+
+/** The built-in colors of [level] in the current theme, which moods without a color of their own show. */
+@Composable
+fun levelColors(level: Int): MoodColors {
+    val dark = LocalDarkTheme.current
+    return remember(level, dark) { deriveAccentColors(seedColorsByLevel[levelIndex(level)], dark) }
 }

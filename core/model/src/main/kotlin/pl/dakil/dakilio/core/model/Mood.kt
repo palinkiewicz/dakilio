@@ -7,6 +7,10 @@ const val MOOD_LEVELS = 5
  * A mood the user can pick. Every [level] has exactly one [isPrimary] mood (renamable, never removed)
  * and any number of aliases: other names for the same level ("Sad" next to "Bad"). Analytics only
  * look at the level, through [value]; entries keep the exact mood so they show the chosen name.
+ *
+ * @property colorKey the mood's own color (a palette key, like tag colors), or `null`.
+ * @property color the color the mood shows: its own, else its level primary's, else `null` for the
+ *   level's built-in color. Filled in by the data layer, so displays never need the primary.
  */
 data class Mood(
     val id: Long,
@@ -15,6 +19,8 @@ data class Mood(
     val isPrimary: Boolean,
     /** Order among the level's aliases (the primary always comes first). */
     val position: Int,
+    val colorKey: String? = null,
+    val color: String? = colorKey,
 ) {
     /** [level] normalized to 0.0–1.0, for averages and the heatmap. */
     val value: Float get() = (level - 1f) / (MOOD_LEVELS - 1)
