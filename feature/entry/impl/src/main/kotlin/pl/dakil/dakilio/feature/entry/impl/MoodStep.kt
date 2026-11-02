@@ -100,7 +100,9 @@ internal fun MoodStep(
         MoodAliasOverlay(
             moods = open,
             selectedId = selectedId,
-            anchor = anchors[open.first().level] ?: Rect.Zero,
+            // The rect is measured before the row's scale; only the selected row opens the list, so grow
+            // it the same way to put the faces right over the row's own.
+            anchor = anchors[open.first().level]?.scaled(SelectedScale) ?: Rect.Zero,
             wide = true,
             faceSize = 56.dp,
             onPick = {
@@ -114,6 +116,16 @@ internal fun MoodStep(
             onDismiss = { openLevel = null },
         )
     }
+}
+
+/** The selected option grows a little. */
+private const val SelectedScale = 1.02f
+
+/** This rect scaled by [scale] around its centre, as a graphicsLayer scale draws it. */
+private fun Rect.scaled(scale: Float): Rect {
+    val dx = width * (scale - 1) / 2
+    val dy = height * (scale - 1) / 2
+    return Rect(left - dx, top - dy, right + dx, bottom + dy)
 }
 
 @Composable
@@ -134,7 +146,7 @@ private fun MoodOption(
         motion.defaultEffectsSpec(),
         label = "moodContainer",
     )
-    val scale by animateFloatAsState(if (selected) 1.02f else if (dimmed) 0.97f else 1f, motion.defaultSpatialSpec(), label = "moodScale")
+    val scale by animateFloatAsState(if (selected) SelectedScale else if (dimmed) 0.97f else 1f, motion.defaultSpatialSpec(), label = "moodScale")
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(corner),

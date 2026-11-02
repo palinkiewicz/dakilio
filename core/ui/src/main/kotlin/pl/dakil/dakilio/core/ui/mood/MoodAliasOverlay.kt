@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FilledTonalIconButton
@@ -142,16 +143,20 @@ fun MoodAliasOverlay(
                                 )
                             }
                             if (onClear != null && moods.any { it.id == selectedId }) {
-                                FilledTonalIconButton(
-                                    onClick = {
-                                        haptics.tick()
-                                        onClear()
-                                    },
-                                    modifier = Modifier
-                                        .align(Alignment.CenterHorizontally)
-                                        .graphicsLayer { alpha = progress.value.coerceIn(0f, 1f) },
+                                // Right under the faces: they lead the wide rows and centre the narrow ones.
+                                Box(
+                                    if (wide) Modifier.padding(start = Spacing.l).width(faceSize) else Modifier.fillMaxWidth(),
+                                    contentAlignment = Alignment.Center,
                                 ) {
-                                    DakilioIcon(DakilioSymbols.Block, contentDescription = stringResource(R.string.mood_clear))
+                                    FilledTonalIconButton(
+                                        onClick = {
+                                            haptics.tick()
+                                            onClear()
+                                        },
+                                        modifier = Modifier.graphicsLayer { alpha = progress.value.coerceIn(0f, 1f) },
+                                    ) {
+                                        DakilioIcon(DakilioSymbols.Block, contentDescription = stringResource(R.string.mood_clear))
+                                    }
                                 }
                             }
                         }
@@ -168,7 +173,9 @@ fun MoodAliasOverlay(
                 val centerX = (anchor.left + anchor.width / 2 - origin.x).roundToInt()
                 val left = (centerX - panel.width / 2).coerceIn(0, (constraints.maxWidth - panel.width).coerceAtLeast(0))
                 // Line the primary up with the tapped face; move up if the list would run off screen.
-                val wantedTop = (anchor.top - origin.y).roundToInt() - (Spacing.s + ItemPadding).roundToPx()
+                // A wide row centres its face vertically; a narrow option starts with it.
+                val faceTop = if (wide) anchor.center.y - faceSize.toPx() / 2 else anchor.top
+                val wantedTop = (faceTop - origin.y).roundToInt() - (Spacing.s + ItemPadding).roundToPx()
                 val top = wantedTop.coerceAtMost(constraints.maxHeight - panel.height - margin).coerceAtLeast(margin)
                 layout(constraints.maxWidth, constraints.maxHeight) { panel.place(left, top) }
             }
@@ -202,8 +209,9 @@ private fun OverlayItem(mood: Mood, selected: Boolean, wide: Boolean, faceSize: 
         }
         .padding(vertical = ItemPadding)
     if (wide) {
-        // Lines the faces up with the wizard row's own face (its content starts at Spacing.l).
-        Row(itemModifier.padding(horizontal = Spacing.l - PanelPadding), verticalAlignment = Alignment.CenterVertically) {
+        // Lines the faces up with the wizard row's own face (its content starts at Spacing.l). The panel
+        // reaches PanelPadding past the row on each side, and its own padding takes that back.
+        Row(itemModifier.padding(horizontal = Spacing.l), verticalAlignment = Alignment.CenterVertically) {
             MoodBadge(mood, Modifier.requiredSize(faceSize), size = faceSize, active = selected)
             label()
         }
