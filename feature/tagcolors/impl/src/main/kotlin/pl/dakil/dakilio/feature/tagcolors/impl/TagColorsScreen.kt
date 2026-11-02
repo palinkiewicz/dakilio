@@ -191,7 +191,7 @@ private val ColorTargetSaver = Saver<ColorTarget?, Long>(
 @Composable
 private fun GroupCard(group: TagGroup, onEditGroup: () -> Unit, onEditTag: (Tag) -> Unit, modifier: Modifier = Modifier) {
     val haptics = rememberHaptics()
-    Surface(shape = RoundedCornerShape(28.dp), color = MaterialTheme.colorScheme.surfaceContainerLow, modifier = modifier.fillMaxWidth()) {
+    Surface(shape = RoundedCornerShape(28.dp), color = MaterialTheme.colorScheme.surfaceContainer, modifier = modifier.fillMaxWidth()) {
         Column(Modifier.padding(start = Spacing.l, end = Spacing.m, top = Spacing.m, bottom = Spacing.l)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
@@ -243,7 +243,7 @@ private fun GroupColorButton(group: TagGroup, onClick: () -> Unit) {
     Surface(
         onClick = onClick,
         shape = CircleShape,
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        color = MaterialTheme.colorScheme.surfaceContainerHighest,
         modifier = Modifier.heightIn(min = 40.dp).semantics { contentDescription = description },
     ) {
         Row(
