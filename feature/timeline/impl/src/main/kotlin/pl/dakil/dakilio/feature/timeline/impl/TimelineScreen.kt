@@ -1,6 +1,12 @@
 package pl.dakil.dakilio.feature.timeline.impl
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animate
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,6 +25,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -27,6 +34,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeFlexibleTopAppBar
@@ -34,28 +43,44 @@ import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumFloatingActionButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SmallFloatingActionButton
+import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.animateFloatingActionButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneOffset
+import kotlinx.coroutines.launch
 import pl.dakil.dakilio.core.designsystem.component.pressScale
 import pl.dakil.dakilio.core.designsystem.component.rememberHaptics
 import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
@@ -63,16 +88,22 @@ import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.icon.symbolForKey
 import pl.dakil.dakilio.core.designsystem.theme.SegmentedShapes
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
+import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.PostPhoto
+import pl.dakil.dakilio.core.model.PreviewLength
+import pl.dakil.dakilio.core.model.levelsBestFirst
 import pl.dakil.dakilio.core.ui.DakilioFormats
+import pl.dakil.dakilio.core.ui.Hint
 import pl.dakil.dakilio.core.ui.bottomBarPadding
 import pl.dakil.dakilio.core.ui.component.DiaryFilterRow
 import pl.dakil.dakilio.core.ui.component.EmptyState
 import pl.dakil.dakilio.core.ui.component.PhotoViewer
 import pl.dakil.dakilio.core.ui.component.PostCard
 import pl.dakil.dakilio.core.ui.dayTitle
+import pl.dakil.dakilio.core.ui.mood.MoodAliasOverlay
 import pl.dakil.dakilio.core.ui.mood.MoodBadge
+import pl.dakil.dakilio.core.ui.mood.screenRect
 import pl.dakil.dakilio.core.ui.relativeDayLabel
 import pl.dakil.dakilio.core.ui.rememberFormats
 import pl.dakil.dakilio.core.ui.sharedContainer
@@ -94,8 +125,12 @@ internal fun TimelineRoute(
         state = state,
         onSelectDiary = viewModel::selectDiary,
         onToggleStretch = viewModel::toggleStretch,
+        onExpandStretch = viewModel::expandStretch,
         onOpenEntry = onOpenEntry,
         onOpenSearch = onOpenSearch,
+        onPreviewLength = viewModel::setPreviewLength,
+        onCompactTags = viewModel::setCompactTags,
+        onTextScale = viewModel::setTimelineTextScale,
     )
 }
 
@@ -104,16 +139,46 @@ internal fun TimelineScreen(
     state: TimelineUiState,
     onSelectDiary: (Long?) -> Unit,
     onToggleStretch: (Long) -> Unit,
+    onExpandStretch: (Long) -> Unit,
     onOpenEntry: (EntryEditorKey) -> Unit,
     onOpenSearch: () -> Unit,
+    onPreviewLength: (PreviewLength) -> Unit,
+    onCompactTags: (Boolean) -> Unit,
+    onTextScale: (Float) -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val listState = rememberLazyListState()
     val formats = rememberFormats()
     val haptics = rememberHaptics()
+    val scope = rememberCoroutineScope()
+    val showScrollToTop by remember { derivedStateOf { listState.firstVisibleItemIndex >= SCROLL_TO_TOP_THRESHOLD } }
     var viewer by remember { mutableStateOf<Pair<List<PostPhoto>, Int>?>(null) }
     val ready = state as? TimelineUiState.Ready
     val selectedDiary = ready?.selectedDiaryId
+
+    // Jumps to a day: from the date picker, or from an "Also this day" chip, which also switches
+    // diaries. Without this, a diary switch keeps the list's position by the first visible item's
+    // key, falling back to its index: often a different day.
+    var pendingJump by remember { mutableStateOf<DayJump?>(null) }
+    var pickDate by rememberSaveable { mutableStateOf(false) }
+    var viewMenu by rememberSaveable { mutableStateOf(false) }
+    SideEffect {
+        val jump = pendingJump ?: return@SideEffect
+        if (ready == null || (jump.diaryId != null && ready.selectedDiaryId != jump.diaryId)) return@SideEffect
+        when (val location = ready.items.locateDay(jump.date)) {
+            // Applied on the next measure, i.e. the very frame that shows the new list.
+            is DayLocation.At -> {
+                listState.requestScrollToItem(location.index)
+                pendingJump = null
+            }
+            // Open the stretch first; the next list has the day's own row.
+            is DayLocation.InStretch -> if (!jump.expanding) {
+                onExpandStretch(location.newestEpochDay)
+                pendingJump = jump.copy(expanding = true)
+            }
+            DayLocation.Missing -> pendingJump = null
+        }
+    }
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -130,6 +195,30 @@ internal fun TimelineScreen(
                     title = { Text(stringResource(greetingRes(ready?.greeting ?: Greeting.Morning))) },
                     subtitle = ready?.let { { Subtitle(it, formats) } },
                     actions = {
+                        // The menu anchors to this Box, so it grows out of the button.
+                        Box {
+                            IconButton(onClick = {
+                                haptics.tick()
+                                viewMenu = true
+                            }) {
+                                DakilioIcon(DakilioSymbols.Tune, contentDescription = stringResource(R.string.timeline_view_options))
+                            }
+                            TimelineViewMenu(
+                                expanded = viewMenu,
+                                onDismiss = { viewMenu = false },
+                                onPreviewLength = onPreviewLength,
+                                onCompactTags = onCompactTags,
+                                onTextScale = onTextScale,
+                            )
+                        }
+                        if (ready != null) {
+                            IconButton(onClick = {
+                                haptics.tick()
+                                pickDate = true
+                            }) {
+                                DakilioIcon(DakilioSymbols.CalendarMonth, contentDescription = stringResource(R.string.timeline_jump_to_date))
+                            }
+                        }
                         IconButton(
                             onClick = onOpenSearch,
                             modifier = Modifier.sharedContainer(SearchKey.SHARED_ELEMENT_KEY, CircleShape),
@@ -151,17 +240,38 @@ internal fun TimelineScreen(
             }
         },
         floatingActionButton = {
-            MediumFloatingActionButton(
-                onClick = {
-                    haptics.tick()
-                    onOpenEntry(EntryEditorKey(presetDiaryId = selectedDiary))
-                },
-                modifier = Modifier
-                    .padding(bottom = bottomBarPadding())
-                    .animateFloatingActionButton(visible = ready != null, alignment = Alignment.BottomEnd)
-                    .sharedContainer(EntryEditorKey.NEW_ENTRY_SHARED_KEY, RoundedCornerShape(20.dp)),
+            Column(
+                modifier = Modifier.padding(bottom = bottomBarPadding()),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(Spacing.m),
             ) {
-                DakilioIcon(DakilioSymbols.Add, contentDescription = stringResource(R.string.timeline_new_entry), modifier = Modifier.size(28.dp))
+                AnimatedVisibility(
+                    visible = ready != null && showScrollToTop,
+                    enter = scaleIn(MaterialTheme.motionScheme.fastSpatialSpec()) + fadeIn(MaterialTheme.motionScheme.fastEffectsSpec()),
+                    exit = scaleOut(MaterialTheme.motionScheme.fastSpatialSpec()) + fadeOut(MaterialTheme.motionScheme.fastEffectsSpec()),
+                ) {
+                    SmallFloatingActionButton(
+                        onClick = {
+                            haptics.tick()
+                            scope.launch { scrollToTop(listState, scrollBehavior) }
+                        },
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    ) {
+                        DakilioIcon(DakilioSymbols.ArrowUpward, contentDescription = stringResource(R.string.timeline_scroll_to_top))
+                    }
+                }
+                MediumFloatingActionButton(
+                    onClick = {
+                        haptics.tick()
+                        onOpenEntry(EntryEditorKey(presetDiaryId = selectedDiary))
+                    },
+                    modifier = Modifier
+                        .animateFloatingActionButton(visible = ready != null, alignment = Alignment.BottomEnd)
+                        .sharedContainer(EntryEditorKey.NEW_ENTRY_SHARED_KEY, RoundedCornerShape(20.dp)),
+                ) {
+                    DakilioIcon(DakilioSymbols.Add, contentDescription = stringResource(R.string.timeline_new_entry), modifier = Modifier.size(28.dp))
+                }
             }
         },
     ) { padding ->
@@ -200,12 +310,9 @@ internal fun TimelineScreen(
                                     .padding(top = if (item.index > 0) SegmentedShapes.gap else 0.dp)
                                     .sharedContainer(EntryEditorKey.postSharedElementKey(item.post.id), SegmentedShapes.of(item.index, item.count)),
                             )
-                            is TimelineItem.NoEntries -> NoEntriesRow(
-                                onAdd = { onOpenEntry(EntryEditorKey(presetDiaryId = selectedDiary, presetEpochDay = item.date.toEpochDay())) },
-                                modifier = itemModifier,
-                            )
                             is TimelineItem.EmptyDay -> EmptyDayRow(
                                 date = item.date,
+                                otherDiaries = item.otherDiaries,
                                 today = state.today,
                                 formats = formats,
                                 onAdd = { onOpenEntry(EntryEditorKey(presetDiaryId = selectedDiary, presetEpochDay = item.date.toEpochDay())) },
@@ -220,7 +327,15 @@ internal fun TimelineScreen(
                                 },
                                 modifier = itemModifier,
                             )
-                            is TimelineItem.OtherDiaries -> OtherDiariesRow(item, onSelectDiary, itemModifier)
+                            is TimelineItem.OtherDiaries -> OtherDiariesRow(
+                                item = item,
+                                onSelectDiary = { diaryId ->
+                                    haptics.tick()
+                                    pendingJump = DayJump(item.date, diaryId)
+                                    onSelectDiary(diaryId)
+                                },
+                                modifier = itemModifier,
+                            )
                         }
                     }
                     if (state.isEmpty) {
@@ -244,7 +359,87 @@ internal fun TimelineScreen(
     }
 
     viewer?.let { (photos, index) -> PhotoViewer(photos, index, onDismiss = { viewer = null }) }
+
+    if (pickDate && ready != null) {
+        val topDay = ready.items.getOrNull(listState.firstVisibleItemIndex)?.dayOrNull()
+        JumpToDateDialog(
+            initial = (topDay ?: ready.today).coerceIn(ready.firstDay, ready.lastDay),
+            firstDay = ready.firstDay,
+            lastDay = ready.lastDay,
+            onDismiss = { pickDate = false },
+            onPick = { date ->
+                pickDate = false
+                haptics.confirm()
+                pendingJump = DayJump(date)
+            },
+        )
+    }
 }
+
+/** Rows scrolled past before the "scroll to top" button shows up. */
+private const val SCROLL_TO_TOP_THRESHOLD = 4
+
+/** Beyond this many rows, the list first jumps close to the top so the animated part stays short. */
+private const val SCROLL_TO_TOP_JUMP = 12
+
+/**
+ * Smoothly scrolls the timeline back to today and re-expands the large app bar, which a
+ * programmatic scroll doesn't do on its own (it bypasses nested scrolling).
+ */
+private suspend fun scrollToTop(listState: LazyListState, scrollBehavior: TopAppBarScrollBehavior) {
+    if (listState.firstVisibleItemIndex > SCROLL_TO_TOP_JUMP) listState.scrollToItem(SCROLL_TO_TOP_JUMP)
+    listState.animateScrollToItem(0)
+    val barState = scrollBehavior.state
+    animate(barState.heightOffset, 0f) { value, _ -> barState.heightOffset = value }
+}
+
+@Composable
+private fun JumpToDateDialog(
+    initial: LocalDate,
+    firstDay: LocalDate,
+    lastDay: LocalDate,
+    onDismiss: () -> Unit,
+    onPick: (LocalDate) -> Unit,
+) {
+    fun LocalDate.utcMillis() = atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+    val first = firstDay.utcMillis()
+    val last = lastDay.utcMillis()
+    val pickerState = rememberDatePickerState(
+        initialSelectedDateMillis = initial.utcMillis(),
+        yearRange = firstDay.year..lastDay.year,
+        selectableDates = object : SelectableDates {
+            override fun isSelectableDate(utcTimeMillis: Long) = utcTimeMillis in first..last
+            override fun isSelectableYear(year: Int) = year in firstDay.year..lastDay.year
+        },
+    )
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(
+                onClick = { pickerState.selectedDateMillis?.let { onPick(Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).toLocalDate()) } },
+                enabled = pickerState.selectedDateMillis != null,
+            ) { Text(stringResource(R.string.timeline_jump)) }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.timeline_cancel)) } },
+    ) { DatePicker(pickerState) }
+}
+
+/** The day an item belongs to, for opening the date picker where the list currently is. */
+private fun TimelineItem.dayOrNull(): LocalDate? = when (this) {
+    is TimelineItem.DayHeader -> date
+    is TimelineItem.TodayPrompt -> date
+    is TimelineItem.PostItem -> post.date
+    is TimelineItem.EmptyDay -> date
+    is TimelineItem.QuietStretch -> newest
+    is TimelineItem.OtherDiaries -> date
+    is TimelineItem.MonthDivider -> null
+}
+
+/**
+ * A pending scroll to [date]. With [diaryId], it waits until the list shows that diary; [expanding]
+ * marks that the quiet stretch hiding the day has already been asked to open.
+ */
+private data class DayJump(val date: LocalDate, val diaryId: Long? = null, val expanding: Boolean = false)
 
 private fun greetingRes(greeting: Greeting) = when (greeting) {
     Greeting.Morning -> R.string.timeline_greeting_morning
@@ -326,6 +521,24 @@ private fun DayHeader(item: TimelineItem.DayHeader, today: LocalDate, formats: D
 @Composable
 private fun CheckInCard(moods: List<Mood>, onMood: (Mood) -> Unit, modifier: Modifier) {
     val haptics = rememberHaptics()
+    val levels = moods.levelsBestFirst()
+    val anchors = remember { mutableMapOf<Int, Rect>() }
+    var openLevel by remember { mutableStateOf<Int?>(null) }
+    val open = openLevel?.let { level -> levels.firstOrNull { it.first().level == level } }
+    if (open != null) {
+        MoodAliasOverlay(
+            moods = open,
+            selectedId = null,
+            anchor = anchors[open.first().level] ?: Rect.Zero,
+            wide = false,
+            faceSize = 52.dp,
+            onPick = {
+                openLevel = null
+                onMood(it)
+            },
+            onDismiss = { openLevel = null },
+        )
+    }
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(SegmentedShapes.outer),
@@ -334,25 +547,31 @@ private fun CheckInCard(moods: List<Mood>, onMood: (Mood) -> Unit, modifier: Mod
     ) {
         Column(Modifier.padding(Spacing.xl)) {
             Text(stringResource(R.string.timeline_check_in_title), style = MaterialTheme.typography.headlineSmallEmphasized)
-            Text(
-                stringResource(R.string.timeline_check_in_body),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(top = Spacing.xs, bottom = Spacing.l),
-            )
+            Hint {
+                Text(
+                    stringResource(R.string.timeline_check_in_body),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(top = Spacing.xs),
+                )
+            }
+            Spacer(Modifier.height(Spacing.l))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                moods.asReversed().forEach { mood ->
+                levels.forEach { levelMoods ->
+                    val primary = levelMoods.first()
                     val interaction = remember { MutableInteractionSource() }
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
+                            .onGloballyPositioned { anchors[primary.level] = it.screenRect() }
                             .pressScale(interaction, 0.88f)
                             .clickable(interactionSource = interaction, indication = null) {
                                 haptics.confirm()
-                                onMood(mood)
+                                // Nothing is selected yet, so a level with aliases lists them right away.
+                                if (levelMoods.size > 1) openLevel = primary.level else onMood(primary)
                             },
                     ) {
-                        MoodBadge(mood, size = 52.dp)
-                        Text(mood.label, style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(top = Spacing.xs))
+                        MoodBadge(primary, size = 52.dp, hasAliases = levelMoods.size > 1)
+                        Text(primary.label, style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(top = Spacing.xs))
                     }
                 }
             }
@@ -361,28 +580,14 @@ private fun CheckInCard(moods: List<Mood>, onMood: (Mood) -> Unit, modifier: Mod
 }
 
 @Composable
-private fun NoEntriesRow(onAdd: () -> Unit, modifier: Modifier) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceContainerLow, RoundedCornerShape(20.dp))
-            .padding(start = Spacing.l, end = Spacing.xs),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            stringResource(R.string.timeline_no_entries),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.weight(1f),
-        )
-        IconButton(onClick = onAdd) {
-            DakilioIcon(DakilioSymbols.Add, contentDescription = stringResource(R.string.timeline_new_entry))
-        }
-    }
-}
-
-@Composable
-private fun EmptyDayRow(date: LocalDate, today: LocalDate, formats: DakilioFormats, onAdd: () -> Unit, modifier: Modifier) {
+private fun EmptyDayRow(
+    date: LocalDate,
+    otherDiaries: List<Diary>,
+    today: LocalDate,
+    formats: DakilioFormats,
+    onAdd: () -> Unit,
+    modifier: Modifier,
+) {
     val label = relativeDayLabel(date, today, formats)
     Row(
         modifier = modifier.fillMaxWidth().padding(start = Spacing.xs, top = Spacing.xs),
@@ -396,7 +601,10 @@ private fun EmptyDayRow(date: LocalDate, today: LocalDate, formats: DakilioForma
         )
         Column(Modifier.weight(1f).padding(start = Spacing.s)) {
             Text(label, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(stringResource(R.string.timeline_no_entries), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(R.string.timeline_no_entries), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
+                if (otherDiaries.isNotEmpty()) DiaryHint(otherDiaries, Modifier.padding(start = Spacing.s))
+            }
         }
         IconButton(onClick = onAdd) {
             DakilioIcon(
@@ -430,13 +638,35 @@ private fun QuietStretchRow(stretch: TimelineItem.QuietStretch, formats: Dakilio
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
+            if (stretch.otherDiaries.isNotEmpty()) DiaryHint(stretch.otherDiaries, Modifier.padding(end = Spacing.s))
             DakilioIcon(DakilioSymbols.ExpandMore, contentDescription = null, modifier = Modifier.graphicsLayer { rotationZ = rotation })
         }
     }
 }
 
+private const val DIARY_HINT_MAX = 3
+
+/** A quiet, read-only hint of the diaries that have entries on an otherwise empty day. */
 @Composable
-private fun OtherDiariesRow(item: TimelineItem.OtherDiaries, onSelectDiary: (Long?) -> Unit, modifier: Modifier) {
+private fun DiaryHint(diaries: List<Diary>, modifier: Modifier = Modifier) {
+    val description = stringResource(R.string.timeline_entries_in, diaries.joinToString { it.name })
+    val tint = MaterialTheme.colorScheme.outline
+    Row(
+        modifier = modifier.clearAndSetSemantics { contentDescription = description },
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        diaries.take(DIARY_HINT_MAX).forEach { diary ->
+            DakilioIcon(symbolForKey(diary.iconKey), contentDescription = null, tint = tint, modifier = Modifier.size(16.dp))
+        }
+        if (diaries.size > DIARY_HINT_MAX) {
+            Text("+${diaries.size - DIARY_HINT_MAX}", style = MaterialTheme.typography.labelSmall, color = tint)
+        }
+    }
+}
+
+@Composable
+private fun OtherDiariesRow(item: TimelineItem.OtherDiaries, onSelectDiary: (Long) -> Unit, modifier: Modifier) {
     Column(modifier.fillMaxWidth().padding(top = Spacing.s)) {
         Text(
             stringResource(R.string.timeline_also_in),

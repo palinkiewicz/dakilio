@@ -25,15 +25,21 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import pl.dakil.dakilio.core.common.ApplicationScope
 import pl.dakil.dakilio.core.data.repository.DiaryRepository
+import pl.dakil.dakilio.core.data.repository.HabitProgressEvents
+import pl.dakil.dakilio.core.data.repository.HabitRepository
 import pl.dakil.dakilio.core.data.repository.MoodRepository
 import pl.dakil.dakilio.core.data.repository.PhotoRepository
 import pl.dakil.dakilio.core.data.repository.PostRepository
 import pl.dakil.dakilio.core.data.repository.SettingsRepository
 import pl.dakil.dakilio.core.data.repository.TagRepository
 import pl.dakil.dakilio.core.model.Diary
+import pl.dakil.dakilio.core.model.Habits
 import pl.dakil.dakilio.core.model.Mood
+import pl.dakil.dakilio.core.model.MoodDisplayOrder
 import pl.dakil.dakilio.core.model.PostDraft
+import pl.dakil.dakilio.core.model.Tag
 import pl.dakil.dakilio.core.model.TagGroup
+import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.feature.entry.api.EntryEditorKey
 
 enum class EditorStep { Mood, Tags, Note }
@@ -46,8 +52,12 @@ internal data class EditorForm(
     val dateTime: LocalDateTime = LocalDateTime.MIN,
     val step: EditorStep = EditorStep.Mood,
     val moodId: Long? = null,
+    /** The saved entry's own mood, kept pickable even if it has since been archived. */
+    val ownMood: Mood? = null,
     val diaryIds: Set<Long> = emptySet(),
     val tagIds: Set<Long> = emptySet(),
+    /** The saved entry's own tags, so archived ones still show among the selected tags. */
+    val ownTags: List<Tag> = emptyList(),
     val photos: List<EditorPhoto> = emptyList(),
     val importingPhotos: Int = 0,
     val dirty: Boolean = false,
@@ -68,6 +78,9 @@ data class EditorUiState(
     val suggestedGroups: List<TagGroup>,
     val otherGroups: List<TagGroup>,
     val tagIds: Set<Long>,
+    /** The selected tags in group order, followed by archived ones the entry already had. */
+    val selectedTags: List<Tag>,
+    val tagStyle: TagStyle,
     val photos: List<EditorPhoto>,
     val importingPhotos: Int,
     val dirty: Boolean,
@@ -83,6 +96,8 @@ class EntryEditorViewModel @AssistedInject constructor(
     moodRepository: MoodRepository,
     private val photoRepository: PhotoRepository,
     private val settingsRepository: SettingsRepository,
+    private val habitRepository: HabitRepository,
+    private val habitProgressEvents: HabitProgressEvents,
     private val clock: Clock,
     @ApplicationScope private val applicationScope: CoroutineScope,
 ) : ViewModel() {
@@ -103,7 +118,13 @@ class EntryEditorViewModel @AssistedInject constructor(
     private val sessionFiles = mutableSetOf<String>()
 
     val uiState: StateFlow<EditorUiState?> =
-        combine(form, moodRepository.moods, diaryRepository.diaries, tagRepository.groups) { form, moods, diaries, groups ->
+        combine(
+            form,
+            moodRepository.moods,
+            diaryRepository.diaries,
+            tagRepository.groups,
+            settingsRepository.settings,
+        ) { form, moods, diaries, groups, settings ->
             if (!form.loaded) return@combine null
             val suggestedIds = diaries.filter { it.id in form.diaryIds }.flatMap { it.suggestedGroupIds }.toSet()
             val (suggested, other) = if (suggestedIds.isEmpty()) groups to emptyList() else groups.partition { it.id in suggestedIds }
@@ -113,13 +134,17 @@ class EntryEditorViewModel @AssistedInject constructor(
                 dateTime = form.dateTime,
                 today = LocalDate.now(clock),
                 step = form.step,
-                moods = moods,
+                moods = form.ownMood?.takeIf { own -> moods.none { it.id == own.id } }
+                    ?.let { (moods + it).sortedWith(MoodDisplayOrder) }
+                    ?: moods,
                 moodId = form.moodId,
                 diaries = diaries,
                 diaryIds = form.diaryIds,
                 suggestedGroups = suggested,
                 otherGroups = other,
                 tagIds = form.tagIds,
+                selectedTags = selectedTags(groups, form),
+                tagStyle = settings.tagStyle,
                 photos = form.photos,
                 importingPhotos = form.importingPhotos,
                 dirty = form.dirty,
@@ -143,8 +168,10 @@ class EntryEditorViewModel @AssistedInject constructor(
                 loaded = true,
                 dateTime = existing.dateTime,
                 moodId = existing.mood?.id,
+                ownMood = existing.mood,
                 diaryIds = existing.diaryIds,
                 tagIds = existing.tags.map { it.id }.toSet(),
+                ownTags = existing.tags,
                 photos = existing.photos.map { EditorPhoto(it.fileName, it.path) },
             )
             return
@@ -165,17 +192,23 @@ class EntryEditorViewModel @AssistedInject constructor(
 
     fun goTo(step: EditorStep) = form.update { it.copy(step = step) }
 
-    fun selectMood(id: Long) {
-        val selected = form.value.moodId != id
-        form.update { it.copy(moodId = if (selected) id else null, dirty = true) }
+    /**
+     * @param advance whether a new entry may glide on to the tag step. The wizard passes false for a
+     *   first tap on a level with aliases, so the user can still open them with a second tap.
+     */
+    fun selectMood(id: Long, advance: Boolean = true) {
+        // Re-picking the current mood (from the alias list) keeps it, but may still move on.
+        if (form.value.moodId != id) form.update { it.copy(moodId = id, dirty = true) }
         // New entries glide on to the next step once a mood lands; edits stay put.
-        if (selected && key.postId == null) {
+        if (advance && key.postId == null) {
             viewModelScope.launch {
                 delay(AUTO_ADVANCE_MS)
                 form.update { if (it.moodId == id && it.step == EditorStep.Mood) it.copy(step = EditorStep.Tags) else it }
             }
         }
     }
+
+    fun clearMood() = form.update { it.copy(moodId = null, dirty = true) }
 
     fun toggleDiary(id: Long) = form.update {
         val ids = if (id in it.diaryIds) it.diaryIds - id else it.diaryIds + id
@@ -220,6 +253,9 @@ class EntryEditorViewModel @AssistedInject constructor(
         val current = form.value
         if (current.finished || current.importingPhotos > 0) return
         viewModelScope.launch {
+            // Habits: compare the week's counts around the save, so only a newly counted day bumps.
+            val date = current.dateTime.toLocalDate()
+            val countsBefore = habitRepository.weekCounts(date)
             postRepository.savePost(
                 PostDraft(
                     id = key.postId,
@@ -233,6 +269,10 @@ class EntryEditorViewModel @AssistedInject constructor(
                 ),
             )
             sessionFiles.clear()
+            if (current.tagIds.isNotEmpty()) {
+                val bumps = Habits.bumps(habitRepository.habitList(), countsBefore, habitRepository.weekCounts(date), Habits.weekStart(date))
+                habitProgressEvents.post(bumps)
+            }
             settingsRepository.setLastEntryDiaryIds(current.diaryIds)
             form.update { it.copy(finished = true) }
         }
@@ -255,4 +295,10 @@ class EntryEditorViewModel @AssistedInject constructor(
     private companion object {
         const val AUTO_ADVANCE_MS = 420L
     }
+}
+
+private fun selectedTags(groups: List<TagGroup>, form: EditorForm): List<Tag> {
+    val shown = groups.flatMap { it.tags }.filter { it.id in form.tagIds }
+    val shownIds = shown.map { it.id }.toSet()
+    return shown + form.ownTags.filter { it.id in form.tagIds && it.id !in shownIds }
 }

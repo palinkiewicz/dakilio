@@ -10,6 +10,7 @@ android {
 dependencies {
     api(projects.core.model)
     api(projects.core.common)
+    api(projects.core.daylio)
     implementation(projects.core.database)
     implementation(projects.core.datastore)
 }

@@ -15,6 +15,8 @@ import pl.dakil.dakilio.core.common.PhotoDirectory
 import pl.dakil.dakilio.core.database.DakilioDatabase
 import pl.dakil.dakilio.core.database.DefaultData
 import pl.dakil.dakilio.core.database.dao.DiaryDao
+import pl.dakil.dakilio.core.database.dao.HabitDao
+import pl.dakil.dakilio.core.database.dao.ImportDao
 import pl.dakil.dakilio.core.database.dao.MoodDao
 import pl.dakil.dakilio.core.database.dao.PostDao
 import pl.dakil.dakilio.core.database.dao.TagDao
@@ -28,7 +30,7 @@ internal object DatabaseModule {
         @ApplicationContext context: Context,
         photoDirectory: PhotoDirectory,
         clock: Clock,
-    ): DakilioDatabase = Room.databaseBuilder(context, DakilioDatabase::class.java, "dakilio.db")
+    ): DakilioDatabase = Room.databaseBuilder(context, DakilioDatabase::class.java, DakilioDatabase.NAME)
         .addCallback(
             object : RoomDatabase.Callback() {
                 override fun onCreate(db: SupportSQLiteDatabase) {
@@ -45,4 +47,8 @@ internal object DatabaseModule {
     @Provides fun tagDao(db: DakilioDatabase): TagDao = db.tagDao()
 
     @Provides fun postDao(db: DakilioDatabase): PostDao = db.postDao()
+
+    @Provides fun importDao(db: DakilioDatabase): ImportDao = db.importDao()
+
+    @Provides fun habitDao(db: DakilioDatabase): HabitDao = db.habitDao()
 }

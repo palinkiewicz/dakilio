@@ -9,7 +9,8 @@ import pl.dakil.dakilio.core.model.PostPhoto
 import pl.dakil.dakilio.core.model.Tag
 
 class PostSearchTest {
-    private val good = Mood(4, 1, 4, 0.75f, "Good", "mood_good", 0)
+    private val good = Mood(4, 4, "Good", isPrimary = true, position = 0)
+    private val content = Mood(9, 4, "Content", isPrimary = false, position = 0)
     private val hike = Post(
         id = 1,
         dateTime = LocalDateTime.of(2026, 10, 28, 19, 0),
@@ -34,8 +35,13 @@ class PostSearchTest {
 
     @Test fun `all words must match`() = assertEquals(emptyList<Post>(), posts.search(SearchFilters(query = "meetings grani")))
 
+    @Test fun `a mood level matches its aliases`() {
+        val aliased = work.copy(id = 3, mood = content)
+        assertEquals(listOf(hike, aliased), (posts + aliased).search(SearchFilters(moodLevels = setOf(4))))
+    }
+
     @Test fun `mood and photo filters work without a query`() {
-        assertEquals(listOf(hike), posts.search(SearchFilters(moodIds = setOf(4))))
+        assertEquals(listOf(hike), posts.search(SearchFilters(moodLevels = setOf(4))))
         assertEquals(listOf(hike), posts.search(SearchFilters(withPhotosOnly = true)))
     }
 }

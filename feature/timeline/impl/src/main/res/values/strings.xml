@@ -9,7 +9,20 @@
         <item quantity="other">%d-day streak</item>
     </plurals>
     <string name="timeline_search">Search entries</string>
+    <string name="timeline_jump_to_date">Jump to date</string>
+    <string name="timeline_view_options">View options</string>
+    <string name="timeline_view_preview">Preview size</string>
+    <string name="timeline_view_preview_short">Short</string>
+    <string name="timeline_view_preview_medium">Medium</string>
+    <string name="timeline_view_preview_long">Long</string>
+    <string name="timeline_view_preview_full">Full</string>
+    <string name="timeline_view_compact_tags">Compact tags</string>
+    <string name="timeline_view_compact_tags_body">Only icons</string>
+    <string name="timeline_view_text_size">Text size</string>
+    <string name="timeline_jump">Go</string>
+    <string name="timeline_cancel">Cancel</string>
     <string name="timeline_new_entry">New entry</string>
+    <string name="timeline_scroll_to_top">Back to today</string>
     <string name="timeline_check_in_title">How\'s your journey today?</string>
     <string name="timeline_check_in_body">Tap a mood to start, or use + to write anything.</string>
     <string name="timeline_no_entries">No entries</string>
@@ -21,6 +34,7 @@
     <string name="timeline_quiet_range">%1$s – %2$s</string>
     <string name="timeline_other_diary">%1$s · %2$d</string>
     <string name="timeline_also_in">Also this day</string>
+    <string name="timeline_entries_in">Entries in %s</string>
     <string name="timeline_empty_title">Your journey starts here</string>
     <string name="timeline_empty_body">Capture a mood, a few tags or a thought. It only takes a moment.</string>
     <string name="timeline_empty_action">Write your first entry</string>

@@ -15,10 +15,11 @@ private val COMBINING_MARKS = "\\p{Mn}+".toRegex()
 
 internal data class SearchFilters(
     val query: String = "",
-    val moodIds: Set<Long> = emptySet(),
+    /** Mood levels (1..5); a level matches its primary and all its aliases. */
+    val moodLevels: Set<Int> = emptySet(),
     val withPhotosOnly: Boolean = false,
 ) {
-    val isActive: Boolean get() = query.isNotBlank() || moodIds.isNotEmpty() || withPhotosOnly
+    val isActive: Boolean get() = query.isNotBlank() || moodLevels.isNotEmpty() || withPhotosOnly
 }
 
 /** Every query word must appear somewhere in the entry (title, note or a tag label). */
@@ -26,7 +27,7 @@ internal fun List<Post>.search(filters: SearchFilters): List<Post> {
     if (!filters.isActive) return emptyList()
     val words = filters.query.foldForSearch().split(' ').filter { it.isNotBlank() }
     return filter { post ->
-        (filters.moodIds.isEmpty() || post.mood?.id in filters.moodIds) &&
+        (filters.moodLevels.isEmpty() || post.mood?.level in filters.moodLevels) &&
             (!filters.withPhotosOnly || post.photos.isNotEmpty()) &&
             (words.isEmpty() || post.haystack().let { text -> words.all { it in text } })
     }

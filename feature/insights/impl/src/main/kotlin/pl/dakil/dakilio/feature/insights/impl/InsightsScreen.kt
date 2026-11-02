@@ -1,13 +1,7 @@
 package pl.dakil.dakilio.feature.insights.impl
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
@@ -52,7 +46,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -61,9 +54,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlin.math.roundToInt
 import java.time.DayOfWeek
 import java.time.LocalDate
-import kotlin.math.roundToInt
 import pl.dakil.dakilio.core.designsystem.component.ConnectedToggleRow
 import pl.dakil.dakilio.core.designsystem.component.PolygonShape
 import pl.dakil.dakilio.core.designsystem.component.ToggleOption
@@ -76,6 +69,7 @@ import pl.dakil.dakilio.core.ui.DakilioFormats
 import pl.dakil.dakilio.core.ui.bottomBarPadding
 import pl.dakil.dakilio.core.ui.component.DiaryFilterRow
 import pl.dakil.dakilio.core.ui.component.EmptyState
+import pl.dakil.dakilio.core.ui.hintOrNull
 import pl.dakil.dakilio.core.ui.mood.MoodBadge
 import pl.dakil.dakilio.core.ui.mood.moodColors
 import pl.dakil.dakilio.core.ui.rememberFormats
@@ -193,12 +187,6 @@ private fun CardTitle(title: String, subtitle: String? = null) {
 
 @Composable
 private fun StreakCard(insights: Insights) {
-    val spin by rememberInfiniteTransition(label = "streakSpin").animateFloat(
-        0f,
-        360f,
-        infiniteRepeatable(tween(30_000, easing = LinearEasing), RepeatMode.Restart),
-        label = "streakSpinValue",
-    )
     val sun = remember { PolygonShape(MaterialShapes.Sunny) }
     val colors = MaterialTheme.colorScheme
     Column(verticalArrangement = Arrangement.spacedBy(Spacing.xxs)) {
@@ -210,7 +198,7 @@ private fun StreakCard(insights: Insights) {
         ) {
             Row(Modifier.padding(Spacing.xl), verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.size(112.dp), contentAlignment = Alignment.Center) {
-                    Box(Modifier.size(112.dp).graphicsLayer { rotationZ = spin }.background(colors.primary, sun))
+                    Box(Modifier.size(112.dp).background(colors.primary, sun))
                     AnimatedContent(insights.currentStreak, transitionSpec = { fadeIn() togetherWith fadeOut() }, label = "streak") {
                         Text(it.toString(), style = MaterialTheme.typography.displayMediumEmphasized, color = colors.onPrimary)
                     }
@@ -377,7 +365,7 @@ private fun JourneyMapCard(insights: Insights, moods: List<Mood>, today: LocalDa
     val noMoodFill = colors.outlineVariant
     val emptyFill = colors.surfaceContainerHighest
     InsightCard {
-        CardTitle(stringResource(R.string.insights_journey_map), stringResource(R.string.insights_journey_map_body))
+        CardTitle(stringResource(R.string.insights_journey_map), hintOrNull(stringResource(R.string.insights_journey_map_body)))
         val weeks = insights.heatmap.chunked(7)
         BoxWithConstraints(Modifier.padding(top = Spacing.l).fillMaxWidth()) {
             val gap = 4.dp
@@ -430,7 +418,7 @@ private fun JourneyMapCard(insights: Insights, moods: List<Mood>, today: LocalDa
             horizontalArrangement = Arrangement.spacedBy(Spacing.m),
             verticalArrangement = Arrangement.spacedBy(Spacing.xs),
         ) {
-            moods.sortedBy { it.tier }.forEach { mood ->
+            moods.sortedBy { it.level }.forEach { mood ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     MoodBadge(mood, size = 16.dp)
                     Text(mood.label, style = MaterialTheme.typography.labelSmall, color = colors.onSurfaceVariant, modifier = Modifier.padding(start = Spacing.xs))

@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
@@ -42,12 +43,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.text.KeyboardOptions
 import coil3.compose.AsyncImage
 import java.io.File
 import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
+import pl.dakil.dakilio.core.ui.LocalEntryDisplay
+import pl.dakil.dakilio.core.ui.hintOrNull
+import pl.dakil.dakilio.core.ui.scaled
 
 private const val MAX_PICK = 10
 private val ThumbSize = 104.dp
@@ -65,6 +68,28 @@ internal fun NoteStep(
     onRemovePhoto: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    Column(modifier.verticalScroll(rememberScrollState()).padding(vertical = Spacing.s)) {
+        StepHeader(
+            stringResource(R.string.entry_note_title),
+            hintOrNull(stringResource(R.string.entry_note_body)),
+            Modifier.padding(horizontal = Spacing.gutter),
+        )
+        NoteFields(title, note, photos, importing, bodyRequired, onAddPhotos, onRemovePhoto)
+    }
+}
+
+/** Title, note and photo strip, without a header or scrolling of its own. */
+@Composable
+internal fun NoteFields(
+    title: TextFieldState,
+    note: TextFieldState,
+    photos: List<EditorPhoto>,
+    importing: Int,
+    bodyRequired: Boolean,
+    onAddPhotos: (List<android.net.Uri>) -> Unit,
+    onRemovePhoto: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(MAX_PICK), onAddPhotos)
     val fieldColors = TextFieldDefaults.colors(
         focusedContainerColor = Color.Transparent,
@@ -72,12 +97,10 @@ internal fun NoteStep(
         focusedIndicatorColor = Color.Transparent,
         unfocusedIndicatorColor = Color.Transparent,
     )
-    Column(modifier.verticalScroll(rememberScrollState()).padding(vertical = Spacing.s)) {
-        StepHeader(
-            stringResource(R.string.entry_note_title),
-            stringResource(R.string.entry_note_body),
-            Modifier.padding(horizontal = Spacing.gutter),
-        )
+    val textScale = LocalEntryDisplay.current.editorTextScale
+    val titleStyle = MaterialTheme.typography.headlineSmall.scaled(textScale)
+    val noteStyle = MaterialTheme.typography.bodyLarge.scaled(textScale)
+    Column(modifier) {
         AnimatedVisibility(
             visible = bodyRequired,
             enter = expandVertically() + fadeIn(),
@@ -102,8 +125,8 @@ internal fun NoteStep(
         }
         TextField(
             state = title,
-            placeholder = { Text(stringResource(R.string.entry_title_hint), style = MaterialTheme.typography.headlineSmall) },
-            textStyle = MaterialTheme.typography.headlineSmall,
+            placeholder = { Text(stringResource(R.string.entry_title_hint), style = titleStyle) },
+            textStyle = titleStyle,
             lineLimits = TextFieldLineLimits.MultiLine(maxHeightInLines = 3),
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
             colors = fieldColors,
@@ -111,8 +134,8 @@ internal fun NoteStep(
         )
         TextField(
             state = note,
-            placeholder = { Text(stringResource(R.string.entry_note_hint)) },
-            textStyle = MaterialTheme.typography.bodyLarge,
+            placeholder = { Text(stringResource(R.string.entry_note_hint), style = noteStyle) },
+            textStyle = noteStyle,
             lineLimits = TextFieldLineLimits.MultiLine(minHeightInLines = 4),
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
             colors = fieldColors,

@@ -2,6 +2,7 @@ package pl.dakil.dakilio.core.ui.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -17,11 +18,38 @@ import androidx.compose.ui.unit.dp
 import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
 import pl.dakil.dakilio.core.designsystem.icon.symbolForKey
 import pl.dakil.dakilio.core.model.Tag
+import pl.dakil.dakilio.core.ui.color.tagColors
 
-/** Compact, read-only tag label used on entry cards. */
+/** Compact, read-only tag label used on entry cards, in the tag's color when it has one. */
+@Composable
+fun TagPill(tag: Tag, modifier: Modifier = Modifier, compact: Boolean = false) {
+    val colors = tagColors(tag.color)
+    if (compact) {
+        val contentColor = colors?.accent ?: MaterialTheme.colorScheme.onSurfaceVariant
+        Box(
+            modifier = modifier
+                .background(colors?.soft ?: MaterialTheme.colorScheme.surfaceContainerHighest, CircleShape)
+                .padding(horizontal = 8.dp, vertical = 4.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            DakilioIcon(symbolForKey(tag.iconKey), contentDescription = tag.label, tint = contentColor, modifier = Modifier.size(16.dp))
+        }
+        return
+    }
+    TagPill(
+        label = tag.label,
+        iconKey = tag.iconKey,
+        modifier = modifier,
+        containerColor = colors?.soft ?: MaterialTheme.colorScheme.surfaceContainerHighest,
+        contentColor = colors?.accent ?: MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+}
+
+/** [TagPill] for a tag that doesn't exist yet (a suggestion). */
 @Composable
 fun TagPill(
-    tag: Tag,
+    label: String,
+    iconKey: String,
     modifier: Modifier = Modifier,
     containerColor: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
     contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -33,9 +61,9 @@ fun TagPill(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        DakilioIcon(symbolForKey(tag.iconKey), contentDescription = null, tint = contentColor, modifier = Modifier.size(16.dp))
+        DakilioIcon(symbolForKey(iconKey), contentDescription = null, tint = contentColor, modifier = Modifier.size(16.dp))
         Text(
-            tag.label,
+            label,
             style = MaterialTheme.typography.labelMedium,
             color = contentColor,
             maxLines = 1,

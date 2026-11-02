@@ -13,4 +13,65 @@
     <string name="ui_selected_icon">Selected icon</string>
     <string name="ui_more_photos">+%1$d</string>
     <string name="ui_diary_required">An entry needs at least one diary</string>
+    <string name="mood_clear">Clear mood</string>
+    <string name="ui_daylio_open">Open Daylio backup</string>
+    <!-- Delete dialogs (tags, tag groups, mood aliases) -->
+    <string name="ui_delete">Delete</string>
+    <string name="ui_archive">Archive</string>
+    <string name="ui_cancel">Cancel</string>
+    <string name="ui_replace">Replace…</string>
+    <string name="ui_replace_title">Replace “%s” with</string>
+    <string name="ui_replace_confirm">Replace</string>
+    <string name="ui_delete_title">Delete “%1$s”?</string>
+    <string name="ui_delete_tag_unused_body">No entries use this tag, so nothing else changes.</string>
+    <plurals name="ui_delete_tag_used_body">
+        <item quantity="one">“%1$s” is used in %2$d entry. Archive it to keep it on that entry (it only leaves the picker), or delete it from the entry too.</item>
+        <item quantity="other">“%1$s” is used in %2$d entries. Archive it to keep it on those entries (it only leaves the picker), or delete it from all of them.</item>
+    </plurals>
+    <plurals name="ui_delete_tag_used_body_final">
+        <item quantity="one">“%1$s” is used in %2$d entry. Deleting removes it from that entry too.</item>
+        <item quantity="other">“%1$s” is used in %2$d entries. Deleting removes it from all of them.</item>
+    </plurals>
+    <plurals name="ui_delete_tag_emptied">
+        <item quantity="one">Deleting also removes %d entry that has nothing but this tag.</item>
+        <item quantity="other">Deleting also removes %d entries that have nothing but this tag.</item>
+    </plurals>
+    <string name="ui_delete_group_title">Delete group “%1$s”?</string>
+    <string name="ui_delete_group_unused_body">No entries use tags from this group, so nothing else changes. Its tags are deleted with it.</string>
+    <plurals name="ui_delete_group_used_body">
+        <item quantity="one">%2$d entry uses tags from “%1$s”. Archive the group to keep its tags on that entry (they only leave the picker), or delete the group and its tags from the entry too.</item>
+        <item quantity="other">%2$d entries use tags from “%1$s”. Archive the group to keep its tags on those entries (they only leave the picker), or delete the group and its tags from all of them.</item>
+    </plurals>
+    <plurals name="ui_delete_group_used_body_final">
+        <item quantity="one">%2$d entry uses tags from “%1$s”. Deleting the group removes its tags from that entry too.</item>
+        <item quantity="other">%2$d entries use tags from “%1$s”. Deleting the group removes its tags from all of them.</item>
+    </plurals>
+    <plurals name="ui_delete_group_emptied">
+        <item quantity="one">Deleting also removes %d entry that has nothing but tags from this group.</item>
+        <item quantity="other">Deleting also removes %d entries that have nothing but tags from this group.</item>
+    </plurals>
+    <string name="ui_delete_alias_unused_body">No entries use this alias, so nothing else changes.</string>
+    <plurals name="ui_delete_alias_used_body">
+        <item quantity="one">“%1$s” is used in %2$d entry. Archive it to keep that entry as it is, or replace it with another mood.</item>
+        <item quantity="other">“%1$s” is used in %2$d entries. Archive it to keep those entries as they are, or replace it with another mood.</item>
+    </plurals>
+    <plurals name="ui_delete_alias_used_body_final">
+        <item quantity="one">“%1$s” is used in %2$d entry. To delete it, move that entry to another mood.</item>
+        <item quantity="other">“%1$s” is used in %2$d entries. To delete it, move those entries to another mood.</item>
+    </plurals>
+
+    <!-- Tag colors (the palette of the Tag colors extra) -->
+    <string name="ui_tag_color_red">Red</string>
+    <string name="ui_tag_color_orange">Orange</string>
+    <string name="ui_tag_color_amber">Amber</string>
+    <string name="ui_tag_color_lime">Lime</string>
+    <string name="ui_tag_color_green">Green</string>
+    <string name="ui_tag_color_teal">Teal</string>
+    <string name="ui_tag_color_sky">Sky</string>
+    <string name="ui_tag_color_blue">Blue</string>
+    <string name="ui_tag_color_violet">Violet</string>
+    <string name="ui_tag_color_pink">Pink</string>
+    <string name="ui_tag_color_brown">Brown</string>
+    <string name="ui_tag_color_slate">Slate</string>
+    <string name="ui_percent">%d%%</string>
 </resources>

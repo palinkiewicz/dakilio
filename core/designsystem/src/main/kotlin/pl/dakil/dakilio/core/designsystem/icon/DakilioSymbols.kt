@@ -6,8 +6,10 @@ import pl.dakil.dakilio.core.designsystem.R
 object DakilioSymbols {
     val Add = DakilioSymbol("add", R.drawable.sym_add, R.drawable.sym_add_fill, SymbolCategory.Ui)
     val Close = DakilioSymbol("close", R.drawable.sym_close, R.drawable.sym_close_fill, SymbolCategory.Ui)
+    val Block = DakilioSymbol("block", R.drawable.sym_block, R.drawable.sym_block_fill, SymbolCategory.Ui)
     val Search = DakilioSymbol("search", R.drawable.sym_search, R.drawable.sym_search_fill, SymbolCategory.Ui)
     val ArrowBack = DakilioSymbol("arrow_back", R.drawable.sym_arrow_back, R.drawable.sym_arrow_back_fill, SymbolCategory.Ui)
+    val ArrowUpward = DakilioSymbol("arrow_upward", R.drawable.sym_arrow_upward, R.drawable.sym_arrow_upward_fill, SymbolCategory.Ui)
     val Check = DakilioSymbol("check", R.drawable.sym_check, R.drawable.sym_check_fill, SymbolCategory.Ui)
     val MoreVert = DakilioSymbol("more_vert", R.drawable.sym_more_vert, R.drawable.sym_more_vert_fill, SymbolCategory.Ui)
     val MoreHoriz = DakilioSymbol("more_horiz", R.drawable.sym_more_horiz, R.drawable.sym_more_horiz_fill, SymbolCategory.Ui)
@@ -44,7 +46,11 @@ object DakilioSymbols {
     val DeleteSweep = DakilioSymbol("delete_sweep", R.drawable.sym_delete_sweep, R.drawable.sym_delete_sweep_fill, SymbolCategory.Ui)
     val FolderOpen = DakilioSymbol("folder_open", R.drawable.sym_folder_open, R.drawable.sym_folder_open_fill, SymbolCategory.Ui)
     val DriveFileMove = DakilioSymbol("drive_file_move", R.drawable.sym_drive_file_move, R.drawable.sym_drive_file_move_fill, SymbolCategory.Ui)
+    val OpenInNew = DakilioSymbol("open_in_new", R.drawable.sym_open_in_new, R.drawable.sym_open_in_new_fill, SymbolCategory.Ui)
     val Gavel = DakilioSymbol("gavel", R.drawable.sym_gavel, R.drawable.sym_gavel_fill, SymbolCategory.Ui)
+    val Inventory2 = DakilioSymbol("inventory_2", R.drawable.sym_inventory_2, R.drawable.sym_inventory_2_fill, SymbolCategory.Ui)
+    val Unarchive = DakilioSymbol("unarchive", R.drawable.sym_unarchive, R.drawable.sym_unarchive_fill, SymbolCategory.Ui)
+    val Language = DakilioSymbol("language", R.drawable.sym_language, R.drawable.sym_language_fill, SymbolCategory.Ui)
     val SentimentVerySatisfied = DakilioSymbol("sentiment_very_satisfied", R.drawable.sym_sentiment_very_satisfied, R.drawable.sym_sentiment_very_satisfied_fill, SymbolCategory.Emotions)
     val SentimentSatisfied = DakilioSymbol("sentiment_satisfied", R.drawable.sym_sentiment_satisfied, R.drawable.sym_sentiment_satisfied_fill, SymbolCategory.Emotions)
     val SentimentNeutral = DakilioSymbol("sentiment_neutral", R.drawable.sym_sentiment_neutral, R.drawable.sym_sentiment_neutral_fill, SymbolCategory.Emotions)
@@ -172,8 +178,10 @@ object DakilioSymbols {
     val all: List<DakilioSymbol> = listOf(
         Add,
         Close,
+        Block,
         Search,
         ArrowBack,
+        ArrowUpward,
         Check,
         MoreVert,
         MoreHoriz,
@@ -210,7 +218,11 @@ object DakilioSymbols {
         DeleteSweep,
         FolderOpen,
         DriveFileMove,
+        OpenInNew,
         Gavel,
+        Inventory2,
+        Unarchive,
+        Language,
         SentimentVerySatisfied,
         SentimentSatisfied,
         SentimentNeutral,

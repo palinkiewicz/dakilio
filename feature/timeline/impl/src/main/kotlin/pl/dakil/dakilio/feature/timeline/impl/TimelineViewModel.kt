@@ -16,13 +16,16 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import pl.dakil.dakilio.core.common.DakilioDispatchers
 import pl.dakil.dakilio.core.common.Dispatcher
 import pl.dakil.dakilio.core.data.repository.DiaryRepository
 import pl.dakil.dakilio.core.data.repository.MoodRepository
 import pl.dakil.dakilio.core.data.repository.PostRepository
+import pl.dakil.dakilio.core.data.repository.SettingsRepository
 import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.model.Mood
+import pl.dakil.dakilio.core.model.PreviewLength
 import pl.dakil.dakilio.core.model.Streaks
 
 enum class Greeting { Morning, Afternoon, Evening, Night }
@@ -36,6 +39,9 @@ sealed interface TimelineUiState {
         val selectedDiaryId: Long?,
         val moods: List<Mood>,
         val today: LocalDate,
+        /** The range [buildTimeline] covers; the jump-to-date picker is limited to it. */
+        val firstDay: LocalDate,
+        val lastDay: LocalDate,
         val greeting: Greeting,
         val streak: Int,
         val isEmpty: Boolean,
@@ -47,6 +53,7 @@ class TimelineViewModel @Inject constructor(
     postRepository: PostRepository,
     diaryRepository: DiaryRepository,
     moodRepository: MoodRepository,
+    private val settingsRepository: SettingsRepository,
     private val clock: Clock,
     private val savedStateHandle: SavedStateHandle,
     @Dispatcher(DakilioDispatchers.Default) default: CoroutineDispatcher,
@@ -65,12 +72,15 @@ class TimelineViewModel @Inject constructor(
                 .filter { filter == null || filter in it.diaryIds }
                 .map { it.date }
                 .toSet()
+            val bounds = timelineBounds(posts, today)
             TimelineUiState.Ready(
                 items = buildTimeline(posts, diaries, filter, today, expanded),
                 diaries = diaries,
                 selectedDiaryId = filter,
-                moods = moods,
+                moods = moods, // the check-in card: one face per level, aliases on tap
                 today = today,
+                firstDay = bounds.start,
+                lastDay = bounds.endInclusive,
                 greeting = greetingFor(LocalTime.now(clock)),
                 streak = Streaks.current(visibleDays, today),
                 isEmpty = posts.isEmpty(),
@@ -85,6 +95,25 @@ class TimelineViewModel @Inject constructor(
 
     fun toggleStretch(newestEpochDay: Long) {
         expandedStretches.update { if (newestEpochDay in it) it - newestEpochDay else it + newestEpochDay }
+    }
+
+    /** Idempotent, unlike [toggleStretch]: a jump into a stretch may ask more than once. */
+    fun expandStretch(newestEpochDay: Long) {
+        expandedStretches.update { it + newestEpochDay }
+    }
+
+    // View options. Their current values reach the UI through `LocalEntryDisplay`, like every other
+    // PostCard, so only the setters live here.
+    fun setPreviewLength(length: PreviewLength) {
+        viewModelScope.launch { settingsRepository.setPreviewLength(length) }
+    }
+
+    fun setCompactTags(compact: Boolean) {
+        viewModelScope.launch { settingsRepository.setCompactTags(compact) }
+    }
+
+    fun setTimelineTextScale(scale: Float) {
+        viewModelScope.launch { settingsRepository.setTimelineTextScale(scale) }
     }
 
     /** Called on resume so the list rolls over to a new day without restarting the app. */

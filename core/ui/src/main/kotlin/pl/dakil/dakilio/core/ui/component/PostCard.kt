@@ -48,8 +48,12 @@ import pl.dakil.dakilio.core.designsystem.theme.SegmentedShapes
 import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.model.Post
 import pl.dakil.dakilio.core.model.PostPhoto
+import pl.dakil.dakilio.core.model.PreviewLength
+import pl.dakil.dakilio.core.model.noteExcerpt
 import pl.dakil.dakilio.core.ui.DakilioFormats
+import pl.dakil.dakilio.core.ui.LocalEntryDisplay
 import pl.dakil.dakilio.core.ui.R
+import pl.dakil.dakilio.core.ui.scaled
 import pl.dakil.dakilio.core.ui.mood.MoodBadge
 import pl.dakil.dakilio.core.ui.mood.NoMoodBadge
 import pl.dakil.dakilio.core.ui.mood.moodColors
@@ -58,6 +62,8 @@ private val BadgeSize = 44.dp
 private val CardPaddingH = 16.dp
 private val CardPaddingV = 14.dp
 private const val MAX_VISIBLE_TAGS = 6
+/** Icon-only tags take far less room. */
+private const val MAX_VISIBLE_COMPACT_TAGS = 12
 
 /**
  * One journal entry. Cards of the same day are drawn as a segmented group ([index] of [count]) and
@@ -83,6 +89,10 @@ fun PostCard(
     val inner by animateDpAsState(if (pressed) 20.dp else SegmentedShapes.inner, motion.fastSpatialSpec(), label = "cardCorner")
     val shape = SegmentedShapes.of(index, count, inner = inner)
     val threadColor = MaterialTheme.colorScheme.outlineVariant
+    val display = LocalEntryDisplay.current
+    val textScale = display.timelineTextScale
+    val full = display.previewLength == PreviewLength.Full
+    val maxTags = if (display.compactTags) MAX_VISIBLE_COMPACT_TAGS else MAX_VISIBLE_TAGS
     val hasBody = post.title != null || post.note != null || post.tags.isNotEmpty() || post.photos.isNotEmpty()
 
     Surface(
@@ -105,17 +115,19 @@ fun PostCard(
                 post.title?.let {
                     Text(
                         highlighted(it, highlight),
-                        style = MaterialTheme.typography.titleMediumEmphasized,
-                        maxLines = 2,
+                        style = MaterialTheme.typography.titleMediumEmphasized.scaled(textScale),
+                        maxLines = if (full) Int.MAX_VALUE else 2,
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
                 post.note?.let {
+                    // In search, a note whose match is past the preview starts just before it.
+                    val shown = if (highlight.isNullOrBlank() || full) it else noteExcerpt(it, highlight)
                     Text(
-                        highlighted(it, highlight),
-                        style = MaterialTheme.typography.bodyMedium,
+                        highlighted(shown, highlight),
+                        style = MaterialTheme.typography.bodyMedium.scaled(textScale),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 4,
+                        maxLines = display.previewLength.noteLines ?: Int.MAX_VALUE,
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
@@ -125,9 +137,9 @@ fun PostCard(
                         verticalArrangement = Arrangement.spacedBy(6.dp),
                         modifier = Modifier.padding(top = 2.dp),
                     ) {
-                        post.tags.take(MAX_VISIBLE_TAGS).forEach { TagPill(it) }
-                        if (post.tags.size > MAX_VISIBLE_TAGS) {
-                            CountPill(stringResource(R.string.ui_more_tags, post.tags.size - MAX_VISIBLE_TAGS))
+                        post.tags.take(maxTags).forEach { TagPill(it, compact = display.compactTags) }
+                        if (post.tags.size > maxTags) {
+                            CountPill(stringResource(R.string.ui_more_tags, post.tags.size - maxTags))
                         }
                     }
                 }

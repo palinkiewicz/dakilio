@@ -61,6 +61,7 @@ import pl.dakil.dakilio.core.model.PostPhoto
 import pl.dakil.dakilio.core.ui.component.EmptyState
 import pl.dakil.dakilio.core.ui.component.PhotoViewer
 import pl.dakil.dakilio.core.ui.component.PostCard
+import pl.dakil.dakilio.core.ui.hintOrNull
 import pl.dakil.dakilio.core.ui.mood.MoodBadge
 import pl.dakil.dakilio.core.ui.relativeDayLabel
 import pl.dakil.dakilio.core.ui.rememberFormats
@@ -130,12 +131,12 @@ internal fun SearchScreen(viewModel: SearchViewModel, onBack: () -> Unit, onOpen
                 horizontalArrangement = Arrangement.spacedBy(Spacing.s),
             ) {
                 state.moods.asReversed().forEach { mood ->
-                    val selected = mood.id in state.moodIds
+                    val selected = mood.level in state.moodLevels
                     FilterChip(
                         selected = selected,
                         onClick = {
                             haptics.toggle(!selected)
-                            viewModel.toggleMood(mood.id)
+                            viewModel.toggleMoodLevel(mood.level)
                         },
                         label = { Text(mood.label) },
                         leadingIcon = { MoodBadge(mood, size = 20.dp, active = selected) },
@@ -161,7 +162,7 @@ internal fun SearchScreen(viewModel: SearchViewModel, onBack: () -> Unit, onOpen
                     !state.active -> EmptyState(
                         symbol = DakilioSymbols.Search,
                         title = stringResource(R.string.search_start_title),
-                        body = stringResource(R.string.search_start_body),
+                        body = hintOrNull(stringResource(R.string.search_start_body)),
                         modifier = Modifier.align(Alignment.Center),
                     )
                     state.days.isEmpty() -> EmptyState(

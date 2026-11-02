@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="habits_title">Habits</string>
+    <string name="habits_subtitle">Keep up with what matters to you</string>
+    <string name="habits_back">Back</string>
+    <string name="habits_new">New habit</string>
+    <string name="habits_hint">Every entry with the habit\'s tag counts, in any diary. A day counts once, however many entries it has.</string>
+    <string name="habits_empty_title">No habits yet</string>
+    <string name="habits_empty_body">Pick a tag and how many days a week you want it on your entries.</string>
+    <string name="habits_this_week">%1$d of %2$d this week</string>
+    <string name="habits_goal_reached">Goal reached this week</string>
+    <string name="habits_last_week">Last week</string>
+    <string name="habits_last_week_count">%1$d/%2$d</string>
+    <string name="habits_last_week_met">Goal reached</string>
+    <string name="habits_archived_tag">Its tag is archived</string>
+    <string name="habits_day_done">%s: done</string>
+    <string name="habits_day_not_done">%s: not yet</string>
+    <string name="habits_deleted">Habit deleted</string>
+    <string name="habits_undo">Undo</string>
+
+    <string name="habits_sheet_new">New habit</string>
+    <string name="habits_sheet_edit">Habit</string>
+    <string name="habits_sheet_tag">Tag</string>
+    <string name="habits_sheet_no_tags">Every tag already has a habit. Add more tags in More → Tags.</string>
+    <string name="habits_sheet_days">Days per week</string>
+    <plurals name="habits_sheet_summary">
+        <item quantity="one">%2$s on your entries at least %1$d day a week</item>
+        <item quantity="other">%2$s on your entries at least %1$d days a week</item>
+    </plurals>
+    <string name="habits_sheet_pick_tag">Pick a tag first</string>
+    <string name="habits_sheet_save">Save</string>
+    <string name="habits_sheet_add">Add habit</string>
+    <string name="habits_sheet_delete">Delete habit</string>
+
+    <string name="habits_progress_this_week">This week</string>
+    <string name="habits_progress_week_of">Week of %s</string>
+    <string name="habits_progress_goal">Weekly goal reached!</string>
+    <string name="habits_progress_plus_one">+1</string>
+    <plurals name="habits_progress_more">
+        <item quantity="one">+%d more habit</item>
+        <item quantity="other">+%d more habits</item>
+    </plurals>
+    <string name="habits_progress_dismiss">Dismiss</string>
+</resources>

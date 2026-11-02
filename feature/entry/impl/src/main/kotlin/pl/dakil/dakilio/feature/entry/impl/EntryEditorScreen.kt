@@ -15,6 +15,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -95,6 +96,9 @@ internal fun EntryEditorScreen(
     val haptics = rememberHaptics()
     var confirmDiscard by rememberSaveable { mutableStateOf(false) }
     var confirmDelete by rememberSaveable { mutableStateOf(false) }
+    // Tag groups the user folded open or shut, against their default. Lives for this editor only.
+    var toggledGroups by rememberSaveable { mutableStateOf(emptySet<Long>()) }
+    val toggleGroup = { id: Long -> toggledGroups = if (id in toggledGroups) toggledGroups - id else toggledGroups + id }
 
     val requestClose = {
         if (viewModel.hasUnsavedChanges()) confirmDiscard = true else onClose()
@@ -119,6 +123,7 @@ internal fun EntryEditorScreen(
             photoCount = current.photos.size,
             diaryCount = current.diaryIds.size,
         ) && current.importingPhotos == 0
+        val bodyRequired = current.moodId == null && current.tagIds.isEmpty() && !canSave
         val save = {
             haptics.confirm()
             viewModel.save()
@@ -143,7 +148,7 @@ internal fun EntryEditorScreen(
                 )
             },
             bottomBar = {
-                BottomActions(
+                if (current.isNew) BottomActions(
                     step = current.step,
                     canAdvance = when (current.step) {
                         EditorStep.Mood -> current.moodId != null
@@ -164,7 +169,7 @@ internal fun EntryEditorScreen(
             },
         ) { padding ->
             Column(
-                Modifier.padding(padding).fillMaxSize(),
+                Modifier.padding(padding).consumeWindowInsets(padding).fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Column(Modifier.widthIn(max = Spacing.maxContentWidth).fillMaxSize()) {
@@ -181,46 +186,73 @@ internal fun EntryEditorScreen(
                             modifier = Modifier.padding(top = Spacing.s),
                         )
                     }
-                    Stepper(
-                        state = current,
-                        bodyFilled = viewModel.title.text.isNotBlank() || viewModel.note.text.isNotBlank() || current.photos.isNotEmpty(),
-                        onStep = {
-                            haptics.tick()
-                            viewModel.goTo(it)
-                        },
-                        modifier = Modifier.padding(horizontal = Spacing.gutter, vertical = Spacing.m),
-                    )
-                    AnimatedContent(
-                        targetState = current.step,
-                        transitionSpec = {
-                            val forward = targetState.ordinal > initialState.ordinal
-                            val spatial = MotionSpatial
-                            (slideInHorizontally(spatial) { if (forward) it / 4 else -it / 4 } + fadeIn()) togetherWith
-                                (slideOutHorizontally(spatial) { if (forward) -it / 4 else it / 4 } + fadeOut())
-                        },
-                        label = "step",
-                        modifier = Modifier.weight(1f),
-                    ) { step ->
-                        when (step) {
-                            EditorStep.Mood -> MoodStep(current.moods, current.moodId, viewModel::selectMood, Modifier.fillMaxSize())
-                            EditorStep.Tags -> TagStep(
-                                suggested = current.suggestedGroups,
-                                others = current.otherGroups,
-                                selectedIds = current.tagIds,
-                                onToggle = viewModel::toggleTag,
-                                onManageTags = onManageTags,
-                                modifier = Modifier.fillMaxSize(),
-                            )
-                            EditorStep.Note -> NoteStep(
-                                title = viewModel.title,
-                                note = viewModel.note,
-                                photos = current.photos,
-                                importing = current.importingPhotos,
-                                bodyRequired = current.moodId == null && current.tagIds.isEmpty() && !canSave,
-                                onAddPhotos = viewModel::addPhotos,
-                                onRemovePhoto = viewModel::removePhoto,
-                                modifier = Modifier.fillMaxSize(),
-                            )
+                    if (!current.isNew) {
+                        EntryOverview(
+                            state = current,
+                            title = viewModel.title,
+                            note = viewModel.note,
+                            bodyRequired = bodyRequired,
+                            toggledGroups = toggledGroups,
+                            onToggleGroup = toggleGroup,
+                            onSelectMood = { viewModel.selectMood(it) },
+                            onClearMood = viewModel::clearMood,
+                            onToggleTag = viewModel::toggleTag,
+                            onManageTags = onManageTags,
+                            onAddPhotos = viewModel::addPhotos,
+                            onRemovePhoto = viewModel::removePhoto,
+                            modifier = Modifier.weight(1f).padding(top = Spacing.s),
+                        )
+                    } else {
+                        Stepper(
+                            state = current,
+                            bodyFilled = viewModel.title.text.isNotBlank() || viewModel.note.text.isNotBlank() || current.photos.isNotEmpty(),
+                            onStep = {
+                                haptics.tick()
+                                viewModel.goTo(it)
+                            },
+                            modifier = Modifier.padding(horizontal = Spacing.gutter, vertical = Spacing.m),
+                        )
+                        AnimatedContent(
+                            targetState = current.step,
+                            transitionSpec = {
+                                val forward = targetState.ordinal > initialState.ordinal
+                                val spatial = MotionSpatial
+                                (slideInHorizontally(spatial) { if (forward) it / 4 else -it / 4 } + fadeIn()) togetherWith
+                                    (slideOutHorizontally(spatial) { if (forward) -it / 4 else it / 4 } + fadeOut())
+                            },
+                            label = "step",
+                            modifier = Modifier.weight(1f),
+                        ) { step ->
+                            when (step) {
+                                EditorStep.Mood -> MoodStep(
+                                    moods = current.moods,
+                                    selectedId = current.moodId,
+                                    onSelect = viewModel::selectMood,
+                                    onClear = viewModel::clearMood,
+                                    modifier = Modifier.fillMaxSize(),
+                                )
+                                EditorStep.Tags -> TagStep(
+                                    suggested = current.suggestedGroups,
+                                    others = current.otherGroups,
+                                    selectedIds = current.tagIds,
+                                    style = current.tagStyle,
+                                    toggledGroups = toggledGroups,
+                                    onToggleGroup = toggleGroup,
+                                    onToggle = viewModel::toggleTag,
+                                    onManageTags = onManageTags,
+                                    modifier = Modifier.fillMaxSize(),
+                                )
+                                EditorStep.Note -> NoteStep(
+                                    title = viewModel.title,
+                                    note = viewModel.note,
+                                    photos = current.photos,
+                                    importing = current.importingPhotos,
+                                    bodyRequired = bodyRequired,
+                                    onAddPhotos = viewModel::addPhotos,
+                                    onRemovePhoto = viewModel::removePhoto,
+                                    modifier = Modifier.fillMaxSize(),
+                                )
+                            }
                         }
                     }
                 }

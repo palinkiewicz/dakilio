@@ -1,0 +1,49 @@
+{
+  "version": 15,
+  "customMoods": [
+    {"id":1,"custom_name":"","mood_group_id":1,"mood_group_order":0,"icon_id":1054,"predefined_name_id":1,"state":0,"createdAt":1},
+    {"id":2,"custom_name":"gooooood","mood_group_id":2,"mood_group_order":0,"icon_id":1,"predefined_name_id":2,"state":0,"createdAt":1},
+    {"id":3,"custom_name":"","mood_group_id":3,"mood_group_order":0,"icon_id":1,"predefined_name_id":3,"state":0,"createdAt":1},
+    {"id":4,"custom_name":"","mood_group_id":4,"mood_group_order":0,"icon_id":1,"predefined_name_id":4,"state":0,"createdAt":1},
+    {"id":5,"custom_name":"","mood_group_id":5,"mood_group_order":0,"icon_id":1,"predefined_name_id":5,"state":0,"createdAt":1},
+    {"id":6,"custom_name":"rad2","mood_group_id":1,"mood_group_order":1,"icon_id":1015,"predefined_name_id":-1,"state":2,"createdAt":1},
+    {"id":7,"custom_name":"unused archived","mood_group_id":3,"mood_group_order":1,"icon_id":1015,"predefined_name_id":-1,"state":2,"createdAt":1}
+  ],
+  "tag_groups": [
+    {"id":4,"name":"Custom Group","is_expanded":true,"order":4,"id_predefined":-1},
+    {"id":1,"name":"Emotions","is_expanded":true,"order":1,"id_predefined":14},
+    {"id":2,"name":"Health","is_expanded":false,"order":2,"id_predefined":3}
+  ],
+  "tags": [
+    {"id":2,"name":"happy","createdAt":1,"icon":1,"order":2,"state":0,"id_tag_group":1},
+    {"id":1,"name":"excited","createdAt":1,"icon":1,"order":1,"state":0,"id_tag_group":1},
+    {"id":4,"name":"walk","createdAt":1,"icon":1,"order":1,"state":0,"id_tag_group":2},
+    {"id":17,"name":"drink water","createdAt":1,"icon":1,"order":2,"state":0,"id_tag_group":2},
+    {"id":20,"name":"good sleep","createdAt":1,"icon":1,"order":3,"state":0,"id_tag_group":2},
+    {"id":23,"name":"Custom activity #1","createdAt":1,"icon":173,"order":23,"state":1,"id_tag_group":4},
+    {"id":30,"name":"Orphan","createdAt":1,"icon":1,"order":1,"state":0}
+  ],
+  "dayEntries": [
+    {"id":6,"minute":27,"hour":13,"day":1,"month":10,"year":2026,"datetime":1793536020000,"timeZoneOffset":3600000,"mood":3,
+     "note":"This one will be very formatted...<br><br><b>Bold</b><br><br><i>Some italic <b>and bold</b></i><br><br><ol><li>list item</li><li>List item another</li></ol><ul><li>Bullet</li><li>Bullet another and emoji 🥀🔥</li></ul><u>Underlined</u><br><br><strike style=\"color:red\">Strike through</strike>",
+     "note_title":"Sample title 5","tags":[],"assets":[],"isFavorite":false},
+    {"id":5,"minute":0,"hour":21,"day":31,"month":9,"year":2026,"datetime":1793476800000,"timeZoneOffset":3600000,"mood":5,
+     "note":"","note_title":"Sample title 5","tags":[4,20],"assets":[2],"isFavorite":true},
+    {"id":4,"minute":0,"hour":20,"day":29,"month":9,"year":2026,"datetime":1793300400000,"timeZoneOffset":3600000,"mood":1,
+     "note":"This one has an image","note_title":"Sample title 4","tags":[2,17],"assets":[1],"isFavorite":false},
+    {"id":3,"minute":30,"hour":9,"day":28,"month":9,"year":2026,"datetime":1793176200000,"timeZoneOffset":3600000,"mood":6,
+     "note":"Fish &amp; chips &lt;3","note_title":"","tags":[23,99],"assets":[],"isFavorite":false},
+    {"id":2,"minute":0,"hour":18,"day":27,"month":9,"year":2026,"datetime":1793120400000,"timeZoneOffset":3600000,"mood":2,
+     "note":"","note_title":"","tags":[23,30],"assets":[42],"isFavorite":false},
+    {"id":1,"minute":0,"hour":12,"day":27,"month":9,"year":2026,"datetime":1793098800000,"timeZoneOffset":3600000,"mood":77,
+     "note":"unknown mood","note_title":"","tags":[],"assets":[],"isFavorite":false}
+  ],
+  "assets": [
+    {"id":1,"checksum":"3b14e2dacf698a7ac4bbc336d9c27410","type":1,"createdAt":1,"createdAtOffset":3600000,
+     "android_metadata":"{\"Name\":\"81532.jpg\",\"LastModified\":1,\"Orientation\":90}"},
+    {"id":2,"checksum":"7ff6cf360f5ab334dfd7a0690d5063f3","type":2,"createdAt":1,"createdAtOffset":3600000,
+     "android_metadata":"{\"Name\":\"20261101_133223.mp4\",\"Duration\":2391}"}
+  ],
+  "metadata": {"number_of_photos": 2},
+  "achievements": [], "prefs": [{"key":"PRESELECTED_LANG","value":"en"}], "someFutureKey": {"x": 1}
+}

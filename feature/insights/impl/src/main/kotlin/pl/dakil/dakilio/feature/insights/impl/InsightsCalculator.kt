@@ -39,10 +39,14 @@ data class Insights(
 internal const val HEATMAP_WEEKS = 12
 private const val TOP_TAGS = 5
 
-/** The mood whose normalized value is closest to [value] — how an average is shown as a face. */
-fun nearestMood(moods: List<Mood>, value: Float): Mood? = moods.minByOrNull { abs(it.value - value) }
+/** The level (as its primary mood) closest to [value]: how an average is shown as a face. */
+fun nearestMood(primaries: List<Mood>, value: Float): Mood? = primaries.minByOrNull { abs(it.value - value) }
 
-fun calculateInsights(posts: List<Post>, moods: List<Mood>, range: InsightsRange, today: LocalDate): Insights {
+/**
+ * @param primaries one mood per level; aliases are counted under their level's primary, so the
+ *   distribution always has one segment per level.
+ */
+fun calculateInsights(posts: List<Post>, primaries: List<Mood>, range: InsightsRange, today: LocalDate): Insights {
     val from = range.days?.let { today.minusDays(it - 1) }
     val inRange = if (from == null) posts else posts.filter { !it.date.isBefore(from) && !it.date.isAfter(today) }
     val previous = range.days?.let { days ->
@@ -51,7 +55,7 @@ fun calculateInsights(posts: List<Post>, moods: List<Mood>, range: InsightsRange
     }
     val allDays = posts.map { it.date }.toSet()
 
-    val moodCounts = inRange.mapNotNull { it.mood?.id }.groupingBy { it }.eachCount()
+    val levelCounts = inRange.mapNotNull { it.mood?.level }.groupingBy { it }.eachCount()
     val tagCounts = inRange.flatMap { it.tags }.groupBy { it.id }
         .map { (_, tags) -> TagCount(tags.first(), tags.size) }
         .sortedWith(compareByDescending<TagCount> { it.count }.thenBy { it.tag.label })
@@ -74,7 +78,7 @@ fun calculateInsights(posts: List<Post>, moods: List<Mood>, range: InsightsRange
         longestStreak = Streaks.longest(allDays),
         averageMood = inRange.mapNotNull { it.mood?.value }.averageOrNull(),
         previousAverageMood = previous?.mapNotNull { it.mood?.value }?.averageOrNull(),
-        distribution = moods.sortedBy { it.tier }.map { MoodCount(it, moodCounts[it.id] ?: 0) },
+        distribution = primaries.sortedBy { it.level }.map { MoodCount(it, levelCounts[it.level] ?: 0) },
         topTags = tagCounts,
         heatmap = heatmap,
     )

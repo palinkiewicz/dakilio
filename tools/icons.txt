@@ -3,8 +3,10 @@
 # Regenerate with: python3 -I tools/fetch-icons.py
 ui add
 ui close
+ui block
 ui search
 ui arrow_back
+ui arrow_upward
 ui check
 ui more_vert
 ui more_horiz
@@ -41,7 +43,11 @@ ui palette
 ui delete_sweep
 ui folder_open
 ui drive_file_move
+ui open_in_new
 ui gavel
+ui inventory_2
+ui unarchive
+ui language
 emotions sentiment_very_satisfied
 emotions sentiment_satisfied
 emotions sentiment_neutral

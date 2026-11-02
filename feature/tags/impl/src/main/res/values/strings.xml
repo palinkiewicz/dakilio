@@ -24,9 +24,17 @@
     <string name="tags_icon">Icon</string>
     <string name="tags_delete">Delete</string>
     <string name="tags_tag_deleted">“%1$s” deleted</string>
+    <string name="tags_tag_archived">“%1$s” archived</string>
     <string name="tags_group_deleted">Group “%1$s” deleted</string>
+    <string name="tags_group_archived">Group “%1$s” archived</string>
     <string name="tags_undo">Undo</string>
     <string name="tags_empty_title">No tag groups yet</string>
     <string name="tags_empty_body">Create a group like “Activities” or “People”, then fill it with tags.</string>
-    <string name="tags_archived_note">Deleted tags disappear from the picker but stay on the entries that used them.</string>
+    <string name="tags_archived_note">Deleting a tag or group that entries use lets you archive it (it leaves the picker but stays on those entries) or delete it everywhere. Archived ones can be restored from More → Archived.</string>
+    <string name="tags_suggested">Suggested groups</string>
+    <string name="tags_suggested_title">Suggested groups</string>
+    <string name="tags_suggested_hint">Add a ready-made group with all its tags, then edit it like any other.</string>
+    <string name="tags_suggested_add">Add</string>
+    <string name="tags_suggested_added">Added</string>
+    <string name="tags_suggested_browse">Browse suggestions</string>
 </resources>

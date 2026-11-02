@@ -24,6 +24,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
@@ -42,6 +43,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,8 +59,13 @@ import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.icon.symbolForKey
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
+import pl.dakil.dakilio.core.model.GroupUsage
 import pl.dakil.dakilio.core.model.Tag
 import pl.dakil.dakilio.core.model.TagGroup
+import pl.dakil.dakilio.core.model.TagUsage
+import pl.dakil.dakilio.core.ui.Hint
+import pl.dakil.dakilio.core.ui.component.DeleteGroupDialog
+import pl.dakil.dakilio.core.ui.component.DeleteTagDialog
 import pl.dakil.dakilio.core.ui.component.EmptyState
 
 /** What the tag editor sheet is editing: an existing tag, or a new one in [groupId]. */
@@ -79,10 +86,15 @@ internal fun TagsScreen(viewModel: TagsViewModel, onBack: () -> Unit) {
     val haptics = rememberHaptics()
     var editing by remember { mutableStateOf<TagEdit?>(null) }
     var groupDialog by remember { mutableStateOf<GroupDialog?>(null) }
+    var deleting by remember { mutableStateOf<Pair<Tag, TagUsage>?>(null) }
+    var deletingGroup by remember { mutableStateOf<Pair<TagGroup, GroupUsage>?>(null) }
+    var suggesting by rememberSaveable { mutableStateOf(false) }
 
     val undoLabel = stringResource(R.string.tags_undo)
     val tagDeleted = stringResource(R.string.tags_tag_deleted)
+    val tagArchived = stringResource(R.string.tags_tag_archived)
     val groupDeleted = stringResource(R.string.tags_group_deleted)
+    val groupArchived = stringResource(R.string.tags_group_archived)
     fun offerUndo(message: String, undo: () -> Unit) {
         scope.launch {
             snackbar.currentSnackbarData?.dismiss()
@@ -100,6 +112,11 @@ internal fun TagsScreen(viewModel: TagsViewModel, onBack: () -> Unit) {
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         DakilioIcon(DakilioSymbols.ArrowBack, contentDescription = stringResource(R.string.tags_back))
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { suggesting = true }) {
+                        DakilioIcon(DakilioSymbols.AutoAwesome, contentDescription = stringResource(R.string.tags_suggested))
                     }
                 },
                 scrollBehavior = scrollBehavior,
@@ -123,6 +140,12 @@ internal fun TagsScreen(viewModel: TagsViewModel, onBack: () -> Unit) {
                     title = stringResource(R.string.tags_empty_title),
                     body = stringResource(R.string.tags_empty_body),
                     modifier = Modifier.align(Alignment.Center),
+                    action = {
+                        FilledTonalButton(onClick = { suggesting = true }) {
+                            DakilioIcon(DakilioSymbols.AutoAwesome, contentDescription = null, modifier = Modifier.padding(end = Spacing.s))
+                            Text(stringResource(R.string.tags_suggested_browse))
+                        }
+                    },
                 )
                 else -> LazyColumn(
                     state = listState,
@@ -136,25 +159,32 @@ internal fun TagsScreen(viewModel: TagsViewModel, onBack: () -> Unit) {
                             onEditTag = { editing = TagEdit(it, group.id) },
                             onAddTag = { editing = TagEdit(null, group.id) },
                             onRename = { groupDialog = GroupDialog.Rename(group) },
-                            onDelete = {
-                                haptics.confirm()
-                                viewModel.deleteGroup(group.id)
-                                offerUndo(groupDeleted.format(group.name)) { viewModel.restoreGroup(group.id) }
-                            },
+                            onDelete = { viewModel.groupUsage(group.id) { usage -> deletingGroup = group to usage } },
                             modifier = Modifier.animateItem(),
                         )
                     }
                     item(key = "note") {
-                        Text(
-                            stringResource(R.string.tags_archived_note),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(horizontal = Spacing.xs, vertical = Spacing.s).animateItem(),
-                        )
+                        Hint {
+                            Text(
+                                stringResource(R.string.tags_archived_note),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(horizontal = Spacing.xs, vertical = Spacing.s).animateItem(),
+                            )
+                        }
                     }
                 }
             }
         }
+    }
+
+    if (suggesting) {
+        SuggestedGroupsSheet(
+            suggestions = viewModel.suggestions,
+            groups = groups.orEmpty(),
+            onAdd = { viewModel.addSuggestedGroup(it.key) },
+            onDismiss = { suggesting = false },
+        )
     }
 
     editing?.let { edit ->
@@ -168,10 +198,54 @@ internal fun TagsScreen(viewModel: TagsViewModel, onBack: () -> Unit) {
                 editing = null
             },
             onDelete = edit.tag?.let { tag ->
-                {
-                    viewModel.deleteTag(tag.id)
-                    editing = null
-                    offerUndo(tagDeleted.format(tag.label)) { viewModel.restoreTag(tag.id) }
+                { viewModel.tagUsage(tag.id) { usage -> deleting = tag to usage } }
+            },
+        )
+    }
+
+    deleting?.let { (tag, usage) ->
+        DeleteTagDialog(
+            tag = tag,
+            usage = usage,
+            onDismiss = { deleting = null },
+            onArchive = {
+                haptics.confirm()
+                viewModel.archiveTag(tag.id)
+                deleting = null
+                editing = null
+                offerUndo(tagArchived.format(tag.label)) { viewModel.restoreTag(tag.id) }
+            },
+            onDelete = {
+                haptics.confirm()
+                viewModel.deleteTag(tag.id)
+                deleting = null
+                editing = null
+                scope.launch {
+                    snackbar.currentSnackbarData?.dismiss()
+                    snackbar.showSnackbar(tagDeleted.format(tag.label), withDismissAction = true)
+                }
+            },
+        )
+    }
+
+    deletingGroup?.let { (group, usage) ->
+        DeleteGroupDialog(
+            group = group,
+            usage = usage,
+            onDismiss = { deletingGroup = null },
+            onArchive = {
+                haptics.confirm()
+                viewModel.archiveGroup(group.id)
+                deletingGroup = null
+                offerUndo(groupArchived.format(group.name)) { viewModel.restoreGroup(group.id) }
+            },
+            onDelete = {
+                haptics.confirm()
+                viewModel.deleteGroup(group.id)
+                deletingGroup = null
+                scope.launch {
+                    snackbar.currentSnackbarData?.dismiss()
+                    snackbar.showSnackbar(groupDeleted.format(group.name), withDismissAction = true)
                 }
             },
         )

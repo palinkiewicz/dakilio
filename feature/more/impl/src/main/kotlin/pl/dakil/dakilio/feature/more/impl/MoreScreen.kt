@@ -52,9 +52,13 @@ private data class MoreItem(
 @Composable
 internal fun MoreScreen(
     viewModel: MoreViewModel,
+    onOpenMoods: () -> Unit,
     onOpenTags: () -> Unit,
     onOpenDiaries: () -> Unit,
     onOpenSettings: () -> Unit,
+    onOpenImport: () -> Unit,
+    onOpenArchive: () -> Unit,
+    onOpenExtras: () -> Unit,
 ) {
     val showSampleHint by viewModel.showSampleHint.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -78,9 +82,16 @@ internal fun MoreScreen(
             Group(
                 stringResource(R.string.more_section_customize),
                 listOf(
+                    MoreItem(DakilioSymbols.Mood, stringResource(R.string.more_moods), stringResource(R.string.more_moods_body), onOpenMoods),
                     MoreItem(DakilioSymbols.Sell, stringResource(R.string.more_tags), stringResource(R.string.more_tags_body), onOpenTags),
                     MoreItem(DakilioSymbols.Book2, stringResource(R.string.more_diaries), stringResource(R.string.more_diaries_body), onOpenDiaries),
+                    MoreItem(DakilioSymbols.AutoAwesome, stringResource(R.string.more_extras), stringResource(R.string.more_extras_body), onOpenExtras),
+                    MoreItem(DakilioSymbols.Inventory2, stringResource(R.string.more_archive), stringResource(R.string.more_archive_body), onOpenArchive),
                 ),
+            )
+            Group(
+                stringResource(R.string.more_section_data),
+                listOf(MoreItem(DakilioSymbols.DriveFileMove, stringResource(R.string.more_import_daylio), stringResource(R.string.more_import_daylio_body), onOpenImport)),
             )
             Group(
                 stringResource(R.string.more_section_app),
@@ -115,6 +126,8 @@ private fun Header() {
         Text(
             stringResource(R.string.more_app_name),
             style = MaterialTheme.typography.displaySmallEmphasized,
+            // This screen has no Surface/Scaffold to provide a content color, so set it explicitly.
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(top = Spacing.l),
         )
         Text(

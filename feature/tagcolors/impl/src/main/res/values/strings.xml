@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tag_colors_title">Tag colors</string>
+    <string name="tag_colors_subtitle">Make tags easy to spot on your entries</string>
+    <string name="tag_colors_back">Back</string>
+    <string name="tag_colors_hint">Give a group a color for all its tags, then tap a tag to give it its own.</string>
+    <string name="tag_colors_group_color">Group color</string>
+    <string name="tag_colors_no_color">No color</string>
+    <string name="tag_colors_group_empty">No tags in this group yet</string>
+    <string name="tag_colors_empty_title">No tags yet</string>
+    <string name="tag_colors_empty_body">Add some tags first, then come back to color them.</string>
+    <string name="tag_colors_open_tags">Open Tags</string>
+    <string name="tag_colors_sheet_group">Default color for the group</string>
+    <string name="tag_colors_sheet_tag">Color for the tag</string>
+    <string name="tag_colors_use_group">Use group color</string>
+    <string name="tag_colors_done">Done</string>
+    <string name="tag_colors_change_tag">Change the color of %s</string>
+    <string name="tag_colors_change_group">Change the color of the group %s</string>
+</resources>

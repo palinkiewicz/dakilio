@@ -25,7 +25,12 @@
     <string name="entry_tags_title">What\'s been going on?</string>
     <string name="entry_tags_body">Tap everything that fits. Nothing fits? Skip ahead.</string>
     <string name="entry_more_groups">More groups</string>
+    <string name="entry_group_expanded">Expanded</string>
+    <string name="entry_group_collapsed">Collapsed</string>
     <string name="entry_manage_tags">Manage tags</string>
+    <string name="entry_tags_edit">Edit</string>
+    <string name="entry_tags_done">Done</string>
+    <string name="entry_tags_none_selected">No tags</string>
     <string name="entry_no_tags">No tags yet. Create some in Manage tags.</string>
 
     <string name="entry_note_title">Anything to add?</string>

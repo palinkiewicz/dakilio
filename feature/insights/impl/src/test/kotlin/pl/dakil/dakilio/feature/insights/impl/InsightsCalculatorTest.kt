@@ -11,15 +11,18 @@ import pl.dakil.dakilio.core.model.Tag
 
 class InsightsCalculatorTest {
     private val today = LocalDate.of(2026, 10, 29) // a Thursday
-    private val moods = (1..5).map { Mood(it.toLong(), 1, it, Mood.normalize(it, 5), "m$it", "mood_$it", 0) }
+    private val moods = (1..5).map { Mood(it.toLong(), it, "m$it", isPrimary = true, position = 0) }
+    private val sad = Mood(9, 2, "Sad", isPrimary = false, position = 0)
     private val walk = Tag(1, 1, "Walk", "directions_walk", 0)
     private val work = Tag(2, 1, "Work", "work", 1)
     private var nextId = 1L
 
-    private fun post(daysAgo: Long, tier: Int?, vararg tags: Tag) = Post(
+    private fun post(daysAgo: Long, level: Int?, vararg tags: Tag) = postWith(daysAgo, level?.let { moods[it - 1] }, *tags)
+
+    private fun postWith(daysAgo: Long, mood: Mood?, vararg tags: Tag) = Post(
         id = nextId++,
         dateTime = today.minusDays(daysAgo).atTime(12, 0),
-        mood = tier?.let { moods[it - 1] },
+        mood = mood,
         title = null,
         note = null,
         tags = tags.toList(),
@@ -63,7 +66,16 @@ class InsightsCalculatorTest {
 
     @Test
     fun `an average maps to the nearest mood`() {
-        assertEquals(4, nearestMood(moods, 0.7f)?.tier)
-        assertEquals(1, nearestMood(moods, 0.1f)?.tier)
+        assertEquals(4, nearestMood(moods, 0.7f)?.level)
+        assertEquals(1, nearestMood(moods, 0.1f)?.level)
+    }
+
+    @Test
+    fun `aliases count under their level's primary`() {
+        val posts = listOf(postWith(0, sad), post(1, 2), post(2, 5))
+        val insights = calculateInsights(posts, moods, InsightsRange.All, today)
+        assertEquals(listOf(0, 2, 0, 0, 1), insights.distribution.map { it.count })
+        assertEquals(moods[1], insights.distribution[1].mood)
+        assertEquals((0.25f + 0.25f + 1f) / 3, insights.averageMood!!, 0.0001f)
     }
 }

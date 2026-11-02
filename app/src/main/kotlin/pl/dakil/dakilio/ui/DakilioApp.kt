@@ -15,6 +15,7 @@ import androidx.compose.material3.ShortNavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,15 +41,23 @@ import pl.dakil.dakilio.core.navigation.rememberNavigationState
 import pl.dakil.dakilio.core.ui.LocalBottomBarPadding
 import pl.dakil.dakilio.core.ui.LocalSharedTransitionScope
 import pl.dakil.dakilio.core.ui.NavTransitions
+import pl.dakil.dakilio.feature.archive.impl.archiveEntry
+import pl.dakil.dakilio.feature.extras.impl.extrasEntry
 import pl.dakil.dakilio.feature.diaries.impl.diariesEntries
 import pl.dakil.dakilio.feature.entry.impl.entryEditorEntry
 import pl.dakil.dakilio.feature.insights.api.InsightsKey
 import pl.dakil.dakilio.feature.insights.impl.insightsEntry
 import pl.dakil.dakilio.feature.more.api.MoreKey
+import pl.dakil.dakilio.feature.moods.impl.moodsEntry
+import pl.dakil.dakilio.feature.importer.api.DaylioImportKey
+import pl.dakil.dakilio.feature.importer.impl.daylioImportEntry
 import pl.dakil.dakilio.feature.more.impl.moreEntry
 import pl.dakil.dakilio.feature.search.impl.searchEntry
 import pl.dakil.dakilio.feature.settings.impl.settingsEntry
 import pl.dakil.dakilio.feature.tags.impl.tagsEntry
+import pl.dakil.dakilio.feature.tagcolors.impl.tagColorsEntry
+import pl.dakil.dakilio.feature.habits.impl.HabitProgressHost
+import pl.dakil.dakilio.feature.habits.impl.habitsEntry
 import pl.dakil.dakilio.feature.timeline.api.TimelineKey
 import pl.dakil.dakilio.feature.timeline.impl.timelineEntry
 
@@ -64,9 +73,17 @@ private val topLevelKeys = destinations.map { it.key }
 
 /** App shell: shared-element scope, the navigation display and the bottom navigation bar. */
 @Composable
-fun DakilioApp() {
+fun DakilioApp(hasIncomingBackup: Boolean = false) {
     val navigationState = rememberNavigationState(topLevelKeys)
     val navigator = remember(navigationState) { Navigator(navigationState) }
+
+    // A shared .daylio file opens the importer where it normally lives (More → Import from Daylio);
+    // the import screen's ViewModel then picks the file up.
+    LaunchedEffect(hasIncomingBackup) {
+        if (!hasIncomingBackup) return@LaunchedEffect
+        navigator.navigate(MoreKey)
+        if (navigationState.currentKey != DaylioImportKey) navigator.navigate(DaylioImportKey)
+    }
     val haptics = rememberHaptics()
     val density = LocalDensity.current
     var barHeight by remember { mutableStateOf(0.dp) }
@@ -77,9 +94,21 @@ fun DakilioApp() {
         moreEntry(navigator)
         searchEntry(navigator)
         entryEditorEntry(navigator)
+        moodsEntry(navigator)
+        daylioImportEntry(
+            onBack = navigator::goBack,
+            onDone = {
+                navigator.goBack()
+                navigator.navigate(TimelineKey)
+            },
+        )
         tagsEntry(navigator)
         diariesEntries(navigator)
         settingsEntry(navigator)
+        archiveEntry(navigator)
+        extrasEntry(navigator)
+        tagColorsEntry(navigator)
+        habitsEntry(navigator)
     }
 
     SharedTransitionLayout(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
@@ -120,6 +149,11 @@ fun DakilioApp() {
                         }
                     }
                 }
+                // Habit progress after saving an entry, over whatever screen comes next.
+                HabitProgressHost(
+                    bottomPadding = if (navigationState.isAtTopLevel) barHeight else 0.dp,
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                )
             }
         }
     }
