@@ -228,4 +228,8 @@ internal class LocalSettingsRepository @Inject constructor(
     override suspend fun setTagStyle(style: TagStyle) = dataSource.setTagStyle(style)
 
     override suspend fun setShowHints(show: Boolean) = dataSource.setShowHints(show)
+
+    override suspend fun setTimelineTextScale(scale: Float) = dataSource.setTimelineTextScale(scale)
+
+    override suspend fun setEditorTextScale(scale: Float) = dataSource.setEditorTextScale(scale)
 }

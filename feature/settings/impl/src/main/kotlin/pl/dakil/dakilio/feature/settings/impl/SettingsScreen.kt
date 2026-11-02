@@ -1,7 +1,10 @@
 package pl.dakil.dakilio.feature.settings.impl
 
+import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -19,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumFlexibleTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedListItem
+import androidx.compose.material3.Slider
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -29,6 +33,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -39,8 +44,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
+import androidx.graphics.shapes.RoundedPolygon
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 import pl.dakil.dakilio.core.designsystem.component.ConnectedToggleRow
 import pl.dakil.dakilio.core.designsystem.component.SectionHeader
@@ -49,10 +58,13 @@ import pl.dakil.dakilio.core.designsystem.component.ToggleOption
 import pl.dakil.dakilio.core.designsystem.component.rememberHaptics
 import pl.dakil.dakilio.core.designsystem.component.segmentedItemColors
 import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
+import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbol
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.model.TagStyle
+import pl.dakil.dakilio.core.model.TextScale
 import pl.dakil.dakilio.core.model.ThemeMode
+import pl.dakil.dakilio.core.ui.scaled
 
 @Composable
 internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
@@ -62,6 +74,7 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
     val scope = rememberCoroutineScope()
     val haptics = rememberHaptics()
     var confirmRemove by rememberSaveable { mutableStateOf(false) }
+    var textSizeDialog by rememberSaveable { mutableStateOf<TextSizeTarget?>(null) }
     val removedMessage = stringResource(R.string.settings_samples_removed)
 
     Scaffold(
@@ -107,6 +120,25 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
                             selected = state.themeMode,
                             onSelect = viewModel::setThemeMode,
                         )
+                    }
+                }
+
+                SectionHeader(stringResource(R.string.settings_text_size))
+                Column(verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)) {
+                    TextSizeTarget.entries.forEachIndexed { index, target ->
+                        SegmentedListItem(
+                            onClick = { textSizeDialog = target },
+                            shapes = ListItemDefaults.segmentedShapes(index, TextSizeTarget.entries.size),
+                            colors = segmentedItemColors(),
+                            leadingContent = { ShapedIcon(target.symbol, polygon = target.polygon) },
+                            supportingContent = { Text(stringResource(target.body)) },
+                            trailingContent = {
+                                Text(
+                                    stringResource(R.string.settings_text_size_percent, (target.scaleOf(state) * 100).roundToInt()),
+                                    style = MaterialTheme.typography.labelLarge,
+                                )
+                            },
+                        ) { Text(stringResource(target.title)) }
                     }
                 }
 
@@ -193,6 +225,21 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
         }
     }
 
+    textSizeDialog?.let { target ->
+        TextSizeDialog(
+            target = target,
+            scale = target.scaleOf(state),
+            onConfirm = { scale ->
+                textSizeDialog = null
+                when (target) {
+                    TextSizeTarget.Timeline -> viewModel.setTimelineTextScale(scale)
+                    TextSizeTarget.Editor -> viewModel.setEditorTextScale(scale)
+                }
+            },
+            onDismiss = { textSizeDialog = null },
+        )
+    }
+
     if (confirmRemove) {
         AlertDialog(
             onDismissRequest = { confirmRemove = false },
@@ -209,4 +256,105 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
             dismissButton = { TextButton(onClick = { confirmRemove = false }) { Text(stringResource(R.string.settings_cancel)) } },
         )
     }
+}
+
+private val TextScaleSteps = ((TextScale.MAX - TextScale.MIN) / TextScale.STEP).roundToInt() - 1
+
+/** The two entry text sizes, each a row in Settings that opens [TextSizeDialog]. */
+private enum class TextSizeTarget(
+    @StringRes val title: Int,
+    @StringRes val body: Int,
+    val symbol: DakilioSymbol,
+) {
+    Timeline(R.string.settings_text_size_timeline, R.string.settings_text_size_timeline_body, DakilioSymbols.Timeline),
+    Editor(R.string.settings_text_size_editor, R.string.settings_text_size_editor_body, DakilioSymbols.EditNote),
+    ;
+
+    val polygon: RoundedPolygon
+        get() = when (this) {
+            Timeline -> MaterialShapes.Clover4Leaf
+            Editor -> MaterialShapes.Pill
+        }
+
+    /** The body style the entry note uses on that screen, for the dialog's sample. */
+    val sampleStyle: TextStyle
+        @Composable get() = when (this) {
+            Timeline -> MaterialTheme.typography.bodyMedium
+            Editor -> MaterialTheme.typography.bodyLarge
+        }
+
+    fun scaleOf(state: SettingsUiState): Float = when (this) {
+        Timeline -> state.timelineTextScale
+        Editor -> state.editorTextScale
+    }
+}
+
+/**
+ * Picks one entry text size: a sample line drawn at the chosen size above a stepped slider.
+ * Nothing is saved until the user confirms.
+ */
+@Composable
+private fun TextSizeDialog(
+    target: TextSizeTarget,
+    scale: Float,
+    onConfirm: (Float) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val haptics = rememberHaptics()
+    var value by rememberSaveable { mutableFloatStateOf(scale) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = { DakilioIcon(target.symbol, contentDescription = null) },
+        title = { Text(stringResource(target.title)) },
+        text = {
+            Column {
+                Surface(
+                    shape = RoundedCornerShape(20.dp),
+                    color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(
+                        stringResource(R.string.settings_text_size_sample),
+                        style = target.sampleStyle.scaled(value),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(Spacing.l),
+                    )
+                }
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = Spacing.l)) {
+                    Slider(
+                        value = value,
+                        onValueChange = {
+                            val snapped = TextScale.coerce(it)
+                            if (snapped != value) haptics.tick()
+                            value = snapped
+                        },
+                        valueRange = TextScale.MIN..TextScale.MAX,
+                        steps = TextScaleSteps,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Text(
+                        stringResource(R.string.settings_text_size_percent, (value * 100).roundToInt()),
+                        style = MaterialTheme.typography.labelLarge,
+                        textAlign = TextAlign.End,
+                        modifier = Modifier.widthIn(min = 48.dp),
+                    )
+                }
+                TextButton(
+                    onClick = {
+                        haptics.tick()
+                        value = TextScale.DEFAULT
+                    },
+                    enabled = value != TextScale.DEFAULT,
+                    modifier = Modifier.align(Alignment.Start),
+                ) { Text(stringResource(R.string.settings_text_size_reset)) }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                haptics.confirm()
+                onConfirm(value)
+            }) { Text(stringResource(R.string.settings_text_size_done)) }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.settings_cancel)) } },
+    )
 }

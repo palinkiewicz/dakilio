@@ -48,7 +48,9 @@ import java.io.File
 import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
+import pl.dakil.dakilio.core.ui.LocalEntryTextScale
 import pl.dakil.dakilio.core.ui.hintOrNull
+import pl.dakil.dakilio.core.ui.scaled
 
 private const val MAX_PICK = 10
 private val ThumbSize = 104.dp
@@ -95,6 +97,9 @@ internal fun NoteFields(
         focusedIndicatorColor = Color.Transparent,
         unfocusedIndicatorColor = Color.Transparent,
     )
+    val textScale = LocalEntryTextScale.current.editor
+    val titleStyle = MaterialTheme.typography.headlineSmall.scaled(textScale)
+    val noteStyle = MaterialTheme.typography.bodyLarge.scaled(textScale)
     Column(modifier) {
         AnimatedVisibility(
             visible = bodyRequired,
@@ -120,8 +125,8 @@ internal fun NoteFields(
         }
         TextField(
             state = title,
-            placeholder = { Text(stringResource(R.string.entry_title_hint), style = MaterialTheme.typography.headlineSmall) },
-            textStyle = MaterialTheme.typography.headlineSmall,
+            placeholder = { Text(stringResource(R.string.entry_title_hint), style = titleStyle) },
+            textStyle = titleStyle,
             lineLimits = TextFieldLineLimits.MultiLine(maxHeightInLines = 3),
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
             colors = fieldColors,
@@ -129,8 +134,8 @@ internal fun NoteFields(
         )
         TextField(
             state = note,
-            placeholder = { Text(stringResource(R.string.entry_note_hint)) },
-            textStyle = MaterialTheme.typography.bodyLarge,
+            placeholder = { Text(stringResource(R.string.entry_note_hint), style = noteStyle) },
+            textStyle = noteStyle,
             lineLimits = TextFieldLineLimits.MultiLine(minHeightInLines = 4),
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
             colors = fieldColors,

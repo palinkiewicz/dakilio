@@ -49,7 +49,9 @@ import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.model.Post
 import pl.dakil.dakilio.core.model.PostPhoto
 import pl.dakil.dakilio.core.ui.DakilioFormats
+import pl.dakil.dakilio.core.ui.LocalEntryTextScale
 import pl.dakil.dakilio.core.ui.R
+import pl.dakil.dakilio.core.ui.scaled
 import pl.dakil.dakilio.core.ui.mood.MoodBadge
 import pl.dakil.dakilio.core.ui.mood.NoMoodBadge
 import pl.dakil.dakilio.core.ui.mood.moodColors
@@ -83,6 +85,7 @@ fun PostCard(
     val inner by animateDpAsState(if (pressed) 20.dp else SegmentedShapes.inner, motion.fastSpatialSpec(), label = "cardCorner")
     val shape = SegmentedShapes.of(index, count, inner = inner)
     val threadColor = MaterialTheme.colorScheme.outlineVariant
+    val textScale = LocalEntryTextScale.current.timeline
     val hasBody = post.title != null || post.note != null || post.tags.isNotEmpty() || post.photos.isNotEmpty()
 
     Surface(
@@ -105,7 +108,7 @@ fun PostCard(
                 post.title?.let {
                     Text(
                         highlighted(it, highlight),
-                        style = MaterialTheme.typography.titleMediumEmphasized,
+                        style = MaterialTheme.typography.titleMediumEmphasized.scaled(textScale),
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -113,7 +116,7 @@ fun PostCard(
                 post.note?.let {
                     Text(
                         highlighted(it, highlight),
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.bodyMedium.scaled(textScale),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 4,
                         overflow = TextOverflow.Ellipsis,

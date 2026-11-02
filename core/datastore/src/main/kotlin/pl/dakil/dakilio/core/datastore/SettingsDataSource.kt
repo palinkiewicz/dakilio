@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import javax.inject.Inject
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import pl.dakil.dakilio.core.model.TagStyle
+import pl.dakil.dakilio.core.model.TextScale
 import pl.dakil.dakilio.core.model.ThemeMode
 import pl.dakil.dakilio.core.model.UserSettings
 
@@ -28,6 +30,8 @@ class SettingsDataSource @Inject constructor(
                 tagStyle = prefs[TAG_STYLE]?.let { name -> TagStyle.entries.firstOrNull { it.name == name } }
                     ?: TagStyle.Icons,
                 showHints = prefs[SHOW_HINTS] ?: true,
+                timelineTextScale = prefs[TIMELINE_TEXT_SCALE]?.let(TextScale::coerce) ?: TextScale.DEFAULT,
+                editorTextScale = prefs[EDITOR_TEXT_SCALE]?.let(TextScale::coerce) ?: TextScale.DEFAULT,
             )
         }
         .distinctUntilChanged()
@@ -68,12 +72,22 @@ class SettingsDataSource @Inject constructor(
         dataStore.edit { it[SHOW_HINTS] = show }
     }
 
+    suspend fun setTimelineTextScale(scale: Float) {
+        dataStore.edit { it[TIMELINE_TEXT_SCALE] = TextScale.coerce(scale) }
+    }
+
+    suspend fun setEditorTextScale(scale: Float) {
+        dataStore.edit { it[EDITOR_TEXT_SCALE] = TextScale.coerce(scale) }
+    }
+
     private companion object {
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val LAST_ENTRY_DIARIES = stringSetPreferencesKey("last_entry_diary_ids")
         val SAMPLE_HINT_DISMISSED = booleanPreferencesKey("sample_hint_dismissed")
         val TAG_STYLE = stringPreferencesKey("tag_style")
         val SHOW_HINTS = booleanPreferencesKey("show_hints")
+        val TIMELINE_TEXT_SCALE = floatPreferencesKey("timeline_text_scale")
+        val EDITOR_TEXT_SCALE = floatPreferencesKey("editor_text_scale")
         val INTRO_STARTED = booleanPreferencesKey("intro_started")
         val INTRO_DONE = booleanPreferencesKey("intro_done")
     }

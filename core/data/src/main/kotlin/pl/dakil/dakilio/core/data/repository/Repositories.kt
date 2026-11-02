@@ -139,6 +139,10 @@ interface SettingsRepository {
     suspend fun setTagStyle(style: TagStyle)
 
     suspend fun setShowHints(show: Boolean)
+
+    suspend fun setTimelineTextScale(scale: Float)
+
+    suspend fun setEditorTextScale(scale: Float)
 }
 
 /**
