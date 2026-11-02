@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Dakilio is an open-source, privacy-first Android mood journal: a smaller alternative to Daylio. It uses Kotlin, Jetpack Compose and Material 3 Expressive. Package: `pl.dakil.dakilio`.
 
-`.materials/poc.md` is the product spec and the source of truth. `.materials/dakilio_early_stage_ideas.md` is background on *why* things are the way they are, not a backlog. `.materials/daylio_format.md` documents the `.daylio` backup format (reverse-engineered) and how it maps onto Dakilio; read it before working on the importer.
+The app is past its proof-of-concept stage. `.materials/poc.md` was the original POC brief; it's kept only as history and is no longer the spec. Where it disagrees with the code or this file (its POC-only scope limits, user-defined mood counts), the code and this file win. `.materials/dakilio_early_stage_ideas.md` is background on *why* things are the way they are, not a backlog. `.materials/daylio_format.md` documents the `.daylio` backup format (reverse-engineered) and how it maps onto Dakilio; read it before working on the importer.
 
 ## Commands
 
@@ -54,8 +54,9 @@ The layout follows NowInAndroid: `app` → `feature:*:impl` → `feature:*:api` 
 
 - `core:model` (pure JVM): domain models, plus pure logic that has to be host-testable (`EntryValidation`, `Streaks`, the mood helpers `primaries()`/`byLevel()`).
 - `core:database`: the Room schema, exported to `core/database/schemas/`. Bump the version and add a migration for any schema change.
-  - `DefaultData` seeds everything inside `RoomDatabase.Callback.onCreate`: the 5 primary moods (ids 1..5 = their level), the "Your Journey" diary, tag groups and 12 **sample entries with photos** copied from `assets/sample/`.
-  - Sample posts use the reserved ids `DefaultData.SAMPLE_POST_IDS` (1..12). Removal relies on those ids. SQLite `AUTOINCREMENT` never reuses ids, so user posts can't collide with them.
+  - `DefaultData` seeds everything inside `RoomDatabase.Callback.onCreate`: the 5 primary moods (ids 1..5 = their level), the "Your Journey" diary, tag groups and, in debug and preview builds only, 12 **sample entries with photos**.
+  - The samples (entries, their strings and the photos under `assets/sample/`) live in `core:samples`, which binds the optional `SampleData`. Only `:app`'s debug, preview and `nonMinifiedRelease` (baseline profile) variants depend on it, so release APKs carry none of it and start empty.
+  - Sample posts use the reserved ids `DefaultData.SAMPLE_POST_IDS` (1..12). Removal relies on those ids. The seed moves the post id sequence past the range even without samples, and SQLite `AUTOINCREMENT` never reuses ids, so user posts can't collide with them. The sample UI (the More hint, Settings → Starter content) shows only while samples exist.
 - `core:data`: repository interfaces and `Local*` implementations, bound in `DataModule`. Feature modules see only models and these interfaces, never entities or DAOs. `PostRepository.posts` is a single `Flow<List<Post>>`. Timeline, search and insights all derive from it in memory on the Default dispatcher; there is no Paging and no FTS.
 - `core:daylio` (pure JVM, host-tested): reads `.daylio` backups (`DaylioArchive`), converts note HTML to text (`daylioHtmlToText`), guesses tag icons (`daylioTagIcon`) and maps a backup onto Dakilio's model (`planImport` → `ImportPlan`). Uses kotlinx-serialization-json.
 - `core:datastore`: user preferences only (theme, the last-used diaries of the editor, the sample-hint flag, tag style, beginner hints, entry text sizes, timeline view options). User content lives in Room.

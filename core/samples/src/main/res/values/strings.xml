@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The sample entries of debug and preview builds. They become user data, so later edits only affect new installs. -->
+<resources>
+    <string name="sample_hike_title">Sunset hike up the ridge</string>
+    <string name="sample_hike_note">Made it to the top just as the sky caught fire. Legs are done, heart is full. We stayed until the last light slipped behind the rocks.</string>
+    <string name="sample_morning_title">Slow morning</string>
+    <string name="sample_morning_note">Coffee, the last chapters of my book and nowhere to be. More mornings like this, please.</string>
+    <string name="sample_walk_title">Morning walk</string>
+    <string name="sample_meetings_note">Long day of meetings. Nothing went wrong, nothing went great either.</string>
+    <string name="sample_pierogi_title">Pierogi night</string>
+    <string name="sample_pierogi_note">Grandma\'s recipe and flour everywhere. We made far too many and nobody complained.</string>
+    <string name="sample_deadline_title">Deadline day</string>
+    <string name="sample_deadline_note">Everything landed at once. Got it shipped, but I need to plan the next one better.</string>
+    <string name="sample_ideas_title">Ideas for the weekend</string>
+    <string name="sample_ideas_note">• Try the new bakery downtown\n• Call Ola\n• Finally fix the bike</string>
+    <string name="sample_city_title">Wandering the old town</string>
+    <string name="sample_city_note">First day in a new city. Got lost on purpose: narrow streets, warm lights and the best hot chocolate of my life.</string>
+    <string name="sample_run_title">Evening run</string>
+    <string name="sample_cold_title">Caught a cold</string>
+    <string name="sample_cold_note">Sore throat, tea, blanket, repeat. Cancelled everything.</string>
+</resources>

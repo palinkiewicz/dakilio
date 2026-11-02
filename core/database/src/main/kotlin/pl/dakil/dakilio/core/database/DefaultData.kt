@@ -15,8 +15,9 @@ import pl.dakil.dakilio.core.model.SuggestedGroup
 import pl.dakil.dakilio.core.model.SuggestedTag
 
 /**
- * Everything a fresh install starts with: the 5 primary moods, the "Your Journey" diary, a set of
- * tag groups, and a handful of sample entries (with photos) so the app can be shown off right away.
+ * Everything a fresh install starts with: the 5 primary moods, the "Your Journey" diary and a set of
+ * tag groups. Debug and preview builds add a handful of sample entries (with photos) from
+ * core:samples, so the app can be shown off right away; release builds ship without them.
  *
  * The tag groups double as the suggestions of [suggestedGroups]: the first-run intro deletes the
  * ones the user didn't pick (by their fixed ids, [seedGroupId]), and the Tags screen can add any of
@@ -25,12 +26,14 @@ import pl.dakil.dakilio.core.model.SuggestedTag
  *
  * Runs inside Room's creation transaction, before the first query returns, with fixed ids so the
  * sample entries can reference tags and so [SAMPLE_POST_IDS] can find them again for removal.
- * SQLite AUTOINCREMENT never reuses ids, so the user's own entries can't collide with that range.
+ * SQLite AUTOINCREMENT never reuses ids, and the range is reserved even without samples, so the
+ * user's own entries can't collide with it.
  */
 object DefaultData {
     const val DEFAULT_DIARY_ID = 1L
     val SAMPLE_POST_IDS: LongRange = 1L..12L
 
+    /** Where core:samples ships the photos of [SamplePost.photos]. */
     private const val SAMPLE_ASSET_DIR = "sample"
     private const val DEFAULT_DIARY_ICON = "explore"
 
@@ -61,7 +64,7 @@ object DefaultData {
     /** The fixed id the seed gives the group with this [SuggestedGroup.key], or null for an unknown key. */
     fun seedGroupId(key: String): Long? = Group.entries.firstOrNull { it.name == key }?.id
 
-    /** The primary mood of each level, worst first. Its id equals its level (sample entries rely on it). */
+    /** The primary mood of each level, worst first. Its id equals its level ([SamplePost.moodLevel] relies on it). */
     private val primaryMoods = listOf(
         R.string.seed_mood_awful,
         R.string.seed_mood_bad,
@@ -74,7 +77,7 @@ object DefaultData {
      * @property colorKey the default color of the group's tags, a `TagColor` key (core:ui). Each fits
      *   the group's meaning, and together they're the most distinct six of the palette.
      */
-    private enum class Group(@StringRes val label: Int, val colorKey: String) {
+    enum class Group(@StringRes val label: Int, val colorKey: String) {
         Emotions(R.string.seed_group_emotions, "pink"), // the heart
         People(R.string.seed_group_people, "orange"), // warmth of company
         Activities(R.string.seed_group_activities, "violet"), // play and creativity
@@ -86,7 +89,7 @@ object DefaultData {
         val id: Long get() = ordinal + 1L
     }
 
-    private enum class SeedTag(val group: Group, @StringRes val label: Int, val iconKey: String) {
+    enum class SeedTag(val group: Group, @StringRes val label: Int, val iconKey: String) {
         Happy(Group.Emotions, R.string.seed_tag_happy, "sentiment_very_satisfied"),
         Grateful(Group.Emotions, R.string.seed_tag_grateful, "volunteer_activism"),
         Calm(Group.Emotions, R.string.seed_tag_calm, "spa"),
@@ -133,7 +136,13 @@ object DefaultData {
         val id: Long get() = ordinal + 1L
     }
 
-    private class SamplePost(
+    /**
+     * A sample entry of debug and preview builds, [daysAgo] days before the install.
+     *
+     * @property title,note string resources of the module that provides the samples.
+     * @property photos file names under the `sample` assets directory.
+     */
+    class SamplePost(
         val daysAgo: Long,
         val time: LocalTime,
         val moodLevel: Int?,
@@ -143,56 +152,13 @@ object DefaultData {
         val photos: List<String> = emptyList(),
     )
 
-    // Today is left empty on purpose (the timeline shows its check-in card), as are 3 days ago
-    // (a single "No entries" day) and 7–10 days ago (a collapsed quiet stretch).
-    private val samplePosts = listOf(
-        SamplePost(
-            1, LocalTime.of(19, 40), moodLevel = 5, R.string.sample_hike_title, R.string.sample_hike_note,
-            listOf(SeedTag.Hiking, SeedTag.Nature, SeedTag.Friends, SeedTag.Grateful),
-            photos = listOf("sample_ridge_sunset.jpg"),
-        ),
-        SamplePost(
-            1, LocalTime.of(8, 10), moodLevel = 4, R.string.sample_morning_title, R.string.sample_morning_note,
-            listOf(SeedTag.Reading, SeedTag.Calm),
-        ),
-        SamplePost(
-            2, LocalTime.of(18, 25), moodLevel = 3, note = R.string.sample_meetings_note,
-            tags = listOf(SeedTag.Work, SeedTag.Tired, SeedTag.Cloudy),
-        ),
-        SamplePost(
-            2, LocalTime.of(7, 45), moodLevel = 4, R.string.sample_walk_title,
-            tags = listOf(SeedTag.Walk, SeedTag.Nature, SeedTag.Sunny),
-        ),
-        SamplePost(
-            4, LocalTime.of(20, 15), moodLevel = 4, R.string.sample_pierogi_title, R.string.sample_pierogi_note,
-            listOf(SeedTag.Cooking, SeedTag.Family, SeedTag.Happy),
-        ),
-        // Tags only: no mood, no text.
-        SamplePost(4, LocalTime.of(13, 5), moodLevel = null, tags = listOf(SeedTag.Friends, SeedTag.Gaming, SeedTag.Music)),
-        SamplePost(
-            5, LocalTime.of(17, 50), moodLevel = 2, R.string.sample_deadline_title, R.string.sample_deadline_note,
-            listOf(SeedTag.Stressed, SeedTag.Work, SeedTag.Rain),
-        ),
-        // Text only: no mood, no tags.
-        SamplePost(5, LocalTime.of(22, 5), moodLevel = null, R.string.sample_ideas_title, R.string.sample_ideas_note),
-        SamplePost(
-            6, LocalTime.of(16, 30), moodLevel = 5, R.string.sample_city_title, R.string.sample_city_note,
-            listOf(SeedTag.Travel, SeedTag.NewPlace, SeedTag.Excited),
-            photos = listOf("sample_old_town_evening.jpg", "sample_old_town_alley.jpg"),
-        ),
-        // Mood only.
-        SamplePost(11, LocalTime.of(7, 30), moodLevel = 3),
-        SamplePost(
-            11, LocalTime.of(18, 40), moodLevel = 4, R.string.sample_run_title,
-            tags = listOf(SeedTag.Exercise, SeedTag.Sunny),
-        ),
-        SamplePost(
-            12, LocalTime.of(21, 0), moodLevel = 1, R.string.sample_cold_title, R.string.sample_cold_note,
-            listOf(SeedTag.Sick, SeedTag.Alone),
-        ),
-    )
-
-    fun seed(db: SupportSQLiteDatabase, context: Context, photoDirectory: File, clock: Clock) {
+    fun seed(
+        db: SupportSQLiteDatabase,
+        context: Context,
+        photoDirectory: File,
+        clock: Clock,
+        samples: List<SamplePost>,
+    ) {
         val now = clock.millis()
         primaryMoods.forEachIndexed { index, label ->
             val level = index + 1
@@ -240,14 +206,24 @@ object DefaultData {
             }
         }
 
-        seedSamplePosts(db, context, photoDirectory, clock, now)
+        seedSamplePosts(db, context, photoDirectory, clock, now, samples)
+        reserveSamplePostIds(db)
     }
 
-    private fun seedSamplePosts(db: SupportSQLiteDatabase, context: Context, photoDirectory: File, clock: Clock, now: Long) {
+    private fun seedSamplePosts(
+        db: SupportSQLiteDatabase,
+        context: Context,
+        photoDirectory: File,
+        clock: Clock,
+        now: Long,
+        samples: List<SamplePost>,
+    ) {
+        require(samples.size <= SAMPLE_POST_IDS.count()) { "More samples than reserved ids" }
+        if (samples.isEmpty()) return
         val zone: ZoneId = clock.zone
         val today = LocalDate.now(clock)
         photoDirectory.mkdirs()
-        samplePosts.forEachIndexed { index, sample ->
+        samples.forEachIndexed { index, sample ->
             val postId = SAMPLE_POST_IDS.first + index
             val dateTime = today.minusDays(sample.daysAgo).atTime(sample.time)
             val offset = zone.rules.getOffset(dateTime)
@@ -276,6 +252,17 @@ object DefaultData {
                 }
             }
         }
+    }
+
+    /**
+     * Moves the post id sequence past [SAMPLE_POST_IDS] when fewer samples were seeded (none at all in
+     * release builds), so the user's first entries aren't counted as samples.
+     */
+    private fun reserveSamplePostIds(db: SupportSQLiteDatabase) {
+        val last = SAMPLE_POST_IDS.last
+        val updated = db.compileStatement("UPDATE sqlite_sequence SET seq = max(seq, $last) WHERE name = 'post'")
+            .use { it.executeUpdateDelete() }
+        if (updated == 0) db.insertRow("sqlite_sequence", "name" to "post", "seq" to last)
     }
 
     private fun SupportSQLiteDatabase.insertRow(table: String, vararg values: Pair<String, Any?>) {

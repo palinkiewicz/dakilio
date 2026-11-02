@@ -31,7 +31,6 @@
         <item quantity="one">%d sample entry and its photos</item>
         <item quantity="other">%d sample entries and their photos</item>
     </plurals>
-    <string name="settings_no_samples">No sample entries left. Everything here is yours.</string>
     <string name="settings_remove_title">Remove sample entries?</string>
     <string name="settings_remove_body">Your own entries, diaries and tags stay untouched.</string>
     <string name="settings_remove_confirm">Remove</string>

@@ -116,6 +116,10 @@ dependencies {
     implementation(projects.feature.intro.impl)
     implementation(projects.feature.habits.impl)
 
+    // Sample entries only in builds for development and testers; release installs start empty.
+    debugImplementation(projects.core.samples)
+    "previewImplementation"(projects.core.samples)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
@@ -125,4 +129,10 @@ dependencies {
     implementation(libs.androidx.profileinstaller)
 
     baselineProfile(projects.baselineprofile)
+}
+
+// The baseline profile is recorded on nonMinifiedRelease, and its journey scrolls through the
+// samples. The baseline-profile plugin creates that build type late, so add the dependency lazily.
+configurations.matching { it.name == "nonMinifiedReleaseImplementation" }.configureEach {
+    dependencies.add(project.dependencies.create(projects.core.samples))
 }

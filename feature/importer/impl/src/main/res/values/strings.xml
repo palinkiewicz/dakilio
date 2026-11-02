@@ -43,7 +43,7 @@
     <string name="import_untested_version">This backup comes from a Daylio version Dakilio hasn\'t been tested with. Check the result after importing.</string>
 
     <string name="import_warning_title">This replaces everything in Dakilio</string>
-    <string name="import_warning_body">%1$s, %2$s, %3$s and %4$s will be deleted, including the sample entries. Your Daylio entries go into a fresh \"Your Journey\" diary.</string>
+    <string name="import_warning_body">%1$s, %2$s, %3$s and %4$s will be deleted. Your Daylio entries go into a fresh \"Your Journey\" diary.</string>
     <plurals name="import_count_entries">
         <item quantity="one">%d entry</item>
         <item quantity="other">%d entries</item>

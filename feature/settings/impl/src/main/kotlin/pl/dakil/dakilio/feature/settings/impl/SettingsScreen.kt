@@ -187,8 +187,9 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
                     },
                 ) { Text(stringResource(R.string.settings_hints)) }
 
-                SectionHeader(stringResource(R.string.settings_starter))
+                // Only debug and preview builds seed samples, and the section goes once they're removed.
                 if (state.samplePostCount > 0) {
+                    SectionHeader(stringResource(R.string.settings_starter))
                     SegmentedListItem(
                         onClick = { confirmRemove = true },
                         shapes = ListItemDefaults.segmentedShapes(0, 1),
@@ -205,13 +206,6 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
                             Text(pluralStringResource(R.plurals.settings_remove_samples_body, state.samplePostCount, state.samplePostCount))
                         },
                     ) { Text(stringResource(R.string.settings_remove_samples)) }
-                } else {
-                    Text(
-                        stringResource(R.string.settings_no_samples),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(start = Spacing.xs),
-                    )
                 }
                 Text(
                     stringResource(R.string.settings_more_soon),

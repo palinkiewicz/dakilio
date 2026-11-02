@@ -5,7 +5,7 @@
 
     <!-- Language -->
     <string name="intro_welcome_title">Welcome to Dakilio</string>
-    <string name="intro_welcome_body">A private mood journal that stays on this phone. First, pick a language: the starter moods, tags and examples are written in it.</string>
+    <string name="intro_welcome_body">A private mood journal that stays on this phone. First, pick a language: the starter moods and tags are written in it.</string>
     <string name="intro_language_header">Language</string>
     <!-- Each language is listed in its own name. -->
     <string name="intro_language_english">English</string>
@@ -13,7 +13,7 @@
 
     <!-- Daylio -->
     <string name="intro_daylio_title">Coming from Daylio?</string>
-    <string name="intro_daylio_body">Bring your entries, photos, moods and tags along. Dakilio then starts from your backup instead of the examples.</string>
+    <string name="intro_daylio_body">Bring your entries, photos, moods and tags along. Dakilio then starts from your backup instead of the starter tags.</string>
     <string name="intro_daylio_card_title">Export a backup</string>
     <string name="intro_daylio_card_body">Open Daylio\'s backup screen, export a backup and pick Dakilio in the share menu. It comes straight back here.</string>
     <string name="intro_daylio_pick">I already have a backup file</string>
