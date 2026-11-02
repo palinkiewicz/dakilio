@@ -57,7 +57,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -85,7 +84,7 @@ internal fun DiaryEditorScreen(viewModel: DiaryEditorViewModel, onClose: () -> U
     var pickingIcon by rememberSaveable { mutableStateOf(false) }
     var deleteCount by rememberSaveable { mutableStateOf<Int?>(null) }
     var spins by rememberSaveable { mutableIntStateOf(0) }
-    val rotation by animateFloatAsState(spins * 72f, MaterialTheme.motionScheme.slowSpatialSpec(), label = "diarySpin")
+    val rotation by animateFloatAsState(spins * 60f, MaterialTheme.motionScheme.slowSpatialSpec(), label = "diarySpin")
 
     LaunchedEffect(state?.finished) { if (state?.finished == true) onClose() }
 
@@ -142,7 +141,7 @@ internal fun DiaryEditorScreen(viewModel: DiaryEditorViewModel, onClose: () -> U
                             iconSize = 52.dp,
                             containerColor = MaterialTheme.colorScheme.primaryContainer,
                             contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.graphicsLayer { rotationZ = rotation },
+                            containerRotation = rotation,
                         )
                     }
                     FilledTonalIconButton(

@@ -39,7 +39,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import pl.dakil.dakilio.core.designsystem.component.ShapedIcon
@@ -70,7 +69,7 @@ internal fun TagEditorSheet(
     val groupColorKey = groups.firstOrNull { it.id == groupId }?.colorKey
     // Every icon or color change gives the preview a little spin.
     var spins by rememberSaveable { mutableStateOf(0) }
-    val rotation by animateFloatAsState(spins * 72f, MaterialTheme.motionScheme.slowSpatialSpec(), label = "previewSpin")
+    val rotation by animateFloatAsState(spins * 80f, MaterialTheme.motionScheme.slowSpatialSpec(), label = "previewSpin")
     val tones = tagColors(colorKey ?: groupColorKey)
     val previewContainer by animateColorAsState(
         tones?.container ?: MaterialTheme.colorScheme.primaryContainer,
@@ -94,7 +93,7 @@ internal fun TagEditorSheet(
                         iconSize = 32.dp,
                         containerColor = previewContainer,
                         contentColor = previewContent,
-                        modifier = Modifier.graphicsLayer { rotationZ = rotation },
+                        containerRotation = rotation,
                     )
                 }
                 Column(Modifier.padding(start = Spacing.l)) {

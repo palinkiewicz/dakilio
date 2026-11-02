@@ -10,13 +10,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.graphics.shapes.RoundedPolygon
 import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbol
 
-/** A symbol sitting inside an expressive MaterialShapes polygon (diaries, settings rows, headers). */
+/**
+ * A symbol sitting inside an expressive MaterialShapes polygon (diaries, settings rows, headers).
+ * [containerRotation] turns only the polygon; the symbol stays upright.
+ */
 @Composable
 fun ShapedIcon(
     symbol: DakilioSymbol,
@@ -28,12 +32,11 @@ fun ShapedIcon(
     contentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
     filled: Boolean = true,
     contentDescription: String? = null,
+    containerRotation: Float = 0f,
 ) {
     val shape = remember(polygon) { PolygonShape(polygon) }
-    Box(
-        modifier = modifier.size(size).background(containerColor, shape),
-        contentAlignment = Alignment.Center,
-    ) {
+    Box(modifier = modifier.size(size), contentAlignment = Alignment.Center) {
+        Box(Modifier.matchParentSize().graphicsLayer { rotationZ = containerRotation }.background(containerColor, shape))
         DakilioIcon(
             symbol = symbol,
             contentDescription = contentDescription,
