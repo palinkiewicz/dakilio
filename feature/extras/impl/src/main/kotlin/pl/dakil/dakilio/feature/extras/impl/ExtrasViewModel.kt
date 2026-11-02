@@ -6,8 +6,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import pl.dakil.dakilio.core.data.repository.HabitRepository
 import pl.dakil.dakilio.core.data.repository.TagRepository
 
 /**
@@ -15,13 +16,18 @@ import pl.dakil.dakilio.core.data.repository.TagRepository
  * with nothing set up is simply unused.
  *
  * @property coloredTags active tags showing a color (Tag colors).
+ * @property habits habits set up (Habits).
  */
-data class ExtrasUiState(val coloredTags: Int)
+data class ExtrasUiState(val coloredTags: Int, val habits: Int)
 
 @HiltViewModel
-class ExtrasViewModel @Inject constructor(tagRepository: TagRepository) : ViewModel() {
+class ExtrasViewModel @Inject constructor(
+    tagRepository: TagRepository,
+    habitRepository: HabitRepository,
+) : ViewModel() {
     /** `null` while loading. */
-    val state: StateFlow<ExtrasUiState?> = tagRepository.coloredTagCount
-        .map { ExtrasUiState(coloredTags = it) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+    val state: StateFlow<ExtrasUiState?> =
+        combine(tagRepository.coloredTagCount, habitRepository.habitCount) { colored, habits ->
+            ExtrasUiState(coloredTags = colored, habits = habits)
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 }

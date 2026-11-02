@@ -1,10 +1,13 @@
 package pl.dakil.dakilio.core.data.repository
 
 import android.net.Uri
+import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 import pl.dakil.dakilio.core.model.ArchivedTags
 import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.model.GroupUsage
+import pl.dakil.dakilio.core.model.Habit
+import pl.dakil.dakilio.core.model.HabitStatus
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.Post
 import pl.dakil.dakilio.core.model.PostDraft
@@ -111,6 +114,26 @@ interface PostRepository {
     suspend fun deletePost(id: Long)
 
     suspend fun removeSamplePosts()
+}
+
+/** The Habits extra. Entries of every diary count; a day counts once per habit. */
+interface HabitRepository {
+    /** Every habit with this week's and last week's progress, in display order. */
+    val habits: Flow<List<HabitStatus>>
+
+    val habitCount: Flow<Int>
+
+    /** Every habit, without progress. */
+    suspend fun habitList(): List<Habit>
+
+    /** Days with each habit's tag in the (Monday-based) week of [date], by habit id; habits at 0 are absent. */
+    suspend fun weekCounts(date: LocalDate): Map<Long, Int>
+
+    suspend fun addHabit(tagId: Long, daysPerWeek: Int): Long
+
+    suspend fun setDaysPerWeek(id: Long, daysPerWeek: Int)
+
+    suspend fun deleteHabit(id: Long)
 }
 
 interface PhotoRepository {

@@ -11,4 +11,11 @@
         <item quantity="one">%d tag colored</item>
         <item quantity="other">%d tags colored</item>
     </plurals>
+
+    <string name="extras_habits">Habits</string>
+    <string name="extras_habits_body">Pick a tag and how many days a week you want it on your entries</string>
+    <plurals name="extras_habits_status">
+        <item quantity="one">%d habit</item>
+        <item quantity="other">%d habits</item>
+    </plurals>
 </resources>

@@ -56,6 +56,8 @@ import pl.dakil.dakilio.feature.search.impl.searchEntry
 import pl.dakil.dakilio.feature.settings.impl.settingsEntry
 import pl.dakil.dakilio.feature.tags.impl.tagsEntry
 import pl.dakil.dakilio.feature.tagcolors.impl.tagColorsEntry
+import pl.dakil.dakilio.feature.habits.impl.HabitProgressHost
+import pl.dakil.dakilio.feature.habits.impl.habitsEntry
 import pl.dakil.dakilio.feature.timeline.api.TimelineKey
 import pl.dakil.dakilio.feature.timeline.impl.timelineEntry
 
@@ -106,6 +108,7 @@ fun DakilioApp(hasIncomingBackup: Boolean = false) {
         archiveEntry(navigator)
         extrasEntry(navigator)
         tagColorsEntry(navigator)
+        habitsEntry(navigator)
     }
 
     SharedTransitionLayout(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
@@ -146,6 +149,11 @@ fun DakilioApp(hasIncomingBackup: Boolean = false) {
                         }
                     }
                 }
+                // Habit progress after saving an entry, over whatever screen comes next.
+                HabitProgressHost(
+                    bottomPadding = if (navigationState.isAtTopLevel) barHeight else 0.dp,
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                )
             }
         }
     }

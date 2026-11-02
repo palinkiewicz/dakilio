@@ -25,12 +25,15 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import pl.dakil.dakilio.core.common.ApplicationScope
 import pl.dakil.dakilio.core.data.repository.DiaryRepository
+import pl.dakil.dakilio.core.data.repository.HabitProgressEvents
+import pl.dakil.dakilio.core.data.repository.HabitRepository
 import pl.dakil.dakilio.core.data.repository.MoodRepository
 import pl.dakil.dakilio.core.data.repository.PhotoRepository
 import pl.dakil.dakilio.core.data.repository.PostRepository
 import pl.dakil.dakilio.core.data.repository.SettingsRepository
 import pl.dakil.dakilio.core.data.repository.TagRepository
 import pl.dakil.dakilio.core.model.Diary
+import pl.dakil.dakilio.core.model.Habits
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.MoodDisplayOrder
 import pl.dakil.dakilio.core.model.PostDraft
@@ -93,6 +96,8 @@ class EntryEditorViewModel @AssistedInject constructor(
     moodRepository: MoodRepository,
     private val photoRepository: PhotoRepository,
     private val settingsRepository: SettingsRepository,
+    private val habitRepository: HabitRepository,
+    private val habitProgressEvents: HabitProgressEvents,
     private val clock: Clock,
     @ApplicationScope private val applicationScope: CoroutineScope,
 ) : ViewModel() {
@@ -248,6 +253,9 @@ class EntryEditorViewModel @AssistedInject constructor(
         val current = form.value
         if (current.finished || current.importingPhotos > 0) return
         viewModelScope.launch {
+            // Habits: compare the week's counts around the save, so only a newly counted day bumps.
+            val date = current.dateTime.toLocalDate()
+            val countsBefore = habitRepository.weekCounts(date)
             postRepository.savePost(
                 PostDraft(
                     id = key.postId,
@@ -261,6 +269,10 @@ class EntryEditorViewModel @AssistedInject constructor(
                 ),
             )
             sessionFiles.clear()
+            if (current.tagIds.isNotEmpty()) {
+                val bumps = Habits.bumps(habitRepository.habitList(), countsBefore, habitRepository.weekCounts(date), Habits.weekStart(date))
+                habitProgressEvents.post(bumps)
+            }
             settingsRepository.setLastEntryDiaryIds(current.diaryIds)
             form.update { it.copy(finished = true) }
         }

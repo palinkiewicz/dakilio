@@ -10,4 +10,5 @@ dependencies {
     api(projects.feature.extras.api)
     // Every extra's NavKey, so the hub can open it.
     implementation(projects.feature.tagcolors.api)
+    implementation(projects.feature.habits.api)
 }

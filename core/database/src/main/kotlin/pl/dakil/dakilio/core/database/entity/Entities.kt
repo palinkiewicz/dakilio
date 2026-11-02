@@ -138,3 +138,22 @@ data class PostPhotoEntity(
     @ColumnInfo(name = "file_name") val fileName: String,
     val position: Int,
 )
+
+/**
+ * A habit (the Habits extra): a tag the user wants on [daysPerWeek] days a week. One per tag; it goes
+ * when its tag is deleted (which includes a Daylio import replacing every tag).
+ */
+@Entity(
+    tableName = "habit",
+    foreignKeys = [
+        ForeignKey(TagEntity::class, ["id"], ["tag_id"], onDelete = ForeignKey.CASCADE),
+    ],
+    indices = [Index("tag_id", unique = true)],
+)
+data class HabitEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    @ColumnInfo(name = "tag_id") val tagId: Long,
+    @ColumnInfo(name = "days_per_week") val daysPerWeek: Int,
+    val position: Int,
+    @ColumnInfo(name = "created_at") val createdAt: Long,
+)

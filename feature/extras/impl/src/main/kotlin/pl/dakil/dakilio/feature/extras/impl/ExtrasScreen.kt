@@ -34,6 +34,7 @@ import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbol
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
+import pl.dakil.dakilio.feature.habits.api.HabitsKey
 import pl.dakil.dakilio.feature.tagcolors.api.TagColorsKey
 
 /**
@@ -58,6 +59,7 @@ internal fun ExtrasScreen(viewModel: ExtrasViewModel, onBack: () -> Unit, onOpen
     val state by viewModel.state.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val coloredTags = state?.coloredTags ?: 0
+    val habits = state?.habits ?: 0
 
     // To add an extra: give it its own feature module, then list it here.
     val extras = listOf(
@@ -67,6 +69,13 @@ internal fun ExtrasScreen(viewModel: ExtrasViewModel, onBack: () -> Unit, onOpen
             title = stringResource(R.string.extras_tag_colors),
             body = stringResource(R.string.extras_tag_colors_body),
             status = if (coloredTags > 0) pluralStringResource(R.plurals.extras_tag_colors_status, coloredTags, coloredTags) else null,
+        ),
+        Extra(
+            key = HabitsKey,
+            symbol = DakilioSymbols.CheckCircle,
+            title = stringResource(R.string.extras_habits),
+            body = stringResource(R.string.extras_habits_body),
+            status = if (habits > 0) pluralStringResource(R.plurals.extras_habits_status, habits, habits) else null,
         ),
     )
 

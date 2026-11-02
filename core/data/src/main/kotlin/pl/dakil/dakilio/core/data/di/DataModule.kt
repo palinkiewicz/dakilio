@@ -7,6 +7,8 @@ import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 import pl.dakil.dakilio.core.data.repository.DaylioImportRepository
 import pl.dakil.dakilio.core.data.repository.DiaryRepository
+import pl.dakil.dakilio.core.data.repository.HabitRepository
+import pl.dakil.dakilio.core.data.repository.LocalHabitRepository
 import pl.dakil.dakilio.core.data.repository.LocalDaylioImportRepository
 import pl.dakil.dakilio.core.data.repository.LocalDiaryRepository
 import pl.dakil.dakilio.core.data.repository.LocalMoodRepository
@@ -36,6 +38,8 @@ internal interface DataModule {
     @Binds @Singleton fun photos(impl: LocalPhotoRepository): PhotoRepository
 
     @Binds @Singleton fun settings(impl: LocalSettingsRepository): SettingsRepository
+
+    @Binds @Singleton fun habits(impl: LocalHabitRepository): HabitRepository
 
     @Binds @Singleton fun onboarding(impl: LocalOnboardingRepository): OnboardingRepository
 

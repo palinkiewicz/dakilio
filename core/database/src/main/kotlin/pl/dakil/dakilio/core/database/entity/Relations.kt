@@ -41,3 +41,15 @@ data class DiaryPostCount(
     val diaryId: Long,
     val count: Int,
 )
+
+data class PopulatedHabit(
+    @Embedded val habit: HabitEntity,
+    @Relation(parentColumn = "tag_id", entityColumn = "id")
+    val tag: TagEntity,
+)
+
+/** A day ([localDate], an epoch day) on which a habit's tag was on at least one entry. */
+data class HabitDay(
+    val habitId: Long,
+    val localDate: Long,
+)

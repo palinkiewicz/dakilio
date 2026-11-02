@@ -116,6 +116,7 @@ dependencies {
     implementation(projects.feature.intro.impl)
     implementation(projects.feature.extras.impl)
     implementation(projects.feature.tagcolors.impl)
+    implementation(projects.feature.habits.impl)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
