@@ -48,7 +48,7 @@ import java.io.File
 import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
-import pl.dakil.dakilio.core.ui.LocalEntryTextScale
+import pl.dakil.dakilio.core.ui.LocalEntryDisplay
 import pl.dakil.dakilio.core.ui.hintOrNull
 import pl.dakil.dakilio.core.ui.scaled
 
@@ -97,7 +97,7 @@ internal fun NoteFields(
         focusedIndicatorColor = Color.Transparent,
         unfocusedIndicatorColor = Color.Transparent,
     )
-    val textScale = LocalEntryTextScale.current.editor
+    val textScale = LocalEntryDisplay.current.editorTextScale
     val titleStyle = MaterialTheme.typography.headlineSmall.scaled(textScale)
     val noteStyle = MaterialTheme.typography.bodyLarge.scaled(textScale)
     Column(modifier) {

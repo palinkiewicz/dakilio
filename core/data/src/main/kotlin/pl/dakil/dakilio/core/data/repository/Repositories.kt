@@ -10,6 +10,7 @@ import pl.dakil.dakilio.core.model.Post
 import pl.dakil.dakilio.core.model.PostDraft
 import pl.dakil.dakilio.core.model.SuggestedGroup
 import pl.dakil.dakilio.core.model.TagGroup
+import pl.dakil.dakilio.core.model.PreviewLength
 import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TagUsage
 import pl.dakil.dakilio.core.model.ThemeMode
@@ -143,6 +144,10 @@ interface SettingsRepository {
     suspend fun setTimelineTextScale(scale: Float)
 
     suspend fun setEditorTextScale(scale: Float)
+
+    suspend fun setPreviewLength(length: PreviewLength)
+
+    suspend fun setCompactTags(compact: Boolean)
 }
 
 /**

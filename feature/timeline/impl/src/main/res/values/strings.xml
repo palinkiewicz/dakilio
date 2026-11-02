@@ -10,6 +10,15 @@
     </plurals>
     <string name="timeline_search">Search entries</string>
     <string name="timeline_jump_to_date">Jump to date</string>
+    <string name="timeline_view_options">View options</string>
+    <string name="timeline_view_preview">Preview size</string>
+    <string name="timeline_view_preview_short">Short</string>
+    <string name="timeline_view_preview_medium">Medium</string>
+    <string name="timeline_view_preview_long">Long</string>
+    <string name="timeline_view_preview_full">Full</string>
+    <string name="timeline_view_compact_tags">Compact tags</string>
+    <string name="timeline_view_compact_tags_body">Only icons</string>
+    <string name="timeline_view_text_size">Text size</string>
     <string name="timeline_jump">Go</string>
     <string name="timeline_cancel">Cancel</string>
     <string name="timeline_new_entry">New entry</string>

@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import pl.dakil.dakilio.core.data.repository.OnboardingRepository
 import pl.dakil.dakilio.core.data.repository.SettingsRepository
 import pl.dakil.dakilio.core.model.ThemeMode
-import pl.dakil.dakilio.core.ui.EntryTextScale
+import pl.dakil.dakilio.core.ui.EntryDisplay
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -30,9 +30,9 @@ class MainViewModel @Inject constructor(
         .map { it.showHints }
         .stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
-    val entryTextScale: StateFlow<EntryTextScale> = settingsRepository.settings
-        .map { EntryTextScale(timeline = it.timelineTextScale, editor = it.editorTextScale) }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, EntryTextScale())
+    val entryDisplay: StateFlow<EntryDisplay> = settingsRepository.settings
+        .map { EntryDisplay(it.timelineTextScale, it.editorTextScale, it.previewLength, it.compactTags) }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, EntryDisplay())
 
     /** Whether the first-run intro is on screen; `null` until known. Decided once per launch. */
     private val _showIntro = MutableStateFlow<Boolean?>(null)

@@ -1,7 +1,9 @@
 package pl.dakil.dakilio.core.designsystem.component
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
@@ -34,6 +36,8 @@ fun <T> ConnectedToggleRow(
     selected: T,
     onSelect: (T) -> Unit,
     modifier: Modifier = Modifier,
+    /** Narrower than the default for rows of many options in tight spaces (menus); null keeps the default. */
+    contentPadding: PaddingValues? = null,
 ) {
     val haptics = rememberHaptics()
     Row(
@@ -42,27 +46,38 @@ fun <T> ConnectedToggleRow(
     ) {
         options.forEachIndexed { index, option ->
             val checked = option.value == selected
-            ToggleButton(
-                checked = checked,
-                onCheckedChange = {
-                    if (!checked) {
-                        haptics.tick()
-                        onSelect(option.value)
-                    }
-                },
-                modifier = Modifier.weight(1f).semantics { role = Role.RadioButton },
-                shapes = when (index) {
-                    0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
-                    options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
-                    else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
-                },
-                colors = raisedToggleColors(),
-            ) {
+            val onCheckedChange = { _: Boolean ->
+                if (!checked) {
+                    haptics.tick()
+                    onSelect(option.value)
+                }
+            }
+            val buttonModifier = Modifier.weight(1f).semantics { role = Role.RadioButton }
+            val shapes = when (index) {
+                0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
+                options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
+            }
+            val content: @Composable RowScope.() -> Unit = {
                 option.symbol?.let {
                     DakilioIcon(it, contentDescription = null, filled = checked, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(ToggleButtonDefaults.IconSpacing))
                 }
                 Text(option.label, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+            // ToggleButton's default padding is private, so it can only be kept by not passing one.
+            if (contentPadding == null) {
+                ToggleButton(checked, onCheckedChange, buttonModifier, shapes = shapes, colors = raisedToggleColors(), content = content)
+            } else {
+                ToggleButton(
+                    checked,
+                    onCheckedChange,
+                    buttonModifier,
+                    shapes = shapes,
+                    colors = raisedToggleColors(),
+                    contentPadding = contentPadding,
+                    content = content,
+                )
             }
         }
     }

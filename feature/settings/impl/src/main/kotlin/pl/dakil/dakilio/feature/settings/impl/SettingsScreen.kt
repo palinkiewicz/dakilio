@@ -4,7 +4,6 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -22,7 +21,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumFlexibleTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedListItem
-import androidx.compose.material3.Slider
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -45,7 +43,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.graphics.shapes.RoundedPolygon
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -64,6 +61,7 @@ import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TextScale
 import pl.dakil.dakilio.core.model.ThemeMode
+import pl.dakil.dakilio.core.ui.component.TextScaleSlider
 import pl.dakil.dakilio.core.ui.scaled
 
 @Composable
@@ -258,8 +256,6 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
     }
 }
 
-private val TextScaleSteps = ((TextScale.MAX - TextScale.MIN) / TextScale.STEP).roundToInt() - 1
-
 /** The two entry text sizes, each a row in Settings that opens [TextSizeDialog]. */
 private enum class TextSizeTarget(
     @StringRes val title: Int,
@@ -320,25 +316,7 @@ private fun TextSizeDialog(
                         modifier = Modifier.padding(Spacing.l),
                     )
                 }
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = Spacing.l)) {
-                    Slider(
-                        value = value,
-                        onValueChange = {
-                            val snapped = TextScale.coerce(it)
-                            if (snapped != value) haptics.tick()
-                            value = snapped
-                        },
-                        valueRange = TextScale.MIN..TextScale.MAX,
-                        steps = TextScaleSteps,
-                        modifier = Modifier.weight(1f),
-                    )
-                    Text(
-                        stringResource(R.string.settings_text_size_percent, (value * 100).roundToInt()),
-                        style = MaterialTheme.typography.labelLarge,
-                        textAlign = TextAlign.End,
-                        modifier = Modifier.widthIn(min = 48.dp),
-                    )
-                }
+                TextScaleSlider(value = value, onValueChange = { value = it }, modifier = Modifier.padding(top = Spacing.l))
                 TextButton(
                     onClick = {
                         haptics.tick()

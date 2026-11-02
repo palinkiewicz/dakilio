@@ -91,6 +91,7 @@ import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.PostPhoto
+import pl.dakil.dakilio.core.model.PreviewLength
 import pl.dakil.dakilio.core.model.levelsBestFirst
 import pl.dakil.dakilio.core.ui.DakilioFormats
 import pl.dakil.dakilio.core.ui.Hint
@@ -127,6 +128,9 @@ internal fun TimelineRoute(
         onExpandStretch = viewModel::expandStretch,
         onOpenEntry = onOpenEntry,
         onOpenSearch = onOpenSearch,
+        onPreviewLength = viewModel::setPreviewLength,
+        onCompactTags = viewModel::setCompactTags,
+        onTextScale = viewModel::setTimelineTextScale,
     )
 }
 
@@ -138,6 +142,9 @@ internal fun TimelineScreen(
     onExpandStretch: (Long) -> Unit,
     onOpenEntry: (EntryEditorKey) -> Unit,
     onOpenSearch: () -> Unit,
+    onPreviewLength: (PreviewLength) -> Unit,
+    onCompactTags: (Boolean) -> Unit,
+    onTextScale: (Float) -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val listState = rememberLazyListState()
@@ -154,6 +161,7 @@ internal fun TimelineScreen(
     // key, falling back to its index: often a different day.
     var pendingJump by remember { mutableStateOf<DayJump?>(null) }
     var pickDate by rememberSaveable { mutableStateOf(false) }
+    var viewMenu by rememberSaveable { mutableStateOf(false) }
     SideEffect {
         val jump = pendingJump ?: return@SideEffect
         if (ready == null || (jump.diaryId != null && ready.selectedDiaryId != jump.diaryId)) return@SideEffect
@@ -187,6 +195,22 @@ internal fun TimelineScreen(
                     title = { Text(stringResource(greetingRes(ready?.greeting ?: Greeting.Morning))) },
                     subtitle = ready?.let { { Subtitle(it, formats) } },
                     actions = {
+                        // The menu anchors to this Box, so it grows out of the button.
+                        Box {
+                            IconButton(onClick = {
+                                haptics.tick()
+                                viewMenu = true
+                            }) {
+                                DakilioIcon(DakilioSymbols.Tune, contentDescription = stringResource(R.string.timeline_view_options))
+                            }
+                            TimelineViewMenu(
+                                expanded = viewMenu,
+                                onDismiss = { viewMenu = false },
+                                onPreviewLength = onPreviewLength,
+                                onCompactTags = onCompactTags,
+                                onTextScale = onTextScale,
+                            )
+                        }
                         if (ready != null) {
                             IconButton(onClick = {
                                 haptics.tick()

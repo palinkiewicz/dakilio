@@ -2,6 +2,7 @@ package pl.dakil.dakilio.core.ui.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -21,8 +22,20 @@ import pl.dakil.dakilio.core.ui.color.tagColors
 
 /** Compact, read-only tag label used on entry cards, in the tag's color when it has one. */
 @Composable
-fun TagPill(tag: Tag, modifier: Modifier = Modifier) {
+fun TagPill(tag: Tag, modifier: Modifier = Modifier, compact: Boolean = false) {
     val colors = tagColors(tag.color)
+    if (compact) {
+        val contentColor = colors?.accent ?: MaterialTheme.colorScheme.onSurfaceVariant
+        Box(
+            modifier = modifier
+                .background(colors?.soft ?: MaterialTheme.colorScheme.surfaceContainerHighest, CircleShape)
+                .padding(horizontal = 8.dp, vertical = 4.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            DakilioIcon(symbolForKey(tag.iconKey), contentDescription = tag.label, tint = contentColor, modifier = Modifier.size(16.dp))
+        }
+        return
+    }
     TagPill(
         label = tag.label,
         iconKey = tag.iconKey,

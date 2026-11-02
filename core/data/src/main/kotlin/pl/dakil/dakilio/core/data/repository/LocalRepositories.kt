@@ -30,6 +30,7 @@ import pl.dakil.dakilio.core.model.MOOD_LEVELS
 import pl.dakil.dakilio.core.model.Post
 import pl.dakil.dakilio.core.model.PostDraft
 import pl.dakil.dakilio.core.model.TagGroup
+import pl.dakil.dakilio.core.model.PreviewLength
 import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TagUsage
 import pl.dakil.dakilio.core.model.ThemeMode
@@ -232,4 +233,8 @@ internal class LocalSettingsRepository @Inject constructor(
     override suspend fun setTimelineTextScale(scale: Float) = dataSource.setTimelineTextScale(scale)
 
     override suspend fun setEditorTextScale(scale: Float) = dataSource.setEditorTextScale(scale)
+
+    override suspend fun setPreviewLength(length: PreviewLength) = dataSource.setPreviewLength(length)
+
+    override suspend fun setCompactTags(compact: Boolean) = dataSource.setCompactTags(compact)
 }

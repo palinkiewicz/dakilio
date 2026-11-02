@@ -16,7 +16,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import pl.dakil.dakilio.core.designsystem.theme.DakilioTheme
 import pl.dakil.dakilio.core.model.ThemeMode
-import pl.dakil.dakilio.core.ui.LocalEntryTextScale
+import pl.dakil.dakilio.core.ui.LocalEntryDisplay
 import pl.dakil.dakilio.core.ui.LocalShowHints
 import pl.dakil.dakilio.feature.importer.impl.IncomingBackups
 import javax.inject.Inject
@@ -38,7 +38,7 @@ class MainActivity : ComponentActivity() {
             val incomingBackup by incomingBackups.pending.collectAsStateWithLifecycle()
             val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
             val showHints by viewModel.showHints.collectAsStateWithLifecycle()
-            val entryTextScale by viewModel.entryTextScale.collectAsStateWithLifecycle()
+            val entryDisplay by viewModel.entryDisplay.collectAsStateWithLifecycle()
             val showIntro by viewModel.showIntro.collectAsStateWithLifecycle()
             val mode = themeMode ?: return@setContent
             val intro = showIntro ?: return@setContent
@@ -53,7 +53,7 @@ class MainActivity : ComponentActivity() {
                 onDispose { }
             }
             DakilioTheme(darkTheme = dark) {
-                CompositionLocalProvider(LocalShowHints provides showHints, LocalEntryTextScale provides entryTextScale) {
+                CompositionLocalProvider(LocalShowHints provides showHints, LocalEntryDisplay provides entryDisplay) {
                     if (intro) {
                         IntroFlow(hasIncomingBackup = incomingBackup != null, onFinished = viewModel::finishIntro)
                     } else {

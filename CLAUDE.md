@@ -58,7 +58,7 @@ The layout follows NowInAndroid: `app` → `feature:*:impl` → `feature:*:api` 
   - Sample posts use the reserved ids `DefaultData.SAMPLE_POST_IDS` (1..12). Removal relies on those ids. SQLite `AUTOINCREMENT` never reuses ids, so user posts can't collide with them.
 - `core:data`: repository interfaces and `Local*` implementations, bound in `DataModule`. Feature modules see only models and these interfaces, never entities or DAOs. `PostRepository.posts` is a single `Flow<List<Post>>`. Timeline, search and insights all derive from it in memory on the Default dispatcher; there is no Paging and no FTS.
 - `core:daylio` (pure JVM, host-tested): reads `.daylio` backups (`DaylioArchive`), converts note HTML to text (`daylioHtmlToText`), guesses tag icons (`daylioTagIcon`) and maps a backup onto Dakilio's model (`planImport` → `ImportPlan`). Uses kotlinx-serialization-json.
-- `core:datastore`: user preferences only (theme, the last-used diaries of the editor, the sample-hint flag, tag style, beginner hints, entry text sizes). User content lives in Room.
+- `core:datastore`: user preferences only (theme, the last-used diaries of the editor, the sample-hint flag, tag style, beginner hints, entry text sizes, timeline view options). User content lives in Room.
 - `core:designsystem`: the theme, the Google Sans Flex typography (rounded `ROND` axis for display and headline styles), shapes, the symbol catalog, haptics, `MorphShape`/`PolygonShape`, and generic expressive primitives.
 - `core:ui`: domain-aware components (`MoodBadge`, `PostCard`, diary selectors, `IconPicker`, `PhotoViewer`, the delete dialogs, `SuggestedGroupCard`, `DaylioBackupCard`), formatters, `NavTransitions`, and `Modifier.sharedContainer`.
 - `core:navigation`: Navigation 3 with **one back stack per bottom-bar tab** (`NavigationState` and `Navigator`). Back from another tab's root returns to the Timeline tab. The entries of each stack are decorated separately so state and ViewModels survive tab switches.
@@ -119,6 +119,7 @@ The layout follows NowInAndroid: `app` → `feature:*:impl` → `feature:*:api` 
   - runs of 3 or more empty days collapsed into an expandable quiet stretch;
   - "Also this day" chips for entries in other diaries, only under days that have entries in the selected diary (and today);
   - days with entries only in other diaries are compact empty rows (and can join quiet stretches), with a small read-only `DiaryHint` of those diaries' icons.
+- **Timeline view options** live in a menu (`TimelineViewMenu`) that grows out of the tune button in the timeline's app bar: preview size (`PreviewLength`: 4/8/16 note lines or full), compact icon-only tags and the timeline text size, which is the same preference as Settings → Entry text size. They reach every `PostCard` (timeline and search) through `LocalEntryDisplay`, provided in `MainActivity`. In search, a note whose first match is past its start is shown as an excerpt from just before it (the pure `noteExcerpt()`).
 - **Insights** follow the `dataviz` skill's rules: stat tiles, a stacked bar with 2dp gaps, legends that carry the mood faces, and single-hue bars. `InsightsCalculator` is pure and tested. Streaks ignore the selected range.
 - **Dates use the app's language** (`ui_format_language`, currently `en`) combined with the device region, so they never mix with untranslated UI.
 - **Container transforms:** the FAB and the post cards grow into the editor, and the search icon grows into Search. This works through `sharedContainer(key)` together with `NavTransitions.sharedContainer` entry metadata. Tabs use a fade-through transition (`NavTransitions.topLevel`).
@@ -138,4 +139,4 @@ The layout follows NowInAndroid: `app` → `feature:*:impl` → `feature:*:api` 
   - Never hints: empty states, counts, validation, dialog warnings, setting descriptions, placeholders and screen taglines.
   - Layouts must look right without the hint: put spacing on the neighbours, not on the hint.
 - Use `DakilioIcon(DakilioSymbols.X, filled = selected)` for icons. Tags and diaries store symbol keys, which `symbolForKey()` resolves.
-- Keep new logic Android-free where possible so it can be host-tested. The existing tests cover the timeline builder, the insights calculator, search, streaks, entry validation and the Daylio reader and planner.
+- Keep new logic Android-free where possible so it can be host-tested. The existing tests cover the timeline builder, the insights calculator, search, search excerpts, streaks, entry validation and the Daylio reader and planner.

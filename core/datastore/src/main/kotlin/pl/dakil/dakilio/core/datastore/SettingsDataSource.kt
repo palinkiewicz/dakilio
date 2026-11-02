@@ -11,6 +11,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import pl.dakil.dakilio.core.model.PreviewLength
 import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TextScale
 import pl.dakil.dakilio.core.model.ThemeMode
@@ -32,6 +33,9 @@ class SettingsDataSource @Inject constructor(
                 showHints = prefs[SHOW_HINTS] ?: true,
                 timelineTextScale = prefs[TIMELINE_TEXT_SCALE]?.let(TextScale::coerce) ?: TextScale.DEFAULT,
                 editorTextScale = prefs[EDITOR_TEXT_SCALE]?.let(TextScale::coerce) ?: TextScale.DEFAULT,
+                previewLength = prefs[PREVIEW_LENGTH]?.let { name -> PreviewLength.entries.firstOrNull { it.name == name } }
+                    ?: PreviewLength.Short,
+                compactTags = prefs[COMPACT_TAGS] ?: false,
             )
         }
         .distinctUntilChanged()
@@ -80,6 +84,14 @@ class SettingsDataSource @Inject constructor(
         dataStore.edit { it[EDITOR_TEXT_SCALE] = TextScale.coerce(scale) }
     }
 
+    suspend fun setPreviewLength(length: PreviewLength) {
+        dataStore.edit { it[PREVIEW_LENGTH] = length.name }
+    }
+
+    suspend fun setCompactTags(compact: Boolean) {
+        dataStore.edit { it[COMPACT_TAGS] = compact }
+    }
+
     private companion object {
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val LAST_ENTRY_DIARIES = stringSetPreferencesKey("last_entry_diary_ids")
@@ -88,6 +100,8 @@ class SettingsDataSource @Inject constructor(
         val SHOW_HINTS = booleanPreferencesKey("show_hints")
         val TIMELINE_TEXT_SCALE = floatPreferencesKey("timeline_text_scale")
         val EDITOR_TEXT_SCALE = floatPreferencesKey("editor_text_scale")
+        val PREVIEW_LENGTH = stringPreferencesKey("preview_length")
+        val COMPACT_TAGS = booleanPreferencesKey("compact_tags")
         val INTRO_STARTED = booleanPreferencesKey("intro_started")
         val INTRO_DONE = booleanPreferencesKey("intro_done")
     }
