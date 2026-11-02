@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="archive_title">Archiwum</string>
+    <string name="archive_subtitle">Poza listami wyboru, ale wciąż w starych wpisach</string>
+    <string name="archive_back">Wstecz</string>
+    <string name="archive_section_moods">Nastroje</string>
+    <string name="archive_section_groups">Grupy tagów</string>
+    <string name="archive_section_tags">Tagi</string>
+    <string name="archive_alias_of">Alias nastroju „%s”</string>
+    <plurals name="archive_tag_count">
+        <item quantity="one">%d tag</item>
+        <item quantity="few">%d tagi</item>
+        <item quantity="many">%d tagów</item>
+        <item quantity="other">%d tagu</item>
+    </plurals>
+    <plurals name="archive_archived_tag_count">
+        <item quantity="one">%d zarchiwizowany tag</item>
+        <item quantity="few">%d zarchiwizowane tagi</item>
+        <item quantity="many">%d zarchiwizowanych tagów</item>
+        <item quantity="other">%d zarchiwizowanego tagu</item>
+    </plurals>
+    <string name="archive_tags_hint">Dotknij tagu, żeby go przywrócić albo usunąć na dobre.</string>
+    <string name="archive_mood_menu">Opcje: %s</string>
+    <string name="archive_group_menu">Opcje: %s</string>
+    <string name="archive_restore">Przywróć</string>
+    <string name="archive_delete">Usuń</string>
+    <string name="archive_restored">Przywrócono „%1$s”</string>
+    <string name="archive_deleted">Usunięto „%1$s”</string>
+    <plurals name="archive_mood_replaced">
+        <item quantity="one">Przeniesiono %1$d wpis do nastroju „%2$s”</item>
+        <item quantity="few">Przeniesiono %1$d wpisy do nastroju „%2$s”</item>
+        <item quantity="many">Przeniesiono %1$d wpisów do nastroju „%2$s”</item>
+        <item quantity="other">Przeniesiono %1$d wpisu do nastroju „%2$s”</item>
+    </plurals>
+    <string name="archive_empty_title">Archiwum jest puste</string>
+    <string name="archive_empty_body">Zarchiwizowane nastroje i tagi znikają z list wyboru, ale zostają w starych wpisach. Trafiają tutaj i w każdej chwili możesz je przywrócić.</string>
+</resources>

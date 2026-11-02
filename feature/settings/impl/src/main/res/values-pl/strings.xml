@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Ustawienia</string>
+    <string name="settings_back">Wstecz</string>
+    <string name="settings_appearance">Wygląd</string>
+    <string name="settings_theme">Motyw</string>
+    <string name="settings_theme_body">Na Androidzie 12 i nowszych kolory dopasowują się do tapety.</string>
+    <string name="settings_theme_system">System</string>
+    <string name="settings_theme_light">Dzień</string>
+    <string name="settings_theme_dark">Noc</string>
+    <string name="settings_language">Język</string>
+    <string name="settings_text_size">Rozmiar tekstu wpisów</string>
+    <string name="settings_text_size_timeline">Oś czasu</string>
+    <string name="settings_text_size_timeline_body">Tytuły i notatki we wpisach</string>
+    <string name="settings_text_size_editor">Edytor</string>
+    <string name="settings_text_size_editor_body">Tytuł i notatka podczas pisania</string>
+    <string name="settings_text_size_reset">Przywróć domyślny</string>
+    <string name="settings_text_size_done">Gotowe</string>
+    <string name="settings_text_size_percent">%d%%</string>
+    <string name="settings_text_size_sample">Spokojny poranek z kawą i długim spacerem.</string>
+    <string name="settings_editor">Edytor wpisów</string>
+    <string name="settings_tag_style">Wygląd tagów</string>
+    <string name="settings_tag_style_body">Jak wyglądają tagi, gdy dodajesz lub edytujesz wpis.</string>
+    <string name="settings_tag_style_icons">Ikony</string>
+    <string name="settings_tag_style_chips">Etykiety</string>
+    <string name="settings_guidance">Podpowiedzi</string>
+    <string name="settings_hints">Pokazuj wskazówki dla początkujących</string>
+    <string name="settings_hints_body">Krótkie objaśnienia pod tytułami, np. „Wybierz najbliższy nastrój”</string>
+    <string name="settings_starter">Przykładowe treści</string>
+    <string name="settings_remove_samples">Usuń przykładowe wpisy</string>
+    <plurals name="settings_remove_samples_body">
+        <item quantity="one">%d przykładowy wpis i jego zdjęcia</item>
+        <item quantity="few">%d przykładowe wpisy i ich zdjęcia</item>
+        <item quantity="many">%d przykładowych wpisów i ich zdjęcia</item>
+        <item quantity="other">%d przykładowego wpisu i ich zdjęcia</item>
+    </plurals>
+    <string name="settings_remove_title">Usunąć przykładowe wpisy?</string>
+    <string name="settings_remove_body">Twoje własne wpisy, dzienniki i tagi pozostaną nietknięte.</string>
+    <string name="settings_remove_confirm">Usuń</string>
+    <string name="settings_cancel">Anuluj</string>
+    <string name="settings_samples_removed">Usunięto przykładowe wpisy</string>
+    <string name="settings_more_soon">Więcej ustawień pojawi się w kolejnych wersjach.</string>
+</resources>

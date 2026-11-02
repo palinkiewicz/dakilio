@@ -51,14 +51,20 @@ import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbol
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.theme.SegmentedShapes
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
+import pl.dakil.dakilio.core.ui.AppLanguages
 import pl.dakil.dakilio.core.ui.Hint
+import pl.dakil.dakilio.core.ui.canChooseAppLanguage
+import pl.dakil.dakilio.core.ui.currentAppLanguage
+import pl.dakil.dakilio.core.ui.languageName
 import pl.dakil.dakilio.core.ui.component.DaylioBackupCard
 import pl.dakil.dakilio.core.ui.component.SuggestedGroupCard
 import pl.dakil.dakilio.core.ui.openDaylioBackup
 import pl.dakil.dakilio.core.ui.rememberDaylioInstalled
+import pl.dakil.dakilio.core.ui.setAppLanguage
 
 @Composable
 internal fun LanguageStep(onContinue: (daylioInstalled: Boolean) -> Unit) {
+    val context = LocalContext.current
     val daylioInstalled by rememberDaylioInstalled()
     val haptics = rememberHaptics()
     IntroPage(
@@ -71,20 +77,25 @@ internal fun LanguageStep(onContinue: (daylioInstalled: Boolean) -> Unit) {
         Title(stringResource(R.string.intro_welcome_title))
         Body(stringResource(R.string.intro_welcome_body))
         SectionHeader(stringResource(R.string.intro_language_header), modifier = Modifier.padding(top = Spacing.l))
-        // TODO: once there are translations, list them here and apply the pick with
-        //  LocaleManager.setApplicationLocales before continuing. The database must still not be
-        //  opened before this step, so the seed data is created in the chosen language.
-        val languages = listOf(stringResource(R.string.intro_language_english))
+        // The database must not be opened before this step, so the seed data is created in the
+        // language picked here. Picking one recreates the activity; the intro's back stack survives it.
+        val current = currentAppLanguage()
+        val languages = if (canChooseAppLanguage) AppLanguages else listOf(current)
         Column(verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)) {
             languages.forEachIndexed { index, language ->
                 SegmentedListItem(
-                    onClick = { haptics.tick() },
+                    onClick = {
+                        haptics.tick()
+                        if (canChooseAppLanguage && language != current) setAppLanguage(context, language)
+                    },
                     shapes = ListItemDefaults.segmentedShapes(index, languages.size),
                     colors = segmentedItemColors(),
                     trailingContent = {
-                        DakilioIcon(DakilioSymbols.CheckCircle, contentDescription = null, filled = true, tint = MaterialTheme.colorScheme.primary)
+                        if (language == current) {
+                            DakilioIcon(DakilioSymbols.CheckCircle, contentDescription = null, filled = true, tint = MaterialTheme.colorScheme.primary)
+                        }
                     },
-                ) { Text(language) }
+                ) { Text(languageName(language)) }
             }
         }
         Text(

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The sample entries of debug and preview builds. They become user data, so later edits only affect new installs. -->
+<resources>
+    <string name="sample_hike_title">Zachód słońca na grani</string>
+    <string name="sample_hike_note">Weszliśmy na szczyt dokładnie wtedy, gdy niebo zaczęło płonąć. Nogi odmawiają posłuszeństwa, ale serce jest pełne. Zostaliśmy, aż ostatnie światło zniknęło za skałami.</string>
+    <string name="sample_morning_title">Leniwy poranek</string>
+    <string name="sample_morning_note">Kawa, ostatnie rozdziały książki i nigdzie nie trzeba się spieszyć. Poproszę więcej takich poranków.</string>
+    <string name="sample_walk_title">Poranny spacer</string>
+    <string name="sample_meetings_note">Cały dzień spotkań. Nic się nie posypało, ale też nic nie zachwyciło.</string>
+    <string name="sample_pierogi_title">Wieczór z pierogami</string>
+    <string name="sample_pierogi_note">Babcia dała nam przepis. Mąka była literalnie wszędzie. Ulepiliśmy o wiele za dużo, ale jakimś cudem nikt nie narzekał.</string>
+    <string name="sample_deadline_title">Dzień deadline\'u</string>
+    <string name="sample_deadline_note">Wszystko spadło na mnie naraz. Udało się oddać na czas, ale następnym razem muszę to lepiej rozplanować.</string>
+    <string name="sample_ideas_title">Pomysły na weekend</string>
+    <string name="sample_ideas_note">• Wpaść do nowej piekarni w centrum\n• Zadzwonić do Zuzi\n• W końcu naprawić rower</string>
+    <string name="sample_city_title">Spacer po starówce</string>
+    <string name="sample_city_note">Pierwszy dzień w nowym mieście. To był dobry moment, aby zgubić się na własne życzenie: wszędzie wąskie uliczki i ciepłe światła, a na koniec czekała mnie najlepsza gorąca czekolada w życiu.</string>
+    <string name="sample_run_title">Wieczorne bieganie</string>
+    <string name="sample_cold_title">Złapało mnie przeziębienie</string>
+    <string name="sample_cold_note">Ból gardła, herbata, koc i cały dzień do niczego. Wszystko odwołane.</string>
+</resources>

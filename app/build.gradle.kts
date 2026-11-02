@@ -66,7 +66,7 @@ android {
     }
 
     androidResources {
-        localeFilters += "en"
+        localeFilters += listOf("en", "pl")
     }
 
     // No Google-encrypted dependency blob in the APK (F-Droid reproducibility, privacy).

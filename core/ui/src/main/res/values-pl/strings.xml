@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ui_today">Dzisiaj</string>
+    <string name="ui_yesterday">Wczoraj</string>
+    <string name="ui_all_diaries">Wszystkie</string>
+    <string name="ui_no_mood">Notatka</string>
+    <string name="ui_entry">Wpis</string>
+    <string name="ui_format_language">pl</string>
+    <string name="ui_more_tags">+%1$d</string>
+    <string name="ui_photo">Zdjęcie %1$d z %2$d</string>
+    <string name="ui_close">Zamknij</string>
+    <string name="ui_selected_icon">Wybrana ikona</string>
+    <string name="ui_more_photos">+%1$d</string>
+    <string name="mood_clear">Wyczyść nastrój</string>
+    <string name="ui_daylio_open">Otwórz kopię zapasową Daylio</string>
+    <!-- Delete dialogs (tags, tag groups, mood aliases) -->
+    <string name="ui_delete">Usuń</string>
+    <string name="ui_archive">Zarchiwizuj</string>
+    <string name="ui_cancel">Anuluj</string>
+    <string name="ui_replace">Zastąp…</string>
+    <string name="ui_replace_title">Zastąp „%s” innym nastrojem</string>
+    <string name="ui_replace_confirm">Zastąp</string>
+    <string name="ui_delete_title">Usunąć „%1$s”?</string>
+    <string name="ui_delete_tag_unused_body">Żaden wpis nie używa tego tagu, więc nic więcej się nie zmieni.</string>
+    <plurals name="ui_delete_tag_used_body">
+        <item quantity="one">Tag „%1$s” jest w %2$d wpisie. Zarchiwizuj go, żeby został w tym wpisie (zniknie tylko z listy wyboru), albo usuń go również z wpisu.</item>
+        <item quantity="few">Tag „%1$s” jest w %2$d wpisach. Zarchiwizuj go, żeby został w tych wpisach (zniknie tylko z listy wyboru), albo usuń go ze wszystkich.</item>
+        <item quantity="many">Tag „%1$s” jest w %2$d wpisach. Zarchiwizuj go, żeby został w tych wpisach (zniknie tylko z listy wyboru), albo usuń go ze wszystkich.</item>
+        <item quantity="other">Tag „%1$s” jest w %2$d wpisach. Zarchiwizuj go, żeby został w tych wpisach (zniknie tylko z listy wyboru), albo usuń go ze wszystkich.</item>
+    </plurals>
+    <plurals name="ui_delete_tag_used_body_final">
+        <item quantity="one">Tag „%1$s” jest w %2$d wpisie. Po usunięciu zniknie również z tego wpisu.</item>
+        <item quantity="few">Tag „%1$s” jest w %2$d wpisach. Po usunięciu zniknie ze wszystkich.</item>
+        <item quantity="many">Tag „%1$s” jest w %2$d wpisach. Po usunięciu zniknie ze wszystkich.</item>
+        <item quantity="other">Tag „%1$s” jest w %2$d wpisach. Po usunięciu zniknie ze wszystkich.</item>
+    </plurals>
+    <plurals name="ui_delete_tag_emptied">
+        <item quantity="one">Usunięty zostanie też %d wpis, który ma tylko ten tag.</item>
+        <item quantity="few">Usunięte zostaną też %d wpisy, które mają tylko ten tag.</item>
+        <item quantity="many">Usuniętych zostanie też %d wpisów, które mają tylko ten tag.</item>
+        <item quantity="other">Usuniętych zostanie też %d wpisów, które mają tylko ten tag.</item>
+    </plurals>
+    <string name="ui_delete_group_title">Usunąć grupę „%1$s”?</string>
+    <string name="ui_delete_group_unused_body">Żaden wpis nie używa tagów z tej grupy, więc nic więcej się nie zmieni. Jej tagi zostaną usunięte razem z nią.</string>
+    <plurals name="ui_delete_group_used_body">
+        <item quantity="one">%2$d wpis zawiera tagi z grupy „%1$s”. Zarchiwizuj grupę, żeby jej tagi zostały w tym wpisie (znikną tylko z listy wyboru), albo usuń grupę razem z tagami również z wpisu.</item>
+        <item quantity="few">%2$d wpisy zawierają tagi z grupy „%1$s”. Zarchiwizuj grupę, żeby jej tagi zostały w tych wpisach (znikną tylko z listy wyboru), albo usuń grupę razem z tagami ze wszystkich wpisów.</item>
+        <item quantity="many">%2$d wpisów zawiera tagi z grupy „%1$s”. Zarchiwizuj grupę, żeby jej tagi zostały w tych wpisach (znikną tylko z listy wyboru), albo usuń grupę razem z tagami ze wszystkich wpisów.</item>
+        <item quantity="other">%2$d wpisów zawiera tagi z grupy „%1$s”. Zarchiwizuj grupę, żeby jej tagi zostały w tych wpisach (znikną tylko z listy wyboru), albo usuń grupę razem z tagami ze wszystkich wpisów.</item>
+    </plurals>
+    <plurals name="ui_delete_group_used_body_final">
+        <item quantity="one">%2$d wpis zawiera tagi z grupy „%1$s”. Po usunięciu grupy jej tagi znikną również z tego wpisu.</item>
+        <item quantity="few">%2$d wpisy zawierają tagi z grupy „%1$s”. Po usunięciu grupy jej tagi znikną ze wszystkich.</item>
+        <item quantity="many">%2$d wpisów zawiera tagi z grupy „%1$s”. Po usunięciu grupy jej tagi znikną ze wszystkich.</item>
+        <item quantity="other">%2$d wpisów zawiera tagi z grupy „%1$s”. Po usunięciu grupy jej tagi znikną ze wszystkich.</item>
+    </plurals>
+    <plurals name="ui_delete_group_emptied">
+        <item quantity="one">Usunięty zostanie też %d wpis, który ma tylko tagi z tej grupy.</item>
+        <item quantity="few">Usunięte zostaną też %d wpisy, które mają tylko tagi z tej grupy.</item>
+        <item quantity="many">Usuniętych zostanie też %d wpisów, które mają tylko tagi z tej grupy.</item>
+        <item quantity="other">Usuniętych zostanie też %d wpisów, które mają tylko tagi z tej grupy.</item>
+    </plurals>
+    <string name="ui_delete_alias_unused_body">Żaden wpis nie używa tego aliasu, więc nic więcej się nie zmieni.</string>
+    <plurals name="ui_delete_alias_used_body">
+        <item quantity="one">Nastrój „%1$s” jest w %2$d wpisie. Zarchiwizuj go, żeby wpis pozostał bez zmian, albo zastąp go innym nastrojem.</item>
+        <item quantity="few">Nastrój „%1$s” jest w %2$d wpisach. Zarchiwizuj go, żeby wpisy pozostały bez zmian, albo zastąp go innym nastrojem.</item>
+        <item quantity="many">Nastrój „%1$s” jest w %2$d wpisach. Zarchiwizuj go, żeby wpisy pozostały bez zmian, albo zastąp go innym nastrojem.</item>
+        <item quantity="other">Nastrój „%1$s” jest w %2$d wpisach. Zarchiwizuj go, żeby wpisy pozostały bez zmian, albo zastąp go innym nastrojem.</item>
+    </plurals>
+    <plurals name="ui_delete_alias_used_body_final">
+        <item quantity="one">Nastrój „%1$s” jest w %2$d wpisie. Aby go usunąć, przypisz temu wpisowi inny nastrój.</item>
+        <item quantity="few">Nastrój „%1$s” jest w %2$d wpisach. Aby go usunąć, przypisz tym wpisom inny nastrój.</item>
+        <item quantity="many">Nastrój „%1$s” jest w %2$d wpisach. Aby go usunąć, przypisz tym wpisom inny nastrój.</item>
+        <item quantity="other">Nastrój „%1$s” jest w %2$d wpisach. Aby go usunąć, przypisz tym wpisom inny nastrój.</item>
+    </plurals>
+
+    <!-- Tag colors (the palette of the Tag colors extra) -->
+    <string name="ui_tag_color_red">Czerwony</string>
+    <string name="ui_tag_color_orange">Pomarańczowy</string>
+    <string name="ui_tag_color_amber">Bursztynowy</string>
+    <string name="ui_tag_color_lime">Limonkowy</string>
+    <string name="ui_tag_color_green">Zielony</string>
+    <string name="ui_tag_color_teal">Morski</string>
+    <string name="ui_tag_color_sky">Błękitny</string>
+    <string name="ui_tag_color_blue">Niebieski</string>
+    <string name="ui_tag_color_violet">Fioletowy</string>
+    <string name="ui_tag_color_pink">Różowy</string>
+    <string name="ui_tag_color_brown">Brązowy</string>
+    <string name="ui_tag_color_slate">Grafitowy</string>
+    <string name="ui_percent">%d%%</string>
+</resources>

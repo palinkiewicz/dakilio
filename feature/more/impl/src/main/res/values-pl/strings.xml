@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="more_app_name">Dakilio</string>
+    <string name="more_tagline">Prywatność od podstaw. Bez konta i bez dostępu do internetu – twoje wpisy nigdy nie opuszczają tego urządzenia.</string>
+    <string name="more_section_extras">Dodatki</string>
+    <string name="more_extras_not_used">Jeszcze nieużywane</string>
+    <string name="more_habits">Nawyki</string>
+    <string name="more_habits_body">Wybierz tag i ustal, w ile dni w tygodniu ma się pojawiać w twoich wpisach</string>
+    <plurals name="more_habits_status">
+        <item quantity="one">%d nawyk</item>
+        <item quantity="few">%d nawyki</item>
+        <item quantity="many">%d nawyków</item>
+        <item quantity="other">%d nawyku</item>
+    </plurals>
+    <string name="more_section_customize">Personalizacja</string>
+    <string name="more_moods">Nastroje</string>
+    <string name="more_moods_body">Nazwy i aliasy</string>
+    <string name="more_tags">Tagi</string>
+    <string name="more_tags_body">Grupy, nazwy, ikony i kolory</string>
+    <string name="more_diaries">Dzienniki</string>
+    <string name="more_diaries_body">Nazwy, ikony i sugerowane tagi</string>
+    <string name="more_archive">Archiwum</string>
+    <string name="more_archive_body">Przywracaj lub usuwaj zarchiwizowane nastroje i tagi</string>
+    <string name="more_section_data">Dane</string>
+    <string name="more_import_daylio">Import z Daylio</string>
+    <string name="more_import_daylio_body">Zastąp wszystko kopią zapasową .daylio</string>
+    <string name="more_section_app">Aplikacja</string>
+    <string name="more_settings">Ustawienia</string>
+    <string name="more_settings_body">Motyw, język i przykładowe treści</string>
+    <string name="more_section_about">O aplikacji</string>
+    <string name="more_version">Wersja</string>
+    <string name="more_open_source">Otwarte oprogramowanie</string>
+    <string name="more_open_source_body">Wolne oprogramowanie na licencji GNU GPL v3</string>
+    <string name="more_privacy">Twoje dane należą do ciebie</string>
+    <string name="more_privacy_body">Przechowywane tylko na tym urządzeniu. Przy dodawaniu zdjęć usuwamy z nich lokalizację.</string>
+    <string name="more_sample_title">To są przykładowe wpisy</string>
+    <string name="more_sample_body">Pokazują, co potrafi Dakilio. Usuń je, kiedy zechcesz zacząć pisać własną historię.</string>
+    <string name="more_sample_manage">Usuń przykłady</string>
+    <string name="more_sample_dismiss">Zamknij</string>
+</resources>

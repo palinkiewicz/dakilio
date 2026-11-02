@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="moods_title">Nastroje</string>
+    <string name="moods_subtitle">Pięć poziomów, własne nazwy</string>
+    <string name="moods_back">Wstecz</string>
+    <string name="moods_hint">Aliasy to dodatkowe nazwy poziomu, np. „Smutno” obok „Źle”. Mają tę samą buźkę i w statystykach liczą się jako ten sam poziom. W edytorze dotknij jeszcze raz wybranej buźki, żeby wybrać alias.</string>
+    <string name="moods_no_aliases">Brak aliasów</string>
+    <plurals name="moods_alias_count">
+        <item quantity="one">%d alias</item>
+        <item quantity="few">%d aliasy</item>
+        <item quantity="many">%d aliasów</item>
+        <item quantity="other">%d aliasu</item>
+    </plurals>
+    <string name="moods_rename_primary">Edytuj „%s”</string>
+    <string name="moods_add_alias">Dodaj alias</string>
+    <string name="moods_edit_title">Edytuj nastrój</string>
+    <string name="moods_color">Kolor</string>
+    <string name="moods_color_level">Kolor poziomu</string>
+    <string name="moods_color_use_primary">Kolor jak „%s”</string>
+    <string name="moods_new_alias_title">Nowy alias dla „%s”</string>
+    <string name="moods_name">Nazwa</string>
+    <string name="moods_save">Zapisz</string>
+    <string name="moods_cancel">Anuluj</string>
+    <string name="moods_delete">Usuń</string>
+    <string name="moods_archived">Zarchiwizowano „%s”</string>
+    <string name="moods_undo">Cofnij</string>
+    <plurals name="moods_replaced">
+        <item quantity="one">Przeniesiono %1$d wpis do nastroju „%2$s”</item>
+        <item quantity="few">Przeniesiono %1$d wpisy do nastroju „%2$s”</item>
+        <item quantity="many">Przeniesiono %1$d wpisów do nastroju „%2$s”</item>
+        <item quantity="other">Przeniesiono %1$d wpisu do nastroju „%2$s”</item>
+    </plurals>
+</resources>

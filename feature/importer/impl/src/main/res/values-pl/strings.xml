@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="import_title">Import z Daylio</string>
+    <string name="import_subtitle">Zabierz ze sobą historię z Daylio</string>
+    <string name="import_back">Wstecz</string>
+
+    <string name="import_pick_title">Wybierz kopię zapasową Daylio</string>
+    <string name="import_pick_body">W Daylio utwórz kopię zapasową (Więcej → Kopia zapasowa) i udostępnij ją aplikacji Dakilio. Możesz też zapisać plik .daylio na telefonie i wybrać go tutaj.</string>
+    <string name="import_pick_button">Wybierz plik</string>
+    <string name="import_daylio_title">Masz zainstalowane Daylio</string>
+    <string name="import_daylio_body">Otwórz ekran kopii zapasowej, wyeksportuj kopię i wybierz Dakilio w menu udostępniania. Plik trafi prosto tutaj.</string>
+    <string name="import_pick_privacy">Plik jest odczytywany tylko na tym urządzeniu. Nic nie jest nigdzie wysyłane.</string>
+    <string name="import_reading">Odczytywanie kopii zapasowej…</string>
+
+    <string name="import_preview_title">Gotowe do importu</string>
+    <string name="import_preview_range">%1$s – %2$s</string>
+    <string name="import_stat_entries">Wpisy</string>
+    <string name="import_stat_photos">Zdjęcia</string>
+    <string name="import_stat_tags">Aktywności</string>
+    <string name="import_stat_groups">Grupy</string>
+    <string name="import_stat_moods">Dodatkowe nastroje</string>
+    <string name="import_skipped_title">Nie zostanie zaimportowane</string>
+    <plurals name="import_skipped_voice">
+        <item quantity="one">%d notatka głosowa (Dakilio nie obsługuje dźwięku)</item>
+        <item quantity="few">%d notatki głosowe (Dakilio nie obsługuje dźwięku)</item>
+        <item quantity="many">%d notatek głosowych (Dakilio nie obsługuje dźwięku)</item>
+        <item quantity="other">%d notatki głosowej (Dakilio nie obsługuje dźwięku)</item>
+    </plurals>
+    <plurals name="import_skipped_favorites">
+        <item quantity="one">Oznaczenie ulubionego przy %d wpisie</item>
+        <item quantity="few">Oznaczenia ulubionych przy %d wpisach</item>
+        <item quantity="many">Oznaczenia ulubionych przy %d wpisach</item>
+        <item quantity="other">Oznaczenia ulubionych przy %d wpisu</item>
+    </plurals>
+    <plurals name="import_skipped_photos">
+        <item quantity="one">%d zdjęcie, którego brakuje w pliku</item>
+        <item quantity="few">%d zdjęcia, których brakuje w pliku</item>
+        <item quantity="many">%d zdjęć, których brakuje w pliku</item>
+        <item quantity="other">%d zdjęcia, których brakuje w pliku</item>
+    </plurals>
+    <plurals name="import_skipped_references">
+        <item quantity="one">%d uszkodzone odwołanie do aktywności, nastroju lub pliku</item>
+        <item quantity="few">%d uszkodzone odwołania do aktywności, nastrojów lub plików</item>
+        <item quantity="many">%d uszkodzonych odwołań do aktywności, nastrojów lub plików</item>
+        <item quantity="other">%d uszkodzonego odwołania do aktywności, nastrojów lub plików</item>
+    </plurals>
+    <plurals name="import_skipped_entries">
+        <item quantity="one">%d wpis z nieznanym nastrojem</item>
+        <item quantity="few">%d wpisy z nieznanym nastrojem</item>
+        <item quantity="many">%d wpisów z nieznanym nastrojem</item>
+        <item quantity="other">%d wpisu z nieznanym nastrojem</item>
+    </plurals>
+    <string name="import_untested_version">Ta kopia pochodzi z wersji Daylio, z którą Dakilio nie było jeszcze testowane. Po imporcie sprawdź, czy wszystko się zgadza.</string>
+
+    <string name="import_warning_title">To zastąpi wszystko w Dakilio</string>
+    <string name="import_warning_body">Usunięte zostaną: %1$s, %2$s, %3$s i %4$s. Wpisy z Daylio trafią do nowego dziennika „Moja podróż”.</string>
+    <plurals name="import_count_entries">
+        <item quantity="one">%d wpis</item>
+        <item quantity="few">%d wpisy</item>
+        <item quantity="many">%d wpisów</item>
+        <item quantity="other">%d wpisu</item>
+    </plurals>
+    <plurals name="import_count_photos">
+        <item quantity="one">%d zdjęcie</item>
+        <item quantity="few">%d zdjęcia</item>
+        <item quantity="many">%d zdjęć</item>
+        <item quantity="other">%d zdjęcia</item>
+    </plurals>
+    <plurals name="import_count_diaries">
+        <item quantity="one">%d dziennik</item>
+        <item quantity="few">%d dzienniki</item>
+        <item quantity="many">%d dzienników</item>
+        <item quantity="other">%d dziennika</item>
+    </plurals>
+    <plurals name="import_count_tags">
+        <item quantity="one">%d tag</item>
+        <item quantity="few">%d tagi</item>
+        <item quantity="many">%d tagów</item>
+        <item quantity="other">%d tagu</item>
+    </plurals>
+    <string name="import_start">Importuj i zastąp</string>
+    <string name="import_other_file">Wybierz inny plik</string>
+
+    <string name="import_confirm_title">Zastąpić wszystkie dane?</string>
+    <string name="import_confirm_body">Wszystko, co jest teraz w Dakilio, zostanie trwale usunięte i zastąpione kopią z Daylio. Tego nie da się cofnąć.</string>
+    <string name="import_confirm_yes">Zastąp</string>
+    <string name="import_confirm_no">Anuluj</string>
+
+    <string name="import_progress_title">Importowanie…</string>
+    <string name="import_progress_photos">Kopiowanie zdjęć: %1$d z %2$d</string>
+    <string name="import_progress_saving">Zapisywanie wpisów…</string>
+    <string name="import_progress_keep_open">Nie zamykaj tego ekranu, dopóki import się nie skończy.</string>
+
+    <string name="import_done_title">Witaj na pokładzie!</string>
+    <plurals name="import_done_entries">
+        <item quantity="one">Zaimportowano %d wpis</item>
+        <item quantity="few">Zaimportowano %d wpisy</item>
+        <item quantity="many">Zaimportowano %d wpisów</item>
+        <item quantity="other">Zaimportowano %d wpisu</item>
+    </plurals>
+    <plurals name="import_done_photos">
+        <item quantity="one">i %d zdjęcie</item>
+        <item quantity="few">i %d zdjęcia</item>
+        <item quantity="many">i %d zdjęć</item>
+        <item quantity="other">i %d zdjęcia</item>
+    </plurals>
+    <plurals name="import_done_photos_failed">
+        <item quantity="one">Nie udało się odczytać %d zdjęcia, więc zostało pominięte.</item>
+        <item quantity="few">Nie udało się odczytać %d zdjęć, więc zostały pominięte.</item>
+        <item quantity="many">Nie udało się odczytać %d zdjęć, więc zostały pominięte.</item>
+        <item quantity="other">Nie udało się odczytać %d zdjęcia, więc zostały pominięte.</item>
+    </plurals>
+    <string name="import_done_button">Przejdź do osi czasu</string>
+
+    <string name="import_error_title">Nie udało się zaimportować pliku</string>
+    <string name="import_error_not_zip">To nie wygląda na kopię zapasową Daylio. Wybierz plik .daylio wyeksportowany z Daylio.</string>
+    <string name="import_error_missing_backup">W pliku nie ma danych Daylio.</string>
+    <string name="import_error_too_large">Plik jest za duży, żeby go zaimportować.</string>
+    <string name="import_error_malformed">Kopia jest uszkodzona albo ma format, którego Dakilio nie potrafi odczytać.</string>
+    <string name="import_error_version">Ta wersja kopii zapasowej Daylio nie jest obsługiwana.</string>
+    <string name="import_error_unknown">Coś poszło nie tak podczas odczytywania pliku.</string>
+    <string name="import_error_import_failed">Coś poszło nie tak podczas importu. Nic nie zostało zmienione.</string>
+</resources>

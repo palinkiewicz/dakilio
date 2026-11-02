@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="timeline_greeting_morning">Dzień dobry</string>
+    <string name="timeline_greeting_afternoon">Miłego popołudnia</string>
+    <string name="timeline_greeting_evening">Dobry wieczór</string>
+    <string name="timeline_greeting_night">Dobranoc</string>
+    <plurals name="timeline_streak">
+        <item quantity="one">%d dzień z rzędu</item>
+        <item quantity="few">%d dni z rzędu</item>
+        <item quantity="many">%d dni z rzędu</item>
+        <item quantity="other">%d dnia z rzędu</item>
+    </plurals>
+    <string name="timeline_search">Szukaj wpisów</string>
+    <string name="timeline_jump_to_date">Przejdź do daty</string>
+    <string name="timeline_view_options">Opcje widoku</string>
+    <string name="timeline_view_preview">Długość podglądu</string>
+    <string name="timeline_view_preview_short">Krótki</string>
+    <string name="timeline_view_preview_medium">Średni</string>
+    <string name="timeline_view_preview_long">Długi</string>
+    <string name="timeline_view_preview_full">Cały</string>
+    <string name="timeline_view_compact_tags">Kompaktowe tagi</string>
+    <string name="timeline_view_compact_tags_body">Tylko ikony</string>
+    <string name="timeline_view_text_size">Rozmiar tekstu</string>
+    <string name="timeline_jump">Przejdź</string>
+    <string name="timeline_cancel">Anuluj</string>
+    <string name="timeline_new_entry">Nowy wpis</string>
+    <string name="timeline_scroll_to_top">Wróć do dzisiaj</string>
+    <string name="timeline_check_in_title">Jak dzisiaj leci?</string>
+    <string name="timeline_check_in_body">Żeby zacząć, dotknij nastroju lub wielkiego +.</string>
+    <string name="timeline_no_entries">Brak wpisów</string>
+    <string name="timeline_add_for_day">Dodaj wpis – %1$s</string>
+    <plurals name="timeline_quiet_days">
+        <item quantity="one">%d spokojny dzień</item>
+        <item quantity="few">%d spokojne dni</item>
+        <item quantity="many">%d spokojnych dni</item>
+        <item quantity="other">%d spokojnego dnia</item>
+    </plurals>
+    <string name="timeline_quiet_range">%1$s – %2$s</string>
+    <string name="timeline_other_diary">%1$s · %2$d</string>
+    <string name="timeline_also_in">Tego dnia także</string>
+    <string name="timeline_entries_in">Wpisy w: %s</string>
+    <string name="timeline_empty_title">Tu zaczyna się twoja historia</string>
+    <string name="timeline_empty_body">Zapisz nastrój, kilka tagów albo jedną myśl. To zajmie tylko chwilę.</string>
+    <string name="timeline_empty_action">Napisz pierwszy wpis</string>
+</resources>

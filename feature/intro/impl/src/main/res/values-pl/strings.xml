@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="intro_back">Wstecz</string>
+    <string name="intro_continue">Dalej</string>
+
+    <!-- Language -->
+    <string name="intro_welcome_title">Witaj w Dakilio</string>
+    <string name="intro_welcome_body">Prywatnym dzienniku, którego dane pozostają na Twoim telefonie. Na początek wybierz język – powstaną w nim startowe nastroje oraz tagi.</string>
+    <string name="intro_language_header">Język</string>
+    <string name="intro_language_more">Kolejne języki pojawią się już wkrótce.</string>
+
+    <!-- Daylio -->
+    <string name="intro_daylio_title">Przesiadasz się z Daylio?</string>
+    <string name="intro_daylio_body">Zabierz ze sobą wpisy, zdjęcia, nastroje i tagi. Dakilio zacznie wtedy od twojej kopii zapasowej zamiast od zupełnego zera.</string>
+    <string name="intro_daylio_card_title">Wyeksportuj kopię zapasową</string>
+    <string name="intro_daylio_card_body">Otwórz ekran kopii zapasowej w Daylio, wyeksportuj kopię i wybierz Dakilio w menu udostępniania. Plik trafi prosto tutaj.</string>
+    <string name="intro_daylio_pick">Mam już plik z kopią</string>
+    <string name="intro_daylio_skip">Zacznij od zera</string>
+
+    <!-- Tag groups -->
+    <string name="intro_groups_title">Wybierz tagi</string>
+    <string name="intro_groups_body">Tagi opisują, z czego składał się twój dzień. Zostaw grupy, które pasują do twojego życia.</string>
+    <string name="intro_groups_hint">Dotknij grupy, żeby ją pominąć. Tagi możesz w każdej chwili dodawać, zmieniać i usuwać w sekcji Więcej → Tagi.</string>
+    <plurals name="intro_groups_count">
+        <item quantity="one">%1$d z %2$d grup</item>
+        <item quantity="few">%1$d z %2$d grup</item>
+        <item quantity="many">%1$d z %2$d grup</item>
+        <item quantity="other">%1$d z %2$d grup</item>
+    </plurals>
+    <string name="intro_get_started">Zaczynamy</string>
+</resources>

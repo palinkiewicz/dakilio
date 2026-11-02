@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="insights_title">Statystyki</string>
+    <string name="insights_subtitle">Jak było do tej pory</string>
+    <string name="insights_range_month">30 dni</string>
+    <string name="insights_range_quarter">90 dni</string>
+    <string name="insights_range_all">Cały okres</string>
+    <string name="insights_current_streak">Obecna seria</string>
+    <plurals name="insights_days">
+        <item quantity="one">dzień z rzędu</item>
+        <item quantity="few">dni z rzędu</item>
+        <item quantity="many">dni z rzędu</item>
+        <item quantity="other">dnia z rzędu</item>
+    </plurals>
+    <string name="insights_longest_streak">Najdłuższa seria</string>
+    <string name="insights_entries">Wpisy</string>
+    <string name="insights_days_journaled">Dni z wpisami</string>
+    <string name="insights_average_mood">Średni nastrój</string>
+    <string name="insights_mostly">Najczęściej: %1$s</string>
+    <string name="insights_score">%1$d%% na twojej skali nastroju</string>
+    <string name="insights_delta_up">↑ %1$d pkt względem poprzednich %2$s</string>
+    <string name="insights_delta_down">↓ %1$d pkt względem poprzednich %2$s</string>
+    <string name="insights_delta_same">Bez zmian względem poprzednich %1$s</string>
+    <string name="insights_no_mood">W tym okresie nie ma jeszcze zapisanych nastrojów.</string>
+    <string name="insights_distribution">Rozkład nastrojów</string>
+    <plurals name="insights_moods_logged">
+        <item quantity="one">%d zapisany nastrój</item>
+        <item quantity="few">%d zapisane nastroje</item>
+        <item quantity="many">%d zapisanych nastrojów</item>
+        <item quantity="other">%d zapisanego nastroju</item>
+    </plurals>
+    <string name="insights_journey_map">Mapa nastrojów</string>
+    <string name="insights_journey_map_body">Ostatnie 12 tygodni, jeden kwadrat na dzień. Dotknij dnia, żeby zobaczyć szczegóły.</string>
+    <string name="insights_heat_day">%1$s · %2$s</string>
+    <string name="insights_heat_no_mood">bez nastroju</string>
+    <plurals name="insights_heat_entries">
+        <item quantity="one">%d wpis</item>
+        <item quantity="few">%d wpisy</item>
+        <item quantity="many">%d wpisów</item>
+        <item quantity="other">%d wpisu</item>
+    </plurals>
+    <string name="insights_heat_empty">%1$s · brak wpisów</string>
+    <string name="insights_no_entries_day">Brak wpisów</string>
+    <string name="insights_top_tags">Najczęstsze tagi</string>
+    <string name="insights_no_tags">Tu pojawią się tagi, które dodajesz do wpisów.</string>
+    <string name="insights_empty_title">Statystyki rosną z każdym wpisem</string>
+    <string name="insights_empty_body">Napisz kilka wpisów, a zaczną się tu pojawiać twoje wzorce.</string>
+    <string name="insights_coming">Głębsze, interaktywne analizy są w drodze.</string>
+</resources>

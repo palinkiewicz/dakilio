@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_timeline">Oś czasu</string>
+    <string name="nav_insights">Statystyki</string>
+    <string name="nav_more">Więcej</string>
+</resources>

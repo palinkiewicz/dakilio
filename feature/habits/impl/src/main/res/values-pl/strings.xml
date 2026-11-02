@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="habits_title">Nawyki</string>
+    <string name="habits_subtitle">Pilnuj tego, co dla ciebie ważne</string>
+    <string name="habits_back">Wstecz</string>
+    <string name="habits_new">Nowy nawyk</string>
+    <string name="habits_hint">Liczy się każdy wpis z tagiem nawyku, w dowolnym dzienniku. Każdy dzień liczy się raz, niezależnie od liczby wpisów.</string>
+    <string name="habits_empty_title">Nie masz jeszcze nawyków</string>
+    <string name="habits_empty_body">Wybierz tag i ustal, w ile dni w tygodniu ma się pojawiać w twoich wpisach.</string>
+    <string name="habits_this_week">%1$d z %2$d w tym tygodniu</string>
+    <string name="habits_goal_reached">Cel na ten tydzień osiągnięty</string>
+    <string name="habits_last_week">Poprzedni tydzień</string>
+    <string name="habits_last_week_count">%1$d/%2$d</string>
+    <string name="habits_last_week_met">Cel osiągnięty</string>
+    <string name="habits_archived_tag">Tag nawyku jest zarchiwizowany</string>
+    <string name="habits_day_done">%s: zrobione</string>
+    <string name="habits_day_not_done">%s: jeszcze nie</string>
+    <string name="habits_deleted">Usunięto nawyk</string>
+    <string name="habits_undo">Cofnij</string>
+
+    <string name="habits_sheet_new">Nowy nawyk</string>
+    <string name="habits_sheet_edit">Nawyk</string>
+    <string name="habits_sheet_tag">Tag</string>
+    <string name="habits_sheet_no_tags">Każdy tag ma już swój nawyk. Więcej tagów dodasz w sekcji Więcej → Tagi.</string>
+    <string name="habits_sheet_days">Dni w tygodniu</string>
+    <plurals name="habits_sheet_summary">
+        <item quantity="one">„%2$s” we wpisach co najmniej %1$d dzień w tygodniu</item>
+        <item quantity="few">„%2$s” we wpisach co najmniej %1$d dni w tygodniu</item>
+        <item quantity="many">„%2$s” we wpisach co najmniej %1$d dni w tygodniu</item>
+        <item quantity="other">„%2$s” we wpisach co najmniej %1$d dnia w tygodniu</item>
+    </plurals>
+    <string name="habits_sheet_pick_tag">Najpierw wybierz tag</string>
+    <string name="habits_sheet_save">Zapisz</string>
+    <string name="habits_sheet_add">Dodaj nawyk</string>
+    <string name="habits_sheet_delete">Usuń nawyk</string>
+
+    <string name="habits_progress_this_week">Ten tydzień</string>
+    <string name="habits_progress_week_of">Tydzień od %s</string>
+    <string name="habits_progress_goal">Cel tygodnia osiągnięty!</string>
+    <string name="habits_progress_plus_one">+1</string>
+    <plurals name="habits_progress_more">
+        <item quantity="one">+%d inny nawyk</item>
+        <item quantity="few">+%d inne nawyki</item>
+        <item quantity="many">+%d innych nawyków</item>
+        <item quantity="other">+%d innego nawyku</item>
+    </plurals>
+    <string name="habits_progress_dismiss">Zamknij</string>
+</resources>

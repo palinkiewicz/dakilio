@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Default content seeded on first launch. It becomes user data, so later edits only affect new installs. -->
+<resources>
+    <string name="seed_mood_awful">Okropnie</string>
+    <string name="seed_mood_bad">Źle</string>
+    <string name="seed_mood_okay">Tak sobie</string>
+    <string name="seed_mood_good">Dobrze</string>
+    <string name="seed_mood_great">Super</string>
+
+    <string name="seed_diary_journey">Moja podróż</string>
+
+    <string name="seed_group_emotions">Emocje</string>
+    <string name="seed_group_people">Ludzie</string>
+    <string name="seed_group_activities">Aktywności</string>
+    <string name="seed_group_health">Zdrowie</string>
+    <string name="seed_group_journey">Podróże</string>
+    <string name="seed_group_weather">Pogoda</string>
+    <!-- Collects imported Daylio activities that have no group. -->
+    <string name="import_group_daylio">Daylio</string>
+
+    <string name="seed_tag_happy">Radość</string>
+    <string name="seed_tag_grateful">Wdzięczność</string>
+    <string name="seed_tag_calm">Spokój</string>
+    <string name="seed_tag_excited">Ekscytacja</string>
+    <string name="seed_tag_tired">Zmęczenie</string>
+    <string name="seed_tag_anxious">Niepokój</string>
+    <string name="seed_tag_stressed">Stres</string>
+    <string name="seed_tag_sad">Smutek</string>
+    <string name="seed_tag_family">Rodzina</string>
+    <string name="seed_tag_friends">Przyjaciele</string>
+    <string name="seed_tag_partner">Druga połówka</string>
+    <string name="seed_tag_colleagues">Współpracownicy</string>
+    <string name="seed_tag_pets">Zwierzaki</string>
+    <string name="seed_tag_alone">Czas dla siebie</string>
+    <string name="seed_tag_work">Praca</string>
+    <string name="seed_tag_study">Nauka</string>
+    <string name="seed_tag_reading">Czytanie</string>
+    <string name="seed_tag_gaming">Gry</string>
+    <string name="seed_tag_movies">Filmy</string>
+    <string name="seed_tag_music">Muzyka</string>
+    <string name="seed_tag_cooking">Gotowanie</string>
+    <string name="seed_tag_shopping">Zakupy</string>
+    <string name="seed_tag_cleaning">Sprzątanie</string>
+    <string name="seed_tag_exercise">Ćwiczenia</string>
+    <string name="seed_tag_walk">Spacer</string>
+    <string name="seed_tag_ate_healthy">Zdrowe jedzenie</string>
+    <string name="seed_tag_water">Nawodnienie</string>
+    <string name="seed_tag_meditation">Medytacja</string>
+    <string name="seed_tag_good_sleep">Dobry sen</string>
+    <string name="seed_tag_sick">Choroba</string>
+    <string name="seed_tag_nature">Przyroda</string>
+    <string name="seed_tag_travel">Podróż</string>
+    <string name="seed_tag_hiking">Wędrówka</string>
+    <string name="seed_tag_beach">Plaża</string>
+    <string name="seed_tag_road_trip">Wycieczka autem</string>
+    <string name="seed_tag_new_place">Nowe miejsce</string>
+    <string name="seed_tag_sunny">Słonecznie</string>
+    <string name="seed_tag_cloudy">Pochmurno</string>
+    <string name="seed_tag_rain">Deszcz</string>
+    <string name="seed_tag_snow">Śnieg</string>
+    <string name="seed_tag_windy">Wietrznie</string>
+</resources>

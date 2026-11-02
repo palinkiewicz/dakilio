@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search_hint">Przeszukaj swoje wpisy</string>
+    <string name="search_back">Wstecz</string>
+    <string name="search_clear">Wyczyść</string>
+    <string name="search_none_title">Nic nie znaleziono</string>
+    <string name="search_none_body">Spróbuj innego słowa albo uprość filtry.</string>
+    <string name="search_empty_title">Na razie nie ma czego szukać</string>
+    <string name="search_empty_body">Tutaj pojawią się wpisy, które napiszesz.</string>
+    <plurals name="search_results">
+        <item quantity="one">%d wpis</item>
+        <item quantity="few">%d wpisy</item>
+        <item quantity="many">%d wpisów</item>
+        <item quantity="other">%d wpisu</item>
+    </plurals>
+    <string name="search_clear_all">Wyczyść wszystko</string>
+    <string name="search_narrow_down">Zawęź wyniki</string>
+    <string name="search_tag_suggestions">Filtruj według tagu</string>
+    <string name="search_no_tag_matches">Żaden tag nie pasuje do „%s”</string>
+
+    <!-- Facet bar -->
+    <string name="search_facet_mood">Nastrój</string>
+    <string name="search_facet_tags">Tagi</string>
+    <string name="search_facet_diary">Dziennik</string>
+    <string name="search_facet_when">Kiedy</string>
+    <string name="search_facet_has">Zawiera</string>
+    <!-- A facet with several values: the first one, then how many more ("Walk +2"). -->
+    <string name="search_facet_more">%1$s +%2$d</string>
+    <string name="search_facet_clear">Wyczyść: %s</string>
+
+    <!-- Sheets -->
+    <string name="search_sheet_done">Gotowe</string>
+    <string name="search_tag_match_any">Którykolwiek</string>
+    <string name="search_tag_match_all">Wszystkie</string>
+    <string name="search_no_tags">Nie masz jeszcze tagów.</string>
+    <string name="search_period">Okres</string>
+    <string name="search_weekdays">Dni tygodnia</string>
+    <string name="search_period_any">Kiedykolwiek</string>
+    <string name="search_period_7d">7 dni</string>
+    <string name="search_period_30d">30 dni</string>
+    <string name="search_period_year">Ten rok</string>
+    <string name="search_period_on_this_day">Tego dnia</string>
+    <string name="search_period_custom">Wybierz daty…</string>
+    <string name="search_period_range">%1$s – %2$s</string>
+    <string name="search_period_ok">OK</string>
+    <string name="search_period_cancel">Anuluj</string>
+    <string name="search_has_photos">Zdjęcia</string>
+    <string name="search_has_photos_body">Co najmniej jedno zdjęcie</string>
+    <string name="search_has_text">Tekst</string>
+    <string name="search_has_text_body">Tytuł lub notatka</string>
+    <string name="search_has_long">Długa notatka</string>
+    <plurals name="search_has_long_body">
+        <item quantity="one">Notatka na co najmniej %d słowo</item>
+        <item quantity="few">Notatka na co najmniej %d słowa</item>
+        <item quantity="many">Notatka na co najmniej %d słów</item>
+        <item quantity="other">Notatka na co najmniej %d słowa</item>
+    </plurals>
+
+    <!-- Idle screen -->
+    <string name="search_recent">Ostatnie</string>
+    <string name="search_recent_clear">Wyczyść</string>
+    <string name="search_recent_remove">Usuń z ostatnich</string>
+    <string name="search_look_back">Wspomnienia</string>
+    <string name="search_lens_on_this_day">Tego dnia</string>
+    <string name="search_lens_bright">Dobre dni</string>
+    <string name="search_lens_tough">Trudne dni</string>
+    <string name="search_lens_photos">Wspomnienia na zdjęciach</string>
+    <string name="search_lens_long">Dłuższe teksty</string>
+    <string name="search_lens_shuffle">Losuj</string>
+    <string name="search_lens_shuffle_body">Przypadkowe wspomnienie</string>
+    <string name="search_your_tags">Twoje tagi</string>
+    <string name="search_tags_frequent">Częste</string>
+    <string name="search_tags_forgotten">Zapomniane</string>
+    <string name="search_hash_hint">Wskazówka: wpisz # w polu wyszukiwania, żeby filtrować według tagu.</string>
+</resources>

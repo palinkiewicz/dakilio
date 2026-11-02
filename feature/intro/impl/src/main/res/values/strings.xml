@@ -7,8 +7,6 @@
     <string name="intro_welcome_title">Welcome to Dakilio</string>
     <string name="intro_welcome_body">A private mood journal that stays on this phone. First, pick a language: the starter moods and tags are written in it.</string>
     <string name="intro_language_header">Language</string>
-    <!-- Each language is listed in its own name. -->
-    <string name="intro_language_english">English</string>
     <string name="intro_language_more">More languages are on the way.</string>
 
     <!-- Daylio -->

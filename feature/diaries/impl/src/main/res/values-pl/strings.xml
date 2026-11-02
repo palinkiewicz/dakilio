@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="diaries_title">Dzienniki</string>
+    <string name="diaries_subtitle">Osobne miejsca na różne sfery życia</string>
+    <string name="diaries_back">Wstecz</string>
+    <string name="diaries_new">Nowy dziennik</string>
+    <string name="diaries_edit">Edytuj dziennik</string>
+    <plurals name="diaries_entries">
+        <item quantity="one">%d wpis</item>
+        <item quantity="few">%d wpisy</item>
+        <item quantity="many">%d wpisów</item>
+        <item quantity="other">%d wpisu</item>
+    </plurals>
+    <plurals name="diaries_suggested">
+        <item quantity="one">%d sugerowana grupa</item>
+        <item quantity="few">%d sugerowane grupy</item>
+        <item quantity="many">%d sugerowanych grup</item>
+        <item quantity="other">%d sugerowanej grupy</item>
+    </plurals>
+    <string name="diaries_all_groups">wszystkie grupy tagów</string>
+    <string name="diaries_hint">Każdy wpis należy do jednego dziennika, który wybierasz na górze edytora. Gdy masz co najmniej dwa dzienniki, na osi czasu pojawia się przełącznik.</string>
+    <string name="diaries_save">Zapisz</string>
+    <string name="diaries_close">Zamknij</string>
+    <string name="diaries_name">Nazwa</string>
+    <string name="diaries_name_hint">np. Praca, Sny, Podróże</string>
+    <string name="diaries_change_icon">Zmień ikonę</string>
+    <string name="diaries_icon">Wybierz ikonę</string>
+    <string name="diaries_suggested_title">Sugerowane grupy tagów</string>
+    <string name="diaries_suggested_body">Te grupy są rozwinięte, gdy piszesz w tym dzienniku. Pozostałe są zwinięte, ale wystarczy jedno dotknięcie.</string>
+    <string name="diaries_delete">Usuń dziennik</string>
+    <string name="diaries_last_diary">To twój jedyny dziennik, więc nie można go usunąć.</string>
+    <string name="diaries_delete_title">Usunąć „%1$s”?</string>
+    <string name="diaries_delete_body_none">Nie ma w nim wpisów.</string>
+    <plurals name="diaries_delete_body">
+        <item quantity="one">Jest w nim %d wpis. Co z nim zrobić?</item>
+        <item quantity="few">Są w nim %d wpisy. Co z nimi zrobić?</item>
+        <item quantity="many">Jest w nim %d wpisów. Co z nimi zrobić?</item>
+        <item quantity="other">Jest w nim %d wpisu. Co z nimi zrobić?</item>
+    </plurals>
+    <string name="diaries_move_to">Przenieś do dziennika „%1$s”</string>
+    <string name="diaries_delete_entries">Usuń razem z wpisami</string>
+    <string name="diaries_delete_confirm">Usuń</string>
+    <string name="diaries_cancel">Anuluj</string>
+    <string name="diaries_done">Gotowe</string>
+</resources>

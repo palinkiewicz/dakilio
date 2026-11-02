@@ -40,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -61,7 +62,11 @@ import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TextScale
 import pl.dakil.dakilio.core.model.ThemeMode
+import pl.dakil.dakilio.core.ui.canChooseAppLanguage
 import pl.dakil.dakilio.core.ui.component.TextScaleSlider
+import pl.dakil.dakilio.core.ui.currentAppLanguage
+import pl.dakil.dakilio.core.ui.languageName
+import pl.dakil.dakilio.core.ui.openAppLanguageSettings
 import pl.dakil.dakilio.core.ui.scaled
 
 @Composable
@@ -71,6 +76,7 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val haptics = rememberHaptics()
+    val context = LocalContext.current
     var confirmRemove by rememberSaveable { mutableStateOf(false) }
     var textSizeDialog by rememberSaveable { mutableStateOf<TextSizeTarget?>(null) }
     val removedMessage = stringResource(R.string.settings_samples_removed)
@@ -119,6 +125,18 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
                             onSelect = viewModel::setThemeMode,
                         )
                     }
+                }
+
+                // Older Androids have no per-app language, so the app just follows the device there.
+                if (canChooseAppLanguage) {
+                    SectionHeader(stringResource(R.string.settings_language))
+                    SegmentedListItem(
+                        onClick = { openAppLanguageSettings(context) },
+                        shapes = ListItemDefaults.segmentedShapes(0, 1),
+                        colors = segmentedItemColors(),
+                        leadingContent = { ShapedIcon(DakilioSymbols.Language, polygon = MaterialShapes.Cookie12Sided) },
+                        trailingContent = { DakilioIcon(DakilioSymbols.OpenInNew, contentDescription = null) },
+                    ) { Text(languageName(currentAppLanguage())) }
                 }
 
                 SectionHeader(stringResource(R.string.settings_text_size))

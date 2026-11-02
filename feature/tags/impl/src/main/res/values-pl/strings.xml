@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tags_title">Tagi</string>
+    <string name="tags_subtitle">Uporządkuj to, z czego składają się twoje dni</string>
+    <string name="tags_back">Wstecz</string>
+    <string name="tags_new_group">Nowa grupa</string>
+    <string name="tags_add_tag">Dodaj tag</string>
+    <string name="tags_group_menu">Opcje grupy</string>
+    <string name="tags_rename_group">Zmień nazwę</string>
+    <string name="tags_delete_group">Usuń grupę</string>
+    <plurals name="tags_count">
+        <item quantity="one">%d tag</item>
+        <item quantity="few">%d tagi</item>
+        <item quantity="many">%d tagów</item>
+        <item quantity="other">%d tagu</item>
+    </plurals>
+    <string name="tags_group_name">Nazwa grupy</string>
+    <string name="tags_group_new_title">Nowa grupa tagów</string>
+    <string name="tags_group_rename_title">Zmień nazwę grupy</string>
+    <string name="tags_save">Zapisz</string>
+    <string name="tags_cancel">Anuluj</string>
+    <string name="tags_new_tag">Nowy tag</string>
+    <string name="tags_edit_tag">Edytuj tag</string>
+    <string name="tags_label">Nazwa</string>
+    <string name="tags_group">Grupa</string>
+    <string name="tags_icon">Ikona</string>
+    <string name="tags_color">Kolor</string>
+    <string name="tags_color_use_group">Kolor grupy</string>
+    <string name="tags_color_none">Bez koloru</string>
+    <string name="tags_color_sheet_group">Domyślny kolor grupy</string>
+    <string name="tags_color_done">Gotowe</string>
+    <string name="tags_color_change_group">Zmień kolor grupy „%s”</string>
+    <string name="tags_color_hint">Dotknij przycisku koloru obok grupy, żeby pokolorować wszystkie jej tagi. Aby nadać kolor pojedynczemu tagowi, otwórz go.</string>
+    <string name="tags_delete">Usuń</string>
+    <string name="tags_tag_deleted">Usunięto „%1$s”</string>
+    <string name="tags_tag_archived">Zarchiwizowano „%1$s”</string>
+    <string name="tags_group_deleted">Usunięto grupę „%1$s”</string>
+    <string name="tags_group_archived">Zarchiwizowano grupę „%1$s”</string>
+    <string name="tags_undo">Cofnij</string>
+    <string name="tags_empty_title">Nie masz jeszcze grup tagów</string>
+    <string name="tags_empty_body">Utwórz grupę, np. „Aktywności” albo „Ludzie”, i dodaj do niej tagi.</string>
+    <string name="tags_archived_note">Tag lub grupę, których używają wpisy, możesz przy usuwaniu zarchiwizować (znikną z listy wyboru, ale zostaną w tych wpisach) albo usunąć wszędzie. Zarchiwizowane przywrócisz w sekcji Więcej → Archiwum.</string>
+    <string name="tags_suggested">Sugerowane grupy</string>
+    <string name="tags_suggested_title">Sugerowane grupy</string>
+    <string name="tags_suggested_hint">Dodaj gotową grupę ze wszystkimi tagami, a potem edytuj ją jak każdą inną.</string>
+    <string name="tags_suggested_add">Dodaj</string>
+    <string name="tags_suggested_added">Dodano</string>
+    <string name="tags_suggested_browse">Przeglądaj sugestie</string>
+</resources>
