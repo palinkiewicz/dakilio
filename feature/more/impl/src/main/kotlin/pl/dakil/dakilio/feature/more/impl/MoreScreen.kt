@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -42,11 +43,17 @@ import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.ui.bottomBarPadding
 
+/**
+ * @property status how an extra is used right now, shown under its body; `null` for other items.
+ * @property inUse whether the extra holds anything; it gets an accented icon and status.
+ */
 private data class MoreItem(
     val symbol: DakilioSymbol,
     val title: String,
     val body: String,
     val onClick: (() -> Unit)? = null,
+    val status: String? = null,
+    val inUse: Boolean = false,
 )
 
 @Composable
@@ -58,9 +65,10 @@ internal fun MoreScreen(
     onOpenSettings: () -> Unit,
     onOpenImport: () -> Unit,
     onOpenArchive: () -> Unit,
-    onOpenExtras: () -> Unit,
+    onOpenHabits: () -> Unit,
 ) {
     val showSampleHint by viewModel.showSampleHint.collectAsStateWithLifecycle()
+    val habits by viewModel.habitCount.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val version = remember {
         runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }.getOrNull().orEmpty()
@@ -79,13 +87,27 @@ internal fun MoreScreen(
             AnimatedVisibility(showSampleHint, exit = shrinkVertically() + fadeOut()) {
                 SampleHint(onManage = onOpenSettings, onDismiss = viewModel::dismissSampleHint)
             }
+            // Extras: optional tools that build on moods and tags. They have no on/off switch; one that
+            // holds nothing is simply unused. To add one: give it its own feature module, list it here.
+            Group(
+                stringResource(R.string.more_section_extras),
+                listOf(
+                    MoreItem(
+                        DakilioSymbols.CheckCircle,
+                        stringResource(R.string.more_habits),
+                        stringResource(R.string.more_habits_body),
+                        onOpenHabits,
+                        status = if (habits > 0) pluralStringResource(R.plurals.more_habits_status, habits, habits) else stringResource(R.string.more_extras_not_used),
+                        inUse = habits > 0,
+                    ),
+                ),
+            )
             Group(
                 stringResource(R.string.more_section_customize),
                 listOf(
                     MoreItem(DakilioSymbols.Mood, stringResource(R.string.more_moods), stringResource(R.string.more_moods_body), onOpenMoods),
                     MoreItem(DakilioSymbols.Sell, stringResource(R.string.more_tags), stringResource(R.string.more_tags_body), onOpenTags),
                     MoreItem(DakilioSymbols.Book2, stringResource(R.string.more_diaries), stringResource(R.string.more_diaries_body), onOpenDiaries),
-                    MoreItem(DakilioSymbols.AutoAwesome, stringResource(R.string.more_extras), stringResource(R.string.more_extras_body), onOpenExtras),
                     MoreItem(DakilioSymbols.Inventory2, stringResource(R.string.more_archive), stringResource(R.string.more_archive_body), onOpenArchive),
                 ),
             )
@@ -184,9 +206,27 @@ private fun Group(title: String, items: List<MoreItem>) {
         items.forEachIndexed { index, item ->
             val shapes = ListItemDefaults.segmentedShapes(index, items.size)
             val leading: @Composable () -> Unit = {
-                ShapedIcon(item.symbol, polygon = MaterialShapes.Cookie9Sided, size = 40.dp)
+                ShapedIcon(
+                    item.symbol,
+                    polygon = MaterialShapes.Cookie9Sided,
+                    size = 40.dp,
+                    containerColor = if (item.inUse) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = if (item.inUse) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+                )
             }
-            val supporting: @Composable () -> Unit = { Text(item.body) }
+            val supporting: @Composable () -> Unit = {
+                Column {
+                    Text(item.body)
+                    if (item.status != null) {
+                        Text(
+                            item.status,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = if (item.inUse) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = Spacing.xs),
+                        )
+                    }
+                }
+            }
             if (item.onClick != null) {
                 SegmentedListItem(
                     onClick = item.onClick,

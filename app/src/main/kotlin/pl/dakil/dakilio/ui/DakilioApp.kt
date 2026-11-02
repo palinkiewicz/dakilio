@@ -42,7 +42,6 @@ import pl.dakil.dakilio.core.ui.LocalBottomBarPadding
 import pl.dakil.dakilio.core.ui.LocalSharedTransitionScope
 import pl.dakil.dakilio.core.ui.NavTransitions
 import pl.dakil.dakilio.feature.archive.impl.archiveEntry
-import pl.dakil.dakilio.feature.extras.impl.extrasEntry
 import pl.dakil.dakilio.feature.diaries.impl.diariesEntries
 import pl.dakil.dakilio.feature.entry.impl.entryEditorEntry
 import pl.dakil.dakilio.feature.insights.api.InsightsKey
@@ -55,7 +54,6 @@ import pl.dakil.dakilio.feature.more.impl.moreEntry
 import pl.dakil.dakilio.feature.search.impl.searchEntry
 import pl.dakil.dakilio.feature.settings.impl.settingsEntry
 import pl.dakil.dakilio.feature.tags.impl.tagsEntry
-import pl.dakil.dakilio.feature.tagcolors.impl.tagColorsEntry
 import pl.dakil.dakilio.feature.habits.impl.HabitProgressHost
 import pl.dakil.dakilio.feature.habits.impl.habitsEntry
 import pl.dakil.dakilio.feature.timeline.api.TimelineKey
@@ -106,8 +104,6 @@ fun DakilioApp(hasIncomingBackup: Boolean = false) {
         diariesEntries(navigator)
         settingsEntry(navigator)
         archiveEntry(navigator)
-        extrasEntry(navigator)
-        tagColorsEntry(navigator)
         habitsEntry(navigator)
     }
 

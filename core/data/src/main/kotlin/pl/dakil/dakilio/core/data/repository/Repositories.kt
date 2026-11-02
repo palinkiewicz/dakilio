@@ -80,7 +80,8 @@ interface TagRepository {
     /** Deletes the group and its tags for good: they leave every entry, and entries left empty are deleted. */
     suspend fun deleteGroup(id: Long)
 
-    suspend fun saveTag(id: Long?, groupId: Long, label: String, iconKey: String): Long
+    /** @param colorKey the tag's own color; `null` makes it use its group's. */
+    suspend fun saveTag(id: Long?, groupId: Long, label: String, iconKey: String, colorKey: String?): Long
 
     /** Restoring a tag whose group is archived restores the group too. */
     suspend fun setTagArchived(id: Long, archived: Boolean)
@@ -90,14 +91,8 @@ interface TagRepository {
     /** Deletes the tag for good: it disappears from every entry, and entries left empty are deleted. */
     suspend fun deleteTag(id: Long)
 
-    /** Active tags that show a color, their own or their group's (the Tag colors extra). */
-    val coloredTagCount: Flow<Int>
-
     /** Sets the default color of the group's tags; `null` clears it. */
     suspend fun setGroupColor(id: Long, colorKey: String?)
-
-    /** Sets the tag's own color; `null` makes it use its group's again. */
-    suspend fun setTagColor(id: Long, colorKey: String?)
 }
 
 interface PostRepository {

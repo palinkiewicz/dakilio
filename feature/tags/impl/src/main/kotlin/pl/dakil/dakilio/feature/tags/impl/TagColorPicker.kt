@@ -1,21 +1,24 @@
-package pl.dakil.dakilio.feature.tagcolors.impl
+package pl.dakil.dakilio.feature.tags.impl
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
@@ -46,7 +49,7 @@ import pl.dakil.dakilio.core.designsystem.component.rememberHaptics
 import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
-import pl.dakil.dakilio.core.model.Tag
+import pl.dakil.dakilio.core.model.TagGroup
 import pl.dakil.dakilio.core.ui.color.TagColor
 import pl.dakil.dakilio.core.ui.color.tagColors
 import pl.dakil.dakilio.core.ui.component.TagPill
@@ -55,27 +58,14 @@ private const val COLUMNS = 6
 private val swatchMorph by lazy { Morph(MaterialShapes.Circle, MaterialShapes.Cookie9Sided) }
 
 /**
- * Picks a color for a group or a tag. A pick applies at once, so [preview] (the live tags) shows it
- * right away; the sheet stays open for trying others.
- *
- * @param selectedKey the color set on the group or tag itself, `null` for none.
- * @param noneLabel the option that clears it: "No color" for a group, "Use group color" for a tag.
- * @param noneColorKey what clearing falls back to (the group's color, for a tag).
+ * Picks the default color of a group's tags. A pick applies at once, so the live tags at the top
+ * show it right away; the sheet stays open for trying others.
  */
 @Composable
-internal fun TagColorSheet(
-    kind: String,
-    name: String,
-    preview: List<Tag>,
-    selectedKey: String?,
-    noneLabel: String,
-    noneColorKey: String?,
-    onSelect: (String?) -> Unit,
-    onDismiss: () -> Unit,
-) {
+internal fun GroupColorSheet(group: TagGroup, onSelect: (String?) -> Unit, onDismiss: () -> Unit) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val haptics = rememberHaptics()
-    val selected = TagColor.fromKey(selectedKey)
+    val selected = TagColor.fromKey(group.colorKey)
     fun select(color: TagColor?) {
         if (color == selected) return
         haptics.toggle(color != null)
@@ -84,22 +74,26 @@ internal fun TagColorSheet(
 
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
         Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = Spacing.xl)) {
-            Text(kind, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-            Text(name, style = MaterialTheme.typography.headlineSmallEmphasized, maxLines = 1)
-            if (preview.isNotEmpty()) {
+            Text(
+                stringResource(R.string.tags_color_sheet_group),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            Text(group.name, style = MaterialTheme.typography.headlineSmallEmphasized, maxLines = 1)
+            if (group.tags.isNotEmpty()) {
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp),
                     modifier = Modifier.padding(top = Spacing.m).animateContentSize(),
                 ) {
-                    preview.forEach { TagPill(it) }
+                    group.tags.forEach { TagPill(it) }
                 }
             }
             FilterChip(
                 selected = selected == null,
                 onClick = { select(null) },
-                label = { Text(noneLabel) },
-                leadingIcon = { ColorDot(TagColor.fromKey(noneColorKey), size = 18.dp) },
+                label = { Text(stringResource(R.string.tags_color_none)) },
+                leadingIcon = { ColorDot(null, size = 18.dp) },
                 shape = CircleShape,
                 modifier = Modifier.padding(top = Spacing.l),
             )
@@ -111,7 +105,7 @@ internal fun TagColorSheet(
                     Row(Modifier.fillMaxWidth()) {
                         row.forEach { color ->
                             Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                                Swatch(color, selected = color == selected, onClick = { select(color) })
+                                Swatch(color, selected = color == selected, size = 48.dp, onClick = { select(color) })
                             }
                         }
                         repeat(COLUMNS - row.size) { Spacer(Modifier.weight(1f)) }
@@ -120,22 +114,61 @@ internal fun TagColorSheet(
             }
             Row(Modifier.fillMaxWidth().padding(vertical = Spacing.xl)) {
                 Spacer(Modifier.weight(1f))
-                Button(onClick = onDismiss) { Text(stringResource(R.string.tag_colors_done)) }
+                Button(onClick = onDismiss) { Text(stringResource(R.string.tags_color_done)) }
             }
+        }
+    }
+}
+
+/**
+ * The tag editor's color choice: "Use group color" (showing [groupColorKey]), then the palette, in
+ * one scrolling row.
+ *
+ * @param selectedKey the tag's own color, `null` for its group's.
+ */
+@Composable
+internal fun TagColorRow(
+    selectedKey: String?,
+    groupColorKey: String?,
+    onSelect: (String?) -> Unit,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(),
+) {
+    val haptics = rememberHaptics()
+    val selected = TagColor.fromKey(selectedKey)
+    fun select(color: TagColor?) {
+        if (color == selected) return
+        haptics.toggle(color != null)
+        onSelect(color?.key)
+    }
+    Row(
+        modifier.horizontalScroll(rememberScrollState()).padding(contentPadding),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.s),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        FilterChip(
+            selected = selected == null,
+            onClick = { select(null) },
+            label = { Text(stringResource(R.string.tags_color_use_group)) },
+            leadingIcon = { ColorDot(TagColor.fromKey(groupColorKey), size = 18.dp) },
+            shape = CircleShape,
+        )
+        TagColor.entries.forEach { color ->
+            Swatch(color, selected = color == selected, size = 40.dp, onClick = { select(color) })
         }
     }
 }
 
 /** A palette color; picking it morphs the circle into a cookie with a check. */
 @Composable
-private fun Swatch(color: TagColor, selected: Boolean, onClick: () -> Unit) {
+private fun Swatch(color: TagColor, selected: Boolean, size: Dp, onClick: () -> Unit) {
     val tones = tagColors(color)
     val interaction = remember { MutableInteractionSource() }
     val progress by animateFloatAsState(if (selected) 1f else 0f, MaterialTheme.motionScheme.fastSpatialSpec(), label = "swatchMorph")
     val label = stringResource(color.label)
     Box(
         Modifier
-            .size(48.dp)
+            .size(size)
             .pressScale(interaction, 0.88f)
             .graphicsLayer { rotationZ = progress * 20f }
             .clip(MorphShape(swatchMorph, progress))
@@ -153,7 +186,7 @@ private fun Swatch(color: TagColor, selected: Boolean, onClick: () -> Unit) {
                 DakilioSymbols.Check,
                 contentDescription = null,
                 tint = tones.onContainer,
-                modifier = Modifier.size(24.dp).graphicsLayer {
+                modifier = Modifier.size(size / 2).graphicsLayer {
                     rotationZ = -progress * 20f
                     alpha = progress
                     scaleX = progress

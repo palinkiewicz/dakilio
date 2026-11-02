@@ -22,6 +22,13 @@
     <string name="tags_label">Label</string>
     <string name="tags_group">Group</string>
     <string name="tags_icon">Icon</string>
+    <string name="tags_color">Color</string>
+    <string name="tags_color_use_group">Use group color</string>
+    <string name="tags_color_none">No color</string>
+    <string name="tags_color_sheet_group">Default color for the group</string>
+    <string name="tags_color_done">Done</string>
+    <string name="tags_color_change_group">Change the color of the group %s</string>
+    <string name="tags_color_hint">Tap the color button next to a group to color all its tags. To give one tag its own color, open it.</string>
     <string name="tags_delete">Delete</string>
     <string name="tags_tag_deleted">“%1$s” deleted</string>
     <string name="tags_tag_archived">“%1$s” archived</string>

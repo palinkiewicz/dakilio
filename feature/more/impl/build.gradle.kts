@@ -14,5 +14,5 @@ dependencies {
     implementation(projects.feature.settings.api)
     implementation(projects.feature.importer.api)
     implementation(projects.feature.archive.api)
-    implementation(projects.feature.extras.api)
+    implementation(projects.feature.habits.api)
 }

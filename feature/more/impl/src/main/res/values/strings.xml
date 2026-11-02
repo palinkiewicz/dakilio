@@ -2,15 +2,21 @@
 <resources>
     <string name="more_app_name">Dakilio</string>
     <string name="more_tagline">Private by design. No account, no internet permission, your entries never leave this device.</string>
+    <string name="more_section_extras">Extras</string>
+    <string name="more_extras_not_used">Not used yet</string>
+    <string name="more_habits">Habits</string>
+    <string name="more_habits_body">Pick a tag and how many days a week you want it on your entries</string>
+    <plurals name="more_habits_status">
+        <item quantity="one">%d habit</item>
+        <item quantity="other">%d habits</item>
+    </plurals>
     <string name="more_section_customize">Customize</string>
     <string name="more_moods">Moods</string>
     <string name="more_moods_body">Names and aliases</string>
     <string name="more_tags">Tags</string>
-    <string name="more_tags_body">Groups, labels and icons</string>
+    <string name="more_tags_body">Groups, labels, icons and colors</string>
     <string name="more_diaries">Diaries</string>
     <string name="more_diaries_body">Names, icons and suggested tags</string>
-    <string name="more_extras">Extras</string>
-    <string name="more_extras_body">Optional tools, like tag colors</string>
     <string name="more_archive">Archived</string>
     <string name="more_archive_body">Restore or delete archived moods and tags</string>
     <string name="more_section_data">Data</string>

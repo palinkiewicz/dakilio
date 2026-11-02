@@ -19,8 +19,8 @@ android {
 
     defaultConfig {
         applicationId = "pl.dakil.dakilio"
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.2.0"
         manifestPlaceholders["appName"] = "Dakilio"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -114,8 +114,6 @@ dependencies {
     implementation(projects.feature.importer.impl)
     implementation(projects.feature.archive.impl)
     implementation(projects.feature.intro.impl)
-    implementation(projects.feature.extras.impl)
-    implementation(projects.feature.tagcolors.impl)
     implementation(projects.feature.habits.impl)
 
     implementation(libs.androidx.core.ktx)

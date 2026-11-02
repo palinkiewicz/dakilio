@@ -48,8 +48,11 @@ class TagsViewModel @Inject constructor(
 
     fun restoreGroup(id: Long) = launch { repository.setGroupArchived(id, false) }
 
-    fun saveTag(id: Long?, groupId: Long, label: String, iconKey: String) =
-        launch { repository.saveTag(id, groupId, label.trim(), iconKey) }
+    /** `null` clears the group's default color. */
+    fun setGroupColor(id: Long, colorKey: String?) = launch { repository.setGroupColor(id, colorKey) }
+
+    fun saveTag(id: Long?, groupId: Long, label: String, iconKey: String, colorKey: String?) =
+        launch { repository.saveTag(id, groupId, label.trim(), iconKey, colorKey) }
 
     /** Counts the tag's entries, so the delete dialog can offer the right choices. */
     fun tagUsage(id: Long, onResult: (TagUsage) -> Unit) {

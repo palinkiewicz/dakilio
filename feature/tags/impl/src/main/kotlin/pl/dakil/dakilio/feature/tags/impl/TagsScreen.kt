@@ -39,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,9 +48,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
@@ -64,6 +68,8 @@ import pl.dakil.dakilio.core.model.Tag
 import pl.dakil.dakilio.core.model.TagGroup
 import pl.dakil.dakilio.core.model.TagUsage
 import pl.dakil.dakilio.core.ui.Hint
+import pl.dakil.dakilio.core.ui.color.TagColor
+import pl.dakil.dakilio.core.ui.color.tagColors
 import pl.dakil.dakilio.core.ui.component.DeleteGroupDialog
 import pl.dakil.dakilio.core.ui.component.DeleteTagDialog
 import pl.dakil.dakilio.core.ui.component.EmptyState
@@ -89,6 +95,8 @@ internal fun TagsScreen(viewModel: TagsViewModel, onBack: () -> Unit) {
     var deleting by remember { mutableStateOf<Pair<Tag, TagUsage>?>(null) }
     var deletingGroup by remember { mutableStateOf<Pair<TagGroup, GroupUsage>?>(null) }
     var suggesting by rememberSaveable { mutableStateOf(false) }
+    // The group whose color sheet is open, by id so it follows live changes (and closes if it's gone).
+    var coloring by rememberSaveable { mutableStateOf<Long?>(null) }
 
     val undoLabel = stringResource(R.string.tags_undo)
     val tagDeleted = stringResource(R.string.tags_tag_deleted)
@@ -153,9 +161,23 @@ internal fun TagsScreen(viewModel: TagsViewModel, onBack: () -> Unit) {
                     contentPadding = PaddingValues(start = Spacing.gutter, end = Spacing.gutter, top = Spacing.s, bottom = padding.calculateBottomPadding() + 112.dp),
                     verticalArrangement = Arrangement.spacedBy(Spacing.m),
                 ) {
+                    item(key = "hint") {
+                        Hint {
+                            Text(
+                                stringResource(R.string.tags_color_hint),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(horizontal = Spacing.xs).animateItem(),
+                            )
+                        }
+                    }
                     items(current, key = { it.id }) { group ->
                         GroupCard(
                             group = group,
+                            onColor = {
+                                haptics.tick()
+                                coloring = group.id
+                            },
                             onEditTag = { editing = TagEdit(it, group.id) },
                             onAddTag = { editing = TagEdit(null, group.id) },
                             onRename = { groupDialog = GroupDialog.Rename(group) },
@@ -187,14 +209,28 @@ internal fun TagsScreen(viewModel: TagsViewModel, onBack: () -> Unit) {
         )
     }
 
+    coloring?.let { id ->
+        val group = groups?.firstOrNull { it.id == id }
+        when {
+            groups == null -> Unit
+            // The group went away (deleted or archived).
+            group == null -> LaunchedEffect(id) { coloring = null }
+            else -> GroupColorSheet(
+                group = group,
+                onSelect = { viewModel.setGroupColor(group.id, it) },
+                onDismiss = { coloring = null },
+            )
+        }
+    }
+
     editing?.let { edit ->
         TagEditorSheet(
             edit = edit,
             groups = groups.orEmpty(),
             onDismiss = { editing = null },
-            onSave = { groupId, label, icon ->
+            onSave = { groupId, label, icon, color ->
                 haptics.confirm()
-                viewModel.saveTag(edit.tag?.id, groupId, label, icon)
+                viewModel.saveTag(edit.tag?.id, groupId, label, icon, color)
                 editing = null
             },
             onDelete = edit.tag?.let { tag ->
@@ -270,6 +306,7 @@ internal fun TagsScreen(viewModel: TagsViewModel, onBack: () -> Unit) {
 @Composable
 private fun GroupCard(
     group: TagGroup,
+    onColor: () -> Unit,
     onEditTag: (Tag) -> Unit,
     onAddTag: () -> Unit,
     onRename: () -> Unit,
@@ -292,6 +329,7 @@ private fun GroupCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
+                GroupColorButton(group, onClick = onColor)
                 Box {
                     IconButton(onClick = { menu = true }) {
                         DakilioIcon(DakilioSymbols.MoreVert, contentDescription = stringResource(R.string.tags_group_menu))
@@ -322,31 +360,50 @@ private fun GroupCard(
                 verticalArrangement = Arrangement.spacedBy(Spacing.s),
             ) {
                 group.tags.forEach { tag ->
+                    val tones = tagColors(tag.color)
                     EditableChip(
                         label = tag.label,
                         icon = { DakilioIcon(symbolForKey(tag.iconKey), contentDescription = null, modifier = Modifier.size(18.dp)) },
                         onClick = { onEditTag(tag) },
+                        containerColor = tones?.soft ?: MaterialTheme.colorScheme.surfaceContainerHighest,
+                        contentColor = tones?.accent ?: MaterialTheme.colorScheme.onSurface,
                     )
                 }
                 EditableChip(
                     label = stringResource(R.string.tags_add_tag),
                     icon = { DakilioIcon(DakilioSymbols.Add, contentDescription = null, modifier = Modifier.size(18.dp)) },
                     onClick = onAddTag,
-                    accent = true,
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
             }
         }
     }
 }
 
+/** The group's default tag color as a dot; opens its color sheet. */
 @Composable
-private fun EditableChip(label: String, icon: @Composable () -> Unit, onClick: () -> Unit, accent: Boolean = false) {
+private fun GroupColorButton(group: TagGroup, onClick: () -> Unit) {
+    val color = TagColor.fromKey(group.colorKey)
+    val description = stringResource(R.string.tags_color_change_group, group.name)
+    IconButton(onClick = onClick, modifier = Modifier.semantics { contentDescription = description }) {
+        if (color == null) {
+            DakilioIcon(DakilioSymbols.Palette, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        } else {
+            ColorDot(color, size = 24.dp)
+        }
+    }
+}
+
+/** A tag (in its color, as on entries) or the "Add tag" action. */
+@Composable
+private fun EditableChip(label: String, icon: @Composable () -> Unit, onClick: () -> Unit, containerColor: Color, contentColor: Color) {
     val interaction = remember { MutableInteractionSource() }
     Surface(
         onClick = onClick,
         shape = CircleShape,
-        color = if (accent) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest,
-        contentColor = if (accent) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
+        color = containerColor,
+        contentColor = contentColor,
         interactionSource = interaction,
         modifier = Modifier.heightIn(min = 40.dp).pressScale(interaction, 0.92f),
     ) {

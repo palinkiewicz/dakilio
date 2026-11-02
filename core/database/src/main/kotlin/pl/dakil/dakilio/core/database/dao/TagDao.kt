@@ -41,18 +41,6 @@ abstract class TagDao {
     @Query("UPDATE tag_group SET color_key = :colorKey WHERE id = :id")
     abstract suspend fun setGroupColor(id: Long, colorKey: String?)
 
-    @Query("UPDATE tag SET color_key = :colorKey WHERE id = :id")
-    abstract suspend fun setTagColor(id: Long, colorKey: String?)
-
-    /** Active tags that show a color, their own or their group's. */
-    @Query(
-        """
-        SELECT COUNT(*) FROM tag t JOIN tag_group g ON g.id = t.group_id
-        WHERE t.is_archived = 0 AND g.is_archived = 0 AND COALESCE(t.color_key, g.color_key) IS NOT NULL
-        """,
-    )
-    abstract fun observeColoredTagCount(): Flow<Int>
-
     @Query("SELECT COALESCE(MAX(position), -1) + 1 FROM tag_group")
     abstract suspend fun nextGroupPosition(): Int
 

@@ -1,6 +1,7 @@
 package pl.dakil.dakilio.feature.tags.impl
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -47,6 +48,7 @@ import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.icon.symbolForKey
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.model.TagGroup
+import pl.dakil.dakilio.core.ui.color.tagColors
 import pl.dakil.dakilio.core.ui.component.IconPicker
 
 private const val DEFAULT_TAG_ICON = "label"
@@ -56,16 +58,30 @@ internal fun TagEditorSheet(
     edit: TagEdit,
     groups: List<TagGroup>,
     onDismiss: () -> Unit,
-    onSave: (groupId: Long, label: String, iconKey: String) -> Unit,
+    onSave: (groupId: Long, label: String, iconKey: String, colorKey: String?) -> Unit,
     onDelete: (() -> Unit)?,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val label = rememberTextFieldState(edit.tag?.label.orEmpty())
     var iconKey by rememberSaveable { mutableStateOf(edit.tag?.iconKey ?: DEFAULT_TAG_ICON) }
     var groupId by rememberSaveable { mutableLongStateOf(edit.groupId) }
-    // Every icon change gives the preview a little spin.
+    // The tag's own color; `null` uses its group's.
+    var colorKey by rememberSaveable { mutableStateOf(edit.tag?.colorKey) }
+    val groupColorKey = groups.firstOrNull { it.id == groupId }?.colorKey
+    // Every icon or color change gives the preview a little spin.
     var spins by rememberSaveable { mutableStateOf(0) }
     val rotation by animateFloatAsState(spins * 72f, MaterialTheme.motionScheme.slowSpatialSpec(), label = "previewSpin")
+    val tones = tagColors(colorKey ?: groupColorKey)
+    val previewContainer by animateColorAsState(
+        tones?.container ?: MaterialTheme.colorScheme.primaryContainer,
+        MaterialTheme.motionScheme.defaultEffectsSpec(),
+        label = "previewContainer",
+    )
+    val previewContent by animateColorAsState(
+        tones?.onContainer ?: MaterialTheme.colorScheme.onPrimaryContainer,
+        MaterialTheme.motionScheme.defaultEffectsSpec(),
+        label = "previewContent",
+    )
 
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
         Column(Modifier.fillMaxWidth().navigationBarsPadding()) {
@@ -76,8 +92,8 @@ internal fun TagEditorSheet(
                         polygon = MaterialShapes.Cookie9Sided,
                         size = 64.dp,
                         iconSize = 32.dp,
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        containerColor = previewContainer,
+                        contentColor = previewContent,
                         modifier = Modifier.graphicsLayer { rotationZ = rotation },
                     )
                 }
@@ -122,6 +138,21 @@ internal fun TagEditorSheet(
                 }
             }
             Text(
+                stringResource(R.string.tags_color),
+                style = MaterialTheme.typography.labelLargeEmphasized,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(horizontal = Spacing.xl),
+            )
+            TagColorRow(
+                selectedKey = colorKey,
+                groupColorKey = groupColorKey,
+                onSelect = {
+                    spins++
+                    colorKey = it
+                },
+                contentPadding = PaddingValues(horizontal = Spacing.xl, vertical = Spacing.s),
+            )
+            Text(
                 stringResource(R.string.tags_icon),
                 style = MaterialTheme.typography.labelLargeEmphasized,
                 color = MaterialTheme.colorScheme.primary,
@@ -147,7 +178,7 @@ internal fun TagEditorSheet(
                     }
                 }
                 Spacer(Modifier.weight(1f))
-                Button(onClick = { onSave(groupId, label.text.toString(), iconKey) }, enabled = label.text.isNotBlank()) {
+                Button(onClick = { onSave(groupId, label.text.toString(), iconKey, colorKey) }, enabled = label.text.isNotBlank()) {
                     Text(stringResource(R.string.tags_save))
                 }
             }

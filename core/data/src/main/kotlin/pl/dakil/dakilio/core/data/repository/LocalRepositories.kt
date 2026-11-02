@@ -131,10 +131,12 @@ internal class LocalTagRepository @Inject constructor(private val dao: TagDao) :
 
     override suspend fun deleteGroup(id: Long) = dao.deleteGroup(id)
 
-    override suspend fun saveTag(id: Long?, groupId: Long, label: String, iconKey: String): Long {
+    override suspend fun saveTag(id: Long?, groupId: Long, label: String, iconKey: String, colorKey: String?): Long {
         val existing = id?.let { dao.getTag(it) }
         return if (existing == null) {
-            dao.insertTag(TagEntity(groupId = groupId, label = label, iconKey = iconKey, position = dao.nextTagPosition(groupId)))
+            dao.insertTag(
+                TagEntity(groupId = groupId, label = label, iconKey = iconKey, position = dao.nextTagPosition(groupId), colorKey = colorKey),
+            )
         } else {
             val moved = existing.groupId != groupId
             dao.updateTag(
@@ -142,6 +144,7 @@ internal class LocalTagRepository @Inject constructor(private val dao: TagDao) :
                     groupId = groupId,
                     label = label,
                     iconKey = iconKey,
+                    colorKey = colorKey,
                     position = if (moved) dao.nextTagPosition(groupId) else existing.position,
                 ),
             )
@@ -156,11 +159,7 @@ internal class LocalTagRepository @Inject constructor(private val dao: TagDao) :
 
     override suspend fun deleteTag(id: Long) = dao.deleteTag(id)
 
-    override val coloredTagCount: Flow<Int> = dao.observeColoredTagCount().distinctUntilChanged()
-
     override suspend fun setGroupColor(id: Long, colorKey: String?) = dao.setGroupColor(id, colorKey)
-
-    override suspend fun setTagColor(id: Long, colorKey: String?) = dao.setTagColor(id, colorKey)
 }
 
 internal class LocalPostRepository @Inject constructor(

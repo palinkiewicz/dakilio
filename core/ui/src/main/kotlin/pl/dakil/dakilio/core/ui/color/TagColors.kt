@@ -8,7 +8,7 @@ import pl.dakil.dakilio.core.designsystem.theme.LocalDarkTheme
 import pl.dakil.dakilio.core.ui.R
 
 /**
- * The palette of the Tag colors extra. Tags and groups store a color's [key], never its value, so
+ * The palette of tag colors. Tags and groups store a color's [key], never its value, so
  * the tones can be retuned without touching the database; never rename a key.
  *
  * Seeds are light-mode mark colors in OKLCH (lightness, chroma, hue), spread around the hue circle

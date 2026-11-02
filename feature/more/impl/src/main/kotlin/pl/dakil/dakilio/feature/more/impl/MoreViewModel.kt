@@ -9,14 +9,20 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import pl.dakil.dakilio.core.data.repository.HabitRepository
 import pl.dakil.dakilio.core.data.repository.PostRepository
 import pl.dakil.dakilio.core.data.repository.SettingsRepository
 
 @HiltViewModel
 class MoreViewModel @Inject constructor(
     postRepository: PostRepository,
+    habitRepository: HabitRepository,
     private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
+    /** Habits set up (the Habits extra); 0 means it isn't used yet. */
+    val habitCount: StateFlow<Int> =
+        habitRepository.habitCount.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0)
+
     /** Whether to show the "these are samples" hint. */
     val showSampleHint: StateFlow<Boolean> =
         combine(postRepository.samplePostCount, settingsRepository.settings) { count, settings ->
