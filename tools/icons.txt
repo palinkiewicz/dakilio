@@ -52,6 +52,10 @@ ui history
 ui shuffle
 ui event_repeat
 ui arrow_drop_down
+ui settings_backup_restore
+ui save
+ui visibility
+ui visibility_off
 emotions sentiment_very_satisfied
 emotions sentiment_satisfied
 emotions sentiment_neutral

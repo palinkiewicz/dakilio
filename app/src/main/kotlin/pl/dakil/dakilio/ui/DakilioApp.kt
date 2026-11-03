@@ -50,6 +50,9 @@ import pl.dakil.dakilio.feature.more.api.MoreKey
 import pl.dakil.dakilio.feature.moods.impl.moodsEntry
 import pl.dakil.dakilio.feature.importer.api.DaylioImportKey
 import pl.dakil.dakilio.feature.importer.impl.daylioImportEntry
+import pl.dakil.dakilio.feature.backup.api.BackupKey
+import pl.dakil.dakilio.feature.backup.impl.backupEntry
+import pl.dakil.dakilio.core.data.repository.IncomingBackup
 import pl.dakil.dakilio.feature.more.impl.moreEntry
 import pl.dakil.dakilio.feature.search.impl.searchEntry
 import pl.dakil.dakilio.feature.settings.impl.settingsEntry
@@ -71,16 +74,18 @@ private val topLevelKeys = destinations.map { it.key }
 
 /** App shell: shared-element scope, the navigation display and the bottom navigation bar. */
 @Composable
-fun DakilioApp(hasIncomingBackup: Boolean = false) {
+fun DakilioApp(incomingBackup: IncomingBackup? = null) {
     val navigationState = rememberNavigationState(topLevelKeys)
     val navigator = remember(navigationState) { Navigator(navigationState) }
 
-    // A shared .daylio file opens the importer where it normally lives (More → Import from Daylio);
-    // the import screen's ViewModel then picks the file up.
-    LaunchedEffect(hasIncomingBackup) {
-        if (!hasIncomingBackup) return@LaunchedEffect
+    // A shared backup opens its screen where it normally lives (More → Backup & restore for a
+    // .dakilio file, More → Import from Daylio for anything else); that screen's ViewModel then
+    // picks the file up.
+    LaunchedEffect(incomingBackup) {
+        val incoming = incomingBackup ?: return@LaunchedEffect
+        val key = if (incoming.isDakilio) BackupKey else DaylioImportKey
         navigator.navigate(MoreKey)
-        if (navigationState.currentKey != DaylioImportKey) navigator.navigate(DaylioImportKey)
+        if (navigationState.currentKey != key) navigator.navigate(key)
     }
     val haptics = rememberHaptics()
     val density = LocalDensity.current
@@ -96,6 +101,13 @@ fun DakilioApp(hasIncomingBackup: Boolean = false) {
         daylioImportEntry(
             onBack = navigator::goBack,
             onDone = {
+                navigator.goBack()
+                navigator.navigate(TimelineKey)
+            },
+        )
+        backupEntry(
+            onBack = navigator::goBack,
+            onRestored = {
                 navigator.goBack()
                 navigator.navigate(TimelineKey)
             },

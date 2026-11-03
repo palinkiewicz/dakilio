@@ -55,6 +55,10 @@ object DakilioSymbols {
     val Shuffle = DakilioSymbol("shuffle", R.drawable.sym_shuffle, R.drawable.sym_shuffle_fill, SymbolCategory.Ui)
     val EventRepeat = DakilioSymbol("event_repeat", R.drawable.sym_event_repeat, R.drawable.sym_event_repeat_fill, SymbolCategory.Ui)
     val ArrowDropDown = DakilioSymbol("arrow_drop_down", R.drawable.sym_arrow_drop_down, R.drawable.sym_arrow_drop_down_fill, SymbolCategory.Ui)
+    val SettingsBackupRestore = DakilioSymbol("settings_backup_restore", R.drawable.sym_settings_backup_restore, R.drawable.sym_settings_backup_restore_fill, SymbolCategory.Ui)
+    val Save = DakilioSymbol("save", R.drawable.sym_save, R.drawable.sym_save_fill, SymbolCategory.Ui)
+    val Visibility = DakilioSymbol("visibility", R.drawable.sym_visibility, R.drawable.sym_visibility_fill, SymbolCategory.Ui)
+    val VisibilityOff = DakilioSymbol("visibility_off", R.drawable.sym_visibility_off, R.drawable.sym_visibility_off_fill, SymbolCategory.Ui)
     val SentimentVerySatisfied = DakilioSymbol("sentiment_very_satisfied", R.drawable.sym_sentiment_very_satisfied, R.drawable.sym_sentiment_very_satisfied_fill, SymbolCategory.Emotions)
     val SentimentSatisfied = DakilioSymbol("sentiment_satisfied", R.drawable.sym_sentiment_satisfied, R.drawable.sym_sentiment_satisfied_fill, SymbolCategory.Emotions)
     val SentimentNeutral = DakilioSymbol("sentiment_neutral", R.drawable.sym_sentiment_neutral, R.drawable.sym_sentiment_neutral_fill, SymbolCategory.Emotions)
@@ -231,6 +235,10 @@ object DakilioSymbols {
         Shuffle,
         EventRepeat,
         ArrowDropDown,
+        SettingsBackupRestore,
+        Save,
+        Visibility,
+        VisibilityOff,
         SentimentVerySatisfied,
         SentimentSatisfied,
         SentimentNeutral,

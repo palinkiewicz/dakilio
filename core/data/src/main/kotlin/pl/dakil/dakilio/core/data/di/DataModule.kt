@@ -5,7 +5,9 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
+import pl.dakil.dakilio.core.data.repository.BackupRepository
 import pl.dakil.dakilio.core.data.repository.DaylioImportRepository
+import pl.dakil.dakilio.core.data.repository.LocalBackupRepository
 import pl.dakil.dakilio.core.data.repository.DiaryRepository
 import pl.dakil.dakilio.core.data.repository.HabitRepository
 import pl.dakil.dakilio.core.data.repository.LocalHabitRepository
@@ -49,4 +51,7 @@ internal interface DataModule {
 
     /** Unscoped: it holds the opened file, so every screen gets its own. */
     @Binds fun daylioImport(impl: LocalDaylioImportRepository): DaylioImportRepository
+
+    /** Unscoped for the same reason. */
+    @Binds fun backup(impl: LocalBackupRepository): BackupRepository
 }

@@ -1,5 +1,7 @@
 package pl.dakil.dakilio.feature.intro.impl
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,6 +38,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -63,14 +66,13 @@ import pl.dakil.dakilio.core.ui.rememberDaylioInstalled
 import pl.dakil.dakilio.core.ui.setAppLanguage
 
 @Composable
-internal fun LanguageStep(onContinue: (daylioInstalled: Boolean) -> Unit) {
+internal fun LanguageStep(onContinue: () -> Unit) {
     val context = LocalContext.current
-    val daylioInstalled by rememberDaylioInstalled()
     val haptics = rememberHaptics()
     IntroPage(
         onBack = null,
         bottomBar = {
-            Button(onClick = { onContinue(daylioInstalled) }) { Text(stringResource(R.string.intro_continue)) }
+            Button(onClick = onContinue) { Text(stringResource(R.string.intro_continue)) }
         },
     ) {
         Hero(DakilioSymbols.Language, MaterialShapes.Cookie9Sided)
@@ -108,33 +110,76 @@ internal fun LanguageStep(onContinue: (daylioInstalled: Boolean) -> Unit) {
 }
 
 @Composable
-internal fun DaylioStep(onBack: () -> Unit, onPickFile: () -> Unit, onStartFresh: () -> Unit) {
+internal fun ImportStep(viewModel: IntroImportViewModel, onBack: () -> Unit, onStartFresh: () -> Unit) {
     val context = LocalContext.current
     var daylioInstalled by rememberDaylioInstalled()
     val haptics = rememberHaptics()
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let(viewModel::open) }
+    val pick = { picker.launch(arrayOf("*/*")) }
     IntroPage(
         onBack = onBack,
         bottomBar = {
-            TextButton(onClick = onStartFresh) { Text(stringResource(R.string.intro_daylio_skip)) }
+            TextButton(onClick = onStartFresh) { Text(stringResource(R.string.intro_import_skip)) }
         },
     ) {
         Hero(DakilioSymbols.DriveFileMove, MaterialShapes.Cookie12Sided)
-        Title(stringResource(R.string.intro_daylio_title))
-        Body(stringResource(R.string.intro_daylio_body))
-        if (daylioInstalled) {
-            DaylioBackupCard(
-                title = stringResource(R.string.intro_daylio_card_title),
-                body = stringResource(R.string.intro_daylio_card_body),
-                onOpenDaylio = {
-                    haptics.confirm()
-                    if (!openDaylioBackup(context)) daylioInstalled = false
-                },
-                modifier = Modifier.padding(top = Spacing.l),
-            )
+        Title(stringResource(R.string.intro_import_title))
+        Body(stringResource(R.string.intro_import_body))
+
+        // Both cards read as one segmented block.
+        Column(verticalArrangement = Arrangement.spacedBy(SegmentedShapes.gap), modifier = Modifier.padding(top = Spacing.s)) {
+            ImportCard(
+                symbol = DakilioSymbols.SettingsBackupRestore,
+                title = stringResource(R.string.intro_restore_title),
+                body = stringResource(R.string.intro_restore_body),
+                shape = SegmentedShapes.of(0, 2),
+            ) {
+                OutlinedButton(onClick = pick, modifier = Modifier.align(Alignment.End)) {
+                    DakilioIcon(DakilioSymbols.FolderOpen, contentDescription = null, modifier = Modifier.padding(end = Spacing.s))
+                    Text(stringResource(R.string.intro_restore_button))
+                }
+            }
+            ImportCard(
+                symbol = DakilioSymbols.Mood,
+                title = stringResource(R.string.intro_daylio_title),
+                body = stringResource(R.string.intro_daylio_body),
+                shape = SegmentedShapes.of(1, 2),
+            ) {
+                if (daylioInstalled) {
+                    DaylioBackupCard(
+                        title = stringResource(R.string.intro_daylio_card_title),
+                        body = stringResource(R.string.intro_daylio_card_body),
+                        onOpenDaylio = {
+                            haptics.confirm()
+                            if (!openDaylioBackup(context)) daylioInstalled = false
+                        },
+                    )
+                }
+                OutlinedButton(onClick = pick, modifier = Modifier.align(Alignment.End)) {
+                    DakilioIcon(DakilioSymbols.FolderOpen, contentDescription = null, modifier = Modifier.padding(end = Spacing.s))
+                    Text(stringResource(R.string.intro_daylio_pick))
+                }
+            }
         }
-        OutlinedButton(onClick = onPickFile, modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = Spacing.s)) {
-            DakilioIcon(DakilioSymbols.FolderOpen, contentDescription = null, modifier = Modifier.padding(end = Spacing.s))
-            Text(stringResource(R.string.intro_daylio_pick))
+    }
+}
+
+@Composable
+private fun ImportCard(
+    symbol: DakilioSymbol,
+    title: String,
+    body: String,
+    shape: Shape,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    Surface(shape = shape, color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(Spacing.xl), verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                DakilioIcon(symbol, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                Text(title, style = MaterialTheme.typography.titleMediumEmphasized, modifier = Modifier.padding(start = Spacing.m))
+            }
+            Text(body, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            content()
         }
     }
 }

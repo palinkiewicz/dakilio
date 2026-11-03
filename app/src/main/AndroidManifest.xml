@@ -40,7 +40,7 @@
             <!--
                 .daylio backups, mirroring Daylio's own filters: Daylio uses "application/daylio", but
                 Android doesn't know the extension, so most apps hand the file over as a generic binary.
-                SEND can't match on the file name, so it goes by type only; the importer checks the contents.
+                SEND can't match on the file name, so it goes by type only; the app checks the contents.
             -->
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
@@ -70,6 +70,21 @@
                 <data android:pathPattern=".*\\..*\\.daylio" />
                 <data android:pathPattern=".*\\..*\\..*\\.daylio" />
                 <data android:pathPattern=".*\\..*\\..*\\..*\\.daylio" />
+            </intent-filter>
+            <!--
+                Dakilio's own .dakilio backups, by path the same way. Shared ones arrive as generic
+                binaries through the filters above; the app tells the two kinds apart by their first bytes.
+            -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="content" />
+                <data android:host="*" />
+                <data android:mimeType="*/*" />
+                <data android:pathPattern=".*\\.dakilio" />
+                <data android:pathPattern=".*\\..*\\.dakilio" />
+                <data android:pathPattern=".*\\..*\\..*\\.dakilio" />
+                <data android:pathPattern=".*\\..*\\..*\\..*\\.dakilio" />
             </intent-filter>
         </activity>
     </application>

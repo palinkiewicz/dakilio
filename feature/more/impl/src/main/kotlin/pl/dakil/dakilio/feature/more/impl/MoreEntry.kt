@@ -8,6 +8,7 @@ import pl.dakil.dakilio.core.ui.NavTransitions
 import pl.dakil.dakilio.feature.archive.api.ArchiveKey
 import pl.dakil.dakilio.feature.diaries.api.DiariesKey
 import pl.dakil.dakilio.feature.habits.api.HabitsKey
+import pl.dakil.dakilio.feature.backup.api.BackupKey
 import pl.dakil.dakilio.feature.importer.api.DaylioImportKey
 import pl.dakil.dakilio.feature.more.api.MoreKey
 import pl.dakil.dakilio.feature.settings.api.SettingsKey
@@ -23,6 +24,7 @@ fun EntryProviderScope<NavKey>.moreEntry(navigator: Navigator) {
             onOpenDiaries = { navigator.navigate(DiariesKey) },
             onOpenSettings = { navigator.navigate(SettingsKey) },
             onOpenImport = { navigator.navigate(DaylioImportKey) },
+            onOpenBackup = { navigator.navigate(BackupKey) },
             onOpenArchive = { navigator.navigate(ArchiveKey) },
             onOpenHabits = { navigator.navigate(HabitsKey) },
         )

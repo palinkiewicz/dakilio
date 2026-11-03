@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="backup_title">Backup &amp; restore</string>
+    <string name="backup_subtitle">Your whole journal in one file</string>
+    <string name="backup_back">Back</string>
+
+    <string name="backup_home_title">Keep your journal safe</string>
+    <string name="backup_home_body">A backup is one .dakilio file with every entry, photo, mood, tag, diary and habit, plus your settings.</string>
+    <string name="backup_create_title">Create a backup</string>
+    <string name="backup_create_body">Without a password, anyone who has the file can open it and read your entries.</string>
+    <string name="backup_create_hint">Keep it somewhere safe, like your computer or a cloud drive, so it survives losing this phone.</string>
+    <string name="backup_protect">Protect with a password</string>
+    <string name="backup_password">Password</string>
+    <string name="backup_password_repeat">Repeat password</string>
+    <string name="backup_password_mismatch">The passwords don\'t match</string>
+    <string name="backup_password_warning">A forgotten password can\'t be recovered. Without it, nobody can open the backup, not even Dakilio.</string>
+    <string name="backup_password_show">Show password</string>
+    <string name="backup_password_hide">Hide password</string>
+    <string name="backup_create_button">Create backup</string>
+    <string name="backup_restore_title">Restore a backup</string>
+    <string name="backup_restore_body">Replaces everything in Dakilio with the backup. You\'ll see what\'s inside before anything changes.</string>
+    <string name="backup_restore_button">Choose backup</string>
+    <string name="backup_privacy">Backups are made and read on this device. Nothing is uploaded.</string>
+
+    <string name="backup_exporting_title">Creating backup…</string>
+    <string name="backup_exporting_photos">Adding photos: %1$d of %2$d</string>
+    <string name="backup_exporting_writing">Writing your entries…</string>
+    <string name="backup_exported_title">Backup saved</string>
+    <plurals name="backup_exported_missing">
+        <item quantity="one">%d photo file was missing on this device and isn\'t in the backup.</item>
+        <item quantity="other">%d photo files were missing on this device and aren\'t in the backup.</item>
+    </plurals>
+    <string name="backup_exported_button">Done</string>
+
+    <string name="backup_reading">Reading the backup…</string>
+    <string name="backup_locked_title">This backup is locked</string>
+    <string name="backup_locked_body">Enter the password it was created with.</string>
+    <string name="backup_password_wrong">Wrong password</string>
+    <string name="backup_unlock">Unlock</string>
+    <string name="backup_unlocking">Unlocking…</string>
+
+    <string name="backup_preview_title">Ready to restore</string>
+    <string name="backup_preview_made">Backup from %1$s</string>
+    <string name="backup_preview_range">Entries from %1$s to %2$s</string>
+    <string name="backup_stat_entries">Entries</string>
+    <string name="backup_stat_photos">Photos</string>
+    <string name="backup_stat_tags">Tags</string>
+    <string name="backup_stat_diaries">Diaries</string>
+    <string name="backup_stat_habits">Habits</string>
+    <string name="backup_skipped_title">Not restored</string>
+    <plurals name="backup_skipped_photos">
+        <item quantity="one">%d photo missing from the file</item>
+        <item quantity="other">%d photos missing from the file</item>
+    </plurals>
+    <plurals name="backup_skipped_entries">
+        <item quantity="one">%d entry with an unreadable date</item>
+        <item quantity="other">%d entries with an unreadable date</item>
+    </plurals>
+    <plurals name="backup_skipped_references">
+        <item quantity="one">%d broken link to a mood, tag, diary or photo</item>
+        <item quantity="other">%d broken links to moods, tags, diaries or photos</item>
+    </plurals>
+    <string name="backup_warning_title">This replaces everything in Dakilio</string>
+    <string name="backup_warning_body">%1$s, %2$s, %3$s and %4$s will be deleted and replaced with the backup.</string>
+    <plurals name="backup_count_entries">
+        <item quantity="one">%d entry</item>
+        <item quantity="other">%d entries</item>
+    </plurals>
+    <plurals name="backup_count_photos">
+        <item quantity="one">%d photo</item>
+        <item quantity="other">%d photos</item>
+    </plurals>
+    <plurals name="backup_count_diaries">
+        <item quantity="one">%d diary</item>
+        <item quantity="other">%d diaries</item>
+    </plurals>
+    <plurals name="backup_count_tags">
+        <item quantity="one">%d tag</item>
+        <item quantity="other">%d tags</item>
+    </plurals>
+    <string name="backup_restore_start">Restore and replace</string>
+    <string name="backup_other_file">Pick another file</string>
+
+    <string name="backup_confirm_title">Replace all your data?</string>
+    <string name="backup_confirm_body">Everything currently in Dakilio will be deleted for good and replaced with the backup. This can\'t be undone.</string>
+    <string name="backup_confirm_yes">Replace</string>
+    <string name="backup_confirm_no">Cancel</string>
+
+    <string name="backup_restoring_title">Restoring…</string>
+    <string name="backup_restoring_photos">Copying photos: %1$d of %2$d</string>
+    <string name="backup_restoring_saving">Saving your entries…</string>
+    <string name="backup_keep_open">Keep this screen open until it\'s done.</string>
+
+    <string name="backup_restored_title">Welcome back!</string>
+    <plurals name="backup_done_entries">
+        <item quantity="one">%d entry is in place.</item>
+        <item quantity="other">%d entries are in place.</item>
+    </plurals>
+    <plurals name="backup_done_photos">
+        <item quantity="one">%d photo came along.</item>
+        <item quantity="other">%d photos came along.</item>
+    </plurals>
+    <plurals name="backup_restored_photos_failed">
+        <item quantity="one">%d photo couldn\'t be read.</item>
+        <item quantity="other">%d photos couldn\'t be read.</item>
+    </plurals>
+    <string name="backup_restored_button">Go to timeline</string>
+
+    <string name="backup_error_export_title">Couldn\'t create the backup</string>
+    <string name="backup_error_open_title">Couldn\'t open this file</string>
+    <string name="backup_error_restore_title">Couldn\'t restore the backup</string>
+    <string name="backup_error_not_backup">This isn\'t a Dakilio backup. For a Daylio backup, use Import from Daylio instead.</string>
+    <string name="backup_error_corrupted">The backup is damaged or incomplete, so it can\'t be opened.</string>
+    <string name="backup_error_too_large">The file is too large to restore.</string>
+    <string name="backup_error_newer">This backup was made by a newer version of Dakilio. Update the app and try again.</string>
+    <string name="backup_error_malformed">The backup is damaged or was edited in a way Dakilio can\'t read.</string>
+    <string name="backup_error_unknown">Something went wrong while reading the file.</string>
+    <string name="backup_error_export_failed">Something went wrong while writing the file. Check that there\'s enough space and try again.</string>
+    <string name="backup_error_restore_failed">Something went wrong while restoring. Nothing was changed.</string>
+    <string name="backup_try_again">Try again</string>
+</resources>

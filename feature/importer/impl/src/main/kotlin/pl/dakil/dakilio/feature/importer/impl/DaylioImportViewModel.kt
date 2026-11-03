@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import pl.dakil.dakilio.core.data.repository.DaylioImportRepository
+import pl.dakil.dakilio.core.data.repository.IncomingBackups
 import pl.dakil.dakilio.core.data.repository.DaylioImportResult
 import pl.dakil.dakilio.core.data.repository.DaylioPreview
 import pl.dakil.dakilio.core.daylio.DaylioError
@@ -50,7 +51,7 @@ internal class DaylioImportViewModel @Inject constructor(
         // A file shared to Dakilio replaces whatever is on screen, unless an import is already running.
         viewModelScope.launch {
             incoming.pending.filterNotNull().collect {
-                val uri = incoming.take() ?: return@collect
+                val uri = incoming.take(dakilio = false) ?: return@collect
                 if (_state.value !is ImportUiState.Importing) open(uri)
             }
         }

@@ -7,9 +7,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 data object IntroLanguageKey : NavKey
 
-/** Shown when Daylio is installed: move the entries over, or start fresh. */
+/** Bring a journal along (a Dakilio backup or a Daylio one), or start fresh. */
 @Serializable
-data object IntroDaylioKey : NavKey
+data object IntroImportKey : NavKey
 
 /** Pick which ready-made tag groups to keep. */
 @Serializable

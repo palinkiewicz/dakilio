@@ -8,8 +8,16 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import android.net.Uri
+import pl.dakil.dakilio.core.data.repository.IncomingBackups
 import pl.dakil.dakilio.core.data.repository.OnboardingRepository
 import pl.dakil.dakilio.core.model.SuggestedGroup
+
+/** The import step: a picked backup goes the same way as a shared one (see [IncomingBackups]). */
+@HiltViewModel
+internal class IntroImportViewModel @Inject constructor(private val incoming: IncomingBackups) : ViewModel() {
+    fun open(uri: Uri) = incoming.deliver(uri)
+}
 
 @HiltViewModel
 internal class IntroGroupsViewModel @Inject constructor(

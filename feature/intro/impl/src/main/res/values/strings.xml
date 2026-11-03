@@ -9,13 +9,18 @@
     <string name="intro_language_header">Language</string>
     <string name="intro_language_more">More languages are on the way.</string>
 
-    <!-- Daylio -->
+    <!-- Import -->
+    <string name="intro_import_title">Bring your journal along</string>
+    <string name="intro_import_body">Start from a backup instead of from scratch. Its entries, moods and tags take the place of the starter content.</string>
+    <string name="intro_import_skip">Start fresh</string>
+    <string name="intro_restore_title">Dakilio backup</string>
+    <string name="intro_restore_body">From another phone or an earlier install. Everything comes back as it was, photos, habits and settings included.</string>
+    <string name="intro_restore_button">Choose backup file</string>
     <string name="intro_daylio_title">Coming from Daylio?</string>
-    <string name="intro_daylio_body">Bring your entries, photos, moods and tags along. Dakilio then starts from your backup instead of the starter tags.</string>
+    <string name="intro_daylio_body">Bring your entries, photos, moods and tags along from a .daylio backup.</string>
     <string name="intro_daylio_card_title">Export a backup</string>
     <string name="intro_daylio_card_body">Open Daylio\'s backup screen, export a backup and pick Dakilio in the share menu. It comes straight back here.</string>
     <string name="intro_daylio_pick">I already have a backup file</string>
-    <string name="intro_daylio_skip">Start fresh</string>
 
     <!-- Tag groups -->
     <string name="intro_groups_title">Pick your tags</string>

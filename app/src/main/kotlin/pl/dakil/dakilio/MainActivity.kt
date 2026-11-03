@@ -18,7 +18,7 @@ import pl.dakil.dakilio.core.designsystem.theme.DakilioTheme
 import pl.dakil.dakilio.core.model.ThemeMode
 import pl.dakil.dakilio.core.ui.LocalEntryDisplay
 import pl.dakil.dakilio.core.ui.LocalShowHints
-import pl.dakil.dakilio.feature.importer.impl.IncomingBackups
+import pl.dakil.dakilio.core.data.repository.IncomingBackups
 import javax.inject.Inject
 import pl.dakil.dakilio.ui.DakilioApp
 import pl.dakil.dakilio.ui.IntroFlow
@@ -55,9 +55,9 @@ class MainActivity : ComponentActivity() {
             DakilioTheme(darkTheme = dark) {
                 CompositionLocalProvider(LocalShowHints provides showHints, LocalEntryDisplay provides entryDisplay) {
                     if (intro) {
-                        IntroFlow(hasIncomingBackup = incomingBackup != null, onFinished = viewModel::finishIntro)
+                        IntroFlow(incomingBackup = incomingBackup, onFinished = viewModel::finishIntro)
                     } else {
-                        DakilioApp(hasIncomingBackup = incomingBackup != null)
+                        DakilioApp(incomingBackup = incomingBackup)
                     }
                 }
             }

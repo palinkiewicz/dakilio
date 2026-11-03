@@ -4,7 +4,6 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -47,25 +45,24 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.graphics.shapes.RoundedPolygon
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pl.dakil.dakilio.core.data.repository.DaylioImportResult
 import pl.dakil.dakilio.core.data.repository.DaylioPreview
 import pl.dakil.dakilio.core.daylio.DaylioError
-import pl.dakil.dakilio.core.designsystem.component.ShapedIcon
 import pl.dakil.dakilio.core.designsystem.component.rememberHaptics
 import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
-import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbol
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.ui.component.DaylioBackupCard
+import pl.dakil.dakilio.core.ui.component.StatTile
+import pl.dakil.dakilio.core.ui.component.StepDoneStamp
+import pl.dakil.dakilio.core.ui.component.StepHero
 import pl.dakil.dakilio.core.ui.openDaylioBackup
 import pl.dakil.dakilio.core.ui.rememberDaylioInstalled
 import pl.dakil.dakilio.core.ui.rememberFormats
@@ -164,7 +161,7 @@ internal fun DaylioImportScreen(viewModel: DaylioImportViewModel, onBack: () -> 
 
 @Composable
 private fun ColumnScope.PickStep(onPick: () -> Unit, daylioInstalled: Boolean, onOpenDaylio: () -> Unit) {
-    Hero(DakilioSymbols.DriveFileMove, MaterialShapes.Cookie9Sided)
+    StepHero(DakilioSymbols.DriveFileMove, MaterialShapes.Cookie9Sided)
     Text(
         stringResource(R.string.import_pick_title),
         style = MaterialTheme.typography.headlineSmallEmphasized,
@@ -296,7 +293,7 @@ private fun ColumnScope.PreviewStep(preview: DaylioPreview, onImport: () -> Unit
 
 @Composable
 private fun ColumnScope.ImportingStep(done: Int, total: Int) {
-    Hero(DakilioSymbols.Route, MaterialShapes.Cookie12Sided)
+    StepHero(DakilioSymbols.Route, MaterialShapes.Cookie12Sided)
     Text(
         stringResource(R.string.import_progress_title),
         style = MaterialTheme.typography.headlineSmallEmphasized,
@@ -327,33 +324,7 @@ private fun ColumnScope.ImportingStep(done: Int, total: Int) {
 
 @Composable
 private fun ColumnScope.DoneStep(result: DaylioImportResult, onDone: () -> Unit) {
-    // A one-shot "passport stamp": the badge lands with a springy scale and a slight twist.
-    val haptics = rememberHaptics()
-    val stamp = remember { Animatable(0f) }
-    val spec = MaterialTheme.motionScheme.slowSpatialSpec<Float>()
-    LaunchedEffect(Unit) {
-        haptics.confirm()
-        stamp.animateTo(1f, spec)
-    }
-    Box(
-        Modifier.fillMaxWidth().padding(top = Spacing.xxl, bottom = Spacing.l).graphicsLayer {
-            val t = stamp.value
-            scaleX = 1.6f - 0.6f * t
-            scaleY = 1.6f - 0.6f * t
-            rotationZ = -18f * (1f - t)
-            alpha = t.coerceIn(0f, 1f)
-        },
-        contentAlignment = Alignment.Center,
-    ) {
-        ShapedIcon(
-            symbol = DakilioSymbols.CheckCircle,
-            polygon = MaterialShapes.SoftBurst,
-            size = 120.dp,
-            iconSize = 56.dp,
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-        )
-    }
+    StepDoneStamp()
     Text(
         stringResource(R.string.import_done_title),
         style = MaterialTheme.typography.headlineMediumEmphasized,
@@ -381,7 +352,7 @@ private fun ColumnScope.DoneStep(result: DaylioImportResult, onDone: () -> Unit)
 
 @Composable
 private fun ColumnScope.FailedStep(state: ImportUiState.Failed, onPickOther: () -> Unit) {
-    Hero(DakilioSymbols.Block, MaterialShapes.Cookie6Sided, error = true)
+    StepHero(DakilioSymbols.Block, MaterialShapes.Cookie6Sided, error = true)
     Text(
         stringResource(R.string.import_error_title),
         style = MaterialTheme.typography.headlineSmallEmphasized,
@@ -412,28 +383,4 @@ private fun ColumnScope.FailedStep(state: ImportUiState.Failed, onPickOther: () 
 private fun ColumnScope.Busy(label: String) {
     LoadingIndicator(Modifier.align(Alignment.CenterHorizontally).padding(top = Spacing.xxl))
     Text(label, style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
-}
-
-@Composable
-private fun Hero(symbol: DakilioSymbol, polygon: RoundedPolygon, error: Boolean = false) {
-    Box(Modifier.fillMaxWidth().padding(top = Spacing.xl, bottom = Spacing.s), contentAlignment = Alignment.Center) {
-        ShapedIcon(
-            symbol = symbol,
-            polygon = polygon,
-            size = 96.dp,
-            iconSize = 48.dp,
-            containerColor = if (error) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.secondaryContainer,
-            contentColor = if (error) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onSecondaryContainer,
-        )
-    }
-}
-
-@Composable
-private fun StatTile(label: String, value: Int, shape: RoundedCornerShape, modifier: Modifier) {
-    Surface(shape = shape, color = MaterialTheme.colorScheme.surfaceContainer, modifier = modifier.fillMaxHeight()) {
-        Column(Modifier.padding(Spacing.l)) {
-            Text(value.toString(), style = MaterialTheme.typography.headlineMediumEmphasized)
-            Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2)
-        }
-    }
 }

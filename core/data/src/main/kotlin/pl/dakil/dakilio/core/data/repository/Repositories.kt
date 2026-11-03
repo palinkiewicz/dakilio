@@ -18,6 +18,7 @@ import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TagUsage
 import pl.dakil.dakilio.core.model.ThemeMode
 import pl.dakil.dakilio.core.model.UserSettings
+import pl.dakil.dakilio.core.backup.RestoreStats
 import pl.dakil.dakilio.core.daylio.ImportStats
 
 interface MoodRepository {
@@ -238,6 +239,51 @@ interface DaylioImportRepository {
 
     /** Copies the photos (reporting progress), then swaps the content in one transaction. */
     suspend fun import(onProgress: (done: Int, total: Int) -> Unit): DaylioImportResult
+
+    fun close()
+}
+
+data class BackupExportResult(val entries: Int, val photos: Int, val missingPhotos: Int)
+
+sealed interface BackupOpenResult {
+    /** An encrypted backup: [BackupRepository.unlock] it with the password. */
+    data object NeedsPassword : BackupOpenResult
+
+    data class Ready(val preview: BackupPreview) : BackupOpenResult
+}
+
+data class BackupPreview(
+    val stats: RestoreStats,
+    /** Epoch millis of when the backup was made, if the file says. */
+    val exportedAt: Long?,
+    val encrypted: Boolean,
+    /** Photos the entries reference that aren't in the archive. */
+    val missingPhotos: Int,
+    val current: CurrentContent,
+)
+
+data class BackupRestoreResult(val entries: Int, val photos: Int, val photosFailed: Int)
+
+/**
+ * Dakilio's own `.dakilio` backups (see `.materials/dakilio_format.md`).
+ *
+ * [export] writes everything (entries, photos, moods, tags, diaries, habits and settings) to a
+ * file, optionally encrypted with a password. Restoring is stateful, like the Daylio import: [open]
+ * a file, [unlock] it if it's encrypted, then [restore] it, which **replaces** all content; [close]
+ * releases the temporary copies. Errors where the file is the problem are
+ * [pl.dakil.dakilio.core.backup.BackupException]s.
+ */
+interface BackupRepository {
+    /** [password] null writes a plain, readable backup. The caller clears the password afterwards. */
+    suspend fun export(uri: Uri, password: CharArray?, onProgress: (done: Int, total: Int) -> Unit): BackupExportResult
+
+    suspend fun open(uri: Uri): BackupOpenResult
+
+    /** Decrypts the opened file. Throws `BackupException(WrongPassword)` and leaves it open for another try. */
+    suspend fun unlock(password: CharArray): BackupPreview
+
+    /** Copies the photos (reporting progress), then swaps the content in one transaction. */
+    suspend fun restore(onProgress: (done: Int, total: Int) -> Unit): BackupRestoreResult
 
     fun close()
 }

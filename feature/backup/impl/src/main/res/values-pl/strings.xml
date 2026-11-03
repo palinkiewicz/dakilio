@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="backup_title">Kopia zapasowa</string>
+    <string name="backup_subtitle">Cały dziennik w jednym pliku</string>
+    <string name="backup_back">Wstecz</string>
+
+    <string name="backup_home_title">Zadbaj o swój dziennik</string>
+    <string name="backup_home_body">Kopia zapasowa to jeden plik .dakilio ze wszystkimi wpisami, zdjęciami, nastrojami, tagami, dziennikami i nawykami oraz z twoimi ustawieniami.</string>
+    <string name="backup_create_title">Utwórz kopię</string>
+    <string name="backup_create_body">Bez hasła każdy, kto ma plik, może go otworzyć i przeczytać twoje wpisy.</string>
+    <string name="backup_create_hint">Trzymaj ją w bezpiecznym miejscu, np. na komputerze albo w chmurze, żeby przetrwała utratę telefonu.</string>
+    <string name="backup_protect">Chroń hasłem</string>
+    <string name="backup_password">Hasło</string>
+    <string name="backup_password_repeat">Powtórz hasło</string>
+    <string name="backup_password_mismatch">Hasła się różnią</string>
+    <string name="backup_password_warning">Zapomnianego hasła nie da się odzyskać. Bez niego nikt nie otworzy kopii, nawet Dakilio.</string>
+    <string name="backup_password_show">Pokaż hasło</string>
+    <string name="backup_password_hide">Ukryj hasło</string>
+    <string name="backup_create_button">Utwórz kopię</string>
+    <string name="backup_restore_title">Przywróć kopię</string>
+    <string name="backup_restore_body">Zastępuje wszystko w Dakilio zawartością kopii. Zanim cokolwiek się zmieni, zobaczysz, co jest w środku.</string>
+    <string name="backup_restore_button">Wybierz kopię</string>
+    <string name="backup_privacy">Kopie powstają i są odczytywane na tym urządzeniu. Nic nie jest wysyłane.</string>
+
+    <string name="backup_exporting_title">Tworzenie kopii…</string>
+    <string name="backup_exporting_photos">Dodawanie zdjęć: %1$d z %2$d</string>
+    <string name="backup_exporting_writing">Zapisywanie wpisów…</string>
+    <string name="backup_exported_title">Kopia zapisana</string>
+    <plurals name="backup_exported_missing">
+        <item quantity="one">Brakowało %d pliku ze zdjęciem, więc nie ma go w kopii.</item>
+        <item quantity="few">Brakowało %d plików ze zdjęciami, więc nie ma ich w kopii.</item>
+        <item quantity="many">Brakowało %d plików ze zdjęciami, więc nie ma ich w kopii.</item>
+        <item quantity="other">Brakowało %d pliku ze zdjęciami, więc nie ma ich w kopii.</item>
+    </plurals>
+    <string name="backup_exported_button">Gotowe</string>
+
+    <string name="backup_reading">Odczytywanie kopii…</string>
+    <string name="backup_locked_title">Ta kopia jest zablokowana</string>
+    <string name="backup_locked_body">Wpisz hasło, którym została zabezpieczona.</string>
+    <string name="backup_password_wrong">Nieprawidłowe hasło</string>
+    <string name="backup_unlock">Odblokuj</string>
+    <string name="backup_unlocking">Odblokowywanie…</string>
+
+    <string name="backup_preview_title">Gotowe do przywrócenia</string>
+    <string name="backup_preview_made">Kopia z %1$s</string>
+    <string name="backup_preview_range">Wpisy od %1$s do %2$s</string>
+    <string name="backup_stat_entries">Wpisy</string>
+    <string name="backup_stat_photos">Zdjęcia</string>
+    <string name="backup_stat_tags">Tagi</string>
+    <string name="backup_stat_diaries">Dzienniki</string>
+    <string name="backup_stat_habits">Nawyki</string>
+    <string name="backup_skipped_title">Nie zostanie przywrócone</string>
+    <plurals name="backup_skipped_photos">
+        <item quantity="one">%d zdjęcie, którego brakuje w pliku</item>
+        <item quantity="few">%d zdjęcia, których brakuje w pliku</item>
+        <item quantity="many">%d zdjęć, których brakuje w pliku</item>
+        <item quantity="other">%d zdjęcia, których brakuje w pliku</item>
+    </plurals>
+    <plurals name="backup_skipped_entries">
+        <item quantity="one">%d wpis z nieczytelną datą</item>
+        <item quantity="few">%d wpisy z nieczytelną datą</item>
+        <item quantity="many">%d wpisów z nieczytelną datą</item>
+        <item quantity="other">%d wpisu z nieczytelną datą</item>
+    </plurals>
+    <plurals name="backup_skipped_references">
+        <item quantity="one">%d uszkodzone odwołanie do nastroju, tagu, dziennika lub zdjęcia</item>
+        <item quantity="few">%d uszkodzone odwołania do nastrojów, tagów, dzienników lub zdjęć</item>
+        <item quantity="many">%d uszkodzonych odwołań do nastrojów, tagów, dzienników lub zdjęć</item>
+        <item quantity="other">%d uszkodzonego odwołania do nastrojów, tagów, dzienników lub zdjęć</item>
+    </plurals>
+    <string name="backup_warning_title">To zastąpi wszystko w Dakilio</string>
+    <string name="backup_warning_body">Usunięte zostaną: %1$s, %2$s, %3$s i %4$s. Ich miejsce zajmie zawartość kopii.</string>
+    <plurals name="backup_count_entries">
+        <item quantity="one">%d wpis</item>
+        <item quantity="few">%d wpisy</item>
+        <item quantity="many">%d wpisów</item>
+        <item quantity="other">%d wpisu</item>
+    </plurals>
+    <plurals name="backup_count_photos">
+        <item quantity="one">%d zdjęcie</item>
+        <item quantity="few">%d zdjęcia</item>
+        <item quantity="many">%d zdjęć</item>
+        <item quantity="other">%d zdjęcia</item>
+    </plurals>
+    <plurals name="backup_count_diaries">
+        <item quantity="one">%d dziennik</item>
+        <item quantity="few">%d dzienniki</item>
+        <item quantity="many">%d dzienników</item>
+        <item quantity="other">%d dziennika</item>
+    </plurals>
+    <plurals name="backup_count_tags">
+        <item quantity="one">%d tag</item>
+        <item quantity="few">%d tagi</item>
+        <item quantity="many">%d tagów</item>
+        <item quantity="other">%d tagu</item>
+    </plurals>
+    <string name="backup_restore_start">Przywróć i zastąp</string>
+    <string name="backup_other_file">Wybierz inny plik</string>
+
+    <string name="backup_confirm_title">Zastąpić wszystkie dane?</string>
+    <string name="backup_confirm_body">Wszystko, co jest teraz w Dakilio, zostanie trwale usunięte i zastąpione kopią. Tego nie da się cofnąć.</string>
+    <string name="backup_confirm_yes">Zastąp</string>
+    <string name="backup_confirm_no">Anuluj</string>
+
+    <string name="backup_restoring_title">Przywracanie…</string>
+    <string name="backup_restoring_photos">Kopiowanie zdjęć: %1$d z %2$d</string>
+    <string name="backup_restoring_saving">Zapisywanie wpisów…</string>
+    <string name="backup_keep_open">Nie zamykaj tego ekranu, dopóki się nie skończy.</string>
+
+    <string name="backup_restored_title">Witaj z powrotem!</string>
+    <plurals name="backup_done_entries">
+        <item quantity="one">%d wpis jest na miejscu.</item>
+        <item quantity="few">%d wpisy są na miejscu.</item>
+        <item quantity="many">%d wpisów jest na miejscu.</item>
+        <item quantity="other">%d wpisu jest na miejscu.</item>
+    </plurals>
+    <plurals name="backup_done_photos">
+        <item quantity="one">Dołączyło %d zdjęcie.</item>
+        <item quantity="few">Dołączyły %d zdjęcia.</item>
+        <item quantity="many">Dołączyło %d zdjęć.</item>
+        <item quantity="other">Dołączyło %d zdjęcia.</item>
+    </plurals>
+    <plurals name="backup_restored_photos_failed">
+        <item quantity="one">Nie udało się odczytać %d zdjęcia.</item>
+        <item quantity="few">Nie udało się odczytać %d zdjęć.</item>
+        <item quantity="many">Nie udało się odczytać %d zdjęć.</item>
+        <item quantity="other">Nie udało się odczytać %d zdjęcia.</item>
+    </plurals>
+    <string name="backup_restored_button">Przejdź do osi czasu</string>
+
+    <string name="backup_error_export_title">Nie udało się utworzyć kopii</string>
+    <string name="backup_error_open_title">Nie udało się otworzyć pliku</string>
+    <string name="backup_error_restore_title">Nie udało się przywrócić kopii</string>
+    <string name="backup_error_not_backup">To nie jest kopia Dakilio. Kopię z Daylio zaimportuj przez „Import z Daylio”.</string>
+    <string name="backup_error_corrupted">Kopia jest uszkodzona lub niekompletna, więc nie da się jej otworzyć.</string>
+    <string name="backup_error_too_large">Plik jest za duży, żeby go przywrócić.</string>
+    <string name="backup_error_newer">Tę kopię utworzyła nowsza wersja Dakilio. Zaktualizuj aplikację i spróbuj ponownie.</string>
+    <string name="backup_error_malformed">Kopia jest uszkodzona albo zmieniona w sposób, którego Dakilio nie potrafi odczytać.</string>
+    <string name="backup_error_unknown">Coś poszło nie tak podczas odczytu pliku.</string>
+    <string name="backup_error_export_failed">Coś poszło nie tak podczas zapisu pliku. Sprawdź, czy jest wystarczająco dużo miejsca, i spróbuj ponownie.</string>
+    <string name="backup_error_restore_failed">Coś poszło nie tak podczas przywracania. Nic nie zostało zmienione.</string>
+    <string name="backup_try_again">Spróbuj ponownie</string>
+</resources>

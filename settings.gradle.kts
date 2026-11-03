@@ -43,9 +43,10 @@ include(":core:designsystem")
 include(":core:ui")
 include(":core:navigation")
 include(":core:daylio")
+include(":core:backup")
 include(":core:samples")
 
-listOf("timeline", "search", "entry", "insights", "more", "moods", "tags", "diaries", "settings", "importer", "archive", "intro", "habits").forEach { feature ->
+listOf("timeline", "search", "entry", "insights", "more", "moods", "tags", "diaries", "settings", "importer", "backup", "archive", "intro", "habits").forEach { feature ->
     include(":feature:$feature:api")
     include(":feature:$feature:impl")
 }

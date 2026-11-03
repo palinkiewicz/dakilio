@@ -64,6 +64,7 @@ internal fun MoreScreen(
     onOpenDiaries: () -> Unit,
     onOpenSettings: () -> Unit,
     onOpenImport: () -> Unit,
+    onOpenBackup: () -> Unit,
     onOpenArchive: () -> Unit,
     onOpenHabits: () -> Unit,
 ) {
@@ -113,7 +114,10 @@ internal fun MoreScreen(
             )
             Group(
                 stringResource(R.string.more_section_data),
-                listOf(MoreItem(DakilioSymbols.DriveFileMove, stringResource(R.string.more_import_daylio), stringResource(R.string.more_import_daylio_body), onOpenImport)),
+                listOf(
+                    MoreItem(DakilioSymbols.SettingsBackupRestore, stringResource(R.string.more_backup), stringResource(R.string.more_backup_body), onOpenBackup),
+                    MoreItem(DakilioSymbols.DriveFileMove, stringResource(R.string.more_import_daylio), stringResource(R.string.more_import_daylio_body), onOpenImport),
+                ),
             )
             Group(
                 stringResource(R.string.more_section_app),

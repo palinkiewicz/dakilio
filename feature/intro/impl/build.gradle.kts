@@ -8,5 +8,5 @@ android {
 
 dependencies {
     api(projects.feature.intro.api)
-    implementation(projects.feature.importer.api)
+    implementation(libs.androidx.activity.compose)
 }

@@ -12,7 +12,10 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import pl.dakil.dakilio.core.data.repository.IncomingBackup
 import pl.dakil.dakilio.core.ui.NavTransitions
+import pl.dakil.dakilio.feature.backup.api.BackupKey
+import pl.dakil.dakilio.feature.backup.impl.backupEntry
 import pl.dakil.dakilio.feature.importer.api.DaylioImportKey
 import pl.dakil.dakilio.feature.importer.impl.daylioImportEntry
 import pl.dakil.dakilio.feature.intro.api.IntroLanguageKey
@@ -20,17 +23,20 @@ import pl.dakil.dakilio.feature.intro.impl.introEntries
 
 /**
  * The first-run intro, shown instead of [DakilioApp] until it's finished. It has its own back stack,
- * which also holds the import screen, so a Daylio transfer happens right inside the intro.
+ * which also holds the import and backup screens, so a Daylio transfer or a restore happens right
+ * inside the intro.
  */
 @Composable
-fun IntroFlow(hasIncomingBackup: Boolean, onFinished: () -> Unit) {
+fun IntroFlow(incomingBackup: IncomingBackup?, onFinished: () -> Unit) {
     val backStack = rememberNavBackStack(IntroLanguageKey)
     val goBack: () -> Unit = { if (backStack.size > 1) backStack.removeLastOrNull() }
 
-    // DakilioApp isn't composed yet, so a .daylio file shared or opened during the intro opens the
-    // import screen here; its ViewModel then takes the file, as it does in the app.
-    LaunchedEffect(hasIncomingBackup) {
-        if (hasIncomingBackup && backStack.lastOrNull() != DaylioImportKey) backStack.add(DaylioImportKey)
+    // DakilioApp isn't composed yet, so a backup shared or opened during the intro opens its screen
+    // here; that screen's ViewModel then takes the file, as it does in the app.
+    LaunchedEffect(incomingBackup) {
+        val incoming = incomingBackup ?: return@LaunchedEffect
+        val key = if (incoming.isDakilio) BackupKey else DaylioImportKey
+        if (backStack.lastOrNull() != key) backStack.add(key)
     }
 
     NavDisplay(
@@ -48,6 +54,7 @@ fun IntroFlow(hasIncomingBackup: Boolean, onFinished: () -> Unit) {
             introEntries(onNavigate = { backStack.add(it) }, onBack = goBack, onFinished = onFinished)
             // A finished import replaces everything, so there's nothing left to set up.
             daylioImportEntry(onBack = goBack, onDone = onFinished)
+            backupEntry(onBack = goBack, onRestored = onFinished, restoreOnly = true)
         },
     )
 }

@@ -11,6 +11,8 @@ dependencies {
     api(projects.core.model)
     api(projects.core.common)
     api(projects.core.daylio)
+    api(projects.core.backup)
     implementation(projects.core.database)
     implementation(projects.core.datastore)
+    implementation(libs.androidx.core.ktx)
 }

@@ -3,7 +3,7 @@ package pl.dakil.dakilio
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import pl.dakil.dakilio.feature.importer.impl.IncomingBackups
+import pl.dakil.dakilio.core.data.repository.IncomingBackups
 
 /**
  * Invisible entry point for backups shared to Dakilio or opened with it.

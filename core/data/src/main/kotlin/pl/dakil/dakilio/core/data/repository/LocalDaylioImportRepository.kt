@@ -21,6 +21,7 @@ import pl.dakil.dakilio.core.database.DefaultData
 import pl.dakil.dakilio.core.database.dao.ImportDao
 import pl.dakil.dakilio.core.database.dao.PostDao
 import pl.dakil.dakilio.core.database.dao.ReplaceData
+import pl.dakil.dakilio.core.database.dao.ReplaceDiary
 import pl.dakil.dakilio.core.database.dao.ReplaceGroup
 import pl.dakil.dakilio.core.database.dao.ReplacePost
 import pl.dakil.dakilio.core.database.entity.MoodEntity
@@ -130,7 +131,7 @@ internal class LocalDaylioImportRepository @Inject constructor(
             val diaryId = importDao.replaceAll(
                 ReplaceData(
                     primaryLabels = (1..MOOD_LEVELS).associateWith { plan.primaryNames[it] ?: DefaultData.primaryMoodLabel(context, it) },
-                    diary = DefaultData.defaultDiary(context, clock.millis()),
+                    diaries = listOf(ReplaceDiary(DefaultData.defaultDiary(context, clock.millis()))),
                     aliases = plan.aliases.map { MoodEntity(level = it.level, label = it.label, isPrimary = false, position = it.position, isArchived = it.archived) },
                     groups = plan.groups.map { group ->
                         ReplaceGroup(
@@ -140,7 +141,7 @@ internal class LocalDaylioImportRepository @Inject constructor(
                     },
                     posts = posts,
                 ),
-            )
+            ).first()
             committed = true
             // Committed: from here on the old content is gone, so finish the cleanup regardless.
             // Best effort: a failure here must not report the (successful) import as failed.

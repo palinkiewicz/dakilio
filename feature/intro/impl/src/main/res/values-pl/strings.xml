@@ -9,13 +9,18 @@
     <string name="intro_language_header">Język</string>
     <string name="intro_language_more">Kolejne języki pojawią się już wkrótce.</string>
 
-    <!-- Daylio -->
+    <!-- Import -->
+    <string name="intro_import_title">Zabierz swój dziennik ze sobą</string>
+    <string name="intro_import_body">Zacznij od kopii zapasowej zamiast od zera. Jej wpisy, nastroje i tagi zastąpią startową zawartość.</string>
+    <string name="intro_import_skip">Zacznij od zera</string>
+    <string name="intro_restore_title">Kopia zapasowa Dakilio</string>
+    <string name="intro_restore_body">Z innego telefonu albo wcześniejszej instalacji. Wszystko wróci na swoje miejsce, łącznie ze zdjęciami, nawykami i ustawieniami.</string>
+    <string name="intro_restore_button">Wybierz plik kopii</string>
     <string name="intro_daylio_title">Przesiadasz się z Daylio?</string>
-    <string name="intro_daylio_body">Zabierz ze sobą wpisy, zdjęcia, nastroje i tagi. Dakilio zacznie wtedy od twojej kopii zapasowej zamiast od zupełnego zera.</string>
+    <string name="intro_daylio_body">Zabierz ze sobą wpisy, zdjęcia, nastroje i tagi z kopii zapasowej .daylio.</string>
     <string name="intro_daylio_card_title">Wyeksportuj kopię zapasową</string>
     <string name="intro_daylio_card_body">Otwórz ekran kopii zapasowej w Daylio, wyeksportuj kopię i wybierz Dakilio w menu udostępniania. Plik trafi prosto tutaj.</string>
     <string name="intro_daylio_pick">Mam już plik z kopią</string>
-    <string name="intro_daylio_skip">Zacznij od zera</string>
 
     <!-- Tag groups -->
     <string name="intro_groups_title">Wybierz tagi</string>

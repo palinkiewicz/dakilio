@@ -20,6 +20,8 @@
     <string name="more_archive">Archived</string>
     <string name="more_archive_body">Restore or delete archived moods and tags</string>
     <string name="more_section_data">Data</string>
+    <string name="more_backup">Backup &amp; restore</string>
+    <string name="more_backup_body">Save everything to a .dakilio file, or bring one back</string>
     <string name="more_import_daylio">Import from Daylio</string>
     <string name="more_import_daylio_body">Replace everything with a .daylio backup</string>
     <string name="more_section_app">App</string>

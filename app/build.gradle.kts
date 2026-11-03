@@ -112,6 +112,7 @@ dependencies {
     implementation(projects.feature.diaries.impl)
     implementation(projects.feature.settings.impl)
     implementation(projects.feature.importer.impl)
+    implementation(projects.feature.backup.impl)
     implementation(projects.feature.archive.impl)
     implementation(projects.feature.intro.impl)
     implementation(projects.feature.habits.impl)
