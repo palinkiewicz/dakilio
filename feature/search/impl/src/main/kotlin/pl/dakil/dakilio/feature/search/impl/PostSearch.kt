@@ -96,7 +96,7 @@ internal data class SearchFilters(
     val isActive: Boolean get() = words.isNotEmpty() || facetCount > 0
 }
 
-/** Every query word must appear somewhere in the entry (title, note or a tag label). */
+/** Every query word must appear in the entry's title or note. Tag names aren't searched as text; matching tags are offered as filters instead. */
 internal fun List<Post>.search(filters: SearchFilters, today: LocalDate): List<Post> {
     if (!filters.isActive) return emptyList()
     val words = filters.words
@@ -131,5 +131,4 @@ private val WHITESPACE = "\\s+".toRegex()
 private fun Post.haystack(): String = buildString {
     title?.let { append(it).append('\n') }
     note?.let { append(it).append('\n') }
-    tags.forEach { append(it.label).append('\n') }
 }.foldForSearch()

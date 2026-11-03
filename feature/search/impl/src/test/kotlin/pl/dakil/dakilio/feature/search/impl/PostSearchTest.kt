@@ -39,7 +39,10 @@ class PostSearchTest {
         assertEquals(listOf(hike), search(SearchFilters(query = "zachod slonca")))
     }
 
-    @Test fun `tags are searchable`() = assertEquals(listOf(hike), search(SearchFilters(query = "hik")))
+    @Test fun `tag names are not searched as text`() {
+        assertEquals(emptyList<Post>(), search(SearchFilters(query = "hik")))
+        assertEquals(emptyList<Post>(), search(SearchFilters(query = "friends")))
+    }
 
     @Test fun `all words must match`() = assertEquals(emptyList<Post>(), search(SearchFilters(query = "meetings grani")))
 

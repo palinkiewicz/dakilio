@@ -84,6 +84,18 @@ internal fun withoutHashFragment(query: String): String {
     return query.dropLast(fragment.length + 1).trimEnd().let { if (it.isEmpty()) it else "$it " }
 }
 
+/** The plain word being typed at the end of [query] (at least 2 characters), or `null` when there's none or it's a `#…`. */
+internal fun typedWord(query: String): String? {
+    val last = query.substringAfterLast(' ')
+    return if (last.length >= 2 && !last.startsWith('#')) last else null
+}
+
+/** [query] with the trailing word from [typedWord] removed. */
+internal fun withoutTypedWord(query: String): String {
+    val word = typedWord(query) ?: return query
+    return query.dropLast(word.length).trimEnd().let { if (it.isEmpty()) it else "$it " }
+}
+
 /** Tags whose name contains [fragment] (accent-insensitive), names starting with it first. */
 internal fun tagSuggestions(fragment: String, tags: List<Tag>, exclude: Set<Long>, limit: Int = 8): List<Tag> {
     val needle = fragment.foldForSearch()

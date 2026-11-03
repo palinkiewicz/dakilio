@@ -65,6 +65,8 @@ internal data class SearchUiState(
     val refine: List<Pair<Tag, Int>> = emptyList(),
     /** Tags matching a `#…` being typed, or `null` while none is. */
     val tagSuggestions: List<Tag>? = null,
+    /** Tags matching the plain word being typed, offered as filters. */
+    val wordTagSuggestions: List<Tag> = emptyList(),
 )
 
 private data class Catalog(val moods: List<Mood>, val groups: List<TagGroup>, val diaries: List<Diary>) {
@@ -139,8 +141,11 @@ class SearchViewModel @Inject constructor(
                 forgottenTags = discover.forgottenTags,
                 refine = refineTags(results, filters.tagIds, catalog.tags),
                 tagSuggestions = hashFragment(filters.query)?.let { fragment ->
-                    tagSuggestions(fragment, catalog.groups.flatMap { it.tags }, filters.tagIds)
+                    tagSuggestions(fragment, catalog.tags.values.toList(), filters.tagIds)
                 },
+                wordTagSuggestions = typedWord(filters.query)?.let { word ->
+                    tagSuggestions(word, catalog.tags.values.toList(), filters.tagIds)
+                }.orEmpty(),
             )
         }
             .flowOn(default)
@@ -199,6 +204,12 @@ class SearchViewModel @Inject constructor(
     /** Turns the `#…` being typed into a tag filter. */
     fun pickTagSuggestion(tag: Tag) {
         query.setTextAndPlaceCursorAtEnd(withoutHashFragment(query.text.toString()))
+        toggles.update { it.copy(tagIds = it.tagIds + tag.id) }
+    }
+
+    /** Turns the plain word being typed into a tag filter. */
+    fun pickWordTagSuggestion(tag: Tag) {
+        query.setTextAndPlaceCursorAtEnd(withoutTypedWord(query.text.toString()))
         toggles.update { it.copy(tagIds = it.tagIds + tag.id) }
     }
 

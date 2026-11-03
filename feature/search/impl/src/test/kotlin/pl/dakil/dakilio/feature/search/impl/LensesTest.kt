@@ -85,6 +85,17 @@ class LensesTest {
         assertEquals("rainy", withoutHashFragment("rainy"))
     }
 
+    @Test fun `typed words`() {
+        assertEquals("wa", typedWord("rainy wa"))
+        assertEquals("walk", typedWord("walk"))
+        assertNull(typedWord("rainy #wa"))
+        assertNull(typedWord("rainy w"))
+        assertNull(typedWord("walk "))
+        assertEquals("rainy ", withoutTypedWord("rainy wa"))
+        assertEquals("", withoutTypedWord("walk"))
+        assertEquals("walk ", withoutTypedWord("walk "))
+    }
+
     @Test fun `suggestions put prefix matches first and skip picked tags`() {
         val tags = active.values.toList()
         assertEquals(listOf(walk, wandering), tagSuggestions("wa", tags, exclude = emptySet()))

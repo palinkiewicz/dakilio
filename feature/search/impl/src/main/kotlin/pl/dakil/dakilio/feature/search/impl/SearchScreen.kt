@@ -3,10 +3,12 @@ package pl.dakil.dakilio.feature.search.impl
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -83,7 +85,11 @@ internal fun SearchScreen(viewModel: SearchViewModel, onBack: () -> Unit, onOpen
     // Back first clears the search, then leaves.
     BackHandler(enabled = state.filters.isActive || viewModel.query.text.isNotEmpty(), onBack = viewModel::clearAll)
 
+    // Only on the way in: coming back from an opened entry shouldn't bring the keyboard back.
+    var autoFocused by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(Unit) {
+        if (autoFocused) return@LaunchedEffect
+        autoFocused = true
         delay(250) // let the container transform settle before the keyboard slides in
         focus.requestFocus()
     }
@@ -141,7 +147,17 @@ internal fun SearchScreen(viewModel: SearchViewModel, onBack: () -> Unit, onOpen
             ) { suggesting ->
                 val rowModifier = Modifier.fillMaxWidth()
                 if (suggesting) {
-                    TagSuggestions(state, onPick = viewModel::pickTagSuggestion, modifier = rowModifier)
+                    val suggestions = state.tagSuggestions.orEmpty()
+                    TagSuggestionRow(suggestions, onPick = viewModel::pickTagSuggestion, modifier = rowModifier) {
+                        if (suggestions.isEmpty()) {
+                            Text(
+                                stringResource(R.string.search_no_tag_matches, hashFragment(state.filters.query).orEmpty()),
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.heightIn(min = 32.dp).padding(start = Spacing.xs, top = Spacing.s, bottom = Spacing.s),
+                            )
+                        }
+                    }
                 } else {
                     FacetBar(
                         state = state,
@@ -151,6 +167,27 @@ internal fun SearchScreen(viewModel: SearchViewModel, onBack: () -> Unit, onOpen
                         },
                         onClear = viewModel::clearFacet,
                         modifier = rowModifier,
+                    )
+                }
+            }
+
+            // Tags named like the word being typed, offered as filters instead of being searched as text.
+            val showWordTags = state.wordTagSuggestions.isNotEmpty() && state.tagSuggestions == null
+            AnimatedVisibility(
+                visible = showWordTags,
+                enter = expandVertically(MaterialTheme.motionScheme.fastSpatialSpec()) + fadeIn(fade),
+                exit = shrinkVertically(MaterialTheme.motionScheme.fastSpatialSpec()) + fadeOut(fade),
+                modifier = Modifier.widthIn(max = Spacing.maxContentWidth).fillMaxWidth(),
+            ) {
+                // Keep the last chips while the row folds away.
+                var shown by remember { mutableStateOf(state.wordTagSuggestions) }
+                if (showWordTags) shown = state.wordTagSuggestions
+                TagSuggestionRow(shown, onPick = viewModel::pickWordTagSuggestion, modifier = Modifier.fillMaxWidth().padding(top = Spacing.xs)) {
+                    Text(
+                        stringResource(R.string.search_tag_suggestions),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(start = Spacing.xs, end = Spacing.xs),
                     )
                 }
             }
@@ -270,24 +307,21 @@ internal fun SearchScreen(viewModel: SearchViewModel, onBack: () -> Unit, onOpen
     viewer?.let { (photos, index) -> PhotoViewer(photos, index, onDismiss = { viewer = null }) }
 }
 
-/** Tags matching the `#…` being typed; picking one turns the word into a tag filter. */
+/** A scrolling row of tag chips to pick as filters, after an optional [leading] label. */
 @Composable
-private fun TagSuggestions(state: SearchUiState, onPick: (Tag) -> Unit, modifier: Modifier = Modifier) {
-    val suggestions = state.tagSuggestions.orEmpty()
+private fun TagSuggestionRow(
+    tags: List<Tag>,
+    onPick: (Tag) -> Unit,
+    modifier: Modifier = Modifier,
+    leading: @Composable () -> Unit = {},
+) {
     Row(
         modifier.horizontalScroll(rememberScrollState()).padding(horizontal = Spacing.gutter),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (suggestions.isEmpty()) {
-            Text(
-                stringResource(R.string.search_no_tag_matches, hashFragment(state.filters.query).orEmpty()),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.heightIn(min = 32.dp).padding(start = Spacing.xs, top = Spacing.s, bottom = Spacing.s),
-            )
-        }
-        suggestions.forEach { tag -> TagFilterChip(tag, selected = false) { onPick(tag) } }
+        leading()
+        tags.forEach { tag -> TagFilterChip(tag, selected = false) { onPick(tag) } }
     }
 }
 
