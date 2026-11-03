@@ -170,6 +170,8 @@ interface SettingsRepository {
     suspend fun setPreviewLength(length: PreviewLength)
 
     suspend fun setCompactTags(compact: Boolean)
+
+    suspend fun setCloseAfterSave(close: Boolean)
 }
 
 /** Recent searches, newest first, kept on the device. Entries are opaque strings encoded by the search screen. */

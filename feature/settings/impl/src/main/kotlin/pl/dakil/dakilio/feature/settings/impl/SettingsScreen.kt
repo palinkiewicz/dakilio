@@ -178,32 +178,25 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
                         )
                     }
                 }
+                SwitchItem(
+                    title = stringResource(R.string.settings_close_after_save),
+                    body = stringResource(R.string.settings_close_after_save_body),
+                    symbol = DakilioSymbols.Check,
+                    polygon = MaterialShapes.Cookie7Sided,
+                    checked = state.closeAfterSave,
+                    onCheckedChange = viewModel::setCloseAfterSave,
+                    modifier = Modifier.padding(top = Spacing.s),
+                )
 
                 SectionHeader(stringResource(R.string.settings_guidance))
-                SegmentedListItem(
-                    onClick = {
-                        haptics.toggle(!state.showHints)
-                        viewModel.setShowHints(!state.showHints)
-                    },
-                    shapes = ListItemDefaults.segmentedShapes(0, 1),
-                    colors = segmentedItemColors(),
-                    leadingContent = { ShapedIcon(DakilioSymbols.Lightbulb, polygon = MaterialShapes.Sunny) },
-                    supportingContent = { Text(stringResource(R.string.settings_hints_body)) },
-                    trailingContent = {
-                        Switch(
-                            checked = state.showHints,
-                            onCheckedChange = {
-                                haptics.toggle(it)
-                                viewModel.setShowHints(it)
-                            },
-                            thumbContent = if (state.showHints) {
-                                { DakilioIcon(DakilioSymbols.Check, contentDescription = null, modifier = Modifier.size(SwitchDefaults.IconSize)) }
-                            } else {
-                                null
-                            },
-                        )
-                    },
-                ) { Text(stringResource(R.string.settings_hints)) }
+                SwitchItem(
+                    title = stringResource(R.string.settings_hints),
+                    body = stringResource(R.string.settings_hints_body),
+                    symbol = DakilioSymbols.Lightbulb,
+                    polygon = MaterialShapes.Sunny,
+                    checked = state.showHints,
+                    onCheckedChange = viewModel::setShowHints,
+                )
 
                 // Only debug and preview builds seed samples, and the section goes once they're removed.
                 if (state.samplePostCount > 0) {
@@ -347,4 +340,41 @@ private fun TextSizeDialog(
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.settings_cancel)) } },
     )
+}
+
+/** A single-row setting with a switch; the whole row toggles it. */
+@Composable
+private fun SwitchItem(
+    title: String,
+    body: String,
+    symbol: DakilioSymbol,
+    polygon: RoundedPolygon,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val haptics = rememberHaptics()
+    val toggle = { value: Boolean ->
+        haptics.toggle(value)
+        onCheckedChange(value)
+    }
+    SegmentedListItem(
+        onClick = { toggle(!checked) },
+        shapes = ListItemDefaults.segmentedShapes(0, 1),
+        colors = segmentedItemColors(),
+        modifier = modifier,
+        leadingContent = { ShapedIcon(symbol, polygon = polygon) },
+        supportingContent = { Text(body) },
+        trailingContent = {
+            Switch(
+                checked = checked,
+                onCheckedChange = toggle,
+                thumbContent = if (checked) {
+                    { DakilioIcon(DakilioSymbols.Check, contentDescription = null, modifier = Modifier.size(SwitchDefaults.IconSize)) }
+                } else {
+                    null
+                },
+            )
+        },
+    ) { Text(title) }
 }

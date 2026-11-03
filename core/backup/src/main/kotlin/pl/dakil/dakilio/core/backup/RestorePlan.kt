@@ -79,6 +79,7 @@ data class RestoreSettings(
     val editorTextScale: Float? = null,
     val previewLength: PreviewLength? = null,
     val compactTags: Boolean? = null,
+    val closeAfterSave: Boolean? = null,
     /** An index into [RestorePlan.diaries]. */
     val lastDiaryIndex: Int? = null,
 )
@@ -209,6 +210,7 @@ fun planRestore(backup: DakilioBackup, defaultDiaryName: String, now: Long): Res
             editorTextScale = s.editorTextScale?.takeIf { it.isFinite() }?.let(TextScale::coerce),
             previewLength = PreviewLength.entries.firstOrNull { it.name == s.previewLength },
             compactTags = s.compactTags,
+            closeAfterSave = s.closeAfterSave,
             lastDiaryIndex = s.lastDiary?.let(diaryIndexById::get),
         )
     } ?: RestoreSettings()

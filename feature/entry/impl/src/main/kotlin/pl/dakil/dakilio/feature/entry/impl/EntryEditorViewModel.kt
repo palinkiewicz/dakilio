@@ -62,6 +62,9 @@ internal data class EditorForm(
     val photos: List<EditorPhoto> = emptyList(),
     val importingPhotos: Int = 0,
     val dirty: Boolean = false,
+    /** An existing entry opens read-only; this is set while its page is unlocked for editing. */
+    val editing: Boolean = false,
+    val saving: Boolean = false,
     val finished: Boolean = false,
 )
 
@@ -85,6 +88,7 @@ data class EditorUiState(
     val photos: List<EditorPhoto>,
     val importingPhotos: Int,
     val dirty: Boolean,
+    val editing: Boolean,
     val finished: Boolean,
 )
 
@@ -149,6 +153,7 @@ class EntryEditorViewModel @AssistedInject constructor(
                 photos = form.photos,
                 importingPhotos = form.importingPhotos,
                 dirty = form.dirty,
+                editing = form.editing,
                 finished = form.finished,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
@@ -190,6 +195,8 @@ class EntryEditorViewModel @AssistedInject constructor(
             diaryId = diaryId,
         )
     }
+
+    fun startEditing() = form.update { it.copy(editing = true) }
 
     fun goTo(step: EditorStep) = form.update { it.copy(step = step) }
 
@@ -250,7 +257,8 @@ class EntryEditorViewModel @AssistedInject constructor(
     fun save() {
         val current = form.value
         val diaryId = current.diaryId
-        if (current.finished || current.importingPhotos > 0 || diaryId == null) return
+        if (current.finished || current.saving || current.importingPhotos > 0 || diaryId == null) return
+        form.update { it.copy(saving = true) }
         viewModelScope.launch {
             // Habits: compare the week's counts around the save, so only a newly counted day bumps.
             val date = current.dateTime.toLocalDate()
@@ -273,7 +281,23 @@ class EntryEditorViewModel @AssistedInject constructor(
                 habitProgressEvents.post(bumps)
             }
             settingsRepository.setLastEntryDiaryId(diaryId)
-            form.update { it.copy(finished = true) }
+            if (key.postId == null || settingsRepository.settings.first().closeAfterSave) {
+                form.update { it.copy(finished = true) }
+            } else {
+                // Stay on the entry and go back to reading; what was just saved is the new baseline.
+                val shown = uiState.value
+                originalTitle = title.text.toString()
+                originalNote = note.text.toString()
+                form.update {
+                    it.copy(
+                        ownMood = shown?.moods?.firstOrNull { mood -> mood.id == it.moodId },
+                        ownTags = shown?.selectedTags ?: it.ownTags,
+                        dirty = false,
+                        editing = false,
+                        saving = false,
+                    )
+                }
+            }
         }
     }
 

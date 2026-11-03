@@ -36,6 +36,7 @@ class SettingsDataSource @Inject constructor(
                 previewLength = prefs[PREVIEW_LENGTH]?.let { name -> PreviewLength.entries.firstOrNull { it.name == name } }
                     ?: PreviewLength.Short,
                 compactTags = prefs[COMPACT_TAGS] ?: false,
+                closeAfterSave = prefs[CLOSE_AFTER_SAVE] ?: true,
             )
         }
         .distinctUntilChanged()
@@ -92,6 +93,10 @@ class SettingsDataSource @Inject constructor(
         dataStore.edit { it[COMPACT_TAGS] = compact }
     }
 
+    suspend fun setCloseAfterSave(close: Boolean) {
+        dataStore.edit { it[CLOSE_AFTER_SAVE] = close }
+    }
+
     private companion object {
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val LAST_ENTRY_DIARY = longPreferencesKey("last_entry_diary_id")
@@ -102,6 +107,7 @@ class SettingsDataSource @Inject constructor(
         val EDITOR_TEXT_SCALE = floatPreferencesKey("editor_text_scale")
         val PREVIEW_LENGTH = stringPreferencesKey("preview_length")
         val COMPACT_TAGS = booleanPreferencesKey("compact_tags")
+        val CLOSE_AFTER_SAVE = booleanPreferencesKey("close_after_save")
         val INTRO_STARTED = booleanPreferencesKey("intro_started")
         val INTRO_DONE = booleanPreferencesKey("intro_done")
     }

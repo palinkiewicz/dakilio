@@ -69,6 +69,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.time.Instant
@@ -78,6 +79,7 @@ import pl.dakil.dakilio.core.designsystem.component.rememberHaptics
 import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbol
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
+import pl.dakil.dakilio.core.designsystem.icon.symbolForKey
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.model.EntryValidation
 import pl.dakil.dakilio.core.ui.component.DiarySelector
@@ -128,12 +130,23 @@ internal fun EntryEditorScreen(
             haptics.confirm()
             viewModel.save()
         }
+        val readOnly = !current.isNew && !current.editing
 
         Scaffold(
             containerColor = MaterialTheme.colorScheme.surface,
             topBar = {
                 TopAppBar(
-                    title = { Text(stringResource(if (current.isNew) R.string.entry_new else R.string.entry_edit)) },
+                    title = {
+                        Text(
+                            stringResource(
+                                when {
+                                    current.isNew -> R.string.entry_new
+                                    readOnly -> R.string.entry_view
+                                    else -> R.string.entry_edit
+                                },
+                            ),
+                        )
+                    },
                     navigationIcon = {
                         IconButton(onClick = requestClose) {
                             DakilioIcon(DakilioSymbols.Close, contentDescription = stringResource(R.string.entry_close))
@@ -141,8 +154,25 @@ internal fun EntryEditorScreen(
                     },
                     actions = {
                         if (!current.isNew) OverflowMenu(onDelete = { confirmDelete = true })
-                        FilledIconButton(onClick = save, enabled = canSave, modifier = Modifier.padding(end = Spacing.s)) {
-                            DakilioIcon(DakilioSymbols.Check, contentDescription = stringResource(R.string.entry_save))
+                        val fade = MaterialTheme.motionScheme.fastEffectsSpec<Float>()
+                        AnimatedContent(
+                            targetState = readOnly,
+                            transitionSpec = { fadeIn(fade) togetherWith fadeOut(fade) },
+                            label = "editOrSave",
+                            modifier = Modifier.padding(end = Spacing.s),
+                        ) { reading ->
+                            if (reading) {
+                                FilledIconButton(onClick = {
+                                    haptics.tick()
+                                    viewModel.startEditing()
+                                }) {
+                                    DakilioIcon(DakilioSymbols.Edit, contentDescription = stringResource(R.string.entry_start_editing))
+                                }
+                            } else {
+                                FilledIconButton(onClick = save, enabled = canSave) {
+                                    DakilioIcon(DakilioSymbols.Check, contentDescription = stringResource(R.string.entry_save))
+                                }
+                            }
                         }
                     },
                 )
@@ -175,10 +205,11 @@ internal fun EntryEditorScreen(
                 Column(Modifier.widthIn(max = Spacing.maxContentWidth).fillMaxSize()) {
                     DateTimeRow(
                         state = current,
+                        readOnly = readOnly,
                         onDate = viewModel::setDate,
                         onTime = viewModel::setTime,
                     )
-                    if (current.diaries.size > 1) {
+                    if (!readOnly && current.diaries.size > 1) {
                         DiarySelector(
                             diaries = current.diaries,
                             selectedId = current.diaryId,
@@ -192,6 +223,7 @@ internal fun EntryEditorScreen(
                             title = viewModel.title,
                             note = viewModel.note,
                             bodyRequired = bodyRequired,
+                            editing = current.editing,
                             toggledGroups = toggledGroups,
                             onToggleGroup = toggleGroup,
                             onSelectMood = { viewModel.selectMood(it) },
@@ -316,11 +348,24 @@ private fun OverflowMenu(onDelete: () -> Unit) {
 }
 
 @Composable
-private fun DateTimeRow(state: EditorUiState, onDate: (LocalDate) -> Unit, onTime: (Int, Int) -> Unit) {
+private fun DateTimeRow(state: EditorUiState, readOnly: Boolean, onDate: (LocalDate) -> Unit, onTime: (Int, Int) -> Unit) {
     val formats = rememberFormats()
     var pickDate by rememberSaveable { mutableStateOf(false) }
     var pickTime by rememberSaveable { mutableStateOf(false) }
     val date = state.dateTime.toLocalDate()
+    if (readOnly) {
+        val diary = state.diaries.firstOrNull { it.id == state.diaryId }.takeIf { state.diaries.size > 1 }
+        Row(
+            Modifier.padding(horizontal = Spacing.gutter + Spacing.xs, vertical = Spacing.s),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.l),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            InfoItem(DakilioSymbols.CalendarToday, relativeDayLabel(date, state.today, formats))
+            InfoItem(DakilioSymbols.Schedule, formats.time(state.dateTime.toLocalTime()))
+            if (diary != null) InfoItem(symbolForKey(diary.iconKey), diary.name, Modifier.weight(1f, fill = false))
+        }
+        return
+    }
     Row(Modifier.padding(horizontal = Spacing.gutter), horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
         AssistChip(
             onClick = { pickDate = true },
@@ -374,6 +419,22 @@ private fun DateTimeRow(state: EditorUiState, onDate: (LocalDate) -> Unit, onTim
             },
             dismissButton = { TextButton(onClick = { pickTime = false }) { Text(stringResource(R.string.entry_cancel)) } },
         ) { TimePicker(pickerState) }
+    }
+}
+
+/** An icon and a label of read-only entry info (date, time, diary). */
+@Composable
+private fun InfoItem(symbol: DakilioSymbol, text: String, modifier: Modifier = Modifier) {
+    Row(modifier, verticalAlignment = Alignment.CenterVertically) {
+        DakilioIcon(symbol, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
+        Text(
+            text,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(start = Spacing.s),
+        )
     }
 }
 

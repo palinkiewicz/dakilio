@@ -26,6 +26,8 @@ data class UserSettings(
     val previewLength: PreviewLength = PreviewLength.Short,
     /** Post cards show tags as icons only, without their names. */
     val compactTags: Boolean = false,
+    /** Saving edits to an existing entry closes it; otherwise the entry goes back to reading. */
+    val closeAfterSave: Boolean = true,
 )
 
 /** The range of the entry text size settings. Only entry titles and notes scale, never the rest of the UI. */

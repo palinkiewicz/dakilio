@@ -250,6 +250,8 @@ internal class LocalSettingsRepository @Inject constructor(
     override suspend fun setPreviewLength(length: PreviewLength) = dataSource.setPreviewLength(length)
 
     override suspend fun setCompactTags(compact: Boolean) = dataSource.setCompactTags(compact)
+
+    override suspend fun setCloseAfterSave(close: Boolean) = dataSource.setCloseAfterSave(close)
 }
 
 internal class LocalSearchHistoryRepository @Inject constructor(

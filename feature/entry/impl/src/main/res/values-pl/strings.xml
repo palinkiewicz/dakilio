@@ -2,6 +2,8 @@
 <resources>
     <string name="entry_new">Nowy wpis</string>
     <string name="entry_edit">Edytuj wpis</string>
+    <string name="entry_view">Wpis</string>
+    <string name="entry_start_editing">Edytuj</string>
     <string name="entry_close">Zamknij</string>
     <string name="entry_save">Zapisz</string>
     <string name="entry_more">Więcej opcji</string>
@@ -24,13 +26,13 @@
 
     <string name="entry_tags_title">Co się działo?</string>
     <string name="entry_tags_body">Zaznacz wszystko, co pasuje. Nic nie pasuje? Przejdź dalej.</string>
+    <string name="entry_tags_expand">Rozwiń</string>
+    <string name="entry_tags_done">Gotowe</string>
+    <string name="entry_tags_none_selected">Brak tagów</string>
     <string name="entry_more_groups">Więcej grup</string>
     <string name="entry_group_expanded">Rozwinięta</string>
     <string name="entry_group_collapsed">Zwinięta</string>
     <string name="entry_manage_tags">Zarządzaj tagami</string>
-    <string name="entry_tags_edit">Edytuj</string>
-    <string name="entry_tags_done">Gotowe</string>
-    <string name="entry_tags_none_selected">Brak tagów</string>
     <string name="entry_no_tags">Nie masz jeszcze tagów. Utwórz je w sekcji Zarządzaj tagami.</string>
 
     <string name="entry_note_title">Chcesz coś dodać?</string>

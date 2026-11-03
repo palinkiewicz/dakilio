@@ -21,6 +21,7 @@ data class SettingsUiState(
     val showHints: Boolean = true,
     val timelineTextScale: Float = TextScale.DEFAULT,
     val editorTextScale: Float = TextScale.DEFAULT,
+    val closeAfterSave: Boolean = true,
     val samplePostCount: Int = 0,
 )
 
@@ -37,6 +38,7 @@ class SettingsViewModel @Inject constructor(
                 showHints = settings.showHints,
                 timelineTextScale = settings.timelineTextScale,
                 editorTextScale = settings.editorTextScale,
+                closeAfterSave = settings.closeAfterSave,
                 samplePostCount = samples,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
@@ -59,6 +61,10 @@ class SettingsViewModel @Inject constructor(
 
     fun setEditorTextScale(scale: Float) {
         viewModelScope.launch { settingsRepository.setEditorTextScale(scale) }
+    }
+
+    fun setCloseAfterSave(close: Boolean) {
+        viewModelScope.launch { settingsRepository.setCloseAfterSave(close) }
     }
 
     fun removeSamples(onDone: () -> Unit) {

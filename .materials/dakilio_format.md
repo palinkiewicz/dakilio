@@ -32,7 +32,8 @@ Pretty-printed JSON. Fields that are null or at their default (`false`, `0`, `[]
   "settings": {
     "theme": "Dark", "tagStyle": "Icons", "showHints": false,
     "timelineTextScale": 1.1, "editorTextScale": 1.0,
-    "previewLength": "Short", "compactTags": true, "lastDiary": 1
+    "previewLength": "Short", "compactTags": true,
+    "closeAfterSave": true, "lastDiary": 1
   },
   "moods": [
     { "id": 3, "level": 3, "name": "Okay", "primary": true, "color": "periwinkle" },

@@ -2,20 +2,32 @@ package pl.dakil.dakilio.feature.entry.impl
 
 import androidx.annotation.StringRes
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.saveable.rememberSaveable
 import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.model.Tag
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import coil3.compose.AsyncImage
+import java.io.File
+import pl.dakil.dakilio.core.model.PostPhoto
+import pl.dakil.dakilio.core.ui.LocalEntryDisplay
+import pl.dakil.dakilio.core.ui.component.PhotoViewer
+import pl.dakil.dakilio.core.ui.scaled
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import pl.dakil.dakilio.core.ui.component.TagPill
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -54,8 +66,10 @@ import pl.dakil.dakilio.core.ui.mood.moodColors
 import pl.dakil.dakilio.core.ui.mood.screenRect
 
 /**
- * The all-in-one editor for an existing entry: one row of mood faces, the tags (folded into read-only
- * chips until Edit is tapped), then the note, all on a single page for quick fixes. New entries go through the step wizard instead.
+ * The single page for an existing entry. It opens read-only for comfortable reading: the chosen
+ * mood, the tags as chips and the note as plain text, with empty sections (and an empty title) left
+ * out. When [editing], it becomes the all-in-one editor: one row of mood faces, the tags (folded
+ * into chips until Expand is tapped), then the note fields. New entries go through the step wizard instead.
  */
 @Composable
 internal fun EntryOverview(
@@ -63,6 +77,7 @@ internal fun EntryOverview(
     title: TextFieldState,
     note: TextFieldState,
     bodyRequired: Boolean,
+    editing: Boolean,
     toggledGroups: Set<Long>,
     onToggleGroup: (Long) -> Unit,
     onSelectMood: (Long) -> Unit,
@@ -73,31 +88,44 @@ internal fun EntryOverview(
     onRemovePhoto: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // Tags start folded into read-only chips so the note is a short scroll away.
-    var tagsExpanded by rememberSaveable { mutableStateOf(false) }
+    val mood = state.moods.firstOrNull { it.id == state.moodId }
+    // Each time edit mode starts, the tags are folded into chips so the note is a short scroll away.
+    var tagsExpanded by rememberSaveable(editing) { mutableStateOf(false) }
     LazyColumn(
         modifier = modifier.imePadding(),
         contentPadding = PaddingValues(top = Spacing.s, bottom = Spacing.xl),
         verticalArrangement = Arrangement.spacedBy(Spacing.s),
     ) {
-        item(key = "mood-label") { SectionLabel(R.string.entry_step_mood) }
-        item(key = "mood-row") {
-            MoodRow(
-                moods = state.moods,
-                selectedId = state.moodId,
-                onSelect = onSelectMood,
-                onClear = onClearMood,
-                modifier = Modifier.padding(horizontal = Spacing.gutter, vertical = Spacing.xs),
-            )
+        if (editing || mood != null) {
+            item(key = "mood-label") { SectionLabel(R.string.entry_step_mood, Modifier.animateItem()) }
         }
-        item(key = "tags-label") {
-            TagsHeader(
-                expanded = tagsExpanded,
-                onExpandedChange = { tagsExpanded = it },
-                modifier = Modifier.animateItem().padding(top = Spacing.s),
-            )
+        if (editing) {
+            item(key = "mood-row") {
+                MoodRow(
+                    moods = state.moods,
+                    selectedId = state.moodId,
+                    onSelect = onSelectMood,
+                    onClear = onClearMood,
+                    modifier = Modifier.animateItem().padding(horizontal = Spacing.gutter, vertical = Spacing.xs),
+                )
+            }
+        } else if (mood != null) {
+            item(key = "mood-read") {
+                MoodSummary(mood, Modifier.animateItem().padding(horizontal = Spacing.gutter + Spacing.xs, vertical = Spacing.xs))
+            }
         }
-        if (!tagsExpanded) {
+        if (editing) {
+            item(key = "tags-label") {
+                TagsHeader(
+                    expanded = tagsExpanded,
+                    onExpandedChange = { tagsExpanded = it },
+                    modifier = Modifier.animateItem().padding(top = Spacing.s),
+                )
+            }
+        } else if (state.selectedTags.isNotEmpty()) {
+            item(key = "tags-label-read") { SectionLabel(R.string.entry_step_tags, Modifier.animateItem().padding(top = Spacing.s)) }
+        }
+        if (editing && !tagsExpanded) {
             item(key = "tags-summary") {
                 SelectedTagsSummary(
                     tags = state.selectedTags,
@@ -105,7 +133,7 @@ internal fun EntryOverview(
                     modifier = Modifier.animateItem().padding(horizontal = Spacing.gutter),
                 )
             }
-        } else {
+        } else if (editing) {
             tagGroupItems(
                 suggested = state.suggestedGroups,
                 others = state.otherGroups,
@@ -117,24 +145,48 @@ internal fun EntryOverview(
                 onManageTags = onManageTags,
                 horizontalPadding = Spacing.gutter,
             )
+        } else if (state.selectedTags.isNotEmpty()) {
+            item(key = "tags-read") {
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.animateItem().fillMaxWidth().padding(horizontal = Spacing.gutter + Spacing.xs),
+                ) {
+                    state.selectedTags.forEach { TagPill(it) }
+                }
+            }
         }
-        item(key = "note-label") { SectionLabel(R.string.entry_step_note, Modifier.animateItem().padding(top = Spacing.m)) }
-        item(key = "note") {
-            NoteFields(
-                title = title,
-                note = note,
-                photos = state.photos,
-                importing = state.importingPhotos,
-                bodyRequired = bodyRequired,
-                onAddPhotos = onAddPhotos,
-                onRemovePhoto = onRemovePhoto,
-                modifier = Modifier.animateItem(),
-            )
+        val hasBody = title.text.isNotBlank() || note.text.isNotBlank() || state.photos.isNotEmpty()
+        if (editing || hasBody) {
+            item(key = "note-label") { SectionLabel(R.string.entry_step_note, Modifier.animateItem().padding(top = Spacing.m)) }
+        }
+        if (editing) {
+            item(key = "note") {
+                NoteFields(
+                    title = title,
+                    note = note,
+                    photos = state.photos,
+                    importing = state.importingPhotos,
+                    bodyRequired = bodyRequired,
+                    onAddPhotos = onAddPhotos,
+                    onRemovePhoto = onRemovePhoto,
+                    modifier = Modifier.animateItem(),
+                )
+            }
+        } else if (hasBody) {
+            item(key = "note-read") {
+                NoteReadView(
+                    title = title.text.toString(),
+                    note = note.text.toString(),
+                    photos = state.photos,
+                    modifier = Modifier.animateItem(),
+                )
+            }
         }
     }
 }
 
-/** The Tags section label with an Edit/Done button that unfolds the tag groups. */
+/** The Tags section label with an Expand/Done button that unfolds the tag groups. */
 @Composable
 private fun TagsHeader(expanded: Boolean, onExpandedChange: (Boolean) -> Unit, modifier: Modifier = Modifier) {
     val haptics = rememberHaptics()
@@ -148,19 +200,19 @@ private fun TagsHeader(expanded: Boolean, onExpandedChange: (Boolean) -> Unit, m
             onExpandedChange(!expanded)
         }) {
             DakilioIcon(
-                if (expanded) DakilioSymbols.Check else DakilioSymbols.Edit,
+                if (expanded) DakilioSymbols.Check else DakilioSymbols.ExpandMore,
                 contentDescription = null,
                 modifier = Modifier.size(18.dp),
             )
             Text(
-                stringResource(if (expanded) R.string.entry_tags_done else R.string.entry_tags_edit),
+                stringResource(if (expanded) R.string.entry_tags_done else R.string.entry_tags_expand),
                 modifier = Modifier.padding(start = Spacing.s),
             )
         }
     }
 }
 
-/** The entry's tags as read-only chips (all of them, unlike the timeline card); tapping edits them. */
+/** The entry's tags as chips (all of them, unlike the timeline card); tapping unfolds the groups. */
 @Composable
 private fun SelectedTagsSummary(tags: List<Tag>, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val haptics = rememberHaptics()
@@ -194,6 +246,71 @@ private fun SelectedTagsSummary(tags: List<Tag>, onClick: () -> Unit, modifier: 
                 }
             }
         }
+    }
+}
+
+/** The chosen mood, read-only: its face and its name in the mood's color. */
+@Composable
+private fun MoodSummary(mood: Mood, modifier: Modifier = Modifier) {
+    Row(modifier, verticalAlignment = Alignment.CenterVertically) {
+        MoodBadge(mood, size = 52.dp, active = true)
+        Text(
+            mood.label,
+            style = MaterialTheme.typography.titleLargeEmphasized,
+            color = moodColors(mood).accent,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(start = Spacing.m),
+        )
+    }
+}
+
+/** Title, note and photos as plain, selectable text; a blank title or note takes no space at all. */
+@Composable
+private fun NoteReadView(title: String, note: String, photos: List<EditorPhoto>, modifier: Modifier = Modifier) {
+    val textScale = LocalEntryDisplay.current.editorTextScale
+    var viewing by remember { mutableStateOf<Int?>(null) }
+    Column(modifier.fillMaxWidth()) {
+        SelectionContainer {
+            Column(
+                Modifier.padding(horizontal = Spacing.gutter + Spacing.xs),
+                verticalArrangement = Arrangement.spacedBy(Spacing.s),
+            ) {
+                if (title.isNotBlank()) {
+                    Text(title.trim(), style = MaterialTheme.typography.headlineSmall.scaled(textScale))
+                }
+                if (note.isNotBlank()) {
+                    Text(note.trim(), style = MaterialTheme.typography.bodyLarge.scaled(textScale))
+                }
+            }
+        }
+        if (photos.isNotEmpty()) {
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = Spacing.gutter),
+                horizontalArrangement = Arrangement.spacedBy(Spacing.s),
+                modifier = Modifier.padding(top = Spacing.l),
+            ) {
+                itemsIndexed(photos, key = { _, photo -> photo.fileName }) { index, photo ->
+                    AsyncImage(
+                        model = File(photo.path),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(104.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                            .clickable { viewing = index },
+                    )
+                }
+            }
+        }
+    }
+    viewing?.let { index ->
+        PhotoViewer(
+            photos = photos.map { PostPhoto(id = 0, fileName = it.fileName, path = it.path) },
+            initialIndex = index,
+            onDismiss = { viewing = null },
+        )
     }
 }
 

@@ -67,6 +67,7 @@ data class BackupSettings(
     /** A `PreviewLength` name. */
     val previewLength: String? = null,
     val compactTags: Boolean? = null,
+    val closeAfterSave: Boolean? = null,
     /** The diary the editor picks by default. */
     val lastDiary: Long? = null,
 )

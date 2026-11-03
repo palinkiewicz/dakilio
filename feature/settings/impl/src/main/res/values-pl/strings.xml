@@ -23,6 +23,8 @@
     <string name="settings_tag_style_body">Jak wyglądają tagi, gdy dodajesz lub edytujesz wpis.</string>
     <string name="settings_tag_style_icons">Ikony</string>
     <string name="settings_tag_style_chips">Etykiety</string>
+    <string name="settings_close_after_save">Zamykaj po zapisaniu</string>
+    <string name="settings_close_after_save_body">Po zapisaniu zmian we wpisie. Wyłącz, aby zostać przy nim i czytać dalej.</string>
     <string name="settings_guidance">Podpowiedzi</string>
     <string name="settings_hints">Pokazuj wskazówki dla początkujących</string>
     <string name="settings_hints_body">Krótkie objaśnienia pod tytułami, np. „Wybierz najbliższy nastrój”</string>

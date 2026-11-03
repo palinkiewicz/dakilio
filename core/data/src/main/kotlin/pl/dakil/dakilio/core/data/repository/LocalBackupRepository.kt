@@ -122,6 +122,7 @@ internal class LocalBackupRepository @Inject constructor(
                 editorTextScale = userSettings.editorTextScale,
                 previewLength = userSettings.previewLength.name,
                 compactTags = userSettings.compactTags,
+                closeAfterSave = userSettings.closeAfterSave,
                 lastDiary = userSettings.lastEntryDiaryId,
             ),
             moods = snapshot.moods.map { BackupMood(it.id, it.level, it.label, it.isPrimary, it.position, it.isArchived, it.colorKey) },
@@ -321,6 +322,7 @@ internal class LocalBackupRepository @Inject constructor(
         s.editorTextScale?.let { settings.setEditorTextScale(it) }
         s.previewLength?.let { settings.setPreviewLength(it) }
         s.compactTags?.let { settings.setCompactTags(it) }
+        s.closeAfterSave?.let { settings.setCloseAfterSave(it) }
         settings.setLastEntryDiaryId(diaryIds[s.lastDiaryIndex ?: 0])
         settings.setSampleHintDismissed(true)
     }
