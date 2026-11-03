@@ -56,7 +56,7 @@ class DaylioImportPlanTest {
     }
 
     @Test
-    fun tagIconsAreGuessed() {
+    fun tagIconsComeFromDaylioIconsOrLabels() {
         val health = plan.groups[1].tags.associate { it.label to it.iconKey }
         assertEquals(mapOf("walk" to "directions_walk", "drink water" to "water_drop", "good sleep" to "hotel"), health)
         assertEquals(DEFAULT_TAG_ICON, plan.groups[2].tags.single().iconKey)

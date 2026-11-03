@@ -59,6 +59,8 @@ data class DaylioTag(
     val id: Int = 0,
     val name: String = "",
     val order: Int = 0,
+    /** Daylio's icon id; see `daylioTagIcon`. */
+    val icon: Int = 0,
     /** 0 = active; anything else (1 seen) = archived. */
     val state: Int = 0,
     @SerialName("id_tag_group") val groupId: Int? = null,

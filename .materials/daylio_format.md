@@ -83,7 +83,8 @@ writingTemplates[]             9 note templates (HTML bodies)                 �
   - `state`: **0 = active, 1 = archived (verified).** An archived tag stays in `tags[]`, entries keep referencing it, and it maps to `is_archived = 1`. Treat any other non-zero value as archived too.
   - **Deleting** a tag in Daylio removes it from `tags[]` *and* strips its id from every entry's `tags` list (verified), so the importer never sees it. Still skip unknown tag ids defensively (see §8).
   - **Merge** with an existing tag of the same name in the same group. Matched tags keep Dakilio's icon.
-  - `icon` is a Daylio icon id (for example 26143), which has no Dakilio counterpart. A new tag gets `label` as its icon, or optionally a small keyword table (sleep → `bedtime`, walk → `directions_walk`, water → `water_drop`, …). The table is pure and testable.
+  - `icon` is a Daylio icon id (for example 26143, a bunch of party balloons; 67, a runner). Ids run from 1 to about 10 million with large gaps. Mood `icon_id`s (1054, 1015, …) are a separate set of face artwork. The id-to-name list was taken from the Daylio app itself.
+  - Dakilio never bundles that artwork. `daylioTagIcon` (core:daylio `DaylioTagIcons.kt`) maps about 400 of those ids onto Material Symbols from our own picker (running → `directions_run`, rain → `rainy`, user_group_man_man → `groups`, …). Ids without a clear counterpart (letters, numbers, arrows, brands, most of the niche artwork) fall back to a keyword table over the English label (sleep → `bedtime`, walk → `directions_walk`, …), then to `label`. Both tables are pure and tested.
 - **Older backups** may lack `tag_groups` or `id_tag_group` **(unverified)**. In that case, put everything in one "Daylio" group.
 
 ## 5. `dayEntries[]`: the entries

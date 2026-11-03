@@ -135,7 +135,7 @@ fun planImport(backup: DaylioBackup, fallbackGroupName: String): ImportPlan {
             tags = tags.mapIndexed { tagIndex, tag ->
                 tagRefs[tag.id] = TagRef(groupIndex, tagIndex)
                 val label = tag.name.trim()
-                PlannedTag(label, daylioTagIcon(label), archived = tag.state != 0, position = tagIndex)
+                PlannedTag(label, daylioTagIcon(label, tag.icon), archived = tag.state != 0, position = tagIndex)
             },
         )
     }
