@@ -5,10 +5,10 @@
     <string name="timeline_greeting_evening">Dobry wieczór</string>
     <string name="timeline_greeting_night">Dobranoc</string>
     <plurals name="timeline_streak">
-        <item quantity="one">%d dzień z rzędu</item>
-        <item quantity="few">%d dni z rzędu</item>
-        <item quantity="many">%d dni z rzędu</item>
-        <item quantity="other">%d dnia z rzędu</item>
+        <item quantity="one">%d dzień</item>
+        <item quantity="few">%d dni</item>
+        <item quantity="many">%d dni</item>
+        <item quantity="other">%d dni</item>
     </plurals>
     <string name="timeline_search">Szukaj wpisów</string>
     <string name="timeline_jump_to_date">Przejdź do daty</string>

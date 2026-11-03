@@ -5,8 +5,8 @@
     <string name="timeline_greeting_evening">Good evening</string>
     <string name="timeline_greeting_night">Good night</string>
     <plurals name="timeline_streak">
-        <item quantity="one">%d-day streak</item>
-        <item quantity="other">%d-day streak</item>
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
     </plurals>
     <string name="timeline_search">Search entries</string>
     <string name="timeline_jump_to_date">Jump to date</string>
