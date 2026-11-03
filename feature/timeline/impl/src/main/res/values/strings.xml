@@ -23,7 +23,7 @@
     <string name="timeline_cancel">Cancel</string>
     <string name="timeline_new_entry">New entry</string>
     <string name="timeline_scroll_to_top">Back to today</string>
-    <string name="timeline_check_in_title">How\'s your journey today?</string>
+    <string name="timeline_check_in_title">How are you?</string>
     <string name="timeline_check_in_body">Tap a mood to start, or use + to write anything.</string>
     <string name="timeline_no_entries">No entries</string>
     <string name="timeline_add_for_day">Add an entry for %1$s</string>

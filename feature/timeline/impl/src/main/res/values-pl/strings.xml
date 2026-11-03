@@ -25,7 +25,7 @@
     <string name="timeline_cancel">Anuluj</string>
     <string name="timeline_new_entry">Nowy wpis</string>
     <string name="timeline_scroll_to_top">Wróć do dzisiaj</string>
-    <string name="timeline_check_in_title">Jak dzisiaj leci?</string>
+    <string name="timeline_check_in_title">Jak się czujesz?</string>
     <string name="timeline_check_in_body">Żeby zacząć, dotknij nastroju lub wielkiego +.</string>
     <string name="timeline_no_entries">Brak wpisów</string>
     <string name="timeline_add_for_day">Dodaj wpis – %1$s</string>
