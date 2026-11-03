@@ -188,7 +188,10 @@ private val IconCellMinWidth = 64.dp
 private val IconSize = 48.dp
 private val tagMorph by lazy { Morph(MaterialShapes.Circle, MaterialShapes.Cookie9Sided) }
 
-/** Daylio-style dense grid: an icon button per tag with its label underneath, in even columns. */
+/**
+ * Daylio-style dense grid: an icon button per tag with its label underneath, in even columns.
+ * A row that isn't full (the last one, or the only one of a small group) is centered.
+ */
 @Composable
 private fun TagIconGrid(tags: List<Tag>, selectedIds: Set<Long>, onToggle: (Long) -> Unit, modifier: Modifier = Modifier) {
     // A plain Layout rather than BoxWithConstraints: subcomposing during measure misbehaves inside
@@ -207,7 +210,9 @@ private fun TagIconGrid(tags: List<Tag>, selectedIds: Set<Long>, onToggle: (Long
         layout(width, height) {
             var y = 0
             rows.forEachIndexed { r, row ->
-                row.forEachIndexed { c, placeable -> placeable.placeRelative(c * cell, y) }
+                // Centers a short row on the same column pitch, plus the width left over by the division.
+                val start = ((columns - row.size) * cell + width - columns * cell) / 2
+                row.forEachIndexed { c, placeable -> placeable.placeRelative(start + c * cell, y) }
                 y += rowHeights[r] + gap
             }
         }
