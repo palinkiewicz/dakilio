@@ -37,6 +37,13 @@
     <string name="more_section_app">Aplikacja</string>
     <string name="more_settings">Ustawienia</string>
     <string name="more_settings_body">Motyw, język i przykładowe treści</string>
+    <string name="more_app_lock">Blokada aplikacji</string>
+    <string name="more_app_lock_body">PIN, hasło, biometria i prywatność</string>
+    <string name="more_app_lock_off">Wyłączona</string>
+    <string name="more_app_lock_pin">Włączona · PIN</string>
+    <string name="more_app_lock_password">Włączona · hasło</string>
+    <string name="more_app_lock_pin_biometrics">Włączona · PIN i biometria</string>
+    <string name="more_app_lock_password_biometrics">Włączona · hasło i biometria</string>
     <string name="more_section_about">O aplikacji</string>
     <string name="more_version">Wersja</string>
     <string name="more_open_source">Otwarte oprogramowanie</string>

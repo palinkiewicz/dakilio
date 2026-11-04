@@ -17,4 +17,5 @@ dependencies {
     implementation(projects.feature.archive.api)
     implementation(projects.feature.habits.api)
     implementation(projects.feature.keywords.api)
+    implementation(projects.feature.lock.api)
 }
