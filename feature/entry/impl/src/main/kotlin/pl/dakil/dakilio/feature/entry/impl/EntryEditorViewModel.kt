@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -90,6 +91,14 @@ internal data class EditorForm(
  * @property added the keyword already added it (auto-add mode); tapping removes it again.
  */
 data class KeywordChip(val tag: Tag, val added: Boolean)
+
+/**
+ * The brief toast that announces fresh keyword matches while typing. Matches that arrive while one
+ * is on screen join it, and [id] changes so its timer starts over.
+ */
+data class KeywordToast(val id: Long, val tags: List<KeywordChip>) {
+    val anyAdded: Boolean get() = tags.any { it.added }
+}
 
 data class EditorUiState(
     val loaded: Boolean,
@@ -219,29 +228,74 @@ class EntryEditorViewModel @AssistedInject constructor(
             added.map { KeywordChip(it, added = true) } + suggested.map { KeywordChip(it, added = false) }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
+    private val _keywordToast = MutableStateFlow<KeywordToast?>(null)
+    val keywordToast: StateFlow<KeywordToast?> = _keywordToast
+    private var keywordToastId = 0L
+
+    /** Tags already announced this session, so retyping a word doesn't buzz again. */
+    private val announcedKeywordTags = mutableSetOf<Long>()
+
     init {
         viewModelScope.launch { load() }
-        viewModelScope.launch { autoAddKeywordTags() }
+        viewModelScope.launch { watchKeywordMatches() }
     }
 
     /**
-     * Auto-add mode: a tag whose keyword newly shows up is ticked at once. Words already in the saved
-     * text don't count (opening an old entry changes nothing), and a turned-down tag stays off.
+     * Announces tags whose keyword newly shows up, and in auto-add mode ticks them at once. Words
+     * already in the saved text don't count (opening an old entry changes nothing), and a
+     * turned-down tag stays off.
      */
-    private suspend fun autoAddKeywordTags() {
-        combine(matchedTags, settingsRepository.settings) { matched, settings -> matched.takeIf { settings.keywordAutoAdd } }
-            .collect { matched ->
-                if (matched.isNullOrEmpty()) return@collect
+    private suspend fun watchKeywordMatches() {
+        combine(matchedTags, settingsRepository.settings) { matched, settings -> matched to settings.keywordAutoAdd }
+            .collect { (matched, autoAdd) ->
+                if (matched.isEmpty()) return@collect
                 val current = form.value
                 if (!current.loaded || (key.postId != null && !current.editing)) return@collect
                 val baseline = Keywords.match(originalTitle + "\n" + originalNote, keywords.value)
-                val fresh = matched.map { it.id }.filter {
-                    it !in baseline && it !in current.tagIds && it !in current.dismissedKeywordTags && it !in current.autoAddedTags
+                val fresh = matched.filter {
+                    it.id !in baseline && it.id !in current.tagIds && it.id !in current.dismissedKeywordTags &&
+                        it.id !in current.autoAddedTags && it.id !in announcedKeywordTags
                 }
-                if (fresh.isNotEmpty()) {
-                    form.update { it.copy(tagIds = it.tagIds + fresh, autoAddedTags = it.autoAddedTags + fresh, dirty = true) }
+                if (fresh.isEmpty()) return@collect
+                val ids = fresh.map { it.id }
+                announcedKeywordTags += ids
+                if (autoAdd) {
+                    form.update { it.copy(tagIds = it.tagIds + ids, autoAddedTags = it.autoAddedTags + ids, dirty = true) }
+                }
+                _keywordToast.update { shown ->
+                    val chips = fresh.map { KeywordChip(it, added = autoAdd) }
+                    KeywordToast(++keywordToastId, (shown?.tags.orEmpty().filter { old -> old.tag.id !in ids }) + chips)
                 }
             }
+    }
+
+    /** The toast's time is up (unless a newer match has replaced it since). */
+    fun consumeKeywordToast(id: Long) = _keywordToast.update { if (it?.id == id) null else it }
+
+    /** Undoes the toast's auto-added tags that are still on, leaving any the user changed by hand. */
+    fun undoKeywordToast() {
+        val toast = _keywordToast.getAndUpdate { null } ?: return
+        val ids = toast.tags.filter { it.added }.map { it.tag.id }.toSet()
+        form.update {
+            val undo = ids.filter { id -> id in it.tagIds && id in it.autoAddedTags }
+            if (undo.isEmpty()) return@update it
+            it.copy(
+                tagIds = it.tagIds - undo,
+                autoAddedTags = it.autoAddedTags - undo,
+                dismissedKeywordTags = it.dismissedKeywordTags + undo,
+                dirty = true,
+            )
+        }
+    }
+
+    /** Ticks the toast's suggested tags, unless the user dismissed or ticked them meanwhile. */
+    fun addFromKeywordToast() {
+        val toast = _keywordToast.getAndUpdate { null } ?: return
+        val ids = toast.tags.filterNot { it.added }.map { it.tag.id }
+        form.update {
+            val add = ids.filter { id -> id !in it.tagIds && id !in it.dismissedKeywordTags }
+            if (add.isEmpty()) it else it.copy(tagIds = it.tagIds + add, dirty = true)
+        }
     }
 
     /** Ticks a suggested tag. */
@@ -408,6 +462,7 @@ class EntryEditorViewModel @AssistedInject constructor(
                         autoAddedTags = emptySet(),
                     )
                 }
+                _keywordToast.value = null
             }
         }
     }

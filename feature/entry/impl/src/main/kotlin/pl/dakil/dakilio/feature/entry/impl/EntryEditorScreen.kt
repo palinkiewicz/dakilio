@@ -96,6 +96,7 @@ internal fun EntryEditorScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val keywordChips by viewModel.keywordChips.collectAsStateWithLifecycle()
+    val keywordToast by viewModel.keywordToast.collectAsStateWithLifecycle()
     val keywordRow: @Composable () -> Unit = {
         KeywordSuggestions(
             chips = keywordChips,
@@ -207,98 +208,108 @@ internal fun EntryEditorScreen(
                 )
             },
         ) { padding ->
-            Column(
-                Modifier.padding(padding).consumeWindowInsets(padding).fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Column(Modifier.widthIn(max = Spacing.maxContentWidth).fillMaxSize()) {
-                    DateTimeRow(
-                        state = current,
-                        readOnly = readOnly,
-                        onDate = viewModel::setDate,
-                        onTime = viewModel::setTime,
-                    )
-                    if (!readOnly && current.diaries.size > 1) {
-                        DiarySelector(
-                            diaries = current.diaries,
-                            selectedId = current.diaryId,
-                            onSelect = viewModel::selectDiary,
-                            modifier = Modifier.padding(top = Spacing.s),
-                        )
-                    }
-                    if (!current.isNew) {
-                        EntryOverview(
+            Box(Modifier.padding(padding).consumeWindowInsets(padding).fillMaxSize()) {
+                Column(
+                    Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Column(Modifier.widthIn(max = Spacing.maxContentWidth).fillMaxSize()) {
+                        DateTimeRow(
                             state = current,
-                            title = viewModel.title,
-                            note = viewModel.note,
-                            bodyRequired = bodyRequired,
-                            editing = current.editing,
-                            toggledGroups = toggledGroups,
-                            onToggleGroup = toggleGroup,
-                            onSelectMood = { viewModel.selectMood(it) },
-                            onClearMood = viewModel::clearMood,
-                            onToggleTag = viewModel::toggleTag,
-                            onManageTags = onManageTags,
-                            onAddPhotos = viewModel::addPhotos,
-                            onRemovePhoto = viewModel::removePhoto,
-                            modifier = Modifier.weight(1f).padding(top = Spacing.s),
-                            keywordChips = keywordRow,
+                            readOnly = readOnly,
+                            onDate = viewModel::setDate,
+                            onTime = viewModel::setTime,
                         )
-                    } else {
-                        Stepper(
-                            state = current,
-                            bodyFilled = viewModel.title.text.isNotBlank() || viewModel.note.text.isNotBlank() || current.photos.isNotEmpty(),
-                            onStep = {
-                                haptics.tick()
-                                viewModel.goTo(it)
-                            },
-                            modifier = Modifier.padding(horizontal = Spacing.gutter, vertical = Spacing.m),
-                        )
-                        AnimatedContent(
-                            targetState = current.step,
-                            transitionSpec = {
-                                val forward = targetState.ordinal > initialState.ordinal
-                                val spatial = MotionSpatial
-                                (slideInHorizontally(spatial) { if (forward) it / 4 else -it / 4 } + fadeIn()) togetherWith
-                                    (slideOutHorizontally(spatial) { if (forward) -it / 4 else it / 4 } + fadeOut())
-                            },
-                            label = "step",
-                            modifier = Modifier.weight(1f),
-                        ) { step ->
-                            when (step) {
-                                EditorStep.Mood -> MoodStep(
-                                    moods = current.moods,
-                                    selectedId = current.moodId,
-                                    onSelect = viewModel::selectMood,
-                                    onClear = viewModel::clearMood,
-                                    modifier = Modifier.fillMaxSize(),
-                                )
-                                EditorStep.Tags -> TagStep(
-                                    suggested = current.suggestedGroups,
-                                    others = current.otherGroups,
-                                    selectedIds = current.tagIds,
-                                    style = current.tagStyle,
-                                    toggledGroups = toggledGroups,
-                                    onToggleGroup = toggleGroup,
-                                    onToggle = viewModel::toggleTag,
-                                    onManageTags = onManageTags,
-                                    modifier = Modifier.fillMaxSize(),
-                                )
-                                EditorStep.Note -> NoteStep(
-                                    title = viewModel.title,
-                                    note = viewModel.note,
-                                    photos = current.photos,
-                                    importing = current.importingPhotos,
-                                    bodyRequired = bodyRequired,
-                                    onAddPhotos = viewModel::addPhotos,
-                                    onRemovePhoto = viewModel::removePhoto,
-                                    modifier = Modifier.fillMaxSize(),
-                                    belowNote = keywordRow,
-                                )
+                        if (!readOnly && current.diaries.size > 1) {
+                            DiarySelector(
+                                diaries = current.diaries,
+                                selectedId = current.diaryId,
+                                onSelect = viewModel::selectDiary,
+                                modifier = Modifier.padding(top = Spacing.s),
+                            )
+                        }
+                        if (!current.isNew) {
+                            EntryOverview(
+                                state = current,
+                                title = viewModel.title,
+                                note = viewModel.note,
+                                bodyRequired = bodyRequired,
+                                editing = current.editing,
+                                toggledGroups = toggledGroups,
+                                onToggleGroup = toggleGroup,
+                                onSelectMood = { viewModel.selectMood(it) },
+                                onClearMood = viewModel::clearMood,
+                                onToggleTag = viewModel::toggleTag,
+                                onManageTags = onManageTags,
+                                onAddPhotos = viewModel::addPhotos,
+                                onRemovePhoto = viewModel::removePhoto,
+                                modifier = Modifier.weight(1f).padding(top = Spacing.s),
+                                keywordChips = keywordRow,
+                            )
+                        } else {
+                            Stepper(
+                                state = current,
+                                bodyFilled = viewModel.title.text.isNotBlank() || viewModel.note.text.isNotBlank() || current.photos.isNotEmpty(),
+                                onStep = {
+                                    haptics.tick()
+                                    viewModel.goTo(it)
+                                },
+                                modifier = Modifier.padding(horizontal = Spacing.gutter, vertical = Spacing.m),
+                            )
+                            AnimatedContent(
+                                targetState = current.step,
+                                transitionSpec = {
+                                    val forward = targetState.ordinal > initialState.ordinal
+                                    val spatial = MotionSpatial
+                                    (slideInHorizontally(spatial) { if (forward) it / 4 else -it / 4 } + fadeIn()) togetherWith
+                                        (slideOutHorizontally(spatial) { if (forward) -it / 4 else it / 4 } + fadeOut())
+                                },
+                                label = "step",
+                                modifier = Modifier.weight(1f),
+                            ) { step ->
+                                when (step) {
+                                    EditorStep.Mood -> MoodStep(
+                                        moods = current.moods,
+                                        selectedId = current.moodId,
+                                        onSelect = viewModel::selectMood,
+                                        onClear = viewModel::clearMood,
+                                        modifier = Modifier.fillMaxSize(),
+                                    )
+                                    EditorStep.Tags -> TagStep(
+                                        suggested = current.suggestedGroups,
+                                        others = current.otherGroups,
+                                        selectedIds = current.tagIds,
+                                        style = current.tagStyle,
+                                        toggledGroups = toggledGroups,
+                                        onToggleGroup = toggleGroup,
+                                        onToggle = viewModel::toggleTag,
+                                        onManageTags = onManageTags,
+                                        modifier = Modifier.fillMaxSize(),
+                                    )
+                                    EditorStep.Note -> NoteStep(
+                                        title = viewModel.title,
+                                        note = viewModel.note,
+                                        photos = current.photos,
+                                        importing = current.importingPhotos,
+                                        bodyRequired = bodyRequired,
+                                        onAddPhotos = viewModel::addPhotos,
+                                        onRemovePhoto = viewModel::removePhoto,
+                                        modifier = Modifier.fillMaxSize(),
+                                        belowNote = keywordRow,
+                                    )
+                                }
                             }
                         }
                     }
                 }
+                // Above the wizard's bottom bar, or the keyboard in edit mode (the padding consumed the rest).
+                KeywordToastHost(
+                    toast = keywordToast,
+                    onTimeout = viewModel::consumeKeywordToast,
+                    onUndo = viewModel::undoKeywordToast,
+                    onAdd = viewModel::addFromKeywordToast,
+                    modifier = Modifier.align(Alignment.BottomCenter).imePadding().padding(bottom = Spacing.m),
+                )
             }
         }
     }

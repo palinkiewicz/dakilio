@@ -81,11 +81,7 @@ internal fun KeywordSuggestions(
 @Composable
 private fun KeywordChipView(chip: KeywordChip, onAdd: (Long) -> Unit, onDismiss: (Long) -> Unit, onUndo: (Long) -> Unit) {
     val haptics = rememberHaptics()
-    val tones = tagColors(chip.tag.color)
-    val scheme = MaterialTheme.colorScheme
-    // Added tags wear the tag's full fill, like a selected tag; suggestions its soft tone.
-    val container = if (chip.added) tones?.container ?: scheme.secondaryContainer else tones?.soft ?: scheme.surfaceContainerHighest
-    val content = if (chip.added) tones?.onContainer ?: scheme.onSecondaryContainer else tones?.accent ?: scheme.onSurfaceVariant
+    val (container, content) = keywordChipColors(chip)
     val interaction = remember { MutableInteractionSource() }
     val tagName = chip.tag.label
     Surface(
@@ -109,19 +105,7 @@ private fun KeywordChipView(chip: KeywordChip, onAdd: (Long) -> Unit, onDismiss:
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            DakilioIcon(
-                if (chip.added) DakilioSymbols.Check else DakilioSymbols.Add,
-                contentDescription = null,
-                tint = content,
-                modifier = Modifier.size(16.dp),
-            )
-            DakilioIcon(symbolForKey(chip.tag.iconKey), contentDescription = null, tint = content, modifier = Modifier.size(16.dp))
-            Text(
-                tagName,
-                style = MaterialTheme.typography.labelLarge,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            KeywordChipLabel(chip, content)
             if (!chip.added) {
                 val dismiss = stringResource(R.string.entry_keywords_dismiss, tagName)
                 Surface(
@@ -139,4 +123,34 @@ private fun KeywordChipView(chip: KeywordChip, onAdd: (Long) -> Unit, onDismiss:
             }
         }
     }
+}
+
+/** Added tags wear the tag's full fill, like a selected tag; suggestions its soft tone. */
+@Composable
+internal fun keywordChipColors(chip: KeywordChip): Pair<Color, Color> {
+    val tones = tagColors(chip.tag.color)
+    val scheme = MaterialTheme.colorScheme
+    return if (chip.added) {
+        (tones?.container ?: scheme.secondaryContainer) to (tones?.onContainer ?: scheme.onSecondaryContainer)
+    } else {
+        (tones?.soft ?: scheme.surfaceContainerHighest) to (tones?.accent ?: scheme.onSurfaceVariant)
+    }
+}
+
+/** A keyword chip's check (added) or plus, the tag's symbol and its label; for use inside a Row. */
+@Composable
+internal fun KeywordChipLabel(chip: KeywordChip, content: Color) {
+    DakilioIcon(
+        if (chip.added) DakilioSymbols.Check else DakilioSymbols.Add,
+        contentDescription = null,
+        tint = content,
+        modifier = Modifier.size(16.dp),
+    )
+    DakilioIcon(symbolForKey(chip.tag.iconKey), contentDescription = null, tint = content, modifier = Modifier.size(16.dp))
+    Text(
+        chip.tag.label,
+        style = MaterialTheme.typography.labelLarge,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+    )
 }

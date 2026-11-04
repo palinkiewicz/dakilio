@@ -40,6 +40,10 @@
     <string name="entry_note_required">You skipped the mood and the tags, so add a title, a note or a photo to save this entry.</string>
     <string name="entry_keywords_label">From your note</string>
     <string name="entry_keywords_dismiss">Don’t suggest %1$s</string>
+    <string name="entry_keywords_undo">Undo</string>
+    <string name="entry_keywords_toast_added">Added from your note: %1$s</string>
+    <string name="entry_keywords_toast_suggested">Suggested from your note: %1$s</string>
+    <string name="entry_keywords_more">+%1$d</string>
     <string name="entry_title_hint">Title</string>
     <string name="entry_note_hint">Write freely…</string>
     <string name="entry_add_photos">Add photos</string>
