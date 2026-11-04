@@ -7,10 +7,12 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -161,18 +163,30 @@ internal fun AppLockScreen(viewModel: AppLockViewModel, onBack: () -> Unit) {
                 transitionSpec = { fadeIn(motion.defaultEffectsSpec()) togetherWith fadeOut(motion.fastEffectsSpec()) },
                 label = "appLockStage",
             ) { shown ->
-                val column = Modifier
-                    .widthIn(max = Spacing.maxContentWidth)
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = Spacing.gutter)
-                    .navigationBarsPadding()
-                    .imePadding()
-                when (shown) {
-                    Stage.Loading -> Unit
-                    Stage.Verify -> VerifyContent(viewModel, current ?: LockSettings(), column)
-                    Stage.Setup -> setup?.let { SetupContent(viewModel, it, enableBiometrics, column) }
-                    Stage.Settings -> SettingsContent(viewModel, current ?: LockSettings(), enableBiometrics, column)
+                BoxWithConstraints(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+                    val column = Modifier
+                        .widthIn(max = Spacing.maxContentWidth)
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = Spacing.gutter)
+                        .navigationBarsPadding()
+                        .imePadding()
+                    // The verify and setup steps sit in the middle of the screen, like the lock screen;
+                    // at least a screen tall so they can center, and still scroll when they don't fit.
+                    val centered = Modifier
+                        .widthIn(max = Spacing.maxContentWidth)
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                        .heightIn(min = maxHeight)
+                        .padding(horizontal = Spacing.gutter)
+                        .navigationBarsPadding()
+                        .imePadding()
+                    when (shown) {
+                        Stage.Loading -> Unit
+                        Stage.Verify -> VerifyContent(viewModel, current ?: LockSettings(), centered)
+                        Stage.Setup -> setup?.let { SetupContent(viewModel, it, enableBiometrics, centered) }
+                        Stage.Settings -> SettingsContent(viewModel, current ?: LockSettings(), enableBiometrics, column)
+                    }
                 }
             }
         }
@@ -214,7 +228,7 @@ private fun VerifyContent(viewModel: AppLockViewModel, settings: LockSettings, m
             prompt()
         }
     }
-    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
         StageHeader(
             symbol = DakilioSymbols.Lock,
             title = stringResource(R.string.lock_verify_title),
@@ -270,7 +284,7 @@ private fun SetupContent(
     val recovered by viewModel.recovered.collectAsStateWithLifecycle()
     val haptics = rememberHaptics()
     LaunchedEffect(setup.mismatch) { if (setup.mismatch > 0) haptics.reject() }
-    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
         if (setup.offerBiometrics) {
             OfferBiometrics(viewModel, enableBiometrics)
             return@Column
