@@ -33,8 +33,10 @@ class PasscodeHash(val salt: ByteArray, val iterations: Int, val hash: ByteArray
 /**
  * Hashes and checks passcodes with PBKDF2-HMAC-SHA256, using only JDK crypto.
  *
- * This guards the app's UI, not the data: the database itself isn't encrypted. The cost is set so a
- * check takes a fraction of a second on a phone, which an unlock pays every time.
+ * This guards the app's UI, not the data: the database itself isn't encrypted, so the hash only keeps
+ * the PIN or password itself from being read back (people reuse them). Every unlock pays the cost,
+ * and Android's PBKDF2 runs in Java, so it's set to a few tenths of a second on a phone rather than
+ * the far higher counts meant for server-side password storage.
  */
 class PasscodeHasher(
     private val iterations: Int = DEFAULT_ITERATIONS,
@@ -59,7 +61,7 @@ class PasscodeHasher(
     }
 
     companion object {
-        const val DEFAULT_ITERATIONS = 210_000
+        const val DEFAULT_ITERATIONS = 50_000
         private const val SALT_BYTES = 16
         private const val HASH_BITS = 256
     }
