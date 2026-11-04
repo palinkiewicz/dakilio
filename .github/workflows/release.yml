@@ -1,0 +1,120 @@
+# Builds the APK for a published GitHub release and attaches it to the release.
+#   v1.2.3          → release build → dakilio-1.2.3.apk
+#   v1.2.3-preview  → preview build → dakilio-1.2.3-preview.apk
+# Any other tag is skipped. The tag must point at a commit on main, and the unit tests must pass.
+# Preview releases are marked as pre-releases.
+name: Release APK
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.parse.outputs.version }}
+      build_type: ${{ steps.parse.outputs.build_type }}
+      apk_name: ${{ steps.parse.outputs.apk_name }}
+    steps:
+      - id: parse
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          if [[ "$TAG" =~ ^v([0-9]+\.[0-9]+\.[0-9]+)(-preview)?$ ]]; then
+            version="${BASH_REMATCH[1]}"
+            if [[ -n "${BASH_REMATCH[2]}" ]]; then
+              build_type=preview
+              apk_name="dakilio-$version-preview.apk"
+            else
+              build_type=release
+              apk_name="dakilio-$version.apk"
+            fi
+            echo "version=$version" >> "$GITHUB_OUTPUT"
+            echo "build_type=$build_type" >> "$GITHUB_OUTPUT"
+            echo "apk_name=$apk_name" >> "$GITHUB_OUTPUT"
+            echo "Building $apk_name ($build_type)"
+          else
+            echo "::notice::Tag '$TAG' is not vX.Y.Z or vX.Y.Z-preview; no APK is built."
+          fi
+
+      - name: Mark a preview as a pre-release
+        if: steps.parse.outputs.build_type == 'preview' && !github.event.release.prerelease
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          GH_TOKEN: ${{ github.token }}
+        run: gh release edit "$TAG" --prerelease --repo "$GITHUB_REPOSITORY"
+
+  build:
+    needs: version
+    if: needs.version.outputs.version != ''
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.event.release.tag_name }}
+      VERSION: ${{ needs.version.outputs.version }}
+      BUILD_TYPE: ${{ needs.version.outputs.build_type }}
+      APK_NAME: ${{ needs.version.outputs.apk_name }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # full history, to check that the tag is on main
+
+      - name: Check that the tag is on main
+        run: |
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::Tag $TAG ($GITHUB_SHA) is not on main."
+            exit 1
+          fi
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v5
+
+      - name: Run the unit tests
+        run: ./gradlew testDebugUnitTest :core:model:test :core:daylio:test :core:backup:test
+
+      - name: Set up the signing key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          # Without the release key the APK would be unsigned (release) or signed with this
+          # runner's throwaway debug key (preview), and testers couldn't update to it.
+          if [[ -z "$KEYSTORE_BASE64" || -z "$KEYSTORE_PASSWORD" || -z "$KEY_ALIAS" || -z "$KEY_PASSWORD" ]]; then
+            echo "::error::Signing secrets are missing (ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD)."
+            exit 1
+          fi
+          echo "$KEYSTORE_BASE64" | base64 --decode > release.jks
+          # keystore.properties is a Java properties file: backslashes must be escaped.
+          esc() { printf '%s' "${1//\\/\\\\}"; }
+          {
+            echo "storeFile=release.jks"
+            echo "storePassword=$(esc "$KEYSTORE_PASSWORD")"
+            echo "keyAlias=$(esc "$KEY_ALIAS")"
+            echo "keyPassword=$(esc "$KEY_PASSWORD")"
+          } > keystore.properties
+
+      - name: Build the APK
+        run: |
+          task="assemble${BUILD_TYPE^}"
+          ./gradlew ":app:$task" -Pdakilio.version="$VERSION"
+
+      - name: Rename the APK
+        run: mv "app/build/outputs/apk/$BUILD_TYPE/app-$BUILD_TYPE.apk" "$APK_NAME"
+
+      - name: Attach the APK to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$TAG" "$APK_NAME" --clobber
+
+      - name: Remove the signing key
+        if: always()
+        run: rm -f release.jks keystore.properties

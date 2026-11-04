@@ -14,13 +14,26 @@ val keystoreProperties: Properties? = rootProject.file("keystore.properties")
     .takeIf { it.exists() }
     ?.let { file -> Properties().apply { file.inputStream().use(::load) } }
 
+// The release workflow passes the tag's version (`-Pdakilio.version=1.2.3` for tag v1.2.3 or
+// v1.2.3-preview); local builds use the default. The build type adds its suffix (-PREVIEW, -DEBUG).
+val appVersion: String = providers.gradleProperty("dakilio.version").getOrElse("0.2.0")
+
+// MAJOR.MINOR.PATCH → MMMmmmppp, so every release has a higher versionCode than the one before.
+fun versionCodeOf(version: String): Int {
+    val parts = Regex("""(\d+)\.(\d+)\.(\d+)""").matchEntire(version)?.groupValues?.drop(1)?.map(String::toInt)
+        ?: error("dakilio.version must be MAJOR.MINOR.PATCH, was '$version'")
+    val (major, minor, patch) = parts
+    require(major <= 2000 && minor < 1000 && patch < 1000) { "dakilio.version '$version' is out of range" }
+    return major * 1_000_000 + minor * 1_000 + patch
+}
+
 android {
     namespace = "pl.dakil.dakilio"
 
     defaultConfig {
         applicationId = "pl.dakil.dakilio"
-        versionCode = 2
-        versionName = "0.2.0"
+        versionCode = versionCodeOf(appVersion)
+        versionName = appVersion
         manifestPlaceholders["appName"] = "Dakilio"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
