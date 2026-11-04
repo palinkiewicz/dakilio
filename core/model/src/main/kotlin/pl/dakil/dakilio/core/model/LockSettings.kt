@@ -28,6 +28,8 @@ enum class AutoLockDelay(val millis: Long) {
  * @property pinLength digits of the PIN, so the lock screen can show its dots and check a PIN as
  *   soon as it's complete; 0 for a password or no lock.
  * @property biometrics biometrics may unlock too. Only meaningful while [method] isn't [LockMethod.None].
+ * @property biometricsInvalidated biometric unlock was switched off because it stopped working
+ *   (a newly enrolled fingerprint or face, or a move to another phone); the lock screen says why.
  * @property secureScreen `FLAG_SECURE`: blank in recent apps, no screenshots. Works with the lock off too.
  */
 data class LockSettings(
@@ -35,6 +37,7 @@ data class LockSettings(
     val pinLength: Int = 0,
     val biometrics: Boolean = false,
     val biometricStrength: BiometricStrength = BiometricStrength.Standard,
+    val biometricsInvalidated: Boolean = false,
     val recovery: RecoveryMethod = RecoveryMethod.None,
     val recoveryQuestion: String? = null,
     val autoLock: AutoLockDelay = AutoLockDelay.Immediately,
