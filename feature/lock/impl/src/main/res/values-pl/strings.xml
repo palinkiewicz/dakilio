@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Lock screen -->
+    <string name="lock_title_pin">Wpisz PIN</string>
+    <string name="lock_title_password">Wpisz hasło</string>
+    <string name="lock_backspace">Usuń cyfrę</string>
+    <plurals name="lock_pin_entered">
+        <item quantity="one">Wpisano %d cyfrę</item>
+        <item quantity="few">Wpisano %d cyfry</item>
+        <item quantity="many">Wpisano %d cyfr</item>
+        <item quantity="other">Wpisano %d cyfry</item>
+    </plurals>
+    <string name="lock_password_label">Hasło</string>
+    <string name="lock_password_show">Pokaż hasło</string>
+    <string name="lock_password_hide">Ukryj hasło</string>
+    <string name="lock_wrong_pin">Nieprawidłowy PIN</string>
+    <string name="lock_wrong_password">Nieprawidłowe hasło</string>
+    <plurals name="lock_attempts_left">
+        <item quantity="one">Nieprawidłowo. Jeszcze %d próba, potem trzeba będzie poczekać.</item>
+        <item quantity="few">Nieprawidłowo. Jeszcze %d próby, potem trzeba będzie poczekać.</item>
+        <item quantity="many">Nieprawidłowo. Jeszcze %d prób, potem trzeba będzie poczekać.</item>
+        <item quantity="other">Nieprawidłowo. Jeszcze %d próby, potem trzeba będzie poczekać.</item>
+    </plurals>
+    <string name="lock_locked_out">Zbyt wiele prób. Spróbuj ponownie za %1$s.</string>
+    <string name="lock_locked_out_short">Zbyt wiele prób. Poczekaj chwilę.</string>
+    <string name="lock_forgot_pin">Nie pamiętasz PIN-u?</string>
+    <string name="lock_forgot_password">Nie pamiętasz hasła?</string>
+    <string name="lock_biometrics_invalidated">Odblokowanie biometryczne zostało wyłączone, bo dane biometryczne w telefonie się zmieniły. Wpisz PIN lub hasło, a potem włącz je ponownie w ustawieniach blokady aplikacji.</string>
+    <string name="lock_prompt_title">Odblokuj Dakilio</string>
+    <string name="lock_prompt_use_pin">Użyj PIN-u</string>
+    <string name="lock_prompt_use_password">Użyj hasła</string>
+    <string name="lock_use_fingerprint">Użyj odcisku palca</string>
+    <string name="lock_use_face">Użyj rozpoznawania twarzy</string>
+    <string name="lock_use_iris">Użyj skanu tęczówki</string>
+    <string name="lock_use_biometrics">Użyj biometrii</string>
+
+    <!-- Recovery on the lock screen -->
+    <string name="lock_no_recovery_body">Nie da się go odzyskać. Aby znów korzystać z Dakilio, wyczyść dane aplikacji w ustawieniach telefonu. Usunie to wszystkie wpisy, więc potem przywróć kopię zapasową, jeśli ją masz.</string>
+    <string name="lock_recover_device_title">Potwierdź, że to ty</string>
+    <string name="lock_recover_device_subtitle">Użyj blokady ekranu telefonu, a potem wybierz nowy PIN lub hasło</string>
+    <string name="lock_recover_question_title">Pytanie pomocnicze</string>
+    <string name="lock_recover_answer">Odpowiedź</string>
+    <string name="lock_recover_wrong">To nie jest właściwa odpowiedź</string>
+    <string name="lock_recover_unlock">Odblokuj</string>
+
+    <!-- App lock settings -->
+    <string name="app_lock_title">Blokada aplikacji</string>
+    <string name="lock_back">Wstecz</string>
+    <string name="lock_cancel">Anuluj</string>
+    <string name="lock_ok">OK</string>
+    <string name="lock_off_title">Zachowaj dziennik dla siebie</string>
+    <string name="lock_off_body">Dakilio poprosi o PIN lub hasło przy każdym otwarciu. Odcisk palca lub rozpoznawanie twarzy możesz dodać później.</string>
+    <string name="lock_set_pin">Ustaw PIN</string>
+    <string name="lock_set_password">Użyj hasła</string>
+    <string name="lock_verify_title">Potwierdź, że to ty</string>
+    <string name="lock_verify_body_pin">Wpisz PIN, aby zmienić blokadę aplikacji.</string>
+    <string name="lock_verify_body_password">Wpisz hasło, aby zmienić blokadę aplikacji.</string>
+
+    <string name="lock_section_unlock">Odblokowywanie</string>
+    <string name="lock_change_pin">Zmień PIN</string>
+    <string name="lock_change_password">Zmień hasło</string>
+    <string name="lock_switch_to_password">Użyj hasła zamiast PIN-u</string>
+    <string name="lock_switch_to_password_body">Litery, cyfry i symbole</string>
+    <string name="lock_switch_to_pin">Użyj PIN-u zamiast hasła</string>
+    <string name="lock_switch_to_pin_body">Od 4 do 12 cyfr</string>
+    <string name="lock_unlock_fingerprint">Odblokowuj odciskiem palca</string>
+    <string name="lock_unlock_face">Odblokowuj twarzą</string>
+    <string name="lock_unlock_iris">Odblokowuj skanem tęczówki</string>
+    <string name="lock_unlock_biometrics">Odblokowuj biometrią</string>
+    <string name="lock_biometrics_body">PIN lub hasło nadal działa</string>
+    <string name="lock_biometrics_enroll">W telefonie nic jeszcze nie skonfigurowano. Otwórz ustawienia, aby to dodać.</string>
+    <string name="lock_biometrics_confirm_title">Potwierdź odblokowanie biometryczne</string>
+    <string name="lock_biometrics_failed">Nie udało się włączyć odblokowania biometrycznego</string>
+    <string name="lock_strength">Poziom zabezpieczeń biometrii</string>
+    <string name="lock_strength_standard">Standardowy</string>
+    <string name="lock_strength_strong">Wysoki</string>
+    <string name="lock_strength_standard_body">Działa z każdym czujnikiem w telefonie, także z rozpoznawaniem twarzy samym aparatem, które czasem da się oszukać zdjęciem.</string>
+    <string name="lock_strength_strong_body">Tylko najbezpieczniejsze czujniki telefonu, wsparte kluczem sprzętowym. Jeśli ktoś doda do telefonu nowy odcisk palca lub twarz, odblokowanie biometryczne wyłączy się do czasu wpisania PIN-u lub hasła.</string>
+
+    <string name="lock_section_auto">Automatyczna blokada</string>
+    <string name="lock_auto_title">Blokuj po wyjściu z aplikacji</string>
+    <string name="lock_auto_immediately">Od razu</string>
+    <string name="lock_auto_30s">Po 30 sekundach</string>
+    <string name="lock_auto_1m">Po 1 minucie</string>
+    <string name="lock_auto_5m">Po 5 minutach</string>
+    <string name="lock_auto_15m">Po 15 minutach</string>
+
+    <string name="lock_section_recovery_pin">Jeśli zapomnisz PIN</string>
+    <string name="lock_section_recovery_password">Jeśli zapomnisz hasło</string>
+    <string name="lock_recovery_none">Bez odzyskiwania</string>
+    <string name="lock_recovery_none_body">Najbardziej prywatne. Jedynym wyjściem jest wyczyszczenie danych aplikacji, które usuwa dziennik, więc rób kopie zapasowe.</string>
+    <string name="lock_recovery_device">Blokada ekranu telefonu</string>
+    <string name="lock_recovery_device_body">Każdy, kto potrafi odblokować ten telefon, wejdzie też do Dakilio.</string>
+    <string name="lock_recovery_device_unavailable">Najpierw ustaw blokadę ekranu w telefonie.</string>
+    <string name="lock_recovery_question">Pytanie pomocnicze</string>
+    <string name="lock_recovery_question_body">Pytanie, na które tylko ty znasz odpowiedź</string>
+    <string name="lock_question_title">Pytanie pomocnicze</string>
+    <string name="lock_question_body">Wybierz coś, co znasz tylko ty i czego nie zapomnisz. Unikaj odpowiedzi, które inni mogą zgadnąć lub sprawdzić.</string>
+    <string name="lock_question_label">Pytanie</string>
+    <string name="lock_question_placeholder">Jak miało na imię moje pierwsze zwierzę?</string>
+    <string name="lock_question_answer_hint">Wielkość liter i dodatkowe spacje nie mają znaczenia</string>
+
+    <string name="lock_section_privacy">Prywatność</string>
+    <string name="lock_secure_screen">Ukrywaj zawartość ekranu</string>
+    <string name="lock_secure_screen_body">Pusty podgląd w ostatnich aplikacjach, bez zrzutów i nagrywania ekranu</string>
+    <string name="lock_shuffle">Mieszaj klawiaturę</string>
+    <string name="lock_shuffle_body">Cyfry za każdym razem zmieniają miejsca, więc ślady palców i ciekawskie spojrzenia nic nie zdradzą</string>
+
+    <string name="lock_section_off">Wyłączanie</string>
+    <string name="lock_turn_off">Wyłącz blokadę aplikacji</string>
+    <string name="lock_turn_off_body">Usuwa też odblokowanie biometryczne i odzyskiwanie</string>
+    <string name="lock_turn_off_title">Wyłączyć blokadę aplikacji?</string>
+    <string name="lock_turn_off_dialog">Każdy, kto ma twój telefon, będzie mógł otworzyć dziennik. Odblokowanie biometryczne i odzyskiwanie też zostaną usunięte.</string>
+    <string name="lock_turn_off_confirm">Wyłącz</string>
+    <string name="lock_scope_note">Blokada chroni ekrany Dakilio. Wpisy są w prywatnej pamięci aplikacji, którą chroni Android, ale nie są osobno szyfrowane. Aby chronić kopię zapasową, nadaj jej hasło.</string>
+
+    <!-- Setup -->
+    <string name="lock_setup_choose_pin">Wybierz PIN</string>
+    <string name="lock_setup_choose_password">Wybierz hasło</string>
+    <string name="lock_setup_new_pin">Wybierz nowy PIN</string>
+    <string name="lock_setup_new_password">Wybierz nowe hasło</string>
+    <string name="lock_setup_confirm_pin">Wpisz go ponownie</string>
+    <string name="lock_setup_confirm_password">Wpisz je ponownie</string>
+    <string name="lock_setup_confirm_body">Żeby nie było literówki</string>
+    <string name="lock_setup_pin_rules">Od %1$d do %2$d cyfr</string>
+    <string name="lock_setup_password_rules">Co najmniej %1$d znaki</string>
+    <string name="lock_setup_mismatch">Nie zgadzają się. Spróbuj ponownie.</string>
+    <string name="lock_setup_password_again">Powtórz hasło</string>
+    <string name="lock_setup_next">Dalej</string>
+    <string name="lock_setup_save">Zapisz</string>
+    <string name="lock_offer_biometrics_body">Szybciej niż wpisywanie. PIN lub hasło zadziała zawsze, gdy biometria zawiedzie.</string>
+    <string name="lock_offer_not_now">Nie teraz</string>
+    <string name="lock_offer_turn_on">Włącz</string>
+
+    <!-- Snackbar confirmations -->
+    <string name="lock_message_on">Blokada aplikacji jest włączona</string>
+    <string name="lock_message_changed">Zapisano</string>
+    <string name="lock_message_off">Blokada aplikacji jest wyłączona</string>
+    <string name="lock_message_biometrics">Odblokowanie biometryczne jest włączone</string>
+    <string name="lock_message_recovery">Zapisano sposób odzyskiwania</string>
+</resources>
