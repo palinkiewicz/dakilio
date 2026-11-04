@@ -60,6 +60,8 @@ import pl.dakil.dakilio.feature.tags.impl.tagsEntry
 import pl.dakil.dakilio.feature.habits.impl.HabitProgressHost
 import pl.dakil.dakilio.feature.habits.impl.habitsEntry
 import pl.dakil.dakilio.feature.keywords.impl.keywordsEntry
+import pl.dakil.dakilio.feature.lock.api.AppLockKey
+import pl.dakil.dakilio.feature.lock.impl.appLockEntry
 import pl.dakil.dakilio.feature.timeline.api.TimelineKey
 import pl.dakil.dakilio.feature.timeline.impl.timelineEntry
 
@@ -75,7 +77,7 @@ private val topLevelKeys = destinations.map { it.key }
 
 /** App shell: shared-element scope, the navigation display and the bottom navigation bar. */
 @Composable
-fun DakilioApp(incomingBackup: IncomingBackup? = null) {
+fun DakilioApp(incomingBackup: IncomingBackup? = null, openAppLock: Boolean = false) {
     val navigationState = rememberNavigationState(topLevelKeys)
     val navigator = remember(navigationState) { Navigator(navigationState) }
 
@@ -87,6 +89,12 @@ fun DakilioApp(incomingBackup: IncomingBackup? = null) {
         val key = if (incoming.isDakilio) BackupKey else DaylioImportKey
         navigator.navigate(MoreKey)
         if (navigationState.currentKey != key) navigator.navigate(key)
+    }
+    // In through a forgotten PIN: More → App lock, which asks for a new one.
+    LaunchedEffect(openAppLock) {
+        if (!openAppLock) return@LaunchedEffect
+        navigator.navigate(MoreKey)
+        if (navigationState.currentKey != AppLockKey) navigator.navigate(AppLockKey)
     }
     val haptics = rememberHaptics()
     val density = LocalDensity.current
@@ -119,6 +127,7 @@ fun DakilioApp(incomingBackup: IncomingBackup? = null) {
         archiveEntry(navigator)
         habitsEntry(navigator)
         keywordsEntry(navigator)
+        appLockEntry(navigator)
     }
 
     SharedTransitionLayout(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {

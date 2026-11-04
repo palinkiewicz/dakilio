@@ -24,8 +24,6 @@ import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
@@ -63,6 +61,7 @@ import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TextScale
 import pl.dakil.dakilio.core.model.ThemeMode
 import pl.dakil.dakilio.core.ui.canChooseAppLanguage
+import pl.dakil.dakilio.core.ui.component.SwitchListItem
 import pl.dakil.dakilio.core.ui.component.TextScaleSlider
 import pl.dakil.dakilio.core.ui.currentAppLanguage
 import pl.dakil.dakilio.core.ui.languageName
@@ -178,7 +177,7 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
                         )
                     }
                 }
-                SwitchItem(
+                SwitchListItem(
                     title = stringResource(R.string.settings_close_after_save),
                     body = stringResource(R.string.settings_close_after_save_body),
                     symbol = DakilioSymbols.Check,
@@ -189,7 +188,7 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
                 )
 
                 SectionHeader(stringResource(R.string.settings_guidance))
-                SwitchItem(
+                SwitchListItem(
                     title = stringResource(R.string.settings_hints),
                     body = stringResource(R.string.settings_hints_body),
                     symbol = DakilioSymbols.Lightbulb,
@@ -340,41 +339,4 @@ private fun TextSizeDialog(
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.settings_cancel)) } },
     )
-}
-
-/** A single-row setting with a switch; the whole row toggles it. */
-@Composable
-private fun SwitchItem(
-    title: String,
-    body: String,
-    symbol: DakilioSymbol,
-    polygon: RoundedPolygon,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val haptics = rememberHaptics()
-    val toggle = { value: Boolean ->
-        haptics.toggle(value)
-        onCheckedChange(value)
-    }
-    SegmentedListItem(
-        onClick = { toggle(!checked) },
-        shapes = ListItemDefaults.segmentedShapes(0, 1),
-        colors = segmentedItemColors(),
-        modifier = modifier,
-        leadingContent = { ShapedIcon(symbol, polygon = polygon) },
-        supportingContent = { Text(body) },
-        trailingContent = {
-            Switch(
-                checked = checked,
-                onCheckedChange = toggle,
-                thumbContent = if (checked) {
-                    { DakilioIcon(DakilioSymbols.Check, contentDescription = null, modifier = Modifier.size(SwitchDefaults.IconSize)) }
-                } else {
-                    null
-                },
-            )
-        },
-    ) { Text(title) }
 }

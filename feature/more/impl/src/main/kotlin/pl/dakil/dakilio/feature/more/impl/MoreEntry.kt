@@ -11,6 +11,7 @@ import pl.dakil.dakilio.feature.habits.api.HabitsKey
 import pl.dakil.dakilio.feature.keywords.api.KeywordsKey
 import pl.dakil.dakilio.feature.backup.api.BackupKey
 import pl.dakil.dakilio.feature.importer.api.DaylioImportKey
+import pl.dakil.dakilio.feature.lock.api.AppLockKey
 import pl.dakil.dakilio.feature.more.api.MoreKey
 import pl.dakil.dakilio.feature.settings.api.SettingsKey
 import pl.dakil.dakilio.feature.moods.api.MoodsKey
@@ -29,6 +30,7 @@ fun EntryProviderScope<NavKey>.moreEntry(navigator: Navigator) {
             onOpenArchive = { navigator.navigate(ArchiveKey) },
             onOpenHabits = { navigator.navigate(HabitsKey) },
             onOpenKeywords = { navigator.navigate(KeywordsKey) },
+            onOpenAppLock = { navigator.navigate(AppLockKey) },
         )
     }
 }

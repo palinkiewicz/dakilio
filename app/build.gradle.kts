@@ -129,6 +129,7 @@ dependencies {
     implementation(projects.feature.archive.impl)
     implementation(projects.feature.intro.impl)
     implementation(projects.feature.habits.impl)
+    implementation(projects.feature.lock.impl)
     implementation(projects.feature.keywords.impl)
 
     // Sample entries only in builds for development and testers; release installs start empty.

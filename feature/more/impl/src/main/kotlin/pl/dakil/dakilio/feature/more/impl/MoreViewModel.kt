@@ -12,14 +12,17 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import pl.dakil.dakilio.core.data.repository.HabitRepository
 import pl.dakil.dakilio.core.data.repository.KeywordRepository
+import pl.dakil.dakilio.core.data.repository.LockRepository
 import pl.dakil.dakilio.core.data.repository.PostRepository
 import pl.dakil.dakilio.core.data.repository.SettingsRepository
+import pl.dakil.dakilio.core.model.LockSettings
 
 @HiltViewModel
 class MoreViewModel @Inject constructor(
     postRepository: PostRepository,
     habitRepository: HabitRepository,
     keywordRepository: KeywordRepository,
+    lockRepository: LockRepository,
     private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
     /** Habits set up (the Habits extra); 0 means it isn't used yet. */
@@ -30,6 +33,10 @@ class MoreViewModel @Inject constructor(
     val keywordTagCount: StateFlow<Int> =
         keywordRepository.keywords.map { keywords -> keywords.map { it.tagId }.distinct().size }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0)
+
+    /** The app lock's state, for the App lock row's status. */
+    val lock: StateFlow<LockSettings> =
+        lockRepository.settings.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), LockSettings())
 
     /** Whether to show the "these are samples" hint. */
     val showSampleHint: StateFlow<Boolean> =

@@ -16,6 +16,7 @@ import kotlinx.coroutines.CoroutineScope
 import pl.dakil.dakilio.core.common.ApplicationScope
 import pl.dakil.dakilio.core.common.DakilioDispatchers
 import pl.dakil.dakilio.core.common.Dispatcher
+import pl.dakil.dakilio.core.datastore.LockStore
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -29,4 +30,16 @@ internal object DataStoreModule {
     ): DataStore<Preferences> = PreferenceDataStoreFactory.create(
         scope = CoroutineScope(scope.coroutineContext + io),
     ) { context.preferencesDataStoreFile("settings") }
+
+    /** The app lock, in its own file so backups (which carry `settings`) never touch it. */
+    @Provides
+    @Singleton
+    @LockStore
+    fun lockPreferences(
+        @ApplicationContext context: Context,
+        @ApplicationScope scope: CoroutineScope,
+        @Dispatcher(DakilioDispatchers.IO) io: CoroutineDispatcher,
+    ): DataStore<Preferences> = PreferenceDataStoreFactory.create(
+        scope = CoroutineScope(scope.coroutineContext + io),
+    ) { context.preferencesDataStoreFile("lock") }
 }

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Lock screen -->
+    <string name="lock_title_pin">Enter your PIN</string>
+    <string name="lock_title_password">Enter your password</string>
+    <string name="lock_backspace">Delete digit</string>
+    <plurals name="lock_pin_entered">
+        <item quantity="one">%d digit entered</item>
+        <item quantity="other">%d digits entered</item>
+    </plurals>
+    <string name="lock_password_label">Password</string>
+    <string name="lock_password_show">Show password</string>
+    <string name="lock_password_hide">Hide password</string>
+    <string name="lock_wrong_pin">Wrong PIN</string>
+    <string name="lock_wrong_password">Wrong password</string>
+    <plurals name="lock_attempts_left">
+        <item quantity="one">Wrong. %d more try before you have to wait.</item>
+        <item quantity="other">Wrong. %d more tries before you have to wait.</item>
+    </plurals>
+    <string name="lock_locked_out">Too many tries. Try again in %1$s.</string>
+    <string name="lock_locked_out_short">Too many tries. Wait a moment.</string>
+    <string name="lock_forgot_pin">Forgot your PIN?</string>
+    <string name="lock_forgot_password">Forgot your password?</string>
+    <string name="lock_biometrics_invalidated">Biometric unlock was turned off because the biometrics on this phone changed. Enter your PIN or password, then turn it back on in App lock.</string>
+    <string name="lock_prompt_title">Unlock Dakilio</string>
+    <string name="lock_prompt_use_pin">Use PIN</string>
+    <string name="lock_prompt_use_password">Use password</string>
+    <string name="lock_use_fingerprint">Use fingerprint</string>
+    <string name="lock_use_face">Use face unlock</string>
+    <string name="lock_use_iris">Use iris scan</string>
+    <string name="lock_use_biometrics">Use biometrics</string>
+
+    <!-- Recovery on the lock screen -->
+    <string name="lock_no_recovery_body">There\'s no way to recover it. To use Dakilio again, clear the app\'s data in your phone\'s settings. This deletes every entry, so restore a backup afterwards if you have one.</string>
+    <string name="lock_recover_device_title">Confirm it\'s you</string>
+    <string name="lock_recover_device_subtitle">Use your phone\'s screen lock, then choose a new PIN or password</string>
+    <string name="lock_recover_question_title">Recovery question</string>
+    <string name="lock_recover_answer">Answer</string>
+    <string name="lock_recover_wrong">That\'s not the answer</string>
+    <string name="lock_recover_unlock">Unlock</string>
+
+    <!-- App lock settings -->
+    <string name="app_lock_title">App lock</string>
+    <string name="lock_back">Back</string>
+    <string name="lock_cancel">Cancel</string>
+    <string name="lock_ok">OK</string>
+    <string name="lock_off_title">Keep your journal private</string>
+    <string name="lock_off_body">Ask for a PIN or password whenever Dakilio opens. You can add fingerprint or face unlock afterwards.</string>
+    <string name="lock_set_pin">Set a PIN</string>
+    <string name="lock_set_password">Use a password</string>
+    <string name="lock_verify_title">Confirm it\'s you</string>
+    <string name="lock_verify_body_pin">Enter your PIN to change the app lock.</string>
+    <string name="lock_verify_body_password">Enter your password to change the app lock.</string>
+
+    <string name="lock_section_unlock">Unlocking</string>
+    <string name="lock_change_pin">Change PIN</string>
+    <string name="lock_change_password">Change password</string>
+    <string name="lock_switch_to_password">Use a password instead</string>
+    <string name="lock_switch_to_password_body">Letters, numbers and symbols</string>
+    <string name="lock_switch_to_pin">Use a PIN instead</string>
+    <string name="lock_switch_to_pin_body">4 to 12 digits</string>
+    <string name="lock_unlock_fingerprint">Unlock with fingerprint</string>
+    <string name="lock_unlock_face">Unlock with face</string>
+    <string name="lock_unlock_iris">Unlock with iris scan</string>
+    <string name="lock_unlock_biometrics">Unlock with biometrics</string>
+    <string name="lock_biometrics_body">Your PIN or password still works</string>
+    <string name="lock_biometrics_enroll">Nothing is set up on this phone yet. Open settings to add it.</string>
+    <string name="lock_biometrics_confirm_title">Confirm biometric unlock</string>
+    <string name="lock_biometrics_failed">Biometric unlock couldn\'t be turned on</string>
+    <string name="lock_strength">Biometric strength</string>
+    <string name="lock_strength_standard">Standard</string>
+    <string name="lock_strength_strong">Strong</string>
+    <string name="lock_strength_standard_body">Accepts every sensor on this phone, including camera-only face unlock, which a photo can sometimes fool.</string>
+    <string name="lock_strength_strong_body">Only the phone\'s most secure sensors, backed by a hardware key. If anyone adds a new fingerprint or face to the phone, biometric unlock turns off until the PIN or password is entered.</string>
+
+    <string name="lock_section_auto">Auto-lock</string>
+    <string name="lock_auto_title">Lock after leaving the app</string>
+    <string name="lock_auto_immediately">Immediately</string>
+    <string name="lock_auto_30s">After 30 seconds</string>
+    <string name="lock_auto_1m">After 1 minute</string>
+    <string name="lock_auto_5m">After 5 minutes</string>
+    <string name="lock_auto_15m">After 15 minutes</string>
+
+    <string name="lock_section_recovery_pin">If you forget your PIN</string>
+    <string name="lock_section_recovery_password">If you forget your password</string>
+    <string name="lock_recovery_none">No recovery</string>
+    <string name="lock_recovery_none_body">Most private. The only way back in is clearing the app\'s data, which deletes your journal, so keep a backup.</string>
+    <string name="lock_recovery_device">Phone\'s screen lock</string>
+    <string name="lock_recovery_device_body">Anyone who can unlock this phone can get back into Dakilio.</string>
+    <string name="lock_recovery_device_unavailable">Set a screen lock on your phone first.</string>
+    <string name="lock_recovery_question">Recovery question</string>
+    <string name="lock_recovery_question_body">A question only you can answer</string>
+    <string name="lock_question_title">Recovery question</string>
+    <string name="lock_question_body">Pick something only you know and won\'t forget. Avoid answers others could guess or look up.</string>
+    <string name="lock_question_label">Question</string>
+    <string name="lock_question_placeholder">What was my first pet\'s name?</string>
+    <string name="lock_question_answer_hint">Capital letters and extra spaces don\'t matter</string>
+
+    <string name="lock_section_privacy">Privacy</string>
+    <string name="lock_secure_screen">Hide screen content</string>
+    <string name="lock_secure_screen_body">Blank in recent apps, and screenshots and screen recording are blocked</string>
+    <string name="lock_shuffle">Shuffle keypad</string>
+    <string name="lock_shuffle_body">Digits change places each time, so finger smudges and onlookers give nothing away</string>
+
+    <string name="lock_section_off">Turn off</string>
+    <string name="lock_turn_off">Turn off app lock</string>
+    <string name="lock_turn_off_body">Biometric unlock and recovery are removed too</string>
+    <string name="lock_turn_off_title">Turn off app lock?</string>
+    <string name="lock_turn_off_dialog">Anyone with your phone will be able to open your journal. Biometric unlock and recovery are removed too.</string>
+    <string name="lock_turn_off_confirm">Turn off</string>
+    <string name="lock_scope_note">App lock guards Dakilio\'s screens. Your entries are kept in the app\'s private storage, which Android protects but doesn\'t encrypt separately. To protect a backup, give it a password.</string>
+
+    <!-- Setup -->
+    <string name="lock_setup_choose_pin">Choose a PIN</string>
+    <string name="lock_setup_choose_password">Choose a password</string>
+    <string name="lock_setup_new_pin">Choose a new PIN</string>
+    <string name="lock_setup_new_password">Choose a new password</string>
+    <string name="lock_setup_confirm_pin">Enter it again</string>
+    <string name="lock_setup_confirm_password">Enter it again</string>
+    <string name="lock_setup_confirm_body">To make sure there\'s no typo</string>
+    <string name="lock_setup_pin_rules">%1$d to %2$d digits</string>
+    <string name="lock_setup_password_rules">At least %1$d characters</string>
+    <string name="lock_setup_mismatch">Those didn\'t match. Try again.</string>
+    <string name="lock_setup_password_again">Password again</string>
+    <string name="lock_setup_next">Next</string>
+    <string name="lock_setup_save">Save</string>
+    <string name="lock_offer_biometrics_body">Faster than typing. Your PIN or password still works whenever biometrics don\'t.</string>
+    <string name="lock_offer_not_now">Not now</string>
+    <string name="lock_offer_turn_on">Turn on</string>
+
+    <!-- Snackbar confirmations -->
+    <string name="lock_message_on">App lock is on</string>
+    <string name="lock_message_changed">Saved</string>
+    <string name="lock_message_off">App lock is off</string>
+    <string name="lock_message_biometrics">Biometric unlock is on</string>
+    <string name="lock_message_recovery">Recovery saved</string>
+</resources>

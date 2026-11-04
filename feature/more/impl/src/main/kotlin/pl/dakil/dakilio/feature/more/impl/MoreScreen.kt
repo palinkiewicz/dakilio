@@ -41,11 +41,12 @@ import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbol
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
+import pl.dakil.dakilio.core.model.LockMethod
 import pl.dakil.dakilio.core.ui.bottomBarPadding
 
 /**
- * @property status how an extra is used right now, shown under its body; `null` for other items.
- * @property inUse whether the extra holds anything; it gets an accented icon and status.
+ * @property status how an extra (or the app lock) is used right now, shown under its body; `null` for other items.
+ * @property inUse whether the extra holds anything (or the lock is on); it gets an accented icon and status.
  */
 private data class MoreItem(
     val symbol: DakilioSymbol,
@@ -68,9 +69,11 @@ internal fun MoreScreen(
     onOpenArchive: () -> Unit,
     onOpenHabits: () -> Unit,
     onOpenKeywords: () -> Unit,
+    onOpenAppLock: () -> Unit,
 ) {
     val showSampleHint by viewModel.showSampleHint.collectAsStateWithLifecycle()
     val habits by viewModel.habitCount.collectAsStateWithLifecycle()
+    val lock by viewModel.lock.collectAsStateWithLifecycle()
     val keywordTags by viewModel.keywordTagCount.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val version = remember {
@@ -135,7 +138,25 @@ internal fun MoreScreen(
             )
             Group(
                 stringResource(R.string.more_section_app),
-                listOf(MoreItem(DakilioSymbols.Settings, stringResource(R.string.more_settings), stringResource(R.string.more_settings_body), onOpenSettings)),
+                listOf(
+                    MoreItem(DakilioSymbols.Settings, stringResource(R.string.more_settings), stringResource(R.string.more_settings_body), onOpenSettings),
+                    MoreItem(
+                        DakilioSymbols.Lock,
+                        stringResource(R.string.more_app_lock),
+                        stringResource(R.string.more_app_lock_body),
+                        onOpenAppLock,
+                        status = stringResource(
+                            when {
+                                lock.method == LockMethod.None -> R.string.more_app_lock_off
+                                lock.method == LockMethod.Pin && lock.biometrics -> R.string.more_app_lock_pin_biometrics
+                                lock.method == LockMethod.Pin -> R.string.more_app_lock_pin
+                                lock.biometrics -> R.string.more_app_lock_password_biometrics
+                                else -> R.string.more_app_lock_password
+                            },
+                        ),
+                        inUse = lock.enabled,
+                    ),
+                ),
             )
             Group(
                 stringResource(R.string.more_section_about),

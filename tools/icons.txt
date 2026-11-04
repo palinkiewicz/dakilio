@@ -56,6 +56,17 @@ ui settings_backup_restore
 ui save
 ui visibility
 ui visibility_off
+ui pin
+ui password
+ui fingerprint
+ui backspace
+ui lock_open
+ui lock_reset
+ui timer
+ui dialpad
+ui key
+ui help
+ui phonelink_lock
 ui match_word
 emotions sentiment_very_satisfied
 emotions sentiment_satisfied
