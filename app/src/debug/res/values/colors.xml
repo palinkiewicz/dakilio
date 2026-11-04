@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Debug builds wear an amber icon so they're never mistaken for the real app. -->
+<!-- Debug builds wear a deep blue icon so they're never mistaken for the real app. -->
 <resources>
-    <color name="ic_launcher_background">#9A5B00</color>
+    <color name="ic_launcher_background">#1F4E8C</color>
 </resources>
