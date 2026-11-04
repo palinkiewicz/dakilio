@@ -59,6 +59,17 @@ object DakilioSymbols {
     val Save = DakilioSymbol("save", R.drawable.sym_save, R.drawable.sym_save_fill, SymbolCategory.Ui)
     val Visibility = DakilioSymbol("visibility", R.drawable.sym_visibility, R.drawable.sym_visibility_fill, SymbolCategory.Ui)
     val VisibilityOff = DakilioSymbol("visibility_off", R.drawable.sym_visibility_off, R.drawable.sym_visibility_off_fill, SymbolCategory.Ui)
+    val Pin = DakilioSymbol("pin", R.drawable.sym_pin, R.drawable.sym_pin_fill, SymbolCategory.Ui)
+    val Password = DakilioSymbol("password", R.drawable.sym_password, R.drawable.sym_password_fill, SymbolCategory.Ui)
+    val Fingerprint = DakilioSymbol("fingerprint", R.drawable.sym_fingerprint, R.drawable.sym_fingerprint_fill, SymbolCategory.Ui)
+    val Backspace = DakilioSymbol("backspace", R.drawable.sym_backspace, R.drawable.sym_backspace_fill, SymbolCategory.Ui)
+    val LockOpen = DakilioSymbol("lock_open", R.drawable.sym_lock_open, R.drawable.sym_lock_open_fill, SymbolCategory.Ui)
+    val LockReset = DakilioSymbol("lock_reset", R.drawable.sym_lock_reset, R.drawable.sym_lock_reset_fill, SymbolCategory.Ui)
+    val Timer = DakilioSymbol("timer", R.drawable.sym_timer, R.drawable.sym_timer_fill, SymbolCategory.Ui)
+    val Dialpad = DakilioSymbol("dialpad", R.drawable.sym_dialpad, R.drawable.sym_dialpad_fill, SymbolCategory.Ui)
+    val Key = DakilioSymbol("key", R.drawable.sym_key, R.drawable.sym_key_fill, SymbolCategory.Ui)
+    val Help = DakilioSymbol("help", R.drawable.sym_help, R.drawable.sym_help_fill, SymbolCategory.Ui)
+    val PhonelinkLock = DakilioSymbol("phonelink_lock", R.drawable.sym_phonelink_lock, R.drawable.sym_phonelink_lock_fill, SymbolCategory.Ui)
     val MatchWord = DakilioSymbol("match_word", R.drawable.sym_match_word, R.drawable.sym_match_word_fill, SymbolCategory.Ui)
     val SentimentVerySatisfied = DakilioSymbol("sentiment_very_satisfied", R.drawable.sym_sentiment_very_satisfied, R.drawable.sym_sentiment_very_satisfied_fill, SymbolCategory.Emotions)
     val SentimentSatisfied = DakilioSymbol("sentiment_satisfied", R.drawable.sym_sentiment_satisfied, R.drawable.sym_sentiment_satisfied_fill, SymbolCategory.Emotions)
@@ -175,9 +186,7 @@ object DakilioSymbols {
     val Flag = DakilioSymbol("flag", R.drawable.sym_flag, R.drawable.sym_flag_fill, SymbolCategory.Objects)
     val PushPin = DakilioSymbol("push_pin", R.drawable.sym_push_pin, R.drawable.sym_push_pin_fill, SymbolCategory.Objects)
     val Diamond = DakilioSymbol("diamond", R.drawable.sym_diamond, R.drawable.sym_diamond_fill, SymbolCategory.Objects)
-    val Key = DakilioSymbol("key", R.drawable.sym_key, R.drawable.sym_key_fill, SymbolCategory.Objects)
     val Alarm = DakilioSymbol("alarm", R.drawable.sym_alarm, R.drawable.sym_alarm_fill, SymbolCategory.Objects)
-    val Timer = DakilioSymbol("timer", R.drawable.sym_timer, R.drawable.sym_timer_fill, SymbolCategory.Objects)
     val CalendarMonth = DakilioSymbol("calendar_month", R.drawable.sym_calendar_month, R.drawable.sym_calendar_month_fill, SymbolCategory.Objects)
     val Psychology = DakilioSymbol("psychology", R.drawable.sym_psychology, R.drawable.sym_psychology_fill, SymbolCategory.Objects)
     val Science = DakilioSymbol("science", R.drawable.sym_science, R.drawable.sym_science_fill, SymbolCategory.Objects)
@@ -240,6 +249,17 @@ object DakilioSymbols {
         Save,
         Visibility,
         VisibilityOff,
+        Pin,
+        Password,
+        Fingerprint,
+        Backspace,
+        LockOpen,
+        LockReset,
+        Timer,
+        Dialpad,
+        Key,
+        Help,
+        PhonelinkLock,
         MatchWord,
         SentimentVerySatisfied,
         SentimentSatisfied,
@@ -356,9 +376,7 @@ object DakilioSymbols {
         Flag,
         PushPin,
         Diamond,
-        Key,
         Alarm,
-        Timer,
         CalendarMonth,
         Psychology,
         Science,
