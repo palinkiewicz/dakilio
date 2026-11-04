@@ -7,6 +7,8 @@ import pl.dakil.dakilio.core.model.ArchivedTags
 import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.model.GroupUsage
 import pl.dakil.dakilio.core.model.Habit
+import pl.dakil.dakilio.core.model.Keyword
+import pl.dakil.dakilio.core.model.KeywordDraft
 import pl.dakil.dakilio.core.model.HabitStatus
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.Post
@@ -135,6 +137,20 @@ interface HabitRepository {
     suspend fun deleteHabit(id: Long)
 }
 
+/** The Keywords extra: words that suggest a tag when they show up in an entry's text. */
+interface KeywordRepository {
+    /** Every keyword, grouped by tag in the order they were entered. */
+    val keywords: Flow<List<Keyword>>
+
+    /** Replaces every keyword of [tagId] with [keywords]; duplicates (by folded form) and blank words are dropped. */
+    suspend fun setKeywords(tagId: Long, keywords: List<KeywordDraft>)
+
+    suspend fun clear(tagId: Long)
+
+    /** Adds [tagId] to every entry in [postIds] that doesn't carry it yet. */
+    suspend fun addTagToPosts(tagId: Long, postIds: List<Long>)
+}
+
 interface PhotoRepository {
     /** Copies a picked image into app storage (downscaled, re-encoded, metadata stripped). */
     suspend fun import(uri: Uri): String?
@@ -172,6 +188,8 @@ interface SettingsRepository {
     suspend fun setCompactTags(compact: Boolean)
 
     suspend fun setCloseAfterSave(close: Boolean)
+
+    suspend fun setKeywordAutoAdd(auto: Boolean)
 }
 
 /** Recent searches, newest first, kept on the device. Entries are opaque strings encoded by the search screen. */

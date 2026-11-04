@@ -38,6 +38,8 @@
     <string name="entry_note_title">Anything to add?</string>
     <string name="entry_note_body">A title, a few words or some photos. All optional.</string>
     <string name="entry_note_required">You skipped the mood and the tags, so add a title, a note or a photo to save this entry.</string>
+    <string name="entry_keywords_label">From your note</string>
+    <string name="entry_keywords_dismiss">Don’t suggest %1$s</string>
     <string name="entry_title_hint">Title</string>
     <string name="entry_note_hint">Write freely…</string>
     <string name="entry_add_photos">Add photos</string>

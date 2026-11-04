@@ -59,6 +59,7 @@ import pl.dakil.dakilio.feature.settings.impl.settingsEntry
 import pl.dakil.dakilio.feature.tags.impl.tagsEntry
 import pl.dakil.dakilio.feature.habits.impl.HabitProgressHost
 import pl.dakil.dakilio.feature.habits.impl.habitsEntry
+import pl.dakil.dakilio.feature.keywords.impl.keywordsEntry
 import pl.dakil.dakilio.feature.timeline.api.TimelineKey
 import pl.dakil.dakilio.feature.timeline.impl.timelineEntry
 
@@ -117,6 +118,7 @@ fun DakilioApp(incomingBackup: IncomingBackup? = null) {
         settingsEntry(navigator)
         archiveEntry(navigator)
         habitsEntry(navigator)
+        keywordsEntry(navigator)
     }
 
     SharedTransitionLayout(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {

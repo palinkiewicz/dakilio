@@ -37,6 +37,7 @@ class SettingsDataSource @Inject constructor(
                     ?: PreviewLength.Short,
                 compactTags = prefs[COMPACT_TAGS] ?: false,
                 closeAfterSave = prefs[CLOSE_AFTER_SAVE] ?: true,
+                keywordAutoAdd = prefs[KEYWORD_AUTO_ADD] ?: false,
             )
         }
         .distinctUntilChanged()
@@ -97,6 +98,10 @@ class SettingsDataSource @Inject constructor(
         dataStore.edit { it[CLOSE_AFTER_SAVE] = close }
     }
 
+    suspend fun setKeywordAutoAdd(auto: Boolean) {
+        dataStore.edit { it[KEYWORD_AUTO_ADD] = auto }
+    }
+
     private companion object {
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val LAST_ENTRY_DIARY = longPreferencesKey("last_entry_diary_id")
@@ -108,6 +113,7 @@ class SettingsDataSource @Inject constructor(
         val PREVIEW_LENGTH = stringPreferencesKey("preview_length")
         val COMPACT_TAGS = booleanPreferencesKey("compact_tags")
         val CLOSE_AFTER_SAVE = booleanPreferencesKey("close_after_save")
+        val KEYWORD_AUTO_ADD = booleanPreferencesKey("keyword_auto_add")
         val INTRO_STARTED = booleanPreferencesKey("intro_started")
         val INTRO_DONE = booleanPreferencesKey("intro_done")
     }

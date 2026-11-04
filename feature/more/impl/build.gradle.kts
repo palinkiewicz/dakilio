@@ -16,4 +16,5 @@ dependencies {
     implementation(projects.feature.backup.api)
     implementation(projects.feature.archive.api)
     implementation(projects.feature.habits.api)
+    implementation(projects.feature.keywords.api)
 }

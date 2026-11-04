@@ -1,21 +1,11 @@
 package pl.dakil.dakilio.feature.search.impl
 
-import java.text.Normalizer
 import java.time.LocalDate
 import java.time.Month
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import pl.dakil.dakilio.core.model.Post
-
-/** Case- and accent-insensitive form used for matching ("Zażółć" matches "zazolc"). */
-internal fun String.foldForSearch(): String =
-    Normalizer.normalize(this, Normalizer.Form.NFD)
-        .replace(COMBINING_MARKS, "")
-        .replace('ł', 'l')
-        .replace('Ł', 'L')
-        .lowercase()
-
-private val COMBINING_MARKS = "\\p{Mn}+".toRegex()
+import pl.dakil.dakilio.core.model.foldForSearch
 
 /** A note at least this many words long counts as a long read. */
 internal const val LONG_NOTE_WORDS = 120

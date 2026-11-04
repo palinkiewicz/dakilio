@@ -38,6 +38,8 @@
     <string name="entry_note_title">Chcesz coś dodać?</string>
     <string name="entry_note_body">Tytuł, kilka słów albo zdjęcia. Wszystko jest opcjonalne.</string>
     <string name="entry_note_required">Bez nastroju i tagów wpis potrzebuje tytułu, notatki lub zdjęcia, żeby dało się go zapisać.</string>
+    <string name="entry_keywords_label">Z twojej notatki</string>
+    <string name="entry_keywords_dismiss">Nie proponuj: %1$s</string>
     <string name="entry_title_hint">Tytuł</string>
     <string name="entry_note_hint">Pisz, co ci w duszy gra…</string>
     <string name="entry_add_photos">Dodaj zdjęcia</string>

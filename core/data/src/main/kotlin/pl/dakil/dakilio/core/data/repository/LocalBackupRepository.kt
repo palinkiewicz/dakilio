@@ -25,6 +25,7 @@ import pl.dakil.dakilio.core.backup.BackupEntry
 import pl.dakil.dakilio.core.backup.BackupError
 import pl.dakil.dakilio.core.backup.BackupException
 import pl.dakil.dakilio.core.backup.BackupHabit
+import pl.dakil.dakilio.core.backup.BackupKeyword
 import pl.dakil.dakilio.core.backup.BackupKind
 import pl.dakil.dakilio.core.backup.BackupMood
 import pl.dakil.dakilio.core.backup.BackupSettings
@@ -49,9 +50,11 @@ import pl.dakil.dakilio.core.database.dao.ReplaceData
 import pl.dakil.dakilio.core.database.dao.ReplaceDiary
 import pl.dakil.dakilio.core.database.dao.ReplaceGroup
 import pl.dakil.dakilio.core.database.dao.ReplaceHabit
+import pl.dakil.dakilio.core.database.dao.ReplaceKeyword
 import pl.dakil.dakilio.core.database.dao.ReplacePost
 import pl.dakil.dakilio.core.database.entity.DiaryEntity
 import pl.dakil.dakilio.core.database.entity.HabitEntity
+import pl.dakil.dakilio.core.database.entity.TagKeywordEntity
 import pl.dakil.dakilio.core.database.entity.MoodEntity
 import pl.dakil.dakilio.core.database.entity.PostEntity
 import pl.dakil.dakilio.core.database.entity.TagEntity
@@ -107,6 +110,7 @@ internal class LocalBackupRepository @Inject constructor(
         val offsetMinutes = ZoneId.systemDefault().rules.getOffset(clock.instant()).totalSeconds / 60
         val suggestions = snapshot.suggestedGroups.groupBy({ it.diaryId }, { it.groupId })
         val tagsByGroup = snapshot.tags.groupBy { it.groupId }
+        val keywordsByTag = snapshot.keywords.groupBy { it.tagId }
         val tagsByPost = snapshot.postTags.groupBy({ it.postId }, { it.tagId })
         val photosByPost = snapshot.photos.groupBy({ it.postId }, { it.fileName })
         return DakilioBackup(
@@ -123,6 +127,7 @@ internal class LocalBackupRepository @Inject constructor(
                 previewLength = userSettings.previewLength.name,
                 compactTags = userSettings.compactTags,
                 closeAfterSave = userSettings.closeAfterSave,
+                keywordAutoAdd = userSettings.keywordAutoAdd,
                 lastDiary = userSettings.lastEntryDiaryId,
             ),
             moods = snapshot.moods.map { BackupMood(it.id, it.level, it.label, it.isPrimary, it.position, it.isArchived, it.colorKey) },
@@ -136,7 +141,12 @@ internal class LocalBackupRepository @Inject constructor(
                     position = group.position,
                     archived = group.isArchived,
                     color = group.colorKey,
-                    tags = tagsByGroup[group.id].orEmpty().map { BackupTag(it.id, it.label, it.iconKey, it.position, it.isArchived, it.colorKey) },
+                    tags = tagsByGroup[group.id].orEmpty().map { tag ->
+                        BackupTag(
+                            tag.id, tag.label, tag.iconKey, tag.position, tag.isArchived, tag.colorKey,
+                            keywordsByTag[tag.id].orEmpty().map { BackupKeyword(it.word, it.approximate) },
+                        )
+                    },
                 )
             },
             habits = snapshot.habits.map { BackupHabit(it.tagId, it.daysPerWeek, it.position, BackupTime.formatInstant(it.createdAt)) },
@@ -296,6 +306,13 @@ internal class LocalBackupRepository @Inject constructor(
                     habits = plan.habits.map {
                         ReplaceHabit(HabitEntity(tagId = 0, daysPerWeek = it.daysPerWeek, position = it.position, createdAt = it.createdAt), it.tag.groupIndex, it.tag.tagIndex)
                     },
+                    keywords = plan.groups.flatMapIndexed { groupIndex, group ->
+                        group.tags.flatMapIndexed { tagIndex, tag ->
+                            tag.keywords.mapIndexed { position, keyword ->
+                                ReplaceKeyword(TagKeywordEntity(tagId = 0, word = keyword.word, approximate = keyword.approximate, position = position), groupIndex, tagIndex)
+                            }
+                        }
+                    },
                 ),
             )
             committed = true
@@ -323,6 +340,7 @@ internal class LocalBackupRepository @Inject constructor(
         s.previewLength?.let { settings.setPreviewLength(it) }
         s.compactTags?.let { settings.setCompactTags(it) }
         s.closeAfterSave?.let { settings.setCloseAfterSave(it) }
+        s.keywordAutoAdd?.let { settings.setKeywordAutoAdd(it) }
         settings.setLastEntryDiaryId(diaryIds[s.lastDiaryIndex ?: 0])
         settings.setSampleHintDismissed(true)
     }

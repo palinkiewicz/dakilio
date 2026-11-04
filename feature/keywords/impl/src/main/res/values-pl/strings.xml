@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="keywords_title">Słowa kluczowe</string>
+    <string name="keywords_subtitle">Słowa w notatkach, które podpowiadają tag</string>
+    <string name="keywords_back">Wstecz</string>
+    <string name="keywords_new">Dodaj słowa</string>
+    <string name="keywords_hint">Gdy słowo kluczowe pojawi się w tytule lub notatce, edytor zaproponuje jego tag pod notatką. Słowo się liczy, gdy postawisz po nim spację albo przestaniesz pisać.</string>
+    <string name="keywords_empty_title">Brak słów kluczowych</string>
+    <string name="keywords_empty_body">Wybierz tag i słowa, które go oznaczają, np. „rower” i „jazda” dla tagu Rower.</string>
+    <string name="keywords_cleared">Usunięto słowa kluczowe</string>
+    <string name="keywords_undo">Cofnij</string>
+
+    <string name="keywords_mode_title">Gdy pojawi się słowo kluczowe</string>
+    <string name="keywords_mode_suggest">Proponuj tag</string>
+    <string name="keywords_mode_auto">Dodawaj od razu</string>
+    <string name="keywords_mode_suggest_body">Tag pojawi się pod notatką, a jedno dotknięcie go doda.</string>
+    <string name="keywords_mode_auto_body">Tag zostanie zaznaczony od razu, a dotknięcie go pod notatką cofnie wybór.</string>
+
+    <string name="keywords_past_title">Otagować starsze wpisy?</string>
+    <string name="keywords_past_confirm">Dodaj tag</string>
+    <string name="keywords_past_skip">Nie teraz</string>
+
+    <string name="keywords_sheet_new">Nowe słowa kluczowe</string>
+    <string name="keywords_sheet_edit">Słowa kluczowe</string>
+    <string name="keywords_sheet_tag">Tag</string>
+    <string name="keywords_sheet_no_tags">Każdy tag ma już słowa kluczowe. Więcej tagów dodasz w sekcji Więcej → Tagi.</string>
+    <string name="keywords_sheet_words">Słowa</string>
+    <string name="keywords_sheet_input">Wpisz słowo, potem Enter lub przecinek</string>
+    <string name="keywords_sheet_add_word">Dodaj słowo</string>
+    <string name="keywords_sheet_remove_word">Usuń: %s</string>
+    <string name="keywords_sheet_approximate">Przybliżone</string>
+    <string name="keywords_sheet_approximate_hint">Słowa muszą pasować dokładnie, bez względu na wielkość liter i polskie znaki. Przybliżone słowo pasuje też do dłuższych słów, które się od niego zaczynają: „rower” znajdzie „rowerem”, „bieg” znajdzie „biegałam”.</string>
+    <string name="keywords_sheet_past">Starsze wpisy</string>
+    <string name="keywords_sheet_past_checking">Przeglądam starsze wpisy…</string>
+    <plurals name="keywords_sheet_past_found">
+        <item quantity="one">%1$d starszy wpis zawiera te słowa, ale nie ma tagu %2$s.</item>
+        <item quantity="few">%1$d starsze wpisy zawierają te słowa, ale nie mają tagu %2$s.</item>
+        <item quantity="many">%1$d starszych wpisów zawiera te słowa, ale nie ma tagu %2$s.</item>
+        <item quantity="other">%1$d starszego wpisu zawiera te słowa, ale nie ma tagu %2$s.</item>
+    </plurals>
+    <string name="keywords_sheet_past_none">Każdy starszy wpis z tymi słowami ma już tag %s.</string>
+    <string name="keywords_sheet_clear">Usuń wszystkie</string>
+    <string name="keywords_sheet_save">Zapisz</string>
+
+    <string name="keywords_sheet_past_review">Przejrzyj wpisy</string>
+
+    <string name="keywords_review_title">Otaguj starsze wpisy</string>
+    <plurals name="keywords_review_subtitle">
+        <item quantity="one">%2$s · %1$d wpis zawiera te słowa</item>
+        <item quantity="few">%2$s · %1$d wpisy zawierają te słowa</item>
+        <item quantity="many">%2$s · %1$d wpisów zawiera te słowa</item>
+        <item quantity="other">%2$s · %1$d wpisu zawiera te słowa</item>
+    </plurals>
+    <string name="keywords_review_hint">Zaznacz wpisy, które mają dostać ten tag. Dotknij wpisu, żeby przeczytać go w całości.</string>
+    <string name="keywords_review_select_all">Zaznacz wszystkie</string>
+    <string name="keywords_review_select_none">Odznacz wszystkie</string>
+    <string name="keywords_review_add_none">Zaznacz wpisy do otagowania</string>
+    <plurals name="keywords_review_add">
+        <item quantity="one">Dodaj do %d wpisu</item>
+        <item quantity="few">Dodaj do %d wpisów</item>
+        <item quantity="many">Dodaj do %d wpisów</item>
+        <item quantity="other">Dodaj do %d wpisu</item>
+    </plurals>
+    <plurals name="keywords_review_confirm_body">
+        <item quantity="one">Dodać tag %2$s do %1$d starszego wpisu?</item>
+        <item quantity="few">Dodać tag %2$s do %1$d starszych wpisów?</item>
+        <item quantity="many">Dodać tag %2$s do %1$d starszych wpisów?</item>
+        <item quantity="other">Dodać tag %2$s do %1$d starszego wpisu?</item>
+    </plurals>
+    <string name="keywords_review_tagged">%s · już otagowany</string>
+    <string name="keywords_review_empty">Nie ma czego tagować</string>
+</resources>

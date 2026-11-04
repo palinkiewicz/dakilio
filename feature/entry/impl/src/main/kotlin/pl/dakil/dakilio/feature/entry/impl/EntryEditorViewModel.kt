@@ -3,6 +3,7 @@ package pl.dakil.dakilio.feature.entry.impl
 import android.net.Uri
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.assisted.Assisted
@@ -13,20 +14,29 @@ import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import pl.dakil.dakilio.core.common.ApplicationScope
+import pl.dakil.dakilio.core.common.DakilioDispatchers
+import pl.dakil.dakilio.core.common.Dispatcher
 import pl.dakil.dakilio.core.data.repository.DiaryRepository
 import pl.dakil.dakilio.core.data.repository.HabitProgressEvents
 import pl.dakil.dakilio.core.data.repository.HabitRepository
+import pl.dakil.dakilio.core.data.repository.KeywordRepository
 import pl.dakil.dakilio.core.data.repository.MoodRepository
 import pl.dakil.dakilio.core.data.repository.PhotoRepository
 import pl.dakil.dakilio.core.data.repository.PostRepository
@@ -34,6 +44,8 @@ import pl.dakil.dakilio.core.data.repository.SettingsRepository
 import pl.dakil.dakilio.core.data.repository.TagRepository
 import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.model.Habits
+import pl.dakil.dakilio.core.model.KeywordMatcher
+import pl.dakil.dakilio.core.model.Keywords
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.MoodDisplayOrder
 import pl.dakil.dakilio.core.model.PostDraft
@@ -66,7 +78,18 @@ internal data class EditorForm(
     val editing: Boolean = false,
     val saving: Boolean = false,
     val finished: Boolean = false,
+    /** Keyword matches the user turned down this session (dismissed, undone or unticked). */
+    val dismissedKeywordTags: Set<Long> = emptySet(),
+    /** Tags keywords added on their own this session, shown so they can be undone. */
+    val autoAddedTags: Set<Long> = emptySet(),
 )
+
+/**
+ * A tag in the editor's "From your note" row.
+ *
+ * @property added the keyword already added it (auto-add mode); tapping removes it again.
+ */
+data class KeywordChip(val tag: Tag, val added: Boolean)
 
 data class EditorUiState(
     val loaded: Boolean,
@@ -97,14 +120,16 @@ class EntryEditorViewModel @AssistedInject constructor(
     @Assisted private val key: EntryEditorKey,
     private val postRepository: PostRepository,
     private val diaryRepository: DiaryRepository,
-    tagRepository: TagRepository,
+    private val tagRepository: TagRepository,
     moodRepository: MoodRepository,
     private val photoRepository: PhotoRepository,
     private val settingsRepository: SettingsRepository,
     private val habitRepository: HabitRepository,
     private val habitProgressEvents: HabitProgressEvents,
+    keywordRepository: KeywordRepository,
     private val clock: Clock,
     @ApplicationScope private val applicationScope: CoroutineScope,
+    @Dispatcher(DakilioDispatchers.Default) default: CoroutineDispatcher,
 ) : ViewModel() {
 
     @AssistedFactory
@@ -158,8 +183,81 @@ class EntryEditorViewModel @AssistedInject constructor(
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
+    /**
+     * The title and note as far as keywords may look: a word still being typed (no separator after it
+     * yet) is left out, until typing pauses for [KEYWORD_SETTLE_MS]. So a suggestion never flickers in
+     * for a half-typed word.
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val settledText = snapshotFlow { TextSnapshot(title.text.toString(), title.selection.end, note.text.toString(), note.selection.end) }
+        .distinctUntilChanged()
+        .transformLatest { s ->
+            emit(Keywords.settledText(s.title, s.titleCursor) + "\n" + Keywords.settledText(s.note, s.noteCursor))
+            delay(KEYWORD_SETTLE_MS)
+            emit(s.title + "\n" + s.note)
+        }
+        .distinctUntilChanged()
+
+    private val keywords = keywordRepository.keywords.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    /** Active tags whose keywords appear in the (settled) text. */
+    private val matchedTags: StateFlow<List<Tag>> =
+        combine(settledText, keywords.map(::KeywordMatcher), tagRepository.groups) { text, matcher, groups ->
+            if (matcher.isEmpty) return@combine emptyList()
+            val ids = matcher.match(text)
+            groups.flatMap { it.tags }.filter { it.id in ids }
+        }
+            .flowOn(default)
+            .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    /** The "From your note" row: suggestions, and in auto-add mode what was added. Empty in read mode. */
+    val keywordChips: StateFlow<List<KeywordChip>> =
+        combine(matchedTags, form, tagRepository.groups) { matched, form, groups ->
+            if (!form.loaded || (key.postId != null && !form.editing)) return@combine emptyList()
+            val added = groups.flatMap { it.tags }.filter { it.id in form.autoAddedTags && it.id in form.tagIds }
+            val suggested = matched.filter { it.id !in form.tagIds && it.id !in form.dismissedKeywordTags }
+            added.map { KeywordChip(it, added = true) } + suggested.map { KeywordChip(it, added = false) }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
     init {
         viewModelScope.launch { load() }
+        viewModelScope.launch { autoAddKeywordTags() }
+    }
+
+    /**
+     * Auto-add mode: a tag whose keyword newly shows up is ticked at once. Words already in the saved
+     * text don't count (opening an old entry changes nothing), and a turned-down tag stays off.
+     */
+    private suspend fun autoAddKeywordTags() {
+        combine(matchedTags, settingsRepository.settings) { matched, settings -> matched.takeIf { settings.keywordAutoAdd } }
+            .collect { matched ->
+                if (matched.isNullOrEmpty()) return@collect
+                val current = form.value
+                if (!current.loaded || (key.postId != null && !current.editing)) return@collect
+                val baseline = Keywords.match(originalTitle + "\n" + originalNote, keywords.value)
+                val fresh = matched.map { it.id }.filter {
+                    it !in baseline && it !in current.tagIds && it !in current.dismissedKeywordTags && it !in current.autoAddedTags
+                }
+                if (fresh.isNotEmpty()) {
+                    form.update { it.copy(tagIds = it.tagIds + fresh, autoAddedTags = it.autoAddedTags + fresh, dirty = true) }
+                }
+            }
+    }
+
+    /** Ticks a suggested tag. */
+    fun addKeywordTag(id: Long) = form.update { it.copy(tagIds = it.tagIds + id, dirty = true) }
+
+    /** Hides a suggestion for the rest of the session. */
+    fun dismissKeywordTag(id: Long) = form.update { it.copy(dismissedKeywordTags = it.dismissedKeywordTags + id) }
+
+    /** Undoes an auto-added tag; it won't be added again this session. */
+    fun undoKeywordTag(id: Long) = form.update {
+        it.copy(
+            tagIds = it.tagIds - id,
+            autoAddedTags = it.autoAddedTags - id,
+            dismissedKeywordTags = it.dismissedKeywordTags + id,
+            dirty = true,
+        )
     }
 
     private suspend fun load() {
@@ -221,7 +319,18 @@ class EntryEditorViewModel @AssistedInject constructor(
     fun selectDiary(id: Long) = form.update { if (it.diaryId == id) it else it.copy(diaryId = id, dirty = true) }
 
     fun toggleTag(id: Long) = form.update {
-        it.copy(tagIds = if (id in it.tagIds) it.tagIds - id else it.tagIds + id, dirty = true)
+        if (id in it.tagIds) {
+            // Unticking a tag the note suggests means "not this one": don't offer it straight back.
+            val turnedDown = matchedTags.value.any { tag -> tag.id == id }
+            it.copy(
+                tagIds = it.tagIds - id,
+                autoAddedTags = it.autoAddedTags - id,
+                dismissedKeywordTags = if (turnedDown) it.dismissedKeywordTags + id else it.dismissedKeywordTags,
+                dirty = true,
+            )
+        } else {
+            it.copy(tagIds = it.tagIds + id, dirty = true)
+        }
     }
 
     fun setDate(date: LocalDate) = form.update { it.copy(dateTime = date.atTime(it.dateTime.toLocalTime()), dirty = true) }
@@ -295,6 +404,8 @@ class EntryEditorViewModel @AssistedInject constructor(
                         dirty = false,
                         editing = false,
                         saving = false,
+                        dismissedKeywordTags = emptySet(),
+                        autoAddedTags = emptySet(),
                     )
                 }
             }
@@ -317,8 +428,11 @@ class EntryEditorViewModel @AssistedInject constructor(
 
     private companion object {
         const val AUTO_ADVANCE_MS = 420L
+        const val KEYWORD_SETTLE_MS = 800L
     }
 }
+
+private data class TextSnapshot(val title: String, val titleCursor: Int, val note: String, val noteCursor: Int)
 
 private fun selectedTags(groups: List<TagGroup>, form: EditorForm): List<Tag> {
     val shown = groups.flatMap { it.tags }.filter { it.id in form.tagIds }

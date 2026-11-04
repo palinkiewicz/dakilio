@@ -6,6 +6,7 @@ import androidx.room.RoomDatabase
 import pl.dakil.dakilio.core.database.dao.DiaryDao
 import pl.dakil.dakilio.core.database.dao.HabitDao
 import pl.dakil.dakilio.core.database.dao.ImportDao
+import pl.dakil.dakilio.core.database.dao.KeywordDao
 import pl.dakil.dakilio.core.database.dao.MoodDao
 import pl.dakil.dakilio.core.database.dao.PostDao
 import pl.dakil.dakilio.core.database.dao.TagDao
@@ -18,6 +19,7 @@ import pl.dakil.dakilio.core.database.entity.PostPhotoEntity
 import pl.dakil.dakilio.core.database.entity.PostTagCrossRef
 import pl.dakil.dakilio.core.database.entity.TagEntity
 import pl.dakil.dakilio.core.database.entity.TagGroupEntity
+import pl.dakil.dakilio.core.database.entity.TagKeywordEntity
 
 @Database(
     entities = [
@@ -30,6 +32,7 @@ import pl.dakil.dakilio.core.database.entity.TagGroupEntity
         PostTagCrossRef::class,
         PostPhotoEntity::class,
         HabitEntity::class,
+        TagKeywordEntity::class,
     ],
     // No migrations before the first release: a schema change edits version 1 and needs a reinstall.
     version = 1,
@@ -42,6 +45,7 @@ abstract class DakilioDatabase : RoomDatabase() {
     abstract fun postDao(): PostDao
     abstract fun importDao(): ImportDao
     abstract fun habitDao(): HabitDao
+    abstract fun keywordDao(): KeywordDao
 
     companion object {
         const val NAME = "dakilio.db"

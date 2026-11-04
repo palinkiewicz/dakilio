@@ -95,6 +95,15 @@ internal fun EntryEditorScreen(
     onManageTags: () -> Unit,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val keywordChips by viewModel.keywordChips.collectAsStateWithLifecycle()
+    val keywordRow: @Composable () -> Unit = {
+        KeywordSuggestions(
+            chips = keywordChips,
+            onAdd = viewModel::addKeywordTag,
+            onDismiss = viewModel::dismissKeywordTag,
+            onUndo = viewModel::undoKeywordTag,
+        )
+    }
     val haptics = rememberHaptics()
     var confirmDiscard by rememberSaveable { mutableStateOf(false) }
     var confirmDelete by rememberSaveable { mutableStateOf(false) }
@@ -233,6 +242,7 @@ internal fun EntryEditorScreen(
                             onAddPhotos = viewModel::addPhotos,
                             onRemovePhoto = viewModel::removePhoto,
                             modifier = Modifier.weight(1f).padding(top = Spacing.s),
+                            keywordChips = keywordRow,
                         )
                     } else {
                         Stepper(
@@ -283,6 +293,7 @@ internal fun EntryEditorScreen(
                                     onAddPhotos = viewModel::addPhotos,
                                     onRemovePhoto = viewModel::removePhoto,
                                     modifier = Modifier.fillMaxSize(),
+                                    belowNote = keywordRow,
                                 )
                             }
                         }

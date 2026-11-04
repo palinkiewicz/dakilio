@@ -152,3 +152,24 @@ data class HabitEntity(
     val position: Int,
     @ColumnInfo(name = "created_at") val createdAt: Long,
 )
+
+/**
+ * A keyword (the Keywords extra): a word that suggests its tag when it shows up in an entry's text.
+ * It goes when its tag is deleted (which includes a Daylio import replacing every tag).
+ */
+@Entity(
+    tableName = "tag_keyword",
+    foreignKeys = [
+        ForeignKey(TagEntity::class, ["id"], ["tag_id"], onDelete = ForeignKey.CASCADE),
+    ],
+    indices = [Index("tag_id")],
+)
+data class TagKeywordEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    @ColumnInfo(name = "tag_id") val tagId: Long,
+    val word: String,
+    /** Whether the word's last part also matches longer words starting with it. */
+    val approximate: Boolean,
+    /** Order within the tag's keywords. */
+    val position: Int,
+)

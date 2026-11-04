@@ -2,6 +2,7 @@ package pl.dakil.dakilio.core.database.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
@@ -48,6 +49,15 @@ abstract class PostDao {
 
     @Insert
     protected abstract suspend fun insertTags(refs: List<PostTagCrossRef>)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    protected abstract suspend fun insertTagsIgnoring(refs: List<PostTagCrossRef>)
+
+    /** Adds [tagId] to every entry in [postIds] that doesn't carry it yet. */
+    @Transaction
+    open suspend fun addTag(tagId: Long, postIds: List<Long>) {
+        postIds.chunked(500).forEach { chunk -> insertTagsIgnoring(chunk.map { PostTagCrossRef(it, tagId) }) }
+    }
 
     @Insert
     protected abstract suspend fun insertPhotos(photos: List<PostPhotoEntity>)

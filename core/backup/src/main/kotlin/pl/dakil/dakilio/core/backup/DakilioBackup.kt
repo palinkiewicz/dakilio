@@ -68,6 +68,8 @@ data class BackupSettings(
     val previewLength: String? = null,
     val compactTags: Boolean? = null,
     val closeAfterSave: Boolean? = null,
+    /** Keywords add their tag at once instead of suggesting it. */
+    val keywordAutoAdd: Boolean? = null,
     /** The diary the editor picks by default. */
     val lastDiary: Long? = null,
 )
@@ -117,6 +119,15 @@ data class BackupTag(
     val archived: Boolean = false,
     /** The tag's own color (a palette key); none means its group's. */
     val color: String? = null,
+    /** Words that suggest the tag in the editor (the Keywords extra). */
+    val keywords: List<BackupKeyword> = emptyList(),
+)
+
+@Serializable
+data class BackupKeyword(
+    val word: String,
+    /** The last word also matches longer words starting with it. */
+    val approximate: Boolean = false,
 )
 
 @Serializable

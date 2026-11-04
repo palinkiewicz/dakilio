@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="keywords_title">Keywords</string>
+    <string name="keywords_subtitle">Words in your notes that suggest a tag</string>
+    <string name="keywords_back">Back</string>
+    <string name="keywords_new">Add keywords</string>
+    <string name="keywords_hint">When a keyword shows up in an entry\'s title or note, the editor offers its tag under the note. A word counts once you type a space after it or stop typing.</string>
+    <string name="keywords_empty_title">No keywords yet</string>
+    <string name="keywords_empty_body">Pick a tag and the words that mean it, like “bike” and “cycling” for Cycling.</string>
+    <string name="keywords_cleared">Keywords removed</string>
+    <string name="keywords_undo">Undo</string>
+
+    <string name="keywords_mode_title">When a keyword appears</string>
+    <string name="keywords_mode_suggest">Suggest the tag</string>
+    <string name="keywords_mode_auto">Add it at once</string>
+    <string name="keywords_mode_suggest_body">The tag shows up under the note, and one tap adds it.</string>
+    <string name="keywords_mode_auto_body">The tag is selected right away, and a tap on it under the note takes it back off.</string>
+
+    <string name="keywords_past_title">Tag older entries?</string>
+    <string name="keywords_past_confirm">Add tag</string>
+    <string name="keywords_past_skip">Not now</string>
+
+    <string name="keywords_sheet_new">New keywords</string>
+    <string name="keywords_sheet_edit">Keywords</string>
+    <string name="keywords_sheet_tag">Tag</string>
+    <string name="keywords_sheet_no_tags">Every tag already has keywords. Add more tags in More → Tags.</string>
+    <string name="keywords_sheet_words">Words</string>
+    <string name="keywords_sheet_input">Type a word, then Enter or a comma</string>
+    <string name="keywords_sheet_add_word">Add word</string>
+    <string name="keywords_sheet_remove_word">Remove %s</string>
+    <string name="keywords_sheet_approximate">Approximate</string>
+    <string name="keywords_sheet_approximate_hint">Words match exactly, ignoring case and accents. An approximate word also matches longer words that start with it: “bike” finds “biking”, “rower” finds “rowerem”.</string>
+    <string name="keywords_sheet_past">Older entries</string>
+    <string name="keywords_sheet_past_checking">Looking through older entries…</string>
+    <plurals name="keywords_sheet_past_found">
+        <item quantity="one">%1$d older entry mentions these words but doesn\'t have %2$s.</item>
+        <item quantity="other">%1$d older entries mention these words but don\'t have %2$s.</item>
+    </plurals>
+    <string name="keywords_sheet_past_none">Every older entry that mentions these words already has %s.</string>
+    <string name="keywords_sheet_clear">Remove all</string>
+    <string name="keywords_sheet_save">Save</string>
+
+    <string name="keywords_sheet_past_review">Review entries</string>
+
+    <string name="keywords_review_title">Tag older entries</string>
+    <plurals name="keywords_review_subtitle">
+        <item quantity="one">%2$s · %1$d entry mentions the words</item>
+        <item quantity="other">%2$s · %1$d entries mention the words</item>
+    </plurals>
+    <string name="keywords_review_hint">Tick the entries that should get the tag. Tap an entry to read it in full.</string>
+    <string name="keywords_review_select_all">Select all</string>
+    <string name="keywords_review_select_none">Select none</string>
+    <string name="keywords_review_add_none">Tick entries to tag</string>
+    <plurals name="keywords_review_add">
+        <item quantity="one">Add to %d entry</item>
+        <item quantity="other">Add to %d entries</item>
+    </plurals>
+    <plurals name="keywords_review_confirm_body">
+        <item quantity="one">Add %2$s to %1$d older entry?</item>
+        <item quantity="other">Add %2$s to %1$d older entries?</item>
+    </plurals>
+    <string name="keywords_review_tagged">%s · already tagged</string>
+    <string name="keywords_review_empty">Nothing left to tag</string>
+</resources>

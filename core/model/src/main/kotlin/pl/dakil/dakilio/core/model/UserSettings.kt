@@ -28,6 +28,8 @@ data class UserSettings(
     val compactTags: Boolean = false,
     /** Saving edits to an existing entry closes it; otherwise the entry goes back to reading. */
     val closeAfterSave: Boolean = true,
+    /** Keywords (the extra) add their tag at once instead of suggesting it. */
+    val keywordAutoAdd: Boolean = false,
 )
 
 /** The range of the entry text size settings. Only entry titles and notes scale, never the rest of the UI. */

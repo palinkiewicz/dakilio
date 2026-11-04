@@ -1,6 +1,8 @@
 package pl.dakil.dakilio.core.backup
 
 import java.time.LocalDate
+import pl.dakil.dakilio.core.model.KeywordDraft
+import pl.dakil.dakilio.core.model.Keywords
 import pl.dakil.dakilio.core.model.MOOD_LEVELS
 import pl.dakil.dakilio.core.model.PreviewLength
 import pl.dakil.dakilio.core.model.TagStyle
@@ -39,7 +41,14 @@ data class RestoreDiary(
 
 data class RestoreGroup(val name: String, val position: Int, val archived: Boolean, val colorKey: String?, val tags: List<RestoreTag>)
 
-data class RestoreTag(val name: String, val iconKey: String, val position: Int, val archived: Boolean, val colorKey: String?)
+data class RestoreTag(
+    val name: String,
+    val iconKey: String,
+    val position: Int,
+    val archived: Boolean,
+    val colorKey: String?,
+    val keywords: List<KeywordDraft> = emptyList(),
+)
 
 /** Indices into [RestorePlan.groups] and that group's tags. */
 data class RestoreTagRef(val groupIndex: Int, val tagIndex: Int)
@@ -80,6 +89,7 @@ data class RestoreSettings(
     val previewLength: PreviewLength? = null,
     val compactTags: Boolean? = null,
     val closeAfterSave: Boolean? = null,
+    val keywordAutoAdd: Boolean? = null,
     /** An index into [RestorePlan.diaries]. */
     val lastDiaryIndex: Int? = null,
 )
@@ -148,7 +158,11 @@ fun planRestore(backup: DakilioBackup, defaultDiaryName: String, now: Long): Res
             colorKey = group.color,
             tags = tags.mapIndexed { tagIndex, tag ->
                 tagRefs[tag.id] = RestoreTagRef(groupIndex, tagIndex)
-                RestoreTag(tag.name.trim(), tag.icon, tagIndex, tag.archived, tag.color)
+                val keywords = tag.keywords
+                    .map { KeywordDraft(it.word.trim(), it.approximate) }
+                    .filter { Keywords.isUsable(it.word) }
+                    .distinctBy { Keywords.key(it.word) }
+                RestoreTag(tag.name.trim(), tag.icon, tagIndex, tag.archived, tag.color, keywords)
             },
         )
     }
@@ -211,6 +225,7 @@ fun planRestore(backup: DakilioBackup, defaultDiaryName: String, now: Long): Res
             previewLength = PreviewLength.entries.firstOrNull { it.name == s.previewLength },
             compactTags = s.compactTags,
             closeAfterSave = s.closeAfterSave,
+            keywordAutoAdd = s.keywordAutoAdd,
             lastDiaryIndex = s.lastDiary?.let(diaryIndexById::get),
         )
     } ?: RestoreSettings()

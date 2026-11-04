@@ -67,6 +67,7 @@ internal fun NoteStep(
     onAddPhotos: (List<android.net.Uri>) -> Unit,
     onRemovePhoto: (String) -> Unit,
     modifier: Modifier = Modifier,
+    belowNote: @Composable () -> Unit = {},
 ) {
     Column(modifier.verticalScroll(rememberScrollState()).padding(vertical = Spacing.s)) {
         StepHeader(
@@ -74,7 +75,7 @@ internal fun NoteStep(
             hintOrNull(stringResource(R.string.entry_note_body)),
             Modifier.padding(horizontal = Spacing.gutter),
         )
-        NoteFields(title, note, photos, importing, bodyRequired, onAddPhotos, onRemovePhoto)
+        NoteFields(title, note, photos, importing, bodyRequired, onAddPhotos, onRemovePhoto, belowNote = belowNote)
     }
 }
 
@@ -89,6 +90,7 @@ internal fun NoteFields(
     onAddPhotos: (List<android.net.Uri>) -> Unit,
     onRemovePhoto: (String) -> Unit,
     modifier: Modifier = Modifier,
+    belowNote: @Composable () -> Unit = {},
 ) {
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(MAX_PICK), onAddPhotos)
     val fieldColors = TextFieldDefaults.colors(
@@ -141,6 +143,7 @@ internal fun NoteFields(
             colors = fieldColors,
             modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.xs),
         )
+        belowNote()
         LazyRow(
             contentPadding = PaddingValues(horizontal = Spacing.gutter),
             horizontalArrangement = Arrangement.spacedBy(Spacing.s),

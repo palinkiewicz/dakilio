@@ -20,6 +20,7 @@ import pl.dakil.dakilio.core.database.SampleData
 import pl.dakil.dakilio.core.database.dao.DiaryDao
 import pl.dakil.dakilio.core.database.dao.HabitDao
 import pl.dakil.dakilio.core.database.dao.ImportDao
+import pl.dakil.dakilio.core.database.dao.KeywordDao
 import pl.dakil.dakilio.core.database.dao.MoodDao
 import pl.dakil.dakilio.core.database.dao.PostDao
 import pl.dakil.dakilio.core.database.dao.TagDao
@@ -56,6 +57,8 @@ internal object DatabaseModule {
     @Provides fun importDao(db: DakilioDatabase): ImportDao = db.importDao()
 
     @Provides fun habitDao(db: DakilioDatabase): HabitDao = db.habitDao()
+
+    @Provides fun keywordDao(db: DakilioDatabase): KeywordDao = db.keywordDao()
 }
 
 /** Lets debug and preview builds bind [SampleData] while release builds leave it out. */

@@ -3,6 +3,7 @@ package pl.dakil.dakilio.feature.search.impl
 import java.time.LocalDate
 import pl.dakil.dakilio.core.model.Post
 import pl.dakil.dakilio.core.model.Tag
+import pl.dakil.dakilio.core.model.foldForSearch
 
 /**
  * Ready-made questions offered before anything is typed. Each is just a preset of [SearchFilters],

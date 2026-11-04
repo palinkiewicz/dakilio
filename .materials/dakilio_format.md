@@ -33,7 +33,7 @@ Pretty-printed JSON. Fields that are null or at their default (`false`, `0`, `[]
     "theme": "Dark", "tagStyle": "Icons", "showHints": false,
     "timelineTextScale": 1.1, "editorTextScale": 1.0,
     "previewLength": "Short", "compactTags": true,
-    "closeAfterSave": true, "lastDiary": 1
+    "closeAfterSave": true, "keywordAutoAdd": false, "lastDiary": 1
   },
   "moods": [
     { "id": 3, "level": 3, "name": "Okay", "primary": true, "color": "periwinkle" },
@@ -44,7 +44,8 @@ Pretty-printed JSON. Fields that are null or at their default (`false`, `0`, `[]
   ],
   "tagGroups": [
     { "id": 2, "name": "People", "color": "orange",
-      "tags": [ { "id": 5, "name": "Family", "icon": "family_restroom" } ] }
+      "tags": [ { "id": 5, "name": "Family", "icon": "family_restroom",
+                  "keywords": [ { "word": "mum" }, { "word": "famil", "approximate": true } ] } ] }
   ],
   "habits": [ { "tag": 5, "daysPerWeek": 3, "createdAt": "2026-02-01T10:00:00Z" } ],
   "entries": [
@@ -62,7 +63,7 @@ Pretty-printed JSON. Fields that are null or at their default (`false`, `0`, `[]
 | `settings` | Every key is optional. Unknown enum names leave the device's value alone. Search history, the language and intro state aren't included. |
 | `moods` | `level`: 1 = worst … 5 = best. One `primary` per level, plus aliases (`position` orders them within a level). `color` is a `TagColor` palette key. |
 | `diaries` | `suggestedGroups`: ids of the tag groups the editor expands for that diary. |
-| `tagGroups` | Tags are nested in their group. A tag's `color` overrides its group's. `icon` is a Material Symbol key. |
+| `tagGroups` | Tags are nested in their group. A tag's `color` overrides its group's. `icon` is a Material Symbol key. A tag's optional `keywords` (the Keywords extra) are words that suggest it; `approximate` makes the word's end also match longer words. Blank and duplicate words are dropped on restore. |
 | `habits` | One per tag. `daysPerWeek` is 1–7. |
 | `entries.time` | An ISO-8601 date-time **with the offset it was written in**. That's both the timestamp and `utc_offset_min`; the entry's day is the date part. |
 | `entries.mood` | Optional (an entry may have no mood). |

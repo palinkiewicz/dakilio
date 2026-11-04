@@ -59,6 +59,7 @@ object DakilioSymbols {
     val Save = DakilioSymbol("save", R.drawable.sym_save, R.drawable.sym_save_fill, SymbolCategory.Ui)
     val Visibility = DakilioSymbol("visibility", R.drawable.sym_visibility, R.drawable.sym_visibility_fill, SymbolCategory.Ui)
     val VisibilityOff = DakilioSymbol("visibility_off", R.drawable.sym_visibility_off, R.drawable.sym_visibility_off_fill, SymbolCategory.Ui)
+    val MatchWord = DakilioSymbol("match_word", R.drawable.sym_match_word, R.drawable.sym_match_word_fill, SymbolCategory.Ui)
     val SentimentVerySatisfied = DakilioSymbol("sentiment_very_satisfied", R.drawable.sym_sentiment_very_satisfied, R.drawable.sym_sentiment_very_satisfied_fill, SymbolCategory.Emotions)
     val SentimentSatisfied = DakilioSymbol("sentiment_satisfied", R.drawable.sym_sentiment_satisfied, R.drawable.sym_sentiment_satisfied_fill, SymbolCategory.Emotions)
     val SentimentNeutral = DakilioSymbol("sentiment_neutral", R.drawable.sym_sentiment_neutral, R.drawable.sym_sentiment_neutral_fill, SymbolCategory.Emotions)
@@ -239,6 +240,7 @@ object DakilioSymbols {
         Save,
         Visibility,
         VisibilityOff,
+        MatchWord,
         SentimentVerySatisfied,
         SentimentSatisfied,
         SentimentNeutral,

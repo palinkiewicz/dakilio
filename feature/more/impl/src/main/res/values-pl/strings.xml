@@ -12,6 +12,14 @@
         <item quantity="many">%d nawyków</item>
         <item quantity="other">%d nawyku</item>
     </plurals>
+    <string name="more_keywords">Słowa kluczowe</string>
+    <string name="more_keywords_body">Słowa w notatkach, które podpowiadają tag</string>
+    <plurals name="more_keywords_status">
+        <item quantity="one">Ustawione dla %d tagu</item>
+        <item quantity="few">Ustawione dla %d tagów</item>
+        <item quantity="many">Ustawione dla %d tagów</item>
+        <item quantity="other">Ustawione dla %d tagu</item>
+    </plurals>
     <string name="more_section_customize">Personalizacja</string>
     <string name="more_moods">Nastroje</string>
     <string name="more_moods_body">Nazwy i aliasy</string>

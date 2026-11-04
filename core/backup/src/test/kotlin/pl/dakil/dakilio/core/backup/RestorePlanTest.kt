@@ -4,6 +4,7 @@ import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
+import pl.dakil.dakilio.core.model.KeywordDraft
 import pl.dakil.dakilio.core.model.PreviewLength
 import pl.dakil.dakilio.core.model.ThemeMode
 
@@ -113,5 +114,24 @@ class RestorePlanTest {
         assertEquals(0, plan.entries.single().diaryIndex)
         assertEquals(0, plan.stats.missingReferences)
         assertEquals(RestoreSettings(), plan.settings)
+    }
+
+    @Test
+    fun keepsUsableKeywordsWithoutDuplicates() {
+        val tag = BackupTag(
+            5, "Cycling", "bike",
+            keywords = listOf(BackupKeyword(" bike "), BackupKeyword("BIKE"), BackupKeyword("rower", approximate = true), BackupKeyword(" !! ")),
+        )
+        val plan = planRestore(backup(groups = listOf(BackupTagGroup(id = 2, name = "Activities", tags = listOf(tag)))), "Journey", now)
+        assertEquals(
+            listOf(KeywordDraft("bike", false), KeywordDraft("rower", true)),
+            plan.groups.single().tags.single().keywords,
+        )
+    }
+
+    @Test
+    fun keywordsSurviveJson() {
+        val original = backup(groups = listOf(BackupTagGroup(id = 2, name = "A", tags = listOf(BackupTag(5, "C", "x", keywords = listOf(BackupKeyword("ice cream", true)))))))
+        assertEquals(original, DakilioBackup.parse(original.encode()))
     }
 }

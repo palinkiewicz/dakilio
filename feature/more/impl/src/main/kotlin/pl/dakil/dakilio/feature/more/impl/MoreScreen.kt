@@ -67,9 +67,11 @@ internal fun MoreScreen(
     onOpenBackup: () -> Unit,
     onOpenArchive: () -> Unit,
     onOpenHabits: () -> Unit,
+    onOpenKeywords: () -> Unit,
 ) {
     val showSampleHint by viewModel.showSampleHint.collectAsStateWithLifecycle()
     val habits by viewModel.habitCount.collectAsStateWithLifecycle()
+    val keywordTags by viewModel.keywordTagCount.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val version = remember {
         runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }.getOrNull().orEmpty()
@@ -100,6 +102,18 @@ internal fun MoreScreen(
                         onOpenHabits,
                         status = if (habits > 0) pluralStringResource(R.plurals.more_habits_status, habits, habits) else stringResource(R.string.more_extras_not_used),
                         inUse = habits > 0,
+                    ),
+                    MoreItem(
+                        DakilioSymbols.MatchWord,
+                        stringResource(R.string.more_keywords),
+                        stringResource(R.string.more_keywords_body),
+                        onOpenKeywords,
+                        status = if (keywordTags > 0) {
+                            pluralStringResource(R.plurals.more_keywords_status, keywordTags, keywordTags)
+                        } else {
+                            stringResource(R.string.more_extras_not_used)
+                        },
+                        inUse = keywordTags > 0,
                     ),
                 ),
             )
