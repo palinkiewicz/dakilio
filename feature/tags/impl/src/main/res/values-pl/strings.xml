@@ -46,4 +46,13 @@
     <string name="tags_suggested_add">Dodaj</string>
     <string name="tags_suggested_added">Dodano</string>
     <string name="tags_suggested_browse">Przeglądaj sugestie</string>
+    <string name="tags_reorder">Zmień kolejność</string>
+    <string name="tags_reorder_done">Gotowe</string>
+    <string name="tags_reorder_title">Kolejność</string>
+    <string name="tags_reorder_subtitle">W tej kolejności grupy i tagi pojawią się przy pisaniu wpisu</string>
+    <string name="tags_reorder_hint">Przeciągnij uchwyt grupy lub tagu, żeby go przesunąć. Tagi przesuwają się w obrębie swojej grupy; aby przenieść tag do innej grupy, otwórz go.</string>
+    <string name="tags_drag_group">Przeciągnij, aby przesunąć grupę „%1$s”</string>
+    <string name="tags_drag_tag">Przeciągnij, aby przesunąć tag „%1$s”</string>
+    <string name="tags_move_up">Przesuń w górę</string>
+    <string name="tags_move_down">Przesuń w dół</string>
 </resources>

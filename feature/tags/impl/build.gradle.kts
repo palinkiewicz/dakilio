@@ -8,4 +8,5 @@ android {
 
 dependencies {
     api(projects.feature.tags.api)
+    implementation(libs.androidx.activity.compose)
 }

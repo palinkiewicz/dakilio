@@ -10,6 +10,8 @@ ui arrow_upward
 ui check
 ui more_vert
 ui more_horiz
+ui drag_indicator
+ui swap_vert
 ui delete
 ui edit
 ui settings

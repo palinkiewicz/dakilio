@@ -13,6 +13,8 @@ object DakilioSymbols {
     val Check = DakilioSymbol("check", R.drawable.sym_check, R.drawable.sym_check_fill, SymbolCategory.Ui)
     val MoreVert = DakilioSymbol("more_vert", R.drawable.sym_more_vert, R.drawable.sym_more_vert_fill, SymbolCategory.Ui)
     val MoreHoriz = DakilioSymbol("more_horiz", R.drawable.sym_more_horiz, R.drawable.sym_more_horiz_fill, SymbolCategory.Ui)
+    val DragIndicator = DakilioSymbol("drag_indicator", R.drawable.sym_drag_indicator, R.drawable.sym_drag_indicator_fill, SymbolCategory.Ui)
+    val SwapVert = DakilioSymbol("swap_vert", R.drawable.sym_swap_vert, R.drawable.sym_swap_vert_fill, SymbolCategory.Ui)
     val Delete = DakilioSymbol("delete", R.drawable.sym_delete, R.drawable.sym_delete_fill, SymbolCategory.Ui)
     val Edit = DakilioSymbol("edit", R.drawable.sym_edit, R.drawable.sym_edit_fill, SymbolCategory.Ui)
     val Settings = DakilioSymbol("settings", R.drawable.sym_settings, R.drawable.sym_settings_fill, SymbolCategory.Ui)
@@ -209,6 +211,8 @@ object DakilioSymbols {
         Check,
         MoreVert,
         MoreHoriz,
+        DragIndicator,
+        SwapVert,
         Delete,
         Edit,
         Settings,

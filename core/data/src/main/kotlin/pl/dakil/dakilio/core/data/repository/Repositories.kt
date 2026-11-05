@@ -105,6 +105,12 @@ interface TagRepository {
 
     /** Sets the default color of the group's tags; `null` clears it. */
     suspend fun setGroupColor(id: Long, colorKey: String?)
+
+    /** Saves the active groups' display order: [ids] first to last. */
+    suspend fun reorderGroups(ids: List<Long>)
+
+    /** Saves the display order of a group's tags: [ids] first to last. */
+    suspend fun reorderTags(ids: List<Long>)
 }
 
 interface PostRepository {

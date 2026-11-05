@@ -36,7 +36,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
-import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
@@ -45,7 +44,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.graphics.shapes.Morph
@@ -60,6 +58,7 @@ import pl.dakil.dakilio.core.model.Tag
 import pl.dakil.dakilio.core.model.TagGroup
 import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.ui.color.tagColors
+import pl.dakil.dakilio.core.ui.component.TagIconGridLayout
 
 /**
  * The tag groups as lazy items, each a collapsible panel: groups suggested by the selected diaries
@@ -184,38 +183,14 @@ private fun TagGroupPanel(
     }
 }
 
-private val IconCellMinWidth = 64.dp
 private val IconSize = 48.dp
 private val tagMorph by lazy { Morph(MaterialShapes.Circle, MaterialShapes.Cookie9Sided) }
 
-/**
- * Daylio-style dense grid: an icon button per tag with its label underneath, in even columns.
- * A row that isn't full (the last one, or the only one of a small group) is centered.
- */
+/** Daylio-style dense grid: an icon button per tag with its label underneath, in even columns. */
 @Composable
 private fun TagIconGrid(tags: List<Tag>, selectedIds: Set<Long>, onToggle: (Long) -> Unit, modifier: Modifier = Modifier) {
-    // A plain Layout rather than BoxWithConstraints: subcomposing during measure misbehaves inside
-    // the editor's container transform (lookahead), making groups fade in late.
-    Layout(
-        content = { tags.forEach { tag -> TagIconButton(tag, tag.id in selectedIds, onToggle = { onToggle(tag.id) }) } },
-        modifier = modifier.fillMaxWidth(),
-    ) { measurables, constraints ->
-        val width = constraints.maxWidth
-        val columns = maxOf(5, width / IconCellMinWidth.roundToPx())
-        val cell = width / columns
-        val gap = Spacing.s.roundToPx()
-        val rows = measurables.map { it.measure(Constraints.fixedWidth(cell)) }.chunked(columns)
-        val rowHeights = rows.map { row -> row.maxOf { it.height } }
-        val height = rowHeights.sum() + gap * (rows.size - 1).coerceAtLeast(0)
-        layout(width, height) {
-            var y = 0
-            rows.forEachIndexed { r, row ->
-                // Centers a short row on the same column pitch, plus the width left over by the division.
-                val start = ((columns - row.size) * cell + width - columns * cell) / 2
-                row.forEachIndexed { c, placeable -> placeable.placeRelative(start + c * cell, y) }
-                y += rowHeights[r] + gap
-            }
-        }
+    TagIconGridLayout(modifier) {
+        tags.forEach { tag -> TagIconButton(tag, tag.id in selectedIds, onToggle = { onToggle(tag.id) }) }
     }
 }
 

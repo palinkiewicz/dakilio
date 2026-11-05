@@ -173,6 +173,10 @@ internal class LocalTagRepository @Inject constructor(private val dao: TagDao) :
     override suspend fun deleteTag(id: Long) = dao.deleteTag(id)
 
     override suspend fun setGroupColor(id: Long, colorKey: String?) = dao.setGroupColor(id, colorKey)
+
+    override suspend fun reorderGroups(ids: List<Long>) = dao.reorderGroups(ids)
+
+    override suspend fun reorderTags(ids: List<Long>) = dao.reorderTags(ids)
 }
 
 internal class LocalPostRepository @Inject constructor(

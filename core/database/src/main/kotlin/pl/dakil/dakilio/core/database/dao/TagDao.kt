@@ -84,6 +84,24 @@ abstract class TagDao {
     @Query("SELECT * FROM tag WHERE id = :id")
     abstract suspend fun getTag(id: Long): TagEntity?
 
+    @Query("UPDATE tag_group SET position = :position WHERE id = :id")
+    protected abstract suspend fun setGroupPosition(id: Long, position: Int)
+
+    @Query("UPDATE tag SET position = :position WHERE id = :id")
+    protected abstract suspend fun setTagPosition(id: Long, position: Int)
+
+    /** Puts the groups in this order (positions 0..n-1); groups not listed keep theirs. */
+    @Transaction
+    open suspend fun reorderGroups(ids: List<Long>) {
+        ids.forEachIndexed { position, id -> setGroupPosition(id, position) }
+    }
+
+    /** Puts the tags in this order (positions 0..n-1); tags not listed keep theirs. */
+    @Transaction
+    open suspend fun reorderTags(ids: List<Long>) {
+        ids.forEachIndexed { position, id -> setTagPosition(id, position) }
+    }
+
     @Query("UPDATE tag SET is_archived = :archived WHERE id = :id")
     abstract suspend fun setTagArchived(id: Long, archived: Boolean)
 

@@ -1,6 +1,31 @@
 package pl.dakil.dakilio.feature.tags.impl
 
 import androidx.compose.animation.animateContentSize
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.runtime.key
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbol
+import pl.dakil.dakilio.core.designsystem.theme.SegmentedShapes
+import pl.dakil.dakilio.core.model.TagStyle
+import pl.dakil.dakilio.core.ui.component.ReorderScrollArea
+import pl.dakil.dakilio.core.ui.component.ReorderState
+import pl.dakil.dakilio.core.ui.component.TagIconGridLayout
+import pl.dakil.dakilio.core.ui.component.dragHandle
+import pl.dakil.dakilio.core.ui.component.rememberReorderScrollArea
+import pl.dakil.dakilio.core.ui.component.rememberReorderState
+import pl.dakil.dakilio.core.ui.component.reorderScrollArea
+import pl.dakil.dakilio.core.ui.component.reorderableItem
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -86,6 +111,9 @@ private sealed interface GroupDialog {
 @Composable
 internal fun TagsScreen(viewModel: TagsViewModel, onBack: () -> Unit) {
     val groups by viewModel.groups.collectAsStateWithLifecycle()
+    val tagStyle by viewModel.tagStyle.collectAsStateWithLifecycle()
+    val reorderDraft by viewModel.reorderDraft.collectAsStateWithLifecycle()
+    val reordering = reorderDraft != null
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val listState = rememberLazyListState()
     val snackbar = remember { SnackbarHostState() }
@@ -111,28 +139,42 @@ internal fun TagsScreen(viewModel: TagsViewModel, onBack: () -> Unit) {
         }
     }
 
+    BackHandler(enabled = reordering) { viewModel.stopReorder() }
+
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
             MediumFlexibleTopAppBar(
-                title = { Text(stringResource(R.string.tags_title)) },
-                subtitle = { Text(stringResource(R.string.tags_subtitle)) },
+                title = { Text(stringResource(if (reordering) R.string.tags_reorder_title else R.string.tags_title)) },
+                subtitle = { Text(stringResource(if (reordering) R.string.tags_reorder_subtitle else R.string.tags_subtitle)) },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = { if (reordering) viewModel.stopReorder() else onBack() }) {
                         DakilioIcon(DakilioSymbols.ArrowBack, contentDescription = stringResource(R.string.tags_back))
                     }
                 },
                 actions = {
-                    IconButton(onClick = { suggesting = true }) {
-                        DakilioIcon(DakilioSymbols.AutoAwesome, contentDescription = stringResource(R.string.tags_suggested))
+                    if (reordering) {
+                        TextButton(onClick = { viewModel.stopReorder() }) {
+                            DakilioIcon(DakilioSymbols.Check, contentDescription = null, modifier = Modifier.padding(end = Spacing.s))
+                            Text(stringResource(R.string.tags_reorder_done))
+                        }
+                    } else {
+                        if (groups.orEmpty().let { list -> list.size > 1 || list.any { it.tags.size > 1 } }) {
+                            IconButton(onClick = { viewModel.startReorder() }) {
+                                DakilioIcon(DakilioSymbols.SwapVert, contentDescription = stringResource(R.string.tags_reorder))
+                            }
+                        }
+                        IconButton(onClick = { suggesting = true }) {
+                            DakilioIcon(DakilioSymbols.AutoAwesome, contentDescription = stringResource(R.string.tags_suggested))
+                        }
                     }
                 },
                 scrollBehavior = scrollBehavior,
             )
         },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
+            if (!reordering) ExtendedFloatingActionButton(
                 onClick = { groupDialog = GroupDialog.Create },
                 expanded = !listState.canScrollBackward,
                 icon = { DakilioIcon(DakilioSymbols.Add, contentDescription = null) },
@@ -141,8 +183,20 @@ internal fun TagsScreen(viewModel: TagsViewModel, onBack: () -> Unit) {
         },
     ) { padding ->
         val current = groups
+        val listPadding = PaddingValues(start = Spacing.gutter, end = Spacing.gutter, top = Spacing.s, bottom = padding.calculateBottomPadding() + 112.dp)
         Box(Modifier.fillMaxSize().padding(top = padding.calculateTopPadding()), contentAlignment = Alignment.TopCenter) {
+            val draft = reorderDraft
             when {
+                draft != null -> ReorderList(
+                    groups = draft,
+                    listState = listState,
+                    contentPadding = listPadding,
+                    onMoveGroup = viewModel::moveGroup,
+                    onDropGroup = viewModel::saveGroupOrder,
+                    onMoveTag = viewModel::moveTag,
+                    onDropTag = viewModel::saveTagOrder,
+                    modifier = Modifier.widthIn(max = Spacing.maxContentWidth).fillMaxSize(),
+                )
                 current == null -> LoadingIndicator(Modifier.align(Alignment.Center))
                 current.isEmpty() -> EmptyState(
                     symbol = DakilioSymbols.Sell,
@@ -159,7 +213,7 @@ internal fun TagsScreen(viewModel: TagsViewModel, onBack: () -> Unit) {
                 else -> LazyColumn(
                     state = listState,
                     modifier = Modifier.widthIn(max = Spacing.maxContentWidth).fillMaxSize(),
-                    contentPadding = PaddingValues(start = Spacing.gutter, end = Spacing.gutter, top = Spacing.s, bottom = padding.calculateBottomPadding() + 112.dp),
+                    contentPadding = listPadding,
                     verticalArrangement = Arrangement.spacedBy(Spacing.m),
                 ) {
                     item(key = "hint") {
@@ -175,6 +229,7 @@ internal fun TagsScreen(viewModel: TagsViewModel, onBack: () -> Unit) {
                     items(current, key = { it.id }) { group ->
                         GroupCard(
                             group = group,
+                            style = tagStyle,
                             onColor = {
                                 haptics.tick()
                                 coloring = group.id
@@ -307,6 +362,7 @@ internal fun TagsScreen(viewModel: TagsViewModel, onBack: () -> Unit) {
 @Composable
 private fun GroupCard(
     group: TagGroup,
+    style: TagStyle,
     onColor: () -> Unit,
     onEditTag: (Tag) -> Unit,
     onAddTag: () -> Unit,
@@ -355,28 +411,52 @@ private fun GroupCard(
                     }
                 }
             }
-            FlowRow(
-                modifier = Modifier.padding(top = Spacing.m, end = Spacing.m),
-                horizontalArrangement = Arrangement.spacedBy(Spacing.s),
-                verticalArrangement = Arrangement.spacedBy(Spacing.s),
-            ) {
-                group.tags.forEach { tag ->
-                    val tones = tagColors(tag.color)
+            when (style) {
+                TagStyle.Chips -> FlowRow(
+                    modifier = Modifier.padding(top = Spacing.m, end = Spacing.m),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.s),
+                    verticalArrangement = Arrangement.spacedBy(Spacing.s),
+                ) {
+                    group.tags.forEach { tag ->
+                        val tones = tagColors(tag.color)
+                        EditableChip(
+                            label = tag.label,
+                            icon = { DakilioIcon(symbolForKey(tag.iconKey), contentDescription = null, modifier = Modifier.size(18.dp)) },
+                            onClick = { onEditTag(tag) },
+                            containerColor = tones?.soft ?: MaterialTheme.colorScheme.surfaceContainerHighest,
+                            contentColor = tones?.accent ?: MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
                     EditableChip(
-                        label = tag.label,
-                        icon = { DakilioIcon(symbolForKey(tag.iconKey), contentDescription = null, modifier = Modifier.size(18.dp)) },
-                        onClick = { onEditTag(tag) },
-                        containerColor = tones?.soft ?: MaterialTheme.colorScheme.surfaceContainerHighest,
-                        contentColor = tones?.accent ?: MaterialTheme.colorScheme.onSurface,
+                        label = stringResource(R.string.tags_add_tag),
+                        icon = { DakilioIcon(DakilioSymbols.Add, contentDescription = null, modifier = Modifier.size(18.dp)) },
+                        onClick = onAddTag,
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                     )
                 }
-                EditableChip(
-                    label = stringResource(R.string.tags_add_tag),
-                    icon = { DakilioIcon(DakilioSymbols.Add, contentDescription = null, modifier = Modifier.size(18.dp)) },
-                    onClick = onAddTag,
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                )
+                // Same grid as the editor's picker; the end padding evens out the card's wider start padding.
+                TagStyle.Icons -> TagIconGridLayout(Modifier.padding(top = Spacing.m, end = Spacing.xl - Spacing.s)) {
+                    group.tags.forEach { tag ->
+                        val tones = tagColors(tag.color)
+                        EditableIconCell(
+                            label = tag.label,
+                            symbol = symbolForKey(tag.iconKey),
+                            onClick = { onEditTag(tag) },
+                            containerColor = tones?.soft ?: MaterialTheme.colorScheme.surfaceContainerHighest,
+                            contentColor = tones?.accent ?: MaterialTheme.colorScheme.onSurfaceVariant,
+                            labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    EditableIconCell(
+                        label = stringResource(R.string.tags_add_tag),
+                        symbol = DakilioSymbols.Add,
+                        onClick = onAddTag,
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        labelColor = MaterialTheme.colorScheme.primary,
+                    )
+                }
             }
         }
     }
@@ -411,6 +491,247 @@ private fun EditableChip(label: String, icon: @Composable () -> Unit, onClick: (
         Row(Modifier.padding(start = 12.dp, end = 16.dp, top = 9.dp, bottom = 9.dp), verticalAlignment = Alignment.CenterVertically) {
             icon()
             Text(label, style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(start = Spacing.s))
+        }
+    }
+}
+
+/** A tag in the icon style (a circle in its color, label underneath), or the "Add tag" action. */
+@Composable
+private fun EditableIconCell(
+    label: String,
+    symbol: DakilioSymbol,
+    onClick: () -> Unit,
+    containerColor: Color,
+    contentColor: Color,
+    labelColor: Color,
+) {
+    val interaction = remember { MutableInteractionSource() }
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .pressScale(interaction, 0.9f)
+            .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick)
+            .padding(vertical = Spacing.xs),
+    ) {
+        Box(Modifier.size(48.dp).background(containerColor, CircleShape), contentAlignment = Alignment.Center) {
+            DakilioIcon(symbol, contentDescription = null, tint = contentColor, modifier = Modifier.size(24.dp))
+        }
+        Text(
+            label,
+            style = MaterialTheme.typography.labelMedium,
+            color = labelColor,
+            textAlign = TextAlign.Center,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(top = Spacing.xs, start = 2.dp, end = 2.dp),
+        )
+    }
+}
+
+/** Reorder mode: every group with its tags as a list, each with a drag handle. */
+@Composable
+private fun ReorderList(
+    groups: List<TagGroup>,
+    listState: LazyListState,
+    contentPadding: PaddingValues,
+    onMoveGroup: (from: Int, to: Int) -> Unit,
+    onDropGroup: () -> Unit,
+    onMoveTag: (groupId: Long, from: Int, to: Int) -> Unit,
+    onDropTag: (groupId: Long) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val area = rememberReorderScrollArea(listState)
+    val groupState = rememberReorderState(
+        keys = groups.map { it.id },
+        onMove = { from, to ->
+            // Pins the scroll position by index. Otherwise the list keeps its first visible item in
+            // view wherever it moves, which makes the whole list jump when that item swaps.
+            listState.requestScrollToItem(listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset)
+            onMoveGroup(from, to)
+        },
+        onDrop = onDropGroup,
+        area = area,
+    )
+    LazyColumn(
+        state = listState,
+        modifier = modifier.reorderScrollArea(area),
+        contentPadding = contentPadding,
+        verticalArrangement = Arrangement.spacedBy(Spacing.m),
+    ) {
+        item(key = "reorder-hint") {
+            Hint {
+                Text(
+                    stringResource(R.string.tags_reorder_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = Spacing.xs),
+                )
+            }
+        }
+        itemsIndexed(groups, key = { _, group -> group.id }) { index, group ->
+            ReorderGroupCard(
+                group = group,
+                index = index,
+                count = groups.size,
+                state = groupState,
+                area = area,
+                onMove = onMoveGroup,
+                onDrop = onDropGroup,
+                onMoveTag = { from, to -> onMoveTag(group.id, from, to) },
+                onDropTag = { onDropTag(group.id) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun ReorderGroupCard(
+    group: TagGroup,
+    index: Int,
+    count: Int,
+    state: ReorderState<Long>,
+    area: ReorderScrollArea,
+    onMove: (from: Int, to: Int) -> Unit,
+    onDrop: () -> Unit,
+    onMoveTag: (from: Int, to: Int) -> Unit,
+    onDropTag: () -> Unit,
+) {
+    val lifted = state.isLifted(group.id)
+    val motion = MaterialTheme.motionScheme
+    val scale by animateFloatAsState(if (lifted) 1.02f else 1f, motion.fastSpatialSpec(), label = "groupLift")
+    val elevation by animateDpAsState(if (lifted) 8.dp else 0.dp, motion.fastSpatialSpec(), label = "groupShadow")
+    Surface(
+        shape = RoundedCornerShape(28.dp),
+        color = if (lifted) MaterialTheme.colorScheme.surfaceContainerHigh else MaterialTheme.colorScheme.surfaceContainer,
+        shadowElevation = elevation,
+        modifier = Modifier
+            .fillMaxWidth()
+            .reorderableItem(state, group.id)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            },
+    ) {
+        Column(Modifier.padding(start = Spacing.xs, end = Spacing.m, top = Spacing.s, bottom = Spacing.m)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.moveActions(index, count, onMove, onDrop),
+            ) {
+                ReorderHandle(state, group.id, stringResource(R.string.tags_drag_group, group.name))
+                Column(Modifier.weight(1f)) {
+                    Text(group.name, style = MaterialTheme.typography.titleMediumEmphasized)
+                    Text(
+                        pluralStringResource(R.plurals.tags_count, group.tags.size, group.tags.size),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            if (group.tags.isNotEmpty()) {
+                TagReorderList(group.tags, area, onMoveTag, onDropTag, Modifier.padding(start = Spacing.s, top = Spacing.s))
+            }
+        }
+    }
+}
+
+@Composable
+private fun TagReorderList(
+    tags: List<Tag>,
+    area: ReorderScrollArea,
+    onMove: (from: Int, to: Int) -> Unit,
+    onDrop: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val state = rememberReorderState(keys = tags.map { it.id }, onMove = onMove, onDrop = onDrop, area = area, clampToItems = true)
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(SegmentedShapes.gap)) {
+        tags.forEachIndexed { index, tag ->
+            key(tag.id) {
+                TagReorderRow(tag, index, tags.size, state, onMove, onDrop)
+            }
+        }
+    }
+}
+
+@Composable
+private fun TagReorderRow(
+    tag: Tag,
+    index: Int,
+    count: Int,
+    state: ReorderState<Long>,
+    onMove: (from: Int, to: Int) -> Unit,
+    onDrop: () -> Unit,
+) {
+    val lifted = state.isLifted(tag.id)
+    val motion = MaterialTheme.motionScheme
+    val scale by animateFloatAsState(if (lifted) 1.03f else 1f, motion.fastSpatialSpec(), label = "tagLift")
+    val elevation by animateDpAsState(if (lifted) 6.dp else 0.dp, motion.fastSpatialSpec(), label = "tagShadow")
+    val tones = tagColors(tag.color)
+    Surface(
+        // Held, it's a card of its own; in place, it's a segment of the group's list.
+        shape = if (lifted) RoundedCornerShape(16.dp) else SegmentedShapes.of(index, count, outer = 20.dp),
+        color = if (lifted) MaterialTheme.colorScheme.surfaceContainerHighest else MaterialTheme.colorScheme.surfaceContainerHigh,
+        shadowElevation = elevation,
+        modifier = Modifier
+            .fillMaxWidth()
+            .reorderableItem(state, tag.id)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .moveActions(index, count, onMove, onDrop),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(end = Spacing.l)) {
+            ReorderHandle(state, tag.id, stringResource(R.string.tags_drag_tag, tag.label))
+            Box(
+                Modifier.size(32.dp).background(tones?.soft ?: MaterialTheme.colorScheme.surfaceContainerHighest, CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                DakilioIcon(
+                    symbolForKey(tag.iconKey),
+                    contentDescription = null,
+                    tint = tones?.accent ?: MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(18.dp),
+                )
+            }
+            Text(
+                tag.label,
+                style = MaterialTheme.typography.bodyLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(start = Spacing.m).weight(1f),
+            )
+        }
+    }
+}
+
+/** The ≡ grip: dragging it (no long press) moves the item. */
+@Composable
+private fun ReorderHandle(state: ReorderState<Long>, key: Long, description: String) {
+    val lifted = state.isLifted(key)
+    Box(
+        Modifier
+            .size(48.dp)
+            .dragHandle(state, key)
+            .semantics { contentDescription = description },
+        contentAlignment = Alignment.Center,
+    ) {
+        DakilioIcon(
+            DakilioSymbols.DragIndicator,
+            contentDescription = null,
+            tint = if (lifted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+/** "Move up" / "Move down" for accessibility services, which can't drag. */
+@Composable
+private fun Modifier.moveActions(index: Int, count: Int, onMove: (Int, Int) -> Unit, onDrop: () -> Unit): Modifier {
+    val up = stringResource(R.string.tags_move_up)
+    val down = stringResource(R.string.tags_move_down)
+    return semantics {
+        customActions = buildList {
+            if (index > 0) add(CustomAccessibilityAction(up) { onMove(index, index - 1); onDrop(); true })
+            if (index < count - 1) add(CustomAccessibilityAction(down) { onMove(index, index + 1); onDrop(); true })
         }
     }
 }
