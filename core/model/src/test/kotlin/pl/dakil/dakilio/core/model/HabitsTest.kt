@@ -1,6 +1,8 @@
 package pl.dakil.dakilio.core.model
 
+import java.time.DayOfWeek
 import java.time.LocalDate
+import java.util.Locale
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -9,11 +11,36 @@ class HabitsTest {
     private fun habit(id: Long, target: Int = 3) =
         Habit(id = id, tag = Tag(id = id * 10, groupId = 1, label = "Tag $id", iconKey = "label", position = 0), daysPerWeek = target, position = id.toInt())
 
-    @Test fun `monday starts its own week`() = assertEquals(monday, Habits.weekStart(monday))
+    @Test fun `monday starts its own week`() = assertEquals(monday, Habits.weekStart(monday, DayOfWeek.MONDAY))
 
-    @Test fun `sunday belongs to the week before`() = assertEquals(monday, Habits.weekStart(monday.plusDays(6)))
+    @Test fun `sunday belongs to the week before`() = assertEquals(monday, Habits.weekStart(monday.plusDays(6), DayOfWeek.MONDAY))
 
-    @Test fun `the next monday starts a new week`() = assertEquals(monday.plusWeeks(1), Habits.weekStart(monday.plusDays(7)))
+    @Test fun `the next monday starts a new week`() =
+        assertEquals(monday.plusWeeks(1), Habits.weekStart(monday.plusDays(7), DayOfWeek.MONDAY))
+
+    @Test fun `with sunday weeks, sunday starts a new week`() {
+        val sunday = monday.minusDays(1)
+        assertEquals(sunday, Habits.weekStart(monday, DayOfWeek.SUNDAY))
+        assertEquals(sunday.plusWeeks(1), Habits.weekStart(sunday.plusWeeks(1), DayOfWeek.SUNDAY))
+        assertEquals(sunday, Habits.weekStart(sunday.plusDays(6), DayOfWeek.SUNDAY))
+    }
+
+    @Test fun `with saturday weeks, friday ends the week`() {
+        val saturday = monday.minusDays(2)
+        assertEquals(saturday, Habits.weekStart(saturday.plusDays(6), DayOfWeek.SATURDAY))
+        assertEquals(saturday.plusWeeks(1), Habits.weekStart(saturday.plusDays(7), DayOfWeek.SATURDAY))
+    }
+
+    @Test fun `explicit week starts ignore the region`() {
+        assertEquals(DayOfWeek.MONDAY, WeekStart.Monday.resolve(Locale.US))
+        assertEquals(DayOfWeek.SUNDAY, WeekStart.Sunday.resolve(Locale.forLanguageTag("pl-PL")))
+        assertEquals(DayOfWeek.SATURDAY, WeekStart.Saturday.resolve(Locale.UK))
+    }
+
+    @Test fun `the region default follows the region`() {
+        assertEquals(DayOfWeek.SUNDAY, WeekStart.Region.resolve(Locale.US))
+        assertEquals(DayOfWeek.MONDAY, WeekStart.Region.resolve(Locale.forLanguageTag("pl-PL")))
+    }
 
     @Test fun `only habits whose count went up bump`() {
         val habits = listOf(habit(1), habit(2), habit(3))

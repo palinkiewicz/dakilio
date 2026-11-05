@@ -3,6 +3,7 @@ package pl.dakil.dakilio
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.time.DayOfWeek
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -48,6 +49,10 @@ class MainViewModel @Inject constructor(
     val entryDisplay: StateFlow<EntryDisplay> = settingsRepository.settings
         .map { EntryDisplay(it.timelineTextScale, it.editorTextScale, it.previewLength, it.compactTags) }
         .stateIn(viewModelScope, SharingStarted.Eagerly, EntryDisplay())
+
+    /** The first day of the week, for rows of weekdays and week views across the UI. */
+    val firstDayOfWeek: StateFlow<DayOfWeek> = settingsRepository.firstDayOfWeek
+        .stateIn(viewModelScope, SharingStarted.Eagerly, settingsRepository.regionFirstDayOfWeek())
 
     /** Whether the first-run intro is on screen; `null` until known. Decided once per launch. */
     private val _showIntro = MutableStateFlow<Boolean?>(null)

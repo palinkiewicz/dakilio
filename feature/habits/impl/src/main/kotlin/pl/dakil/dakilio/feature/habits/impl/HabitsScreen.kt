@@ -58,6 +58,7 @@ import pl.dakil.dakilio.core.model.Habits
 import pl.dakil.dakilio.core.ui.Hint
 import pl.dakil.dakilio.core.ui.color.tagColors
 import pl.dakil.dakilio.core.ui.component.EmptyState
+import pl.dakil.dakilio.core.ui.LocalFirstDayOfWeek
 import pl.dakil.dakilio.core.ui.rememberFormats
 
 /** What the habit sheet is open for. Editing goes by id, so the sheet follows live changes. */
@@ -160,8 +161,8 @@ internal fun HabitsScreen(viewModel: HabitsViewModel, onBack: () -> Unit) {
             habit = null,
             groups = current.groups,
             trackedTagIds = current.trackedTagIds,
-            onSave = { tagId, days ->
-                viewModel.add(tagId, days)
+            onSave = { tagId, days, reminder ->
+                viewModel.add(tagId, days, reminder)
                 sheet = null
             },
             onDelete = {},
@@ -176,8 +177,8 @@ internal fun HabitsScreen(viewModel: HabitsViewModel, onBack: () -> Unit) {
                     habit = habit,
                     groups = current.groups,
                     trackedTagIds = current.trackedTagIds,
-                    onSave = { _, days ->
-                        if (days != habit.daysPerWeek) viewModel.setDaysPerWeek(habit.id, days)
+                    onSave = { _, days, reminder ->
+                        viewModel.update(habit, days, reminder)
                         sheet = null
                     },
                     onDelete = {
@@ -186,7 +187,7 @@ internal fun HabitsScreen(viewModel: HabitsViewModel, onBack: () -> Unit) {
                         scope.launch {
                             snackbar.currentSnackbarData?.dismiss()
                             val result = snackbar.showSnackbar(deletedMessage, undoLabel, withDismissAction = true)
-                            if (result == SnackbarResult.ActionPerformed) viewModel.add(habit.tag.id, habit.daysPerWeek)
+                            if (result == SnackbarResult.ActionPerformed) viewModel.add(habit.tag.id, habit.daysPerWeek, habit.reminder)
                         }
                     },
                     onDismiss = { sheet = null },
@@ -266,11 +267,11 @@ private fun HabitItem(
     ) { Text(habit.tag.label) }
 }
 
-/** Monday to Sunday of [today]'s week: filled on days with the tag, today ringed, days to come faded. */
+/** The days of [today]'s week: filled on days with the tag, today ringed, days to come faded. */
 @Composable
 private fun WeekDots(days: Set<LocalDate>, today: LocalDate) {
     val formats = rememberFormats()
-    val start = Habits.weekStart(today)
+    val start = Habits.weekStart(today, LocalFirstDayOfWeek.current)
     val colors = MaterialTheme.colorScheme
     Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
         repeat(7) { offset ->

@@ -12,15 +12,19 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import pl.dakil.dakilio.core.designsystem.theme.DakilioTheme
 import pl.dakil.dakilio.core.model.ThemeMode
 import pl.dakil.dakilio.core.ui.LocalEntryDisplay
+import pl.dakil.dakilio.core.ui.LocalFirstDayOfWeek
 import pl.dakil.dakilio.core.ui.LocalShowHints
 import pl.dakil.dakilio.core.data.repository.AppLock
 import pl.dakil.dakilio.core.data.repository.IncomingBackups
+import pl.dakil.dakilio.core.notifications.ReminderLaunches
+import pl.dakil.dakilio.core.notifications.ReminderSync
 import pl.dakil.dakilio.feature.lock.impl.LockGate
 import javax.inject.Inject
 import pl.dakil.dakilio.ui.DakilioApp
@@ -34,16 +38,25 @@ class MainActivity : ComponentActivity() {
 
     @Inject lateinit var appLock: AppLock
 
+    @Inject lateinit var reminderLaunches: ReminderLaunches
+
+    @Inject lateinit var reminderSync: ReminderSync
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         // On recreation the intent is the old one, already handled.
-        if (savedInstanceState == null) incomingBackups.deliver(intent)
+        if (savedInstanceState == null) {
+            incomingBackups.deliver(intent)
+            reminderLaunches.deliver(intent)
+        }
         setContent {
             val incomingBackup by incomingBackups.pending.collectAsStateWithLifecycle()
+            val reminderLaunch by reminderLaunches.pending.collectAsStateWithLifecycle()
             val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
             val showHints by viewModel.showHints.collectAsStateWithLifecycle()
             val entryDisplay by viewModel.entryDisplay.collectAsStateWithLifecycle()
+            val firstDayOfWeek by viewModel.firstDayOfWeek.collectAsStateWithLifecycle()
             val showIntro by viewModel.showIntro.collectAsStateWithLifecycle()
             val locked by viewModel.locked.collectAsStateWithLifecycle()
             val recovered by viewModel.recovered.collectAsStateWithLifecycle()
@@ -66,12 +79,23 @@ class MainActivity : ComponentActivity() {
                 onDispose { }
             }
             DakilioTheme(darkTheme = dark) {
-                CompositionLocalProvider(LocalShowHints provides showHints, LocalEntryDisplay provides entryDisplay) {
+                CompositionLocalProvider(
+                    LocalShowHints provides showHints,
+                    LocalEntryDisplay provides entryDisplay,
+                    LocalFirstDayOfWeek provides firstDayOfWeek,
+                ) {
                     LockGate(locked = isLocked) {
                         if (intro) {
                             IntroFlow(incomingBackup = incomingBackup, onFinished = viewModel::finishIntro)
                         } else {
-                            DakilioApp(incomingBackup = incomingBackup, openAppLock = recovered)
+                            // Past the intro the database may exist, so reminders can follow it.
+                            LaunchedEffect(Unit) { reminderSync.start() }
+                            DakilioApp(
+                                incomingBackup = incomingBackup,
+                                openAppLock = recovered,
+                                reminderLaunch = reminderLaunch,
+                                onReminderLaunched = reminderLaunches::consume,
+                            )
                         }
                     }
                 }
@@ -104,6 +128,6 @@ class MainActivity : ComponentActivity() {
     // singleTask: a backup forwarded by BackupReceiverActivity comes back to this instance, not a new one.
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        if (incomingBackups.deliver(intent)) setIntent(intent)
+        if (incomingBackups.deliver(intent) || reminderLaunches.deliver(intent)) setIntent(intent)
     }
 }

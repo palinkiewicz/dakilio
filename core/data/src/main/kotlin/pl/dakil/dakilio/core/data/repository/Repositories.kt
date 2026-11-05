@@ -1,6 +1,7 @@
 package pl.dakil.dakilio.core.data.repository
 
 import android.net.Uri
+import java.time.DayOfWeek
 import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 import pl.dakil.dakilio.core.model.ArchivedTags
@@ -13,6 +14,8 @@ import pl.dakil.dakilio.core.model.HabitStatus
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.Post
 import pl.dakil.dakilio.core.model.PostDraft
+import pl.dakil.dakilio.core.model.Reminder
+import pl.dakil.dakilio.core.model.ReminderSnapshot
 import pl.dakil.dakilio.core.model.SuggestedGroup
 import pl.dakil.dakilio.core.model.TagGroup
 import pl.dakil.dakilio.core.model.PreviewLength
@@ -20,6 +23,7 @@ import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TagUsage
 import pl.dakil.dakilio.core.model.ThemeMode
 import pl.dakil.dakilio.core.model.UserSettings
+import pl.dakil.dakilio.core.model.WeekStart
 import pl.dakil.dakilio.core.backup.RestoreStats
 import pl.dakil.dakilio.core.daylio.ImportStats
 
@@ -59,7 +63,7 @@ interface DiaryRepository {
 
     suspend fun getDiary(id: Long): Diary?
 
-    suspend fun saveDiary(id: Long?, name: String, iconKey: String, suggestedGroupIds: Set<Long>): Long
+    suspend fun saveDiary(id: Long?, name: String, iconKey: String, suggestedGroupIds: Set<Long>, reminder: Reminder): Long
 
     /** How many entries are in this diary. */
     suspend fun postCount(diaryId: Long): Int
@@ -127,12 +131,12 @@ interface HabitRepository {
     /** Every habit, without progress. */
     suspend fun habitList(): List<Habit>
 
-    /** Days with each habit's tag in the (Monday-based) week of [date], by habit id; habits at 0 are absent. */
+    /** Days with each habit's tag in the week of [date] (by the user's first day of the week), by habit id; habits at 0 are absent. */
     suspend fun weekCounts(date: LocalDate): Map<Long, Int>
 
-    suspend fun addHabit(tagId: Long, daysPerWeek: Int): Long
+    suspend fun addHabit(tagId: Long, daysPerWeek: Int, reminder: Reminder = Reminder()): Long
 
-    suspend fun setDaysPerWeek(id: Long, daysPerWeek: Int)
+    suspend fun updateHabit(id: Long, daysPerWeek: Int, reminder: Reminder)
 
     suspend fun deleteHabit(id: Long)
 }
@@ -190,6 +194,26 @@ interface SettingsRepository {
     suspend fun setCloseAfterSave(close: Boolean)
 
     suspend fun setKeywordAutoAdd(auto: Boolean)
+
+    suspend fun setWeekStart(start: WeekStart)
+
+    /** The first day of the week the user's [UserSettings.weekStart] means here (the region default resolved). */
+    val firstDayOfWeek: Flow<DayOfWeek>
+
+    /** What [WeekStart.Region] means on this device right now. */
+    fun regionFirstDayOfWeek(): DayOfWeek
+}
+
+/** What the reminder schedule reads (see `Reminders` in core:model). */
+interface ReminderRepository {
+    /**
+     * The reminders that are on, with today's entries and this week's habit counts; `null` before the
+     * database exists (it must not be created before the intro's language step).
+     */
+    suspend fun snapshot(): ReminderSnapshot?
+
+    /** Emits whenever something the schedule depends on may have changed (and once at the start). */
+    val changes: Flow<Unit>
 }
 
 /** Recent searches, newest first, kept on the device. Entries are opaque strings encoded by the search screen. */

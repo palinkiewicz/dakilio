@@ -39,6 +39,7 @@ import pl.dakil.dakilio.core.backup.RestoreMoodRef
 import pl.dakil.dakilio.core.backup.RestorePlan
 import pl.dakil.dakilio.core.backup.detectBackupKind
 import pl.dakil.dakilio.core.backup.planRestore
+import pl.dakil.dakilio.core.backup.toBackup
 import pl.dakil.dakilio.core.backup.writeBackup
 import pl.dakil.dakilio.core.common.DakilioDispatchers
 import pl.dakil.dakilio.core.common.Dispatcher
@@ -60,6 +61,7 @@ import pl.dakil.dakilio.core.database.entity.PostEntity
 import pl.dakil.dakilio.core.database.entity.TagEntity
 import pl.dakil.dakilio.core.database.entity.TagGroupEntity
 import pl.dakil.dakilio.core.model.MOOD_LEVELS
+import pl.dakil.dakilio.core.model.Reminder
 import pl.dakil.dakilio.core.model.UserSettings
 
 internal class LocalBackupRepository @Inject constructor(
@@ -129,10 +131,19 @@ internal class LocalBackupRepository @Inject constructor(
                 closeAfterSave = userSettings.closeAfterSave,
                 keywordAutoAdd = userSettings.keywordAutoAdd,
                 lastDiary = userSettings.lastEntryDiaryId,
+                weekStart = userSettings.weekStart.name,
             ),
             moods = snapshot.moods.map { BackupMood(it.id, it.level, it.label, it.isPrimary, it.position, it.isArchived, it.colorKey) },
             diaries = snapshot.diaries.map {
-                BackupDiary(it.id, it.name, it.iconKey, it.position, BackupTime.formatInstant(it.createdAt), suggestions[it.id].orEmpty().sorted())
+                BackupDiary(
+                    id = it.id,
+                    name = it.name,
+                    icon = it.iconKey,
+                    position = it.position,
+                    createdAt = BackupTime.formatInstant(it.createdAt),
+                    suggestedGroups = suggestions[it.id].orEmpty().sorted(),
+                    reminder = Reminder.ofMinute(it.reminderOn, it.reminderMinute).toBackup(),
+                )
             },
             tagGroups = snapshot.groups.map { group ->
                 BackupTagGroup(
@@ -149,7 +160,15 @@ internal class LocalBackupRepository @Inject constructor(
                     },
                 )
             },
-            habits = snapshot.habits.map { BackupHabit(it.tagId, it.daysPerWeek, it.position, BackupTime.formatInstant(it.createdAt)) },
+            habits = snapshot.habits.map {
+                BackupHabit(
+                    tag = it.tagId,
+                    daysPerWeek = it.daysPerWeek,
+                    position = it.position,
+                    createdAt = BackupTime.formatInstant(it.createdAt),
+                    reminder = Reminder.ofMinute(it.reminderOn, it.reminderMinute).toBackup(),
+                )
+            },
             entries = snapshot.posts.map { post ->
                 BackupEntry(
                     time = BackupTime.format(post.timestamp, post.utcOffsetMinutes),
@@ -287,7 +306,14 @@ internal class LocalBackupRepository @Inject constructor(
                     primaryColors = (1..MOOD_LEVELS).associateWith { plan.primaries[it]?.colorKey },
                     diaries = plan.diaries.map {
                         ReplaceDiary(
-                            DiaryEntity(name = it.name, iconKey = it.iconKey.ifBlank { defaultDiary.iconKey }, position = it.position, createdAt = it.createdAt),
+                            DiaryEntity(
+                                name = it.name,
+                                iconKey = it.iconKey.ifBlank { defaultDiary.iconKey },
+                                position = it.position,
+                                createdAt = it.createdAt,
+                                reminderOn = it.reminder.enabled,
+                                reminderMinute = it.reminder.minuteOfDay,
+                            ),
                             it.suggestedGroups,
                         )
                     },
@@ -304,7 +330,18 @@ internal class LocalBackupRepository @Inject constructor(
                     },
                     posts = posts,
                     habits = plan.habits.map {
-                        ReplaceHabit(HabitEntity(tagId = 0, daysPerWeek = it.daysPerWeek, position = it.position, createdAt = it.createdAt), it.tag.groupIndex, it.tag.tagIndex)
+                        ReplaceHabit(
+                            HabitEntity(
+                                tagId = 0,
+                                daysPerWeek = it.daysPerWeek,
+                                position = it.position,
+                                createdAt = it.createdAt,
+                                reminderOn = it.reminder.enabled,
+                                reminderMinute = it.reminder.minuteOfDay,
+                            ),
+                            it.tag.groupIndex,
+                            it.tag.tagIndex,
+                        )
                     },
                     keywords = plan.groups.flatMapIndexed { groupIndex, group ->
                         group.tags.flatMapIndexed { tagIndex, tag ->
@@ -341,6 +378,7 @@ internal class LocalBackupRepository @Inject constructor(
         s.compactTags?.let { settings.setCompactTags(it) }
         s.closeAfterSave?.let { settings.setCloseAfterSave(it) }
         s.keywordAutoAdd?.let { settings.setKeywordAutoAdd(it) }
+        s.weekStart?.let { settings.setWeekStart(it) }
         settings.setLastEntryDiaryId(diaryIds[s.lastDiaryIndex ?: 0])
         settings.setSampleHintDismissed(true)
     }

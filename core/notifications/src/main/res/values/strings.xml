@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="reminder_channel_diary">Diary reminders</string>
+    <string name="reminder_channel_diary_body">A daily nudge to write, set for each diary</string>
+    <string name="reminder_channel_habit">Habit reminders</string>
+    <string name="reminder_channel_habit_body">Daily nudges until a habit\'s weekly goal is met</string>
+    <!-- On the lock screen, instead of the diary's or habit's name. -->
+    <string name="reminder_diary_public">Time for a little note</string>
+    <string name="reminder_habit_public">A small step for today</string>
+    <plurals name="reminder_habit_progress">
+        <item quantity="one">%1$d of %2$d day this week</item>
+        <item quantity="other">%1$d of %2$d days this week</item>
+    </plurals>
+
+    <!-- One is picked per day. Each language keeps its own list, in its own voice and of any length:
+         write new lines rather than translating these. -->
+    <string-array name="reminder_diary_texts" tools:ignore="InconsistentArrays">
+        <item>Today\'s page is still blank. Got a minute to fill it in?</item>
+        <item>Plot twist: today deserves a few words.</item>
+        <item>Your future self is asking how today went. Tell them?</item>
+        <item>Little moments count too. Catch one before it slips away.</item>
+        <item>How was the ride today? Bumpy, smooth, somewhere in between?</item>
+        <item>One mood, one tag, maybe a line. That\'s a whole entry.</item>
+        <item>Today\'s chapter is waiting for its author.</item>
+        <item>Pause the scroll for a sec. How are you, really?</item>
+        <item>Postcard from today, anyone? A few words will do.</item>
+        <item>Every journey needs a logbook. Today\'s spot is open.</item>
+    </string-array>
+
+    <string-array name="reminder_habit_texts" tools:ignore="InconsistentArrays">
+        <item>Small steps, long trips. Today\'s step is waiting.</item>
+        <item>This week\'s dots won\'t fill themselves. Add one more?</item>
+        <item>A little today beats a lot someday.</item>
+        <item>Still on this week\'s list. You\'ve got this.</item>
+        <item>Future you will high-five present you for this one.</item>
+        <item>Habits grow one day at a time. Today counts.</item>
+        <item>Quick check-in: is it happening today?</item>
+        <item>Tiny effort, real progress. Go on!</item>
+        <item>This week\'s goal is within reach. One more push?</item>
+        <item>Doesn\'t have to be perfect. It just has to happen.</item>
+    </string-array>
+</resources>

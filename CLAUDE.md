@@ -10,8 +10,7 @@ The app is past its proof-of-concept stage. `.materials/poc.md` was the original
 
 ## Commands
 
-The system JDK on this machine is a JRE without `javac`, so always use Android Studio's JDK:
-`export JAVA_HOME=/opt/android-studio/jbr`.
+Machine-specific setup (JDK path, emulator) lives in `CLAUDE.local.md`, which is git-ignored and may not exist.
 
 - Compile while iterating: `./gradlew :feature:<name>:impl:compileDebugKotlin` (or `:app:assembleDebug`).
 - All unit tests: `./gradlew testDebugUnitTest :core:model:test :core:daylio:test :core:backup:test :core:security:test`. The JVM modules' task is `test`, not `testDebugUnitTest`.
@@ -26,8 +25,7 @@ The system JDK on this machine is a JRE without `javac`, so always use Android S
   | `assembleRelease` | `pl.dakil.dakilio` | "Dakilio" | Signed only when a `keystore.properties` exists; otherwise unsigned. |
 
   Labels come from the `appName` manifest placeholder in `app/build.gradle.kts`.
-- Emulator verification:
-  - Use AVD `transport-test` (API 35, 1080×2400) and address it with `adb -s emulator-5554`.
+- Device verification:
   - Launch with `pl.dakil.dakilio.debug/pl.dakil.dakilio.MainActivity`.
   - Debug builds allow `run-as pl.dakil.dakilio.debug` (for example, `ls files/photos`).
 - Asset pipelines (both are reproducible; don't hand-edit their outputs):
@@ -37,7 +35,6 @@ The system JDK on this machine is a JRE without `javac`, so always use Android S
   1. Install `app-nonMinifiedRelease.apk` and the `baselineprofile` test APK.
   2. Run `adb shell am instrument -w -e targetAppId pl.dakil.dakilio pl.dakil.dakilio.baselineprofile/androidx.test.runner.AndroidJUnitRunner`.
   3. Copy the pulled profile into `app/src/main/generated/baselineProfiles/` as both `baseline-prof.txt` and `startup-prof.txt`.
-- If AAPT2 fails with "Daemon startup failed / spawn helper", a Gradle daemon is running on a JDK that was updated on disk. Run `./gradlew --stop`.
 
 ## Build setup
 
@@ -61,7 +58,8 @@ The layout follows NowInAndroid: `app` → `feature:*:impl` → `feature:*:api` 
 - `core:daylio` (pure JVM, host-tested): reads `.daylio` backups (`DaylioArchive`), converts note HTML to text (`daylioHtmlToText`), maps tag icons from Daylio icon ids or label keywords (`daylioTagIcon`) and maps a backup onto Dakilio's model (`planImport` → `ImportPlan`). Uses kotlinx-serialization-json.
 - `core:backup` (pure JVM, host-tested): the `.dakilio` format. It holds the JSON model (`DakilioBackup`), password encryption (`BackupCrypto`, `EncryptingOutputStream`), the archive reader and writer (`DakilioArchive`, `writeBackup`), `detectBackupKind` and `planRestore` → `RestorePlan`.
 - `core:security` (pure JVM, host-tested): the app lock's logic. It holds passcode hashing (`PasscodeHasher`, PBKDF2 with the iteration count stored in each hash), `PasscodeRules`, `LockoutPolicy` (waits after failed tries) and `AutoLockPolicy` (when coming back locks again).
-- `core:datastore`: user preferences only (theme, the last-used diary of the editor, the sample-hint flag, tag style, beginner hints, entry text sizes, timeline view options, close after saving). User content lives in Room. The app lock lives in its own DataStore file (`LockDataSource`, `@LockStore`).
+- `core:notifications`: diary and habit reminders (`ReminderScheduler`, `ReminderNotifier`, the two receivers, `ReminderSync`, `ReminderLaunches`) and their texts. Only `:app` depends on it; features edit reminders through repositories and the core:ui `ReminderSettingRow`.
+- `core:datastore`: user preferences only (theme, the last-used diary of the editor, the sample-hint flag, tag style, beginner hints, entry text sizes, timeline view options, close after saving, the first day of the week). User content lives in Room. The app lock lives in its own DataStore file (`LockDataSource`, `@LockStore`).
 - `core:designsystem`: the theme, the Google Sans Flex typography (rounded `ROND` axis for display and headline styles), shapes, the symbol catalog, haptics, `MorphShape`/`PolygonShape`, and generic expressive primitives.
 - `core:ui`: domain-aware components (`MoodBadge`, `PostCard`, diary selectors, `IconPicker`, `PhotoViewer`, the delete dialogs, `SuggestedGroupCard`, `DaylioBackupCard`, `SwitchListItem`), formatters, `NavTransitions`, and `Modifier.sharedContainer`.
 - `core:navigation`: Navigation 3 with **one back stack per bottom-bar tab** (`NavigationState` and `Navigator`). Back from another tab's root returns to the Timeline tab. The entries of each stack are decorated separately so state and ViewModels survive tab switches.
@@ -96,7 +94,7 @@ The layout follows NowInAndroid: `app` → `feature:*:impl` → `feature:*:api` 
   - `Tag.colorKey` is the tag's own color; `Tag.color` is the one it shows (own, else its group's), resolved in the data layer, also for entries' tags (`PostRepository.posts` combines with `TagDao.observeGroupColors()`).
   - The tones come from `deriveAccentColors` (core:ui `color/AccentColors.kt`), which the mood colors use too. Read-only `TagPill`s use the `soft`/`accent` tones. The editor colors only a **selected** tag's fill; unselected tags stay neutral so selection stays the strongest signal in the grid.
 - **Habits** (`feature:habits`), an extra: a habit is one tag (unique per tag) plus a target of days per week. Its name is the tag's label.
-  - Entries of **every diary** count, and a day counts once however many entries carry the tag. Weeks start on Monday (`Habits.weekStart`, the same as the Insights heatmap). The pure logic lives in `core:model` `Habit.kt` and is tested.
+  - Entries of **every diary** count, and a day counts once however many entries carry the tag. Weeks start on the user's first day of the week (see below), the same as the Insights heatmap. The pure logic lives in `core:model` `Habit.kt` and is tested.
   - `habit.tag_id` is `ON DELETE CASCADE`, so deleting a tag or its group, the intro's group pruning and a Daylio import remove its habit too.
   - **The progress popup:** `EntryEditorViewModel.save()` reads `HabitRepository.weekCounts` for the entry's week before and after saving. `Habits.bumps` keeps the habits whose count went up, so a day already counted never bumps again, and edits count as well as new entries. The bumps go into the `HabitProgressEvents` singleton (a `StateFlow`, so they survive the editor closing). `HabitProgressHost`, placed once in `DakilioApp` above the nav bar, shows them as a self-dismissing card: the old count, then a tick up with a "+1", a filling segment and haptics.
 - **Keywords** (`feature:keywords`), an extra: words attached to a tag (`tag_keyword`, `ON DELETE CASCADE` like habits) that suggest it when they show up in an entry's title or note. The pure logic is `Keywords` in `core:model` `Keyword.kt` (tested), which also holds `foldForSearch()`, shared with search.
@@ -150,6 +148,7 @@ The layout follows NowInAndroid: `app` → `feature:*:impl` → `feature:*:api` 
   - Period presets stay relative (`Last7Days`, `OnThisDay`, …) so a saved search keeps its meaning.
   - **Recent searches** stay on the device (`SearchHistoryDataSource`, max 8). Core stores them as opaque strings; search encodes `SearchFilters` as JSON, and unreadable entries or missing tags and diaries are dropped when they're read. A search is saved on the IME Search action and when a result is opened, but not when it's only a lens.
 - **Insights** follow the `dataviz` skill's rules: stat tiles, a stacked bar with 2dp gaps, legends that carry the mood faces, and single-hue bars. `InsightsCalculator` is pure and tested. Streaks ignore the selected range.
+- **The first day of the week** is a setting (`UserSettings.weekStart`: `Region`, the default, or Monday, Saturday or Sunday). `Region` follows the **device** locale (`Resources.getSystem()`, not the per-app language), which also carries Android 14's regional first-day preference. `SettingsRepository.firstDayOfWeek` gives it resolved; the UI reads `LocalFirstDayOfWeek` (core:ui, provided in `MainActivity`). Habits (`Habits.weekStart(date, firstDay)`), the Insights heatmap, search's weekday toggles and the facet label follow it. The M3 date pickers take theirs from the locale and can't be told.
 - **Dates use the app's language** (`ui_format_language`, which each translation sets) combined with the device region, so they never mix with untranslated UI.
 - **Container transforms:** the FAB and the post cards grow into the editor, and the search icon grows into Search. This works through `sharedContainer(key)` together with `NavTransitions.sharedContainer` entry metadata. Tabs use a fade-through transition (`NavTransitions.topLevel`).
 - **App lock** (More → App lock, `feature:lock`): a PIN (4–12 digits) or a password, with optional biometrics on top. It's a gate for the UI, **not encryption**: the database stays unencrypted in Android's app sandbox, and the screen says so.
@@ -161,6 +160,15 @@ The layout follows NowInAndroid: `app` → `feature:*:impl` → `feature:*:api` 
   - **Biometrics** use the framework `android.hardware.biometrics.BiometricPrompt` (`BiometricAuth`), so there's no androidx.biometric dependency and `MainActivity` stays a `ComponentActivity`; it needs the normal `USE_BIOMETRIC` permission. **Standard** (the default) accepts Class 2 sensors. **Strong** wraps the prompt around a Keystore key that needs Class 3 biometrics and is invalidated by a newly enrolled biometric: biometric unlock then turns itself off, and the lock screen explains why until the next PIN unlock. Labels come in whole phrases per sensor type, since "Unlock with %s" can't be declined in Polish.
   - **Recovery** is the user's pick of one: none (the default; clearing the app's data is the only way back in), the phone's screen lock (`DEVICE_CREDENTIAL`), or their own question, whose answer is normalized (case, spacing) and hashed. A recovery unlocks with `AppLock.recovered` set, and `DakilioApp` opens More → App lock to choose a new credential without the old one.
   - Changing anything on the App lock screen asks for the current credential first (biometrics accepted). "Hide screen content" (`FLAG_SECURE`) works with the lock off too.
+- **Reminders** (`core:notifications`, pure planner `Reminders` in core:model `Reminder.kt`, tested): a diary (diary editor) or a habit (habit sheet) can remind every day at a set time. Off by default everywhere, including the seeded diary, so there's no intro step and no permission dialog at startup.
+  - **Rules:** a diary reminder is skipped on a day that diary already has an entry. A habit reminder comes every day until the week's target is met, then rests until the next first day of the week.
+  - **One alarm, no services:** `ReminderScheduler` keeps a single inexact `AlarmManager.setAndAllowWhileIdle` alarm (no exact-alarm permission; usually within minutes) at the earliest reminder still to come (`Reminders.next`). `ReminderAlarmReceiver` re-reads the data, shows what still applies (`Reminders.due`), then plans the next alarm from the alarm's own time, so a reminder a minute later that's already past still comes. There's no WorkManager.
+  - **Staying in step:** `ReminderSync`, started by `MainActivity` once `DakilioApp` is composed (never during the intro: the database mustn't be created early), watches Room's invalidation tracker (`TableChanges`) on diary, habit, tag, post and post_tag plus the first day of the week, and replans. That covers every write path (editors, entry saves, cascades, import, restore) without hooks. Replanning also takes down notifications that no longer apply.
+  - `ReminderRescheduleReceiver` (boot, app update, clock and time zone changes) is **disabled in the manifest** and enabled only while some reminder is on. Zones are read fresh (`ZoneId.systemDefault()`), since the injected `Clock` keeps the zone it was made with.
+  - **Permission:** `ReminderSettingRow` asks for `POST_NOTIFICATIONS` (Android 13+) only when a switch is turned on. A denial, or notifications off in the system, shows a line with a Settings button.
+  - **Notifications:** one channel each for diaries and habits; tag `diary`/`habit` with the entity id. They're `VISIBILITY_PRIVATE` with a generic public version, so names stay off the lock screen. A tap opens MainActivity with extras; `ReminderLaunches` → `DakilioApp` opens a new entry in that diary, or with the habit's tag ticked (`EntryEditorKey.presetTagIds`).
+  - **Texts:** `string-array`s `reminder_diary_texts`/`reminder_habit_texts` in core:notifications. Each language writes its own lines in its own voice, and **the counts may differ** (`tools:ignore="InconsistentArrays"`). Don't translate them line by line. `Reminders.textIndex` walks through them day by day.
+  - Stored as `reminder_on`/`reminder_minute` on `diary` and `habit`; in backups as `reminder: { enabled, time: "HH:mm" }`.
 - **Privacy:** `data_extraction_rules.xml` excludes everything from cloud backup but allows device-to-device transfer.
 
 ## Conventions
@@ -178,4 +186,4 @@ The layout follows NowInAndroid: `app` → `feature:*:impl` → `feature:*:api` 
   - Never hints: empty states, counts, validation, dialog warnings, setting descriptions, placeholders and screen taglines.
   - Layouts must look right without the hint: put spacing on the neighbours, not on the hint.
 - Use `DakilioIcon(DakilioSymbols.X, filled = selected)` for icons. Tags and diaries store symbol keys, which `symbolForKey()` resolves.
-- Keep new logic Android-free where possible so it can be host-tested. The existing tests cover the timeline builder, the insights calculator, search, search excerpts, streaks, habits, keyword matching, entry validation, the Daylio reader and planner, the backup format (crypto, archive and restore planner) and the app lock's policies and hashing.
+- Keep new logic Android-free where possible so it can be host-tested. The existing tests cover the timeline builder, the insights calculator, search, search excerpts, streaks, habits, the reminder planner, keyword matching, entry validation, the Daylio reader and planner, the backup format (crypto, archive and restore planner) and the app lock's policies and hashing.

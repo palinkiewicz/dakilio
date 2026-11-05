@@ -72,6 +72,8 @@ data class BackupSettings(
     val keywordAutoAdd: Boolean? = null,
     /** The diary the editor picks by default. */
     val lastDiary: Long? = null,
+    /** A `WeekStart` name: the first day of the week, or `Region` to follow the device's region. */
+    val weekStart: String? = null,
 )
 
 /** A mood: one primary per level (1 = worst … 5 = best), plus aliases. */
@@ -97,6 +99,16 @@ data class BackupDiary(
     val createdAt: String? = null,
     /** Ids of the tag groups the editor expands for this diary. */
     val suggestedGroups: List<Long> = emptyList(),
+    /** The daily reminder to write; none means off. */
+    val reminder: BackupReminder? = null,
+)
+
+/** A daily reminder. Its time is kept while it's off. */
+@Serializable
+data class BackupReminder(
+    val enabled: Boolean = false,
+    /** Local time of day, `HH:mm`. */
+    val time: String = "20:00",
 )
 
 @Serializable
@@ -137,6 +149,8 @@ data class BackupHabit(
     val daysPerWeek: Int,
     val position: Int = 0,
     val createdAt: String? = null,
+    /** The daily reminder until the week's target is met; none means off. */
+    val reminder: BackupReminder? = null,
 )
 
 @Serializable

@@ -53,6 +53,7 @@ import pl.dakil.dakilio.feature.importer.impl.daylioImportEntry
 import pl.dakil.dakilio.feature.backup.api.BackupKey
 import pl.dakil.dakilio.feature.backup.impl.backupEntry
 import pl.dakil.dakilio.core.data.repository.IncomingBackup
+import pl.dakil.dakilio.core.notifications.ReminderLaunch
 import pl.dakil.dakilio.feature.more.impl.moreEntry
 import pl.dakil.dakilio.feature.search.impl.searchEntry
 import pl.dakil.dakilio.feature.settings.impl.settingsEntry
@@ -62,6 +63,7 @@ import pl.dakil.dakilio.feature.habits.impl.habitsEntry
 import pl.dakil.dakilio.feature.keywords.impl.keywordsEntry
 import pl.dakil.dakilio.feature.lock.api.AppLockKey
 import pl.dakil.dakilio.feature.lock.impl.appLockEntry
+import pl.dakil.dakilio.feature.entry.api.EntryEditorKey
 import pl.dakil.dakilio.feature.timeline.api.TimelineKey
 import pl.dakil.dakilio.feature.timeline.impl.timelineEntry
 
@@ -77,7 +79,12 @@ private val topLevelKeys = destinations.map { it.key }
 
 /** App shell: shared-element scope, the navigation display and the bottom navigation bar. */
 @Composable
-fun DakilioApp(incomingBackup: IncomingBackup? = null, openAppLock: Boolean = false) {
+fun DakilioApp(
+    incomingBackup: IncomingBackup? = null,
+    openAppLock: Boolean = false,
+    reminderLaunch: ReminderLaunch? = null,
+    onReminderLaunched: (ReminderLaunch) -> Unit = {},
+) {
     val navigationState = rememberNavigationState(topLevelKeys)
     val navigator = remember(navigationState) { Navigator(navigationState) }
 
@@ -89,6 +96,15 @@ fun DakilioApp(incomingBackup: IncomingBackup? = null, openAppLock: Boolean = fa
         val key = if (incoming.isDakilio) BackupKey else DaylioImportKey
         navigator.navigate(MoreKey)
         if (navigationState.currentKey != key) navigator.navigate(key)
+    }
+    // A tapped reminder: a new entry on the timeline, in its diary or with its habit's tag ticked.
+    LaunchedEffect(reminderLaunch) {
+        val launch = reminderLaunch ?: return@LaunchedEffect
+        onReminderLaunched(launch)
+        navigator.navigate(TimelineKey)
+        if (navigationState.currentKey !is EntryEditorKey) {
+            navigator.navigate(EntryEditorKey(presetDiaryId = launch.diaryId, presetTagIds = listOfNotNull(launch.tagId)))
+        }
     }
     // In through a forgotten PIN: More → App lock, which asks for a new one.
     LaunchedEffect(openAppLock) {

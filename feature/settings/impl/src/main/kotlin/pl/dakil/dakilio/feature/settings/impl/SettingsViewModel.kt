@@ -3,6 +3,7 @@ package pl.dakil.dakilio.feature.settings.impl
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.time.DayOfWeek
 import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -14,6 +15,7 @@ import pl.dakil.dakilio.core.data.repository.SettingsRepository
 import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TextScale
 import pl.dakil.dakilio.core.model.ThemeMode
+import pl.dakil.dakilio.core.model.WeekStart
 
 data class SettingsUiState(
     val themeMode: ThemeMode = ThemeMode.System,
@@ -22,6 +24,9 @@ data class SettingsUiState(
     val timelineTextScale: Float = TextScale.DEFAULT,
     val editorTextScale: Float = TextScale.DEFAULT,
     val closeAfterSave: Boolean = true,
+    val weekStart: WeekStart = WeekStart.Region,
+    /** What [WeekStart.Region] means on this device. */
+    val regionFirstDay: DayOfWeek = DayOfWeek.MONDAY,
     val samplePostCount: Int = 0,
 )
 
@@ -39,6 +44,8 @@ class SettingsViewModel @Inject constructor(
                 timelineTextScale = settings.timelineTextScale,
                 editorTextScale = settings.editorTextScale,
                 closeAfterSave = settings.closeAfterSave,
+                weekStart = settings.weekStart,
+                regionFirstDay = settingsRepository.regionFirstDayOfWeek(),
                 samplePostCount = samples,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
@@ -65,6 +72,10 @@ class SettingsViewModel @Inject constructor(
 
     fun setCloseAfterSave(close: Boolean) {
         viewModelScope.launch { settingsRepository.setCloseAfterSave(close) }
+    }
+
+    fun setWeekStart(start: WeekStart) {
+        viewModelScope.launch { settingsRepository.setWeekStart(start) }
     }
 
     fun removeSamples(onDone: () -> Unit) {

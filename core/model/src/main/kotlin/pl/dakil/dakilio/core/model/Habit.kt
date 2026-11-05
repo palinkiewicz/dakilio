@@ -13,6 +13,8 @@ data class Habit(
     val tag: Tag,
     val daysPerWeek: Int,
     val position: Int,
+    /** A daily nudge until the week's target is met. */
+    val reminder: Reminder = Reminder(),
 )
 
 /**
@@ -48,8 +50,8 @@ object Habits {
 
     const val DEFAULT_DAYS: Int = 3
 
-    /** Weeks start on Monday, like the Insights heatmap. */
-    fun weekStart(date: LocalDate): LocalDate = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+    /** The first day of [date]'s week, for weeks starting on [firstDay] (the user's setting). */
+    fun weekStart(date: LocalDate, firstDay: DayOfWeek): LocalDate = date.with(TemporalAdjusters.previousOrSame(firstDay))
 
     /**
      * The habits whose week count went up between [before] and [after] (counts by habit id, for the

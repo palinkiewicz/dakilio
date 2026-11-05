@@ -22,6 +22,8 @@ object DakilioSymbols {
     val ChevronRight = DakilioSymbol("chevron_right", R.drawable.sym_chevron_right, R.drawable.sym_chevron_right_fill, SymbolCategory.Ui)
     val CalendarToday = DakilioSymbol("calendar_today", R.drawable.sym_calendar_today, R.drawable.sym_calendar_today_fill, SymbolCategory.Ui)
     val Schedule = DakilioSymbol("schedule", R.drawable.sym_schedule, R.drawable.sym_schedule_fill, SymbolCategory.Ui)
+    val Notifications = DakilioSymbol("notifications", R.drawable.sym_notifications, R.drawable.sym_notifications_fill, SymbolCategory.Ui)
+    val NotificationsActive = DakilioSymbol("notifications_active", R.drawable.sym_notifications_active, R.drawable.sym_notifications_active_fill, SymbolCategory.Ui)
     val AddPhotoAlternate = DakilioSymbol("add_photo_alternate", R.drawable.sym_add_photo_alternate, R.drawable.sym_add_photo_alternate_fill, SymbolCategory.Ui)
     val Image = DakilioSymbol("image", R.drawable.sym_image, R.drawable.sym_image_fill, SymbolCategory.Ui)
     val Label = DakilioSymbol("label", R.drawable.sym_label, R.drawable.sym_label_fill, SymbolCategory.Ui)
@@ -212,6 +214,8 @@ object DakilioSymbols {
         ChevronRight,
         CalendarToday,
         Schedule,
+        Notifications,
+        NotificationsActive,
         AddPhotoAlternate,
         Image,
         Label,

@@ -19,6 +19,8 @@ ui expand_more
 ui chevron_right
 ui calendar_today
 ui schedule
+ui notifications
+ui notifications_active
 ui add_photo_alternate
 ui image
 ui label

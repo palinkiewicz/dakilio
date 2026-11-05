@@ -9,6 +9,10 @@
     <string name="settings_theme_light">Dzień</string>
     <string name="settings_theme_dark">Noc</string>
     <string name="settings_language">Język</string>
+    <string name="settings_calendar">Kalendarz</string>
+    <string name="settings_week_start">Pierwszy dzień tygodnia</string>
+    <string name="settings_week_start_body">Od tego dnia zaczynają się tygodnie w nawykach, statystykach i rzędach dni tygodnia. „Auto” bierze go z regionu (%1$s).</string>
+    <string name="settings_week_start_region">Auto</string>
     <string name="settings_text_size">Rozmiar tekstu wpisów</string>
     <string name="settings_text_size_timeline">Oś czasu</string>
     <string name="settings_text_size_timeline_body">Tytuły i notatki we wpisach</string>

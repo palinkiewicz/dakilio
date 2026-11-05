@@ -1,12 +1,15 @@
 package pl.dakil.dakilio.core.backup
 
 import java.time.LocalDate
+import java.time.LocalTime
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 import pl.dakil.dakilio.core.model.KeywordDraft
 import pl.dakil.dakilio.core.model.PreviewLength
+import pl.dakil.dakilio.core.model.Reminder
 import pl.dakil.dakilio.core.model.ThemeMode
+import pl.dakil.dakilio.core.model.WeekStart
 
 class RestorePlanTest {
     private val now = 1_000L
@@ -42,7 +45,7 @@ class RestorePlanTest {
                     BackupEntry(time = "2026-11-01T08:00Z", diary = 99, mood = 1),
                     BackupEntry(time = "yesterday", diary = 10),
                 ),
-                settings = BackupSettings(theme = "Dark", tagStyle = "Sparkles", timelineTextScale = 9f, previewLength = "Full", lastDiary = 20),
+                settings = BackupSettings(theme = "Dark", tagStyle = "Sparkles", timelineTextScale = 9f, previewLength = "Full", lastDiary = 20, weekStart = "Sunday"),
             ),
             defaultDiaryName = "Journey",
             now = now,
@@ -82,6 +85,32 @@ class RestorePlanTest {
         assertEquals(1.6f, plan.settings.timelineTextScale!!, 0.001f)
         assertEquals(PreviewLength.Full, plan.settings.previewLength)
         assertEquals(1, plan.settings.lastDiaryIndex)
+        assertEquals(WeekStart.Sunday, plan.settings.weekStart)
+    }
+
+    @Test
+    fun remindersRoundTrip() {
+        val evening = Reminder(enabled = true, time = LocalTime.of(21, 5))
+        val plan = planRestore(
+            backup(
+                diaries = listOf(
+                    BackupDiary(id = 1, name = "On", reminder = evening.toBackup()),
+                    BackupDiary(id = 2, name = "Off", position = 1, reminder = BackupReminder(enabled = false, time = "07:30")),
+                    BackupDiary(id = 3, name = "Broken", position = 2, reminder = BackupReminder(enabled = true, time = "25:99")),
+                    BackupDiary(id = 4, name = "None", position = 3),
+                ),
+                groups = listOf(BackupTagGroup(id = 2, name = "People", tags = listOf(BackupTag(5, "Family")))),
+                habits = listOf(BackupHabit(tag = 5, daysPerWeek = 3, reminder = BackupReminder(enabled = true, time = "08:00"))),
+            ),
+            "Journey",
+            now,
+        )
+        assertEquals("21:05", evening.toBackup().time)
+        assertEquals(
+            listOf(evening, Reminder(false, LocalTime.of(7, 30)), Reminder(true, Reminder.DEFAULT_TIME), Reminder()),
+            plan.diaries.map { it.reminder },
+        )
+        assertEquals(Reminder(true, LocalTime.of(8, 0)), plan.habits.single().reminder)
     }
 
     @Test

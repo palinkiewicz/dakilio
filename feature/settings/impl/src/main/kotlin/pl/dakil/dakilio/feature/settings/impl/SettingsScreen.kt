@@ -60,12 +60,15 @@ import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TextScale
 import pl.dakil.dakilio.core.model.ThemeMode
+import pl.dakil.dakilio.core.model.WeekStart
+import java.time.DayOfWeek
 import pl.dakil.dakilio.core.ui.canChooseAppLanguage
 import pl.dakil.dakilio.core.ui.component.SwitchListItem
 import pl.dakil.dakilio.core.ui.component.TextScaleSlider
 import pl.dakil.dakilio.core.ui.currentAppLanguage
 import pl.dakil.dakilio.core.ui.languageName
 import pl.dakil.dakilio.core.ui.openAppLanguageSettings
+import pl.dakil.dakilio.core.ui.rememberFormats
 import pl.dakil.dakilio.core.ui.scaled
 
 @Composable
@@ -76,6 +79,7 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
     val scope = rememberCoroutineScope()
     val haptics = rememberHaptics()
     val context = LocalContext.current
+    val formats = rememberFormats()
     var confirmRemove by rememberSaveable { mutableStateOf(false) }
     var textSizeDialog by rememberSaveable { mutableStateOf<TextSizeTarget?>(null) }
     val removedMessage = stringResource(R.string.settings_samples_removed)
@@ -136,6 +140,29 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
                         leadingContent = { ShapedIcon(DakilioSymbols.Language, polygon = MaterialShapes.Cookie12Sided) },
                         trailingContent = { DakilioIcon(DakilioSymbols.OpenInNew, contentDescription = null) },
                     ) { Text(languageName(currentAppLanguage())) }
+                }
+
+                SectionHeader(stringResource(R.string.settings_calendar))
+                Surface(shape = RoundedCornerShape(28.dp), color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(Spacing.xl)) {
+                        Text(stringResource(R.string.settings_week_start), style = MaterialTheme.typography.titleMediumEmphasized)
+                        Text(
+                            stringResource(R.string.settings_week_start_body, formats.weekday(state.regionFirstDay)),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = Spacing.xxs, bottom = Spacing.l),
+                        )
+                        ConnectedToggleRow(
+                            options = listOf(
+                                ToggleOption(WeekStart.Region, stringResource(R.string.settings_week_start_region)),
+                                ToggleOption(WeekStart.Monday, formats.weekdayShort(DayOfWeek.MONDAY)),
+                                ToggleOption(WeekStart.Saturday, formats.weekdayShort(DayOfWeek.SATURDAY)),
+                                ToggleOption(WeekStart.Sunday, formats.weekdayShort(DayOfWeek.SUNDAY)),
+                            ),
+                            selected = state.weekStart,
+                            onSelect = viewModel::setWeekStart,
+                        )
+                    }
                 }
 
                 SectionHeader(stringResource(R.string.settings_text_size))

@@ -55,7 +55,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlin.math.roundToInt
-import java.time.DayOfWeek
 import java.time.LocalDate
 import pl.dakil.dakilio.core.designsystem.component.ConnectedToggleRow
 import pl.dakil.dakilio.core.designsystem.component.PolygonShape
@@ -73,6 +72,7 @@ import pl.dakil.dakilio.core.ui.hintOrNull
 import pl.dakil.dakilio.core.ui.mood.MoodBadge
 import pl.dakil.dakilio.core.ui.mood.moodColors
 import pl.dakil.dakilio.core.ui.rememberFormats
+import pl.dakil.dakilio.core.ui.weekdaysFrom
 
 private val CardShape = RoundedCornerShape(28.dp)
 
@@ -372,9 +372,9 @@ private fun JourneyMapCard(insights: Insights, moods: List<Mood>, today: LocalDa
             val labelWidth = 16.dp
             val cell: Dp = minOf((maxWidth - labelWidth - gap * HEATMAP_WEEKS) / HEATMAP_WEEKS, 32.dp)
             Row(horizontalArrangement = Arrangement.spacedBy(gap), modifier = Modifier.align(Alignment.Center)) {
-                // Weekday initials, Monday first, aligned with the rows.
+                // Weekday initials from the first day of the week, aligned with the rows.
                 Column(verticalArrangement = Arrangement.spacedBy(gap)) {
-                    DayOfWeek.entries.forEach { weekday ->
+                    weekdaysFrom(insights.heatmap.first().date.dayOfWeek).forEach { weekday ->
                         Box(Modifier.size(labelWidth, cell), contentAlignment = Alignment.CenterStart) {
                             Text(formats.weekdayNarrow(weekday), style = MaterialTheme.typography.labelSmall, color = colors.onSurfaceVariant)
                         }

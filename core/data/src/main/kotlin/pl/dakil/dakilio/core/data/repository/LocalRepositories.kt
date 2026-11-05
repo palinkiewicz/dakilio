@@ -1,6 +1,8 @@
 package pl.dakil.dakilio.core.data.repository
 
+import android.content.res.Resources
 import java.time.Clock
+import java.time.DayOfWeek
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -30,12 +32,14 @@ import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.MOOD_LEVELS
 import pl.dakil.dakilio.core.model.Post
 import pl.dakil.dakilio.core.model.PostDraft
+import pl.dakil.dakilio.core.model.Reminder
 import pl.dakil.dakilio.core.model.TagGroup
 import pl.dakil.dakilio.core.model.PreviewLength
 import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TagUsage
 import pl.dakil.dakilio.core.model.ThemeMode
 import pl.dakil.dakilio.core.model.UserSettings
+import pl.dakil.dakilio.core.model.WeekStart
 
 internal class LocalMoodRepository @Inject constructor(private val dao: MoodDao) : MoodRepository {
     override val moods: Flow<List<Mood>> = combine(dao.observeActiveMoods(), dao.observePrimaryColors()) { list, colors ->
@@ -88,10 +92,11 @@ internal class LocalDiaryRepository @Inject constructor(
 
     override suspend fun getDiary(id: Long): Diary? = diaryDao.getDiary(id)?.asModel()
 
-    override suspend fun saveDiary(id: Long?, name: String, iconKey: String, suggestedGroupIds: Set<Long>): Long {
+    override suspend fun saveDiary(id: Long?, name: String, iconKey: String, suggestedGroupIds: Set<Long>, reminder: Reminder): Long {
         val existing = id?.let { diaryDao.getDiary(it)?.diary }
-        val entity = existing?.copy(name = name, iconKey = iconKey)
-            ?: DiaryEntity(name = name, iconKey = iconKey, position = diaryDao.nextPosition(), createdAt = clock.millis())
+        val entity = (existing?.copy(name = name, iconKey = iconKey)
+            ?: DiaryEntity(name = name, iconKey = iconKey, position = diaryDao.nextPosition(), createdAt = clock.millis()))
+            .copy(reminderOn = reminder.enabled, reminderMinute = reminder.minuteOfDay)
         return diaryDao.save(entity, suggestedGroupIds)
     }
 
@@ -254,6 +259,17 @@ internal class LocalSettingsRepository @Inject constructor(
     override suspend fun setCloseAfterSave(close: Boolean) = dataSource.setCloseAfterSave(close)
 
     override suspend fun setKeywordAutoAdd(auto: Boolean) = dataSource.setKeywordAutoAdd(auto)
+
+    override suspend fun setWeekStart(start: WeekStart) = dataSource.setWeekStart(start)
+
+    override val firstDayOfWeek: Flow<DayOfWeek> =
+        dataSource.settings.map { it.weekStart.resolve(deviceLocale()) }.distinctUntilChanged()
+
+    override fun regionFirstDayOfWeek(): DayOfWeek = WeekStart.Region.resolve(deviceLocale())
+
+    // The device's own locale, not the per-app language: the week follows where the user lives
+    // (and Android 14's regional "first day of week" preference, carried as a locale extension).
+    private fun deviceLocale() = Resources.getSystem().configuration.locales[0]
 }
 
 internal class LocalSearchHistoryRepository @Inject constructor(

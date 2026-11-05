@@ -339,12 +339,20 @@ class EntryEditorViewModel @AssistedInject constructor(
         val diaryId = key.presetDiaryId?.takeIf { it in known }
             ?: settingsRepository.settings.first().lastEntryDiaryId?.takeIf { it in known }
             ?: diaries.firstOrNull()?.id
+        // Preset tags (a habit reminder) count only while they're still active.
+        val presetTags = if (key.presetTagIds.isEmpty()) {
+            emptySet()
+        } else {
+            val active = tagRepository.groups.first().flatMap { group -> group.tags.map { it.id } }.toSet()
+            key.presetTagIds.filter { it in active }.toSet()
+        }
         form.value = EditorForm(
             loaded = true,
             dateTime = key.presetEpochDay?.let { LocalDate.ofEpochDay(it).atTime(now.toLocalTime()) } ?: now,
             step = if (key.presetMoodId != null) EditorStep.Tags else EditorStep.Mood,
             moodId = key.presetMoodId,
             diaryId = diaryId,
+            tagIds = presetTags,
         )
     }
 
@@ -440,7 +448,7 @@ class EntryEditorViewModel @AssistedInject constructor(
             )
             sessionFiles.clear()
             if (current.tagIds.isNotEmpty()) {
-                val bumps = Habits.bumps(habitRepository.habitList(), countsBefore, habitRepository.weekCounts(date), Habits.weekStart(date))
+                val bumps = Habits.bumps(habitRepository.habitList(), countsBefore, habitRepository.weekCounts(date), Habits.weekStart(date, settingsRepository.firstDayOfWeek.first()))
                 habitProgressEvents.post(bumps)
             }
             settingsRepository.setLastEntryDiaryId(diaryId)

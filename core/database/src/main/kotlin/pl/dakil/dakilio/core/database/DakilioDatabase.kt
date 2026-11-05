@@ -9,6 +9,7 @@ import pl.dakil.dakilio.core.database.dao.ImportDao
 import pl.dakil.dakilio.core.database.dao.KeywordDao
 import pl.dakil.dakilio.core.database.dao.MoodDao
 import pl.dakil.dakilio.core.database.dao.PostDao
+import pl.dakil.dakilio.core.database.dao.ReminderDao
 import pl.dakil.dakilio.core.database.dao.TagDao
 import pl.dakil.dakilio.core.database.entity.DiaryEntity
 import pl.dakil.dakilio.core.database.entity.DiarySuggestedGroupCrossRef
@@ -46,6 +47,7 @@ abstract class DakilioDatabase : RoomDatabase() {
     abstract fun importDao(): ImportDao
     abstract fun habitDao(): HabitDao
     abstract fun keywordDao(): KeywordDao
+    abstract fun reminderDao(): ReminderDao
 
     companion object {
         const val NAME = "dakilio.db"

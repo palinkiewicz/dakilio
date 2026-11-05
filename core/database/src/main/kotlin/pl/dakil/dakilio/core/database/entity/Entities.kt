@@ -35,6 +35,10 @@ data class DiaryEntity(
     @ColumnInfo(name = "icon_key") val iconKey: String,
     val position: Int,
     @ColumnInfo(name = "created_at") val createdAt: Long,
+    /** A daily reminder to write in the diary. Off by default, also for the seeded diary. */
+    @ColumnInfo(name = "reminder_on", defaultValue = "0") val reminderOn: Boolean = false,
+    /** The reminder's time as minutes after midnight; kept while it's off. */
+    @ColumnInfo(name = "reminder_minute", defaultValue = "1200") val reminderMinute: Int = 1200,
 )
 
 @Entity(tableName = "tag_group")
@@ -151,6 +155,10 @@ data class HabitEntity(
     @ColumnInfo(name = "days_per_week") val daysPerWeek: Int,
     val position: Int,
     @ColumnInfo(name = "created_at") val createdAt: Long,
+    /** A daily reminder until the week's target is met. */
+    @ColumnInfo(name = "reminder_on", defaultValue = "0") val reminderOn: Boolean = false,
+    /** The reminder's time as minutes after midnight; kept while it's off. */
+    @ColumnInfo(name = "reminder_minute", defaultValue = "1200") val reminderMinute: Int = 1200,
 )
 
 /**

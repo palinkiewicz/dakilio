@@ -16,6 +16,7 @@ import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TextScale
 import pl.dakil.dakilio.core.model.ThemeMode
 import pl.dakil.dakilio.core.model.UserSettings
+import pl.dakil.dakilio.core.model.WeekStart
 
 /** The user's own choices. Fetched/created content lives in Room; preferences live here. */
 class SettingsDataSource @Inject constructor(
@@ -38,6 +39,8 @@ class SettingsDataSource @Inject constructor(
                 compactTags = prefs[COMPACT_TAGS] ?: false,
                 closeAfterSave = prefs[CLOSE_AFTER_SAVE] ?: true,
                 keywordAutoAdd = prefs[KEYWORD_AUTO_ADD] ?: false,
+                weekStart = prefs[WEEK_START]?.let { name -> WeekStart.entries.firstOrNull { it.name == name } }
+                    ?: WeekStart.Region,
             )
         }
         .distinctUntilChanged()
@@ -102,6 +105,10 @@ class SettingsDataSource @Inject constructor(
         dataStore.edit { it[KEYWORD_AUTO_ADD] = auto }
     }
 
+    suspend fun setWeekStart(start: WeekStart) {
+        dataStore.edit { it[WEEK_START] = start.name }
+    }
+
     private companion object {
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val LAST_ENTRY_DIARY = longPreferencesKey("last_entry_diary_id")
@@ -114,6 +121,7 @@ class SettingsDataSource @Inject constructor(
         val COMPACT_TAGS = booleanPreferencesKey("compact_tags")
         val CLOSE_AFTER_SAVE = booleanPreferencesKey("close_after_save")
         val KEYWORD_AUTO_ADD = booleanPreferencesKey("keyword_auto_add")
+        val WEEK_START = stringPreferencesKey("week_start")
         val INTRO_STARTED = booleanPreferencesKey("intro_started")
         val INTRO_DONE = booleanPreferencesKey("intro_done")
     }

@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.flowOn
 import pl.dakil.dakilio.core.common.DakilioDispatchers
 import pl.dakil.dakilio.core.common.Dispatcher
@@ -21,17 +21,20 @@ import pl.dakil.dakilio.core.database.entity.PopulatedHabit
 import pl.dakil.dakilio.core.model.Habit
 import pl.dakil.dakilio.core.model.HabitStatus
 import pl.dakil.dakilio.core.model.Habits
+import pl.dakil.dakilio.core.model.Reminder
 
 internal class LocalHabitRepository @Inject constructor(
     private val dao: HabitDao,
     private val tagDao: TagDao,
+    private val settings: SettingsRepository,
     private val clock: Clock,
     @Dispatcher(DakilioDispatchers.Default) private val default: CoroutineDispatcher,
 ) : HabitRepository {
     @OptIn(ExperimentalCoroutinesApi::class)
     override val habits: Flow<List<HabitStatus>> =
-        // "This week" is read whenever the flow starts, so a screen opened next week sees next week.
-        flow { emit(Habits.weekStart(LocalDate.now(clock))) }.flatMapLatest { thisWeek ->
+        // "This week" is read whenever the flow starts (so a screen opened next week sees next week)
+        // and whenever the first day of the week changes.
+        settings.firstDayOfWeek.map { Habits.weekStart(LocalDate.now(clock), it) }.distinctUntilChanged().flatMapLatest { thisWeek ->
             val lastWeek = thisWeek.minusWeeks(1)
             combine(
                 dao.observeHabits(),
@@ -58,20 +61,23 @@ internal class LocalHabitRepository @Inject constructor(
     }
 
     override suspend fun weekCounts(date: LocalDate): Map<Long, Int> {
-        val start = Habits.weekStart(date)
+        val start = Habits.weekStart(date, settings.firstDayOfWeek.first())
         return dao.dayCounts(start.toEpochDay(), start.plusDays(6).toEpochDay())
     }
 
-    override suspend fun addHabit(tagId: Long, daysPerWeek: Int): Long = dao.insert(
+    override suspend fun addHabit(tagId: Long, daysPerWeek: Int, reminder: Reminder): Long = dao.insert(
         HabitEntity(
             tagId = tagId,
             daysPerWeek = daysPerWeek.coerceIn(Habits.DAYS_RANGE),
             position = dao.nextPosition(),
             createdAt = clock.millis(),
+            reminderOn = reminder.enabled,
+            reminderMinute = reminder.minuteOfDay,
         ),
     )
 
-    override suspend fun setDaysPerWeek(id: Long, daysPerWeek: Int) = dao.setDaysPerWeek(id, daysPerWeek.coerceIn(Habits.DAYS_RANGE))
+    override suspend fun updateHabit(id: Long, daysPerWeek: Int, reminder: Reminder) =
+        dao.update(id, daysPerWeek.coerceIn(Habits.DAYS_RANGE), reminder.enabled, reminder.minuteOfDay)
 
     override suspend fun deleteHabit(id: Long) = dao.delete(id)
 }
@@ -81,4 +87,5 @@ private fun PopulatedHabit.asModel(groupColors: Map<Long, String?>) = Habit(
     tag = tag.asModel(groupColors[tag.groupId]),
     daysPerWeek = habit.daysPerWeek,
     position = habit.position,
+    reminder = Reminder.ofMinute(habit.reminderOn, habit.reminderMinute),
 )

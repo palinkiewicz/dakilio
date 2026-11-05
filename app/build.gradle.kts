@@ -114,6 +114,7 @@ dependencies {
     implementation(projects.core.designsystem)
     implementation(projects.core.ui)
     implementation(projects.core.navigation)
+    implementation(projects.core.notifications)
 
     implementation(projects.feature.timeline.impl)
     implementation(projects.feature.search.impl)

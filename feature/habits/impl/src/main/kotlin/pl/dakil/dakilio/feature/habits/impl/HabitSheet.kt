@@ -43,19 +43,21 @@ import pl.dakil.dakilio.core.designsystem.icon.symbolForKey
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.model.Habit
 import pl.dakil.dakilio.core.model.Habits
+import pl.dakil.dakilio.core.model.Reminder
 import pl.dakil.dakilio.core.model.TagGroup
+import pl.dakil.dakilio.core.ui.component.ReminderSettingRow
 import pl.dakil.dakilio.core.ui.component.TagPill
 
 /**
- * Creates a habit ([habit] `null`: pick a tag, then a target) or edits one (the target only; its
- * tag is fixed). Tags that already have a habit aren't offered.
+ * Creates a habit ([habit] `null`: pick a tag, then a target and a reminder) or edits one (the
+ * target and the reminder; its tag is fixed). Tags that already have a habit aren't offered.
  */
 @Composable
 internal fun HabitSheet(
     habit: Habit?,
     groups: List<TagGroup>,
     trackedTagIds: Set<Long>,
-    onSave: (tagId: Long, daysPerWeek: Int) -> Unit,
+    onSave: (tagId: Long, daysPerWeek: Int, reminder: Reminder) -> Unit,
     onDelete: () -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -63,6 +65,9 @@ internal fun HabitSheet(
     val haptics = rememberHaptics()
     var tagId by rememberSaveable { mutableStateOf(habit?.tag?.id) }
     var days by rememberSaveable { mutableIntStateOf(habit?.daysPerWeek ?: Habits.DEFAULT_DAYS) }
+    var reminderOn by rememberSaveable { mutableStateOf(habit?.reminder?.enabled ?: false) }
+    var reminderMinute by rememberSaveable { mutableIntStateOf((habit?.reminder ?: Reminder()).minuteOfDay) }
+    val reminder = Reminder.ofMinute(reminderOn, reminderMinute)
     val pickable = groups
         .map { group -> group to group.tags.filter { it.id !in trackedTagIds } }
         .filter { (_, tags) -> tags.isNotEmpty() }
@@ -72,6 +77,7 @@ internal fun HabitSheet(
         Column(
             Modifier
                 .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
                 .navigationBarsPadding()
                 .padding(horizontal = Spacing.xl)
                 .padding(bottom = Spacing.l),
@@ -152,6 +158,17 @@ internal fun HabitSheet(
                 modifier = Modifier.padding(top = Spacing.m).animateContentSize(),
             )
 
+            ReminderSettingRow(
+                reminder = reminder,
+                onChange = {
+                    reminderOn = it.enabled
+                    reminderMinute = it.minuteOfDay
+                },
+                title = stringResource(R.string.habits_sheet_reminder),
+                body = pluralStringResource(R.plurals.habits_sheet_reminder_body, days, days),
+                modifier = Modifier.padding(top = Spacing.l),
+            )
+
             Row(
                 Modifier.fillMaxWidth().padding(top = Spacing.l),
                 horizontalArrangement = Arrangement.spacedBy(Spacing.s, Alignment.End),
@@ -168,7 +185,7 @@ internal fun HabitSheet(
                     onClick = {
                         val id = tag?.id ?: return@Button
                         haptics.confirm()
-                        onSave(id, days)
+                        onSave(id, days, reminder)
                     },
                     enabled = tag != null,
                 ) {
