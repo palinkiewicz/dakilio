@@ -35,6 +35,10 @@ abstract class PostDao {
     @Query("SELECT file_name FROM post_photo")
     abstract suspend fun allPhotoFileNames(): List<String>
 
+    /** The photo files entries use, re-emitted whenever photos are added to or removed from entries. */
+    @Query("SELECT DISTINCT file_name FROM post_photo")
+    abstract fun observePhotoFileNames(): Flow<List<String>>
+
     @Insert
     protected abstract suspend fun insert(post: PostEntity): Long
 

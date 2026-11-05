@@ -177,7 +177,10 @@ interface PhotoRepository {
     /** Removes photo files no entry references (e.g. from an abandoned draft). */
     suspend fun sweepOrphans()
 
-    /** How many photos entries use are larger than [size] allows. Reads only the database, never the files. */
+    /**
+     * How many photos entries use are larger than [size] allows. Sizes come from the files' headers,
+     * read once per app run and then kept in memory.
+     */
     fun countLargerThan(size: PhotoSize): Flow<Int>
 
     /** Whether [shrinkAll] is running. */

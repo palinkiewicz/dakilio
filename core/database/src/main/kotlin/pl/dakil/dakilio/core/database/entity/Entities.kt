@@ -139,18 +139,6 @@ data class PostPhotoEntity(
 )
 
 /**
- * The pixel size of a stored photo file, so the app knows which photos are larger than the photo size
- * setting without opening them. Keyed by file name rather than tied to [PostPhotoEntity]: only the
- * photo repository writes it, and rows of files no entry uses are harmless (queries join on post_photo).
- */
-@Entity(tableName = "photo_file")
-data class PhotoFileEntity(
-    @PrimaryKey @ColumnInfo(name = "file_name") val fileName: String,
-    val width: Int,
-    val height: Int,
-)
-
-/**
  * A habit (the Habits extra): a tag the user wants on [daysPerWeek] days a week. One per tag; it goes
  * when its tag is deleted (which includes a Daylio import replacing every tag).
  */

@@ -14,6 +14,7 @@ import java.nio.ByteBuffer
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
@@ -23,9 +24,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import pl.dakil.dakilio.core.common.ApplicationScope
@@ -33,18 +36,16 @@ import pl.dakil.dakilio.core.common.DakilioDispatchers
 import pl.dakil.dakilio.core.common.Dispatcher
 import pl.dakil.dakilio.core.common.PhotoDirectory
 import pl.dakil.dakilio.core.database.DakilioDatabase
-import pl.dakil.dakilio.core.database.dao.PhotoDao
 import pl.dakil.dakilio.core.database.dao.PostDao
-import pl.dakil.dakilio.core.database.entity.PhotoFileEntity
 import pl.dakil.dakilio.core.datastore.SettingsDataSource
 import pl.dakil.dakilio.core.model.PhotoSize
 import pl.dakil.dakilio.core.model.PhotoSizing
+import pl.dakil.dakilio.core.model.PixelSize
 
 internal class LocalPhotoRepository @Inject constructor(
     @ApplicationContext private val context: Context,
     private val directory: PhotoDirectory,
     private val postDao: PostDao,
-    private val photoDao: PhotoDao,
     private val settings: SettingsDataSource,
     @Dispatcher(DakilioDispatchers.IO) private val io: CoroutineDispatcher,
     @ApplicationScope private val scope: CoroutineScope,
@@ -52,6 +53,15 @@ internal class LocalPhotoRepository @Inject constructor(
 
     private val _shrinking = MutableStateFlow(false)
     override val shrinking: StateFlow<Boolean> = _shrinking.asStateFlow()
+
+    /**
+     * Pixel sizes of stored photos, read from their headers once per app run and kept current by
+     * every write here, so only the first check after a launch touches the files.
+     */
+    private val sizes = ConcurrentHashMap<String, PixelSize>()
+
+    /** Bumped when a stored photo's size changes in place (shrinking), which entries don't notice. */
+    private val sizesChanged = MutableStateFlow(0)
 
     override suspend fun import(uri: Uri): String? = withContext(io) {
         val size = currentSize()
@@ -71,7 +81,7 @@ internal class LocalPhotoRepository @Inject constructor(
 
     private suspend fun currentSize(): PhotoSize = settings.settings.first().photoSize
 
-    private suspend fun decodeAndStore(source: ImageDecoder.Source, rotationDegrees: Int, size: PhotoSize): String {
+    private fun decodeAndStore(source: ImageDecoder.Source, rotationDegrees: Int, size: PhotoSize): String {
         // ImageDecoder applies EXIF orientation; re-encoding drops every other EXIF field,
         // GPS location included, so nothing private leaves with a future export.
         val decoded = decode(source, size)
@@ -84,7 +94,7 @@ internal class LocalPhotoRepository @Inject constructor(
         val fileName = "${UUID.randomUUID()}.jpg"
         directory.ensureExists()
         val file = directory.file(fileName)
-        val stored = PhotoFileEntity(fileName, bitmap.width, bitmap.height)
+        val stored = PixelSize(bitmap.width, bitmap.height)
         try {
             writeJpeg(bitmap, file)
         } catch (e: Exception) {
@@ -93,7 +103,7 @@ internal class LocalPhotoRepository @Inject constructor(
         } finally {
             bitmap.recycle()
         }
-        photoDao.upsert(stored)
+        sizes[fileName] = stored
         return fileName
     }
 
@@ -114,8 +124,10 @@ internal class LocalPhotoRepository @Inject constructor(
     override suspend fun delete(fileNames: Collection<String>) {
         if (fileNames.isEmpty()) return
         withContext(io) {
-            fileNames.forEach { directory.file(it).delete() }
-            fileNames.chunked(SQL_CHUNK).forEach { photoDao.delete(it) }
+            fileNames.forEach {
+                directory.file(it).delete()
+                sizes.remove(it)
+            }
         }
     }
 
@@ -128,32 +140,42 @@ internal class LocalPhotoRepository @Inject constructor(
         val cutoff = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(1)
         directory.root.listFiles()
             ?.filter { it.name !in referenced && it.lastModified() < cutoff }
-            ?.forEach { it.delete() }
-        // Forget the sizes of files that are gone.
-        val present = directory.root.list()?.toSet().orEmpty()
-        photoDao.allFileNames().filter { it !in present }.chunked(SQL_CHUNK).forEach { photoDao.delete(it) }
-        // Learn the sizes of photos written without one (the debug sample photos). Only the headers are read.
-        photoDao.usedWithoutSize().forEach { name ->
-            val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-            BitmapFactory.decodeFile(directory.file(name).path, options)
-            if (options.outWidth > 0 && options.outHeight > 0) {
-                photoDao.upsert(PhotoFileEntity(name, options.outWidth, options.outHeight))
+            ?.forEach {
+                it.delete()
+                sizes.remove(it.name)
             }
-        }
+        Unit
     }
 
-    override fun countLargerThan(size: PhotoSize): Flow<Int> =
-        size.maxEdge?.let { photoDao.observeCountLargerThan(it).distinctUntilChanged() } ?: flowOf(0)
+    /**
+     * The size of a stored photo: from the cache, else from the file's header (a few hundred bytes;
+     * the pixels aren't decoded). Null when the file is missing or unreadable.
+     */
+    private fun sizeOf(fileName: String): PixelSize? = sizes[fileName] ?: run {
+        val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeFile(directory.file(fileName).path, options)
+        if (options.outWidth > 0 && options.outHeight > 0) PixelSize(options.outWidth, options.outHeight).also { sizes[fileName] = it } else null
+    }
+
+    private fun isLargerThan(fileName: String, size: PhotoSize): Boolean = sizeOf(fileName)?.let { PhotoSizing.exceeds(it, size) } == true
+
+    override fun countLargerThan(size: PhotoSize): Flow<Int> {
+        if (size.maxEdge == null) return flowOf(0)
+        return combine(postDao.observePhotoFileNames(), sizesChanged) { names, _ -> names }
+            .mapLatest { names -> withContext(io) { names.count { isLargerThan(it, size) } } }
+            .distinctUntilChanged()
+    }
 
     override fun shrinkAll(size: PhotoSize) {
-        val maxEdge = size.maxEdge ?: return
+        if (size.maxEdge == null) return
         if (!_shrinking.compareAndSet(expect = false, update = true)) return
         // The app's scope, so leaving the screen doesn't stop it halfway.
         scope.launch(io) {
             try {
-                photoDao.largerThan(maxEdge).forEach { photo ->
+                postDao.allPhotoFileNames().distinct().filter { isLargerThan(it, size) }.forEach { fileName ->
                     ensureActive()
-                    runCatching { shrink(photo.fileName, size) }
+                    runCatching { shrink(fileName, size) }
+                    sizesChanged.value++
                 }
             } finally {
                 _shrinking.value = false
@@ -166,12 +188,12 @@ internal class LocalPhotoRepository @Inject constructor(
      * file is written beside it and moved over it in one step: the photo is always either the old
      * one or the new one. A leftover temporary file is unreferenced, so [sweepOrphans] removes it.
      */
-    private suspend fun shrink(fileName: String, size: PhotoSize) {
+    private fun shrink(fileName: String, size: PhotoSize) {
         val file = directory.file(fileName)
         if (!file.isFile) return
         val bitmap = decode(ImageDecoder.createSource(file), size)
         val temp = directory.file("$fileName.tmp")
-        val stored = PhotoFileEntity(fileName, bitmap.width, bitmap.height)
+        val stored = PixelSize(bitmap.width, bitmap.height)
         try {
             writeJpeg(bitmap, temp)
             Files.move(temp.toPath(), file.toPath(), StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
@@ -181,14 +203,11 @@ internal class LocalPhotoRepository @Inject constructor(
         } finally {
             bitmap.recycle()
         }
-        photoDao.upsert(stored)
+        sizes[fileName] = stored
     }
 
     private companion object {
         /** JPEG quality of stored photos: the usual web standard, far smaller than 90+ and hard to tell apart. */
         const val JPEG_QUALITY = 80
-
-        /** Keeps `IN (…)` lists under SQLite's bound-variable limit. */
-        const val SQL_CHUNK = 500
     }
 }

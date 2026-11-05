@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "a159fbc0ca70b6bba93ca7bebbd024fd",
+    "identityHash": "f9e6620942959e85ebc92baa50859edf",
     "entities": [
       {
         "tableName": "mood",
@@ -554,36 +554,6 @@
         ]
       },
       {
-        "tableName": "photo_file",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`file_name` TEXT NOT NULL, `width` INTEGER NOT NULL, `height` INTEGER NOT NULL, PRIMARY KEY(`file_name`))",
-        "fields": [
-          {
-            "fieldPath": "fileName",
-            "columnName": "file_name",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "width",
-            "columnName": "width",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "height",
-            "columnName": "height",
-            "affinity": "INTEGER",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "file_name"
-          ]
-        }
-      },
-      {
         "tableName": "habit",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `tag_id` INTEGER NOT NULL, `days_per_week` INTEGER NOT NULL, `position` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `reminder_on` INTEGER NOT NULL DEFAULT 0, `reminder_minute` INTEGER NOT NULL DEFAULT 1200, FOREIGN KEY(`tag_id`) REFERENCES `tag`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
@@ -732,7 +702,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a159fbc0ca70b6bba93ca7bebbd024fd')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f9e6620942959e85ebc92baa50859edf')"
     ]
   }
 }
