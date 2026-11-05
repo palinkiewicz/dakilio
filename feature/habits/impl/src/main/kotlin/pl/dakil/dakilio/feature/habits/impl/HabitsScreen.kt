@@ -161,8 +161,8 @@ internal fun HabitsScreen(viewModel: HabitsViewModel, onBack: () -> Unit) {
             habit = null,
             groups = current.groups,
             trackedTagIds = current.trackedTagIds,
-            onSave = { tagId, days ->
-                viewModel.add(tagId, days)
+            onSave = { tagId, days, reminder ->
+                viewModel.add(tagId, days, reminder)
                 sheet = null
             },
             onDelete = {},
@@ -177,8 +177,8 @@ internal fun HabitsScreen(viewModel: HabitsViewModel, onBack: () -> Unit) {
                     habit = habit,
                     groups = current.groups,
                     trackedTagIds = current.trackedTagIds,
-                    onSave = { _, days ->
-                        viewModel.update(habit, days)
+                    onSave = { _, days, reminder ->
+                        viewModel.update(habit, days, reminder)
                         sheet = null
                     },
                     onDelete = {
