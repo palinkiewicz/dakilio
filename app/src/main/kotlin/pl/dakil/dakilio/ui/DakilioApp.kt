@@ -40,6 +40,7 @@ import pl.dakil.dakilio.core.navigation.rememberEntries
 import pl.dakil.dakilio.core.navigation.rememberNavigationState
 import pl.dakil.dakilio.core.ui.LocalBottomBarPadding
 import pl.dakil.dakilio.core.ui.LocalSharedTransitionScope
+import pl.dakil.dakilio.core.ui.component.EntryPeekHost
 import pl.dakil.dakilio.core.ui.NavTransitions
 import pl.dakil.dakilio.feature.archive.impl.archiveEntry
 import pl.dakil.dakilio.feature.diaries.impl.diariesEntries
@@ -152,43 +153,46 @@ fun DakilioApp(
             LocalNavigator provides navigator,
             LocalBottomBarPadding provides barHeight,
         ) {
-            Box(Modifier.fillMaxSize()) {
-                NavDisplay(
-                    entries = navigationState.rememberEntries(provider),
-                    onBack = navigator::goBack,
-                    sharedTransitionScope = this@SharedTransitionLayout,
-                    transitionSpec = { NavTransitions.forward() },
-                    popTransitionSpec = { NavTransitions.backward() },
-                    predictivePopTransitionSpec = { NavTransitions.backward() },
-                )
-                AnimatedVisibility(
-                    visible = navigationState.isAtTopLevel,
-                    enter = slideInVertically(MaterialTheme.motionScheme.defaultSpatialSpec()) { it } + fadeIn(),
-                    exit = slideOutVertically(MaterialTheme.motionScheme.fastSpatialSpec()) { it } + fadeOut(),
-                    modifier = Modifier.align(Alignment.BottomCenter),
-                ) {
-                    ShortNavigationBar(
-                        modifier = Modifier.onSizeChanged { barHeight = with(density) { it.height.toDp() } },
+            // Holding an entry card peeks at it over the blurred app (nav bar included).
+            EntryPeekHost {
+                Box(Modifier.fillMaxSize()) {
+                    NavDisplay(
+                        entries = navigationState.rememberEntries(provider),
+                        onBack = navigator::goBack,
+                        sharedTransitionScope = this@SharedTransitionLayout,
+                        transitionSpec = { NavTransitions.forward() },
+                        popTransitionSpec = { NavTransitions.backward() },
+                        predictivePopTransitionSpec = { NavTransitions.backward() },
+                    )
+                    AnimatedVisibility(
+                        visible = navigationState.isAtTopLevel,
+                        enter = slideInVertically(MaterialTheme.motionScheme.defaultSpatialSpec()) { it } + fadeIn(),
+                        exit = slideOutVertically(MaterialTheme.motionScheme.fastSpatialSpec()) { it } + fadeOut(),
+                        modifier = Modifier.align(Alignment.BottomCenter),
                     ) {
-                        destinations.forEach { destination ->
-                            val selected = navigationState.topLevelKey == destination.key
-                            ShortNavigationBarItem(
-                                selected = selected,
-                                onClick = {
-                                    if (!selected) haptics.tick()
-                                    navigator.navigate(destination.key)
-                                },
-                                icon = { DakilioIcon(destination.symbol, contentDescription = null, filled = selected) },
-                                label = { Text(stringResource(destination.label)) },
-                            )
+                        ShortNavigationBar(
+                            modifier = Modifier.onSizeChanged { barHeight = with(density) { it.height.toDp() } },
+                        ) {
+                            destinations.forEach { destination ->
+                                val selected = navigationState.topLevelKey == destination.key
+                                ShortNavigationBarItem(
+                                    selected = selected,
+                                    onClick = {
+                                        if (!selected) haptics.tick()
+                                        navigator.navigate(destination.key)
+                                    },
+                                    icon = { DakilioIcon(destination.symbol, contentDescription = null, filled = selected) },
+                                    label = { Text(stringResource(destination.label)) },
+                                )
+                            }
                         }
                     }
+                    // Habit progress after saving an entry, over whatever screen comes next.
+                    HabitProgressHost(
+                        bottomPadding = if (navigationState.isAtTopLevel) barHeight else 0.dp,
+                        modifier = Modifier.align(Alignment.BottomCenter),
+                    )
                 }
-                // Habit progress after saving an entry, over whatever screen comes next.
-                HabitProgressHost(
-                    bottomPadding = if (navigationState.isAtTopLevel) barHeight else 0.dp,
-                    modifier = Modifier.align(Alignment.BottomCenter),
-                )
             }
         }
     }
