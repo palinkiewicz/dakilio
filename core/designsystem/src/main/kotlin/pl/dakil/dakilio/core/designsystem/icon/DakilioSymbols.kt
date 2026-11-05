@@ -18,6 +18,8 @@ object DakilioSymbols {
     val Settings = DakilioSymbol("settings", R.drawable.sym_settings, R.drawable.sym_settings_fill, SymbolCategory.Ui)
     val Timeline = DakilioSymbol("timeline", R.drawable.sym_timeline, R.drawable.sym_timeline_fill, SymbolCategory.Ui)
     val Insights = DakilioSymbol("insights", R.drawable.sym_insights, R.drawable.sym_insights_fill, SymbolCategory.Ui)
+    val Article = DakilioSymbol("article", R.drawable.sym_article, R.drawable.sym_article_fill, SymbolCategory.Ui)
+    val SsidChart = DakilioSymbol("ssid_chart", R.drawable.sym_ssid_chart, R.drawable.sym_ssid_chart_fill, SymbolCategory.Ui)
     val ExpandMore = DakilioSymbol("expand_more", R.drawable.sym_expand_more, R.drawable.sym_expand_more_fill, SymbolCategory.Ui)
     val ChevronRight = DakilioSymbol("chevron_right", R.drawable.sym_chevron_right, R.drawable.sym_chevron_right_fill, SymbolCategory.Ui)
     val CalendarToday = DakilioSymbol("calendar_today", R.drawable.sym_calendar_today, R.drawable.sym_calendar_today_fill, SymbolCategory.Ui)
@@ -212,6 +214,8 @@ object DakilioSymbols {
         Settings,
         Timeline,
         Insights,
+        Article,
+        SsidChart,
         ExpandMore,
         ChevronRight,
         CalendarToday,

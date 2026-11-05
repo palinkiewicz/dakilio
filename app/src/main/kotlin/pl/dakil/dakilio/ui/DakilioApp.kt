@@ -70,8 +70,8 @@ import pl.dakil.dakilio.feature.timeline.impl.timelineEntry
 private data class TopLevelDestination(val key: NavKey, val symbol: DakilioSymbol, val label: Int)
 
 private val destinations = listOf(
-    TopLevelDestination(TimelineKey, DakilioSymbols.Timeline, R.string.nav_timeline),
-    TopLevelDestination(InsightsKey, DakilioSymbols.Insights, R.string.nav_insights),
+    TopLevelDestination(TimelineKey, DakilioSymbols.Article, R.string.nav_timeline),
+    TopLevelDestination(InsightsKey, DakilioSymbols.SsidChart, R.string.nav_insights),
     TopLevelDestination(MoreKey, DakilioSymbols.MoreHoriz, R.string.nav_more),
 )
 
