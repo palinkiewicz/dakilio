@@ -36,4 +36,7 @@
     <string name="diaries_delete_confirm">Delete</string>
     <string name="diaries_cancel">Cancel</string>
     <string name="diaries_done">Done</string>
+    <string name="diaries_reminder_title">Reminder</string>
+    <string name="diaries_reminder">Remind me to write</string>
+    <string name="diaries_reminder_body">Every day at the time you set, unless this diary already has an entry that day</string>
 </resources>

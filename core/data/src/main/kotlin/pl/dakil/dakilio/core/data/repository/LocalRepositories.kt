@@ -32,6 +32,7 @@ import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.MOOD_LEVELS
 import pl.dakil.dakilio.core.model.Post
 import pl.dakil.dakilio.core.model.PostDraft
+import pl.dakil.dakilio.core.model.Reminder
 import pl.dakil.dakilio.core.model.TagGroup
 import pl.dakil.dakilio.core.model.PreviewLength
 import pl.dakil.dakilio.core.model.TagStyle
@@ -91,10 +92,11 @@ internal class LocalDiaryRepository @Inject constructor(
 
     override suspend fun getDiary(id: Long): Diary? = diaryDao.getDiary(id)?.asModel()
 
-    override suspend fun saveDiary(id: Long?, name: String, iconKey: String, suggestedGroupIds: Set<Long>): Long {
+    override suspend fun saveDiary(id: Long?, name: String, iconKey: String, suggestedGroupIds: Set<Long>, reminder: Reminder): Long {
         val existing = id?.let { diaryDao.getDiary(it)?.diary }
-        val entity = existing?.copy(name = name, iconKey = iconKey)
-            ?: DiaryEntity(name = name, iconKey = iconKey, position = diaryDao.nextPosition(), createdAt = clock.millis())
+        val entity = (existing?.copy(name = name, iconKey = iconKey)
+            ?: DiaryEntity(name = name, iconKey = iconKey, position = diaryDao.nextPosition(), createdAt = clock.millis()))
+            .copy(reminderOn = reminder.enabled, reminderMinute = reminder.minuteOfDay)
         return diaryDao.save(entity, suggestedGroupIds)
     }
 

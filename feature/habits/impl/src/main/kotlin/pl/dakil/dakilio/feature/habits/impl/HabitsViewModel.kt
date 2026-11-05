@@ -15,6 +15,7 @@ import pl.dakil.dakilio.core.data.repository.HabitProgressEvents
 import pl.dakil.dakilio.core.data.repository.HabitRepository
 import pl.dakil.dakilio.core.data.repository.TagRepository
 import pl.dakil.dakilio.core.model.Habit
+import pl.dakil.dakilio.core.model.Reminder
 import pl.dakil.dakilio.core.model.HabitBump
 import pl.dakil.dakilio.core.model.HabitStatus
 import pl.dakil.dakilio.core.model.TagGroup
@@ -41,12 +42,13 @@ class HabitsViewModel @Inject constructor(
         HabitsUiState(habits = habits, groups = groups, today = LocalDate.now(clock))
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
-    fun add(tagId: Long, daysPerWeek: Int) {
-        viewModelScope.launch { habitRepository.addHabit(tagId, daysPerWeek) }
+    fun add(tagId: Long, daysPerWeek: Int, reminder: Reminder = Reminder()) {
+        viewModelScope.launch { habitRepository.addHabit(tagId, daysPerWeek, reminder) }
     }
 
-    fun setDaysPerWeek(id: Long, daysPerWeek: Int) {
-        viewModelScope.launch { habitRepository.setDaysPerWeek(id, daysPerWeek) }
+    fun update(habit: Habit, daysPerWeek: Int, reminder: Reminder = habit.reminder) {
+        if (daysPerWeek == habit.daysPerWeek && reminder == habit.reminder) return
+        viewModelScope.launch { habitRepository.updateHabit(habit.id, daysPerWeek, reminder) }
     }
 
     fun delete(habit: Habit) {

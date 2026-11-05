@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import pl.dakil.dakilio.core.data.repository.DiaryRepository
 import pl.dakil.dakilio.core.data.repository.TagRepository
 import pl.dakil.dakilio.core.model.Diary
+import pl.dakil.dakilio.core.model.Reminder
 import pl.dakil.dakilio.core.model.TagGroup
 import pl.dakil.dakilio.feature.diaries.api.DiaryEditorKey
 
@@ -26,6 +27,7 @@ internal data class DiaryForm(
     val loaded: Boolean = false,
     val iconKey: String = DEFAULT_DIARY_ICON,
     val suggestedGroupIds: Set<Long> = emptySet(),
+    val reminder: Reminder = Reminder(),
     val finished: Boolean = false,
 )
 
@@ -34,6 +36,7 @@ data class DiaryEditorUiState(
     val iconKey: String,
     val groups: List<TagGroup>,
     val suggestedGroupIds: Set<Long>,
+    val reminder: Reminder,
     /** Diaries entries could be moved to when this one is deleted. */
     val otherDiaries: List<Diary>,
     val finished: Boolean,
@@ -64,6 +67,7 @@ class DiaryEditorViewModel @AssistedInject constructor(
                 iconKey = form.iconKey,
                 groups = groups,
                 suggestedGroupIds = form.suggestedGroupIds,
+                reminder = form.reminder,
                 otherDiaries = diaries.filter { it.id != key.diaryId },
                 finished = form.finished,
             )
@@ -74,7 +78,12 @@ class DiaryEditorViewModel @AssistedInject constructor(
             val existing = key.diaryId?.let { diaryRepository.getDiary(it) }
             if (existing != null) {
                 name.setTextAndPlaceCursorAtEnd(existing.name)
-                form.value = DiaryForm(loaded = true, iconKey = existing.iconKey, suggestedGroupIds = existing.suggestedGroupIds)
+                form.value = DiaryForm(
+                    loaded = true,
+                    iconKey = existing.iconKey,
+                    suggestedGroupIds = existing.suggestedGroupIds,
+                    reminder = existing.reminder,
+                )
             } else {
                 // A new diary suggests nothing by default: every group stays collapsed until chosen.
                 form.value = DiaryForm(loaded = true)
@@ -83,6 +92,8 @@ class DiaryEditorViewModel @AssistedInject constructor(
     }
 
     fun setIcon(iconKey: String) = form.update { it.copy(iconKey = iconKey) }
+
+    fun setReminder(reminder: Reminder) = form.update { it.copy(reminder = reminder) }
 
     fun toggleGroup(id: Long) = form.update {
         it.copy(suggestedGroupIds = if (id in it.suggestedGroupIds) it.suggestedGroupIds - id else it.suggestedGroupIds + id)
@@ -93,7 +104,7 @@ class DiaryEditorViewModel @AssistedInject constructor(
         val title = name.text.toString().trim()
         if (title.isEmpty() || current.finished) return
         viewModelScope.launch {
-            diaryRepository.saveDiary(key.diaryId, title, current.iconKey, current.suggestedGroupIds)
+            diaryRepository.saveDiary(key.diaryId, title, current.iconKey, current.suggestedGroupIds, current.reminder)
             form.update { it.copy(finished = true) }
         }
     }

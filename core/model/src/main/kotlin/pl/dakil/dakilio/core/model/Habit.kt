@@ -13,6 +13,8 @@ data class Habit(
     val tag: Tag,
     val daysPerWeek: Int,
     val position: Int,
+    /** A daily nudge until the week's target is met. */
+    val reminder: Reminder = Reminder(),
 )
 
 /**

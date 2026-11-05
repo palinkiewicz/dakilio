@@ -23,6 +23,7 @@ import pl.dakil.dakilio.core.database.dao.ImportDao
 import pl.dakil.dakilio.core.database.dao.KeywordDao
 import pl.dakil.dakilio.core.database.dao.MoodDao
 import pl.dakil.dakilio.core.database.dao.PostDao
+import pl.dakil.dakilio.core.database.dao.ReminderDao
 import pl.dakil.dakilio.core.database.dao.TagDao
 
 @Module
@@ -59,6 +60,8 @@ internal object DatabaseModule {
     @Provides fun habitDao(db: DakilioDatabase): HabitDao = db.habitDao()
 
     @Provides fun keywordDao(db: DakilioDatabase): KeywordDao = db.keywordDao()
+
+    @Provides fun reminderDao(db: DakilioDatabase): ReminderDao = db.reminderDao()
 }
 
 /** Lets debug and preview builds bind [SampleData] while release builds leave it out. */

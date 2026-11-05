@@ -178,7 +178,7 @@ internal fun HabitsScreen(viewModel: HabitsViewModel, onBack: () -> Unit) {
                     groups = current.groups,
                     trackedTagIds = current.trackedTagIds,
                     onSave = { _, days ->
-                        if (days != habit.daysPerWeek) viewModel.setDaysPerWeek(habit.id, days)
+                        viewModel.update(habit, days)
                         sheet = null
                     },
                     onDelete = {
@@ -187,7 +187,7 @@ internal fun HabitsScreen(viewModel: HabitsViewModel, onBack: () -> Unit) {
                         scope.launch {
                             snackbar.currentSnackbarData?.dismiss()
                             val result = snackbar.showSnackbar(deletedMessage, undoLabel, withDismissAction = true)
-                            if (result == SnackbarResult.ActionPerformed) viewModel.add(habit.tag.id, habit.daysPerWeek)
+                            if (result == SnackbarResult.ActionPerformed) viewModel.add(habit.tag.id, habit.daysPerWeek, habit.reminder)
                         }
                     },
                     onDismiss = { sheet = null },

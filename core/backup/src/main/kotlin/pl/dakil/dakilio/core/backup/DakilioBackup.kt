@@ -99,6 +99,16 @@ data class BackupDiary(
     val createdAt: String? = null,
     /** Ids of the tag groups the editor expands for this diary. */
     val suggestedGroups: List<Long> = emptyList(),
+    /** The daily reminder to write; none means off. */
+    val reminder: BackupReminder? = null,
+)
+
+/** A daily reminder. Its time is kept while it's off. */
+@Serializable
+data class BackupReminder(
+    val enabled: Boolean = false,
+    /** Local time of day, `HH:mm`. */
+    val time: String = "20:00",
 )
 
 @Serializable
@@ -139,6 +149,8 @@ data class BackupHabit(
     val daysPerWeek: Int,
     val position: Int = 0,
     val createdAt: String? = null,
+    /** The daily reminder until the week's target is met; none means off. */
+    val reminder: BackupReminder? = null,
 )
 
 @Serializable

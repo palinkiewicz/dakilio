@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="reminder_channel_diary">Przypomnienia o dzienniku</string>
+    <string name="reminder_channel_diary_body">Codzienne przypomnienie o wpisie, osobno dla każdego dziennika</string>
+    <string name="reminder_channel_habit">Przypomnienia o nawykach</string>
+    <string name="reminder_channel_habit_body">Codzienne przypomnienia, dopóki nie zaliczysz celu na ten tydzień</string>
+    <string name="reminder_diary_public">Pora na krótki wpis</string>
+    <string name="reminder_habit_public">Mały krok na dziś</string>
+    <plurals name="reminder_habit_progress">
+        <item quantity="one">%1$d z %2$d dnia w tym tygodniu</item>
+        <item quantity="few">%1$d z %2$d dni w tym tygodniu</item>
+        <item quantity="many">%1$d z %2$d dni w tym tygodniu</item>
+        <item quantity="other">%1$d z %2$d dni w tym tygodniu</item>
+    </plurals>
+
+    <string-array name="reminder_diary_texts" tools:ignore="InconsistentArrays">
+        <item>Dzisiejsza strona wciąż pusta. Znajdziesz chwilkę?</item>
+        <item>No i jak tam dzisiaj? Wpadnij, opowiedz.</item>
+        <item>Twoje przyszłe „ja” pyta, co się dziś działo. Odpiszesz?</item>
+        <item>Dzień jak co dzień? Nawet taki zasługuje na dwa słowa.</item>
+        <item>Złap dzisiejszy dzień, zanim ucieknie.</item>
+        <item>Jeden humor, jeden tag, może jedno zdanie. I wpis gotowy.</item>
+        <item>Odłóż na moment scrollowanie. Jak się naprawdę masz?</item>
+        <item>Kawa, herbata, a może szybki wpis?</item>
+        <item>Co dziś było najlepsze? Drobiazgi też się liczą.</item>
+        <item>Życie to podróż, a każda podróż potrzebuje dziennika.</item>
+        <item>Pyk i dzień zapisany. Wystarczy minutka.</item>
+        <item>Ups, dzisiaj jeszcze bez wpisu. Naprawimy to?</item>
+    </string-array>
+
+    <string-array name="reminder_habit_texts" tools:ignore="InconsistentArrays">
+        <item>Małymi krokami daleko zajdziesz. Dzisiejszy krok czeka.</item>
+        <item>Kropki w tym tygodniu same się nie zapełnią. Dorzucisz jedną?</item>
+        <item>Trochę dziś to więcej niż dużo „kiedyś”.</item>
+        <item>Wciąż na liście na ten tydzień. Dasz radę!</item>
+        <item>Przyszłe „ja” przybije ci za to piątkę.</item>
+        <item>Nawyk rośnie dzień po dniu. Dzisiaj też się liczy.</item>
+        <item>Szybkie pytanie: dziś się uda?</item>
+        <item>Mały wysiłek, prawdziwy postęp. Do dzieła!</item>
+        <item>Cel na ten tydzień na wyciągnięcie ręki. Jeszcze raz?</item>
+        <item>Systematyczność to supermoc. Czas jej użyć.</item>
+        <item>Nie musi być idealnie. Ważne, żeby było.</item>
+    </string-array>
+</resources>

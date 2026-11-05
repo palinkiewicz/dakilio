@@ -1,12 +1,15 @@
 package pl.dakil.dakilio.core.backup
 
 import java.time.LocalDate
+import java.time.LocalTime
+import java.util.Locale
 import pl.dakil.dakilio.core.model.KeywordDraft
 import pl.dakil.dakilio.core.model.Keywords
 import pl.dakil.dakilio.core.model.MOOD_LEVELS
 import pl.dakil.dakilio.core.model.PreviewLength
 import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TextScale
+import pl.dakil.dakilio.core.model.Reminder
 import pl.dakil.dakilio.core.model.ThemeMode
 import pl.dakil.dakilio.core.model.WeekStart
 
@@ -38,6 +41,7 @@ data class RestoreDiary(
     val createdAt: Long,
     /** Indices into [RestorePlan.groups]. */
     val suggestedGroups: List<Int>,
+    val reminder: Reminder = Reminder(),
 )
 
 data class RestoreGroup(val name: String, val position: Int, val archived: Boolean, val colorKey: String?, val tags: List<RestoreTag>)
@@ -54,7 +58,13 @@ data class RestoreTag(
 /** Indices into [RestorePlan.groups] and that group's tags. */
 data class RestoreTagRef(val groupIndex: Int, val tagIndex: Int)
 
-data class RestoreHabit(val tag: RestoreTagRef, val daysPerWeek: Int, val position: Int, val createdAt: Long)
+data class RestoreHabit(
+    val tag: RestoreTagRef,
+    val daysPerWeek: Int,
+    val position: Int,
+    val createdAt: Long,
+    val reminder: Reminder = Reminder(),
+)
 
 sealed interface RestoreMoodRef {
     data class Primary(val level: Int) : RestoreMoodRef
@@ -179,6 +189,7 @@ fun planRestore(backup: DakilioBackup, defaultDiaryName: String, now: Long): Res
             position = index,
             createdAt = BackupTime.parseMillis(diary.createdAt) ?: now,
             suggestedGroups = diary.suggestedGroups.distinct().mapNotNull { id -> groupIndexById[id].also { if (it == null) missing++ } },
+            reminder = diary.reminder.toReminder(),
         )
     }.ifEmpty { listOf(RestoreDiary(defaultDiaryName, "", 0, now, emptyList())) }
 
@@ -187,7 +198,7 @@ fun planRestore(backup: DakilioBackup, defaultDiaryName: String, now: Long): Res
         .distinctBy { (_, ref) -> ref }
         .sortedBy { (habit, _) -> habit.position }
         .mapIndexed { position, (habit, ref) ->
-            RestoreHabit(ref, habit.daysPerWeek.coerceIn(1, 7), position, BackupTime.parseMillis(habit.createdAt) ?: now)
+            RestoreHabit(ref, habit.daysPerWeek.coerceIn(1, 7), position, BackupTime.parseMillis(habit.createdAt) ?: now, habit.reminder.toReminder())
         }
 
     // Entries.
@@ -257,3 +268,13 @@ fun planRestore(backup: DakilioBackup, defaultDiaryName: String, now: Long): Res
         ),
     )
 }
+
+/** A backup's reminder; a missing one is off, and an unreadable time keeps the default. */
+private fun BackupReminder?.toReminder(): Reminder {
+    this ?: return Reminder()
+    val time = runCatching { LocalTime.parse(time) }.getOrNull()?.withSecond(0)?.withNano(0) ?: Reminder.DEFAULT_TIME
+    return Reminder(enabled, time)
+}
+
+/** How a reminder is written into a backup. */
+fun Reminder.toBackup(): BackupReminder = BackupReminder(enabled, String.format(Locale.ROOT, "%02d:%02d", time.hour, time.minute))
