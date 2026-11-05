@@ -69,6 +69,7 @@ import pl.dakil.dakilio.core.model.HabitBump
 import pl.dakil.dakilio.core.model.Habits
 import pl.dakil.dakilio.core.model.Tag
 import pl.dakil.dakilio.core.ui.color.tagColors
+import pl.dakil.dakilio.core.ui.LocalFirstDayOfWeek
 import pl.dakil.dakilio.core.ui.rememberFormats
 
 /** Lets the editor's container transform settle before the popup rises. */
@@ -189,7 +190,7 @@ private fun BumpRow(bump: HabitBump, index: Int) {
     val target = bump.habit.daysPerWeek
     val count = if (bumped) bump.after else bump.before
     val goal = bumped && bump.before < target && bump.after >= target
-    val week = if (bump.weekStart == Habits.weekStart(LocalDate.now())) {
+    val week = if (bump.weekStart == Habits.weekStart(LocalDate.now(), LocalFirstDayOfWeek.current)) {
         stringResource(R.string.habits_progress_this_week)
     } else {
         stringResource(R.string.habits_progress_week_of, formats.dayMonth(bump.weekStart))

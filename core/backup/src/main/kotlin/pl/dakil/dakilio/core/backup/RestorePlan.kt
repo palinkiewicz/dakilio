@@ -8,6 +8,7 @@ import pl.dakil.dakilio.core.model.PreviewLength
 import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TextScale
 import pl.dakil.dakilio.core.model.ThemeMode
+import pl.dakil.dakilio.core.model.WeekStart
 
 /**
  * What a backup turns into. A restore replaces everything, so the plan doesn't look at existing
@@ -90,6 +91,7 @@ data class RestoreSettings(
     val compactTags: Boolean? = null,
     val closeAfterSave: Boolean? = null,
     val keywordAutoAdd: Boolean? = null,
+    val weekStart: WeekStart? = null,
     /** An index into [RestorePlan.diaries]. */
     val lastDiaryIndex: Int? = null,
 )
@@ -226,6 +228,7 @@ fun planRestore(backup: DakilioBackup, defaultDiaryName: String, now: Long): Res
             compactTags = s.compactTags,
             closeAfterSave = s.closeAfterSave,
             keywordAutoAdd = s.keywordAutoAdd,
+            weekStart = WeekStart.entries.firstOrNull { it.name == s.weekStart },
             lastDiaryIndex = s.lastDiary?.let(diaryIndexById::get),
         )
     } ?: RestoreSettings()

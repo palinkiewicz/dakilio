@@ -1,6 +1,8 @@
 package pl.dakil.dakilio.core.data.repository
 
+import android.content.res.Resources
 import java.time.Clock
+import java.time.DayOfWeek
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -36,6 +38,7 @@ import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TagUsage
 import pl.dakil.dakilio.core.model.ThemeMode
 import pl.dakil.dakilio.core.model.UserSettings
+import pl.dakil.dakilio.core.model.WeekStart
 
 internal class LocalMoodRepository @Inject constructor(private val dao: MoodDao) : MoodRepository {
     override val moods: Flow<List<Mood>> = combine(dao.observeActiveMoods(), dao.observePrimaryColors()) { list, colors ->
@@ -254,6 +257,17 @@ internal class LocalSettingsRepository @Inject constructor(
     override suspend fun setCloseAfterSave(close: Boolean) = dataSource.setCloseAfterSave(close)
 
     override suspend fun setKeywordAutoAdd(auto: Boolean) = dataSource.setKeywordAutoAdd(auto)
+
+    override suspend fun setWeekStart(start: WeekStart) = dataSource.setWeekStart(start)
+
+    override val firstDayOfWeek: Flow<DayOfWeek> =
+        dataSource.settings.map { it.weekStart.resolve(deviceLocale()) }.distinctUntilChanged()
+
+    override fun regionFirstDayOfWeek(): DayOfWeek = WeekStart.Region.resolve(deviceLocale())
+
+    // The device's own locale, not the per-app language: the week follows where the user lives
+    // (and Android 14's regional "first day of week" preference, carried as a locale extension).
+    private fun deviceLocale() = Resources.getSystem().configuration.locales[0]
 }
 
 internal class LocalSearchHistoryRepository @Inject constructor(

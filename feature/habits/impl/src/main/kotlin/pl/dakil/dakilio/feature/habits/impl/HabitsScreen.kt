@@ -58,6 +58,7 @@ import pl.dakil.dakilio.core.model.Habits
 import pl.dakil.dakilio.core.ui.Hint
 import pl.dakil.dakilio.core.ui.color.tagColors
 import pl.dakil.dakilio.core.ui.component.EmptyState
+import pl.dakil.dakilio.core.ui.LocalFirstDayOfWeek
 import pl.dakil.dakilio.core.ui.rememberFormats
 
 /** What the habit sheet is open for. Editing goes by id, so the sheet follows live changes. */
@@ -266,11 +267,11 @@ private fun HabitItem(
     ) { Text(habit.tag.label) }
 }
 
-/** Monday to Sunday of [today]'s week: filled on days with the tag, today ringed, days to come faded. */
+/** The days of [today]'s week: filled on days with the tag, today ringed, days to come faded. */
 @Composable
 private fun WeekDots(days: Set<LocalDate>, today: LocalDate) {
     val formats = rememberFormats()
-    val start = Habits.weekStart(today)
+    val start = Habits.weekStart(today, LocalFirstDayOfWeek.current)
     val colors = MaterialTheme.colorScheme
     Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
         repeat(7) { offset ->

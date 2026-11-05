@@ -65,6 +65,14 @@ class InsightsCalculatorTest {
     }
 
     @Test
+    fun `heatmap weeks start on the chosen first day`() {
+        val heat = calculateInsights(emptyList(), moods, InsightsRange.All, today, firstDay = DayOfWeek.SUNDAY).heatmap
+        assertEquals(DayOfWeek.SUNDAY, heat.first().date.dayOfWeek)
+        assertEquals(today, heat.last().date)
+        assertEquals(11 * 7 + 5, heat.size) // 11 full weeks + Sun..Thu
+    }
+
+    @Test
     fun `an average maps to the nearest mood`() {
         assertEquals(4, nearestMood(moods, 0.7f)?.level)
         assertEquals(1, nearestMood(moods, 0.1f)?.level)

@@ -440,7 +440,7 @@ class EntryEditorViewModel @AssistedInject constructor(
             )
             sessionFiles.clear()
             if (current.tagIds.isNotEmpty()) {
-                val bumps = Habits.bumps(habitRepository.habitList(), countsBefore, habitRepository.weekCounts(date), Habits.weekStart(date))
+                val bumps = Habits.bumps(habitRepository.habitList(), countsBefore, habitRepository.weekCounts(date), Habits.weekStart(date, settingsRepository.firstDayOfWeek.first()))
                 habitProgressEvents.post(bumps)
             }
             settingsRepository.setLastEntryDiaryId(diaryId)

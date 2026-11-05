@@ -53,7 +53,6 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import java.time.DayOfWeek
 import java.time.Instant
 import java.time.ZoneOffset
 import pl.dakil.dakilio.core.designsystem.component.ConnectedToggleRow
@@ -71,7 +70,9 @@ import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.Tag
 import pl.dakil.dakilio.core.ui.color.tagColors
 import pl.dakil.dakilio.core.ui.mood.MoodBadge
+import pl.dakil.dakilio.core.ui.LocalFirstDayOfWeek
 import pl.dakil.dakilio.core.ui.rememberFormats
+import pl.dakil.dakilio.core.ui.weekdaysFrom
 
 /**
  * The sheet of one [facet]. Picks apply at once, and the header counts the matching entries live,
@@ -317,13 +318,14 @@ private fun WhenFacet(state: SearchUiState, viewModel: SearchViewModel) {
 
 private fun Long.toUtcDate() = Instant.ofEpochMilli(this).atZone(ZoneOffset.UTC).toLocalDate()
 
-/** Seven connected toggles, Monday first; unlike [ConnectedToggleRow] any number can be on. */
+/** Seven connected toggles from the first day of the week; unlike [ConnectedToggleRow] any number can be on. */
 @Composable
 private fun WeekdayToggles(days: Set<Int>, onToggle: (Int) -> Unit) {
     val haptics = rememberHaptics()
     val formats = rememberFormats()
+    val weekdays = weekdaysFrom(LocalFirstDayOfWeek.current)
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)) {
-        DayOfWeek.entries.forEachIndexed { index, day ->
+        weekdays.forEachIndexed { index, day ->
             val checked = day.value in days
             ToggleButton(
                 checked = checked,
@@ -333,7 +335,7 @@ private fun WeekdayToggles(days: Set<Int>, onToggle: (Int) -> Unit) {
                 },
                 shapes = when (index) {
                     0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
-                    DayOfWeek.entries.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                    weekdays.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
                     else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
                 },
                 colors = raisedToggleColors(),

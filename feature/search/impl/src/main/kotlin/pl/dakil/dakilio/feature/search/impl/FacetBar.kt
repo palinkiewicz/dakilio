@@ -26,7 +26,9 @@ import pl.dakil.dakilio.core.designsystem.icon.symbolForKey
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.ui.DakilioFormats
 import pl.dakil.dakilio.core.ui.mood.MoodBadge
+import pl.dakil.dakilio.core.ui.LocalFirstDayOfWeek
 import pl.dakil.dakilio.core.ui.rememberFormats
+import pl.dakil.dakilio.core.ui.weekdaysFrom
 
 /**
  * One chip per filter category. A chip in use shows its value ("Walk +2") and a clear button;
@@ -118,7 +120,8 @@ internal fun facetValues(facet: Facet, state: SearchUiState, formats: DakilioFor
         Facet.Tags -> filters.tagIds.mapNotNull { state.tags[it]?.label }
         Facet.Diary -> state.diaries.filter { it.id in filters.diaryIds }.map { it.name }
         Facet.When -> listOfNotNull(filters.period?.let { periodLabel(it, formats) }) +
-            filters.weekdays.sorted().map { formats.weekdayShort(MONDAY.plusDays(it - 1L)) }
+            weekdaysFrom(LocalFirstDayOfWeek.current).filter { it.value in filters.weekdays }
+                .map { formats.weekdayShort(MONDAY.plusDays(it.value - 1L)) }
         Facet.Has -> Has.entries.filter { it in filters.has }.map { hasLabel(it) }
     }
 }

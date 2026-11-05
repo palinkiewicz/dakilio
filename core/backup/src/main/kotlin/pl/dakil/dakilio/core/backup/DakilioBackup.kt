@@ -72,6 +72,8 @@ data class BackupSettings(
     val keywordAutoAdd: Boolean? = null,
     /** The diary the editor picks by default. */
     val lastDiary: Long? = null,
+    /** A `WeekStart` name: the first day of the week, or `Region` to follow the device's region. */
+    val weekStart: String? = null,
 )
 
 /** A mood: one primary per level (1 = worst … 5 = best), plus aliases. */

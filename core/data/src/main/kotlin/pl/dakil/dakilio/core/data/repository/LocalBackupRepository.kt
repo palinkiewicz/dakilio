@@ -129,6 +129,7 @@ internal class LocalBackupRepository @Inject constructor(
                 closeAfterSave = userSettings.closeAfterSave,
                 keywordAutoAdd = userSettings.keywordAutoAdd,
                 lastDiary = userSettings.lastEntryDiaryId,
+                weekStart = userSettings.weekStart.name,
             ),
             moods = snapshot.moods.map { BackupMood(it.id, it.level, it.label, it.isPrimary, it.position, it.isArchived, it.colorKey) },
             diaries = snapshot.diaries.map {
@@ -341,6 +342,7 @@ internal class LocalBackupRepository @Inject constructor(
         s.compactTags?.let { settings.setCompactTags(it) }
         s.closeAfterSave?.let { settings.setCloseAfterSave(it) }
         s.keywordAutoAdd?.let { settings.setKeywordAutoAdd(it) }
+        s.weekStart?.let { settings.setWeekStart(it) }
         settings.setLastEntryDiaryId(diaryIds[s.lastDiaryIndex ?: 0])
         settings.setSampleHintDismissed(true)
     }

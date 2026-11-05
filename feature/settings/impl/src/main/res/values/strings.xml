@@ -9,6 +9,10 @@
     <string name="settings_theme_light">Light</string>
     <string name="settings_theme_dark">Dark</string>
     <string name="settings_language">Language</string>
+    <string name="settings_calendar">Calendar</string>
+    <string name="settings_week_start">First day of the week</string>
+    <string name="settings_week_start_body">Where weeks start for habits, Insights and weekday rows. Auto follows your region (%1$s).</string>
+    <string name="settings_week_start_region">Auto</string>
     <string name="settings_text_size">Entry text size</string>
     <string name="settings_text_size_timeline">Timeline</string>
     <string name="settings_text_size_timeline_body">Titles and notes on your entries</string>

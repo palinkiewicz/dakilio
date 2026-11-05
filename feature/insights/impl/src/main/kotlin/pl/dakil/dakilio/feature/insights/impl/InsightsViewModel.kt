@@ -18,6 +18,7 @@ import pl.dakil.dakilio.core.common.Dispatcher
 import pl.dakil.dakilio.core.data.repository.DiaryRepository
 import pl.dakil.dakilio.core.data.repository.MoodRepository
 import pl.dakil.dakilio.core.data.repository.PostRepository
+import pl.dakil.dakilio.core.data.repository.SettingsRepository
 import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.primaries
@@ -41,6 +42,7 @@ class InsightsViewModel @Inject constructor(
     postRepository: PostRepository,
     diaryRepository: DiaryRepository,
     moodRepository: MoodRepository,
+    settingsRepository: SettingsRepository,
     private val clock: Clock,
     private val savedStateHandle: SavedStateHandle,
     @Dispatcher(DakilioDispatchers.Default) default: CoroutineDispatcher,
@@ -49,14 +51,20 @@ class InsightsViewModel @Inject constructor(
     private val selectedDiaryId = savedStateHandle.getStateFlow<Long?>(KEY_DIARY, null)
 
     val uiState: StateFlow<InsightsUiState> =
-        combine(postRepository.posts, diaryRepository.diaries, moodRepository.moods, range, selectedDiaryId) { posts, diaries, moods, range, selected ->
+        combine(
+            combine(postRepository.posts, settingsRepository.firstDayOfWeek, ::Pair),
+            diaryRepository.diaries,
+            moodRepository.moods,
+            range,
+            selectedDiaryId,
+        ) { (posts, firstDay), diaries, moods, range, selected ->
             // Charts work per level: aliases fold into their level's primary.
             val primaries = moods.primaries()
             val filter = selected?.takeIf { id -> diaries.any { it.id == id } }
             val filtered = if (filter == null) posts else posts.filter { it.diaryId == filter }
             val today = LocalDate.now(clock)
             InsightsUiState.Ready(
-                insights = calculateInsights(filtered, primaries, range, today),
+                insights = calculateInsights(filtered, primaries, range, today, firstDay),
                 moods = primaries,
                 range = range,
                 diaries = diaries,

@@ -30,7 +30,7 @@ data class Insights(
     /** Every mood of the scale, worst to best, with its count in the range. */
     val distribution: List<MoodCount>,
     val topTags: List<TagCount>,
-    /** The last [HEATMAP_WEEKS] weeks, Monday-first, oldest first; ends today. */
+    /** The last [HEATMAP_WEEKS] weeks, each starting on the first day of the week, oldest first; ends today. */
     val heatmap: List<HeatDay>,
 ) {
     val moodEntryCount: Int get() = distribution.sumOf { it.count }
@@ -45,8 +45,15 @@ fun nearestMood(primaries: List<Mood>, value: Float): Mood? = primaries.minByOrN
 /**
  * @param primaries one mood per level; aliases are counted under their level's primary, so the
  *   distribution always has one segment per level.
+ * @param firstDay the first day of the week (the user's setting), where the heatmap's columns start.
  */
-fun calculateInsights(posts: List<Post>, primaries: List<Mood>, range: InsightsRange, today: LocalDate): Insights {
+fun calculateInsights(
+    posts: List<Post>,
+    primaries: List<Mood>,
+    range: InsightsRange,
+    today: LocalDate,
+    firstDay: DayOfWeek = DayOfWeek.MONDAY,
+): Insights {
     val from = range.days?.let { today.minusDays(it - 1) }
     val inRange = if (from == null) posts else posts.filter { !it.date.isBefore(from) && !it.date.isAfter(today) }
     val previous = range.days?.let { days ->
@@ -61,7 +68,7 @@ fun calculateInsights(posts: List<Post>, primaries: List<Mood>, range: InsightsR
         .sortedWith(compareByDescending<TagCount> { it.count }.thenBy { it.tag.label })
         .take(TOP_TAGS)
 
-    val heatStart = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).minusWeeks(HEATMAP_WEEKS - 1L)
+    val heatStart = today.with(TemporalAdjusters.previousOrSame(firstDay)).minusWeeks(HEATMAP_WEEKS - 1L)
     val byDate = posts.filter { !it.date.isBefore(heatStart) && !it.date.isAfter(today) }.groupBy { it.date }
     val heatmap = generateSequence(heatStart) { it.plusDays(1) }
         .takeWhile { !it.isAfter(today) }

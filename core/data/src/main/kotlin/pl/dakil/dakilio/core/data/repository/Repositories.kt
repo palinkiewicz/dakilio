@@ -1,6 +1,7 @@
 package pl.dakil.dakilio.core.data.repository
 
 import android.net.Uri
+import java.time.DayOfWeek
 import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 import pl.dakil.dakilio.core.model.ArchivedTags
@@ -20,6 +21,7 @@ import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TagUsage
 import pl.dakil.dakilio.core.model.ThemeMode
 import pl.dakil.dakilio.core.model.UserSettings
+import pl.dakil.dakilio.core.model.WeekStart
 import pl.dakil.dakilio.core.backup.RestoreStats
 import pl.dakil.dakilio.core.daylio.ImportStats
 
@@ -127,7 +129,7 @@ interface HabitRepository {
     /** Every habit, without progress. */
     suspend fun habitList(): List<Habit>
 
-    /** Days with each habit's tag in the (Monday-based) week of [date], by habit id; habits at 0 are absent. */
+    /** Days with each habit's tag in the week of [date] (by the user's first day of the week), by habit id; habits at 0 are absent. */
     suspend fun weekCounts(date: LocalDate): Map<Long, Int>
 
     suspend fun addHabit(tagId: Long, daysPerWeek: Int): Long
@@ -190,6 +192,14 @@ interface SettingsRepository {
     suspend fun setCloseAfterSave(close: Boolean)
 
     suspend fun setKeywordAutoAdd(auto: Boolean)
+
+    suspend fun setWeekStart(start: WeekStart)
+
+    /** The first day of the week the user's [UserSettings.weekStart] means here (the region default resolved). */
+    val firstDayOfWeek: Flow<DayOfWeek>
+
+    /** What [WeekStart.Region] means on this device right now. */
+    fun regionFirstDayOfWeek(): DayOfWeek
 }
 
 /** Recent searches, newest first, kept on the device. Entries are opaque strings encoded by the search screen. */

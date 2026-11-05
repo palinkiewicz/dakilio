@@ -34,6 +34,8 @@ class DakilioFormats(private val locale: Locale, is24Hour: Boolean) {
     fun dayMonth(date: LocalDate): String = dayMonth.format(date)
     fun dayMonthShort(date: LocalDate): String = dayMonthShort.format(date)
     fun weekdayNarrow(day: DayOfWeek): String = day.getDisplayName(TextStyle.NARROW, locale)
+    fun weekdayShort(day: DayOfWeek): String = day.getDisplayName(TextStyle.SHORT, locale)
+    fun weekday(day: DayOfWeek): String = day.getDisplayName(TextStyle.FULL, locale).replaceFirstChar { it.titlecase() }
     fun dayMonthYear(date: LocalDate): String = dayMonthYear.format(date)
 
     fun monthYear(date: LocalDate): String = monthYear.format(date).replaceFirstChar { it.titlecase() }

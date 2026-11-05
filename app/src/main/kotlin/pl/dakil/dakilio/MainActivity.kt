@@ -18,6 +18,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import pl.dakil.dakilio.core.designsystem.theme.DakilioTheme
 import pl.dakil.dakilio.core.model.ThemeMode
 import pl.dakil.dakilio.core.ui.LocalEntryDisplay
+import pl.dakil.dakilio.core.ui.LocalFirstDayOfWeek
 import pl.dakil.dakilio.core.ui.LocalShowHints
 import pl.dakil.dakilio.core.data.repository.AppLock
 import pl.dakil.dakilio.core.data.repository.IncomingBackups
@@ -44,6 +45,7 @@ class MainActivity : ComponentActivity() {
             val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
             val showHints by viewModel.showHints.collectAsStateWithLifecycle()
             val entryDisplay by viewModel.entryDisplay.collectAsStateWithLifecycle()
+            val firstDayOfWeek by viewModel.firstDayOfWeek.collectAsStateWithLifecycle()
             val showIntro by viewModel.showIntro.collectAsStateWithLifecycle()
             val locked by viewModel.locked.collectAsStateWithLifecycle()
             val recovered by viewModel.recovered.collectAsStateWithLifecycle()
@@ -66,7 +68,11 @@ class MainActivity : ComponentActivity() {
                 onDispose { }
             }
             DakilioTheme(darkTheme = dark) {
-                CompositionLocalProvider(LocalShowHints provides showHints, LocalEntryDisplay provides entryDisplay) {
+                CompositionLocalProvider(
+                    LocalShowHints provides showHints,
+                    LocalEntryDisplay provides entryDisplay,
+                    LocalFirstDayOfWeek provides firstDayOfWeek,
+                ) {
                     LockGate(locked = isLocked) {
                         if (intro) {
                             IntroFlow(incomingBackup = incomingBackup, onFinished = viewModel::finishIntro)

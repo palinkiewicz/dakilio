@@ -1,5 +1,8 @@
 package pl.dakil.dakilio.core.model
 
+import java.time.DayOfWeek
+import java.time.temporal.WeekFields
+import java.util.Locale
 import kotlin.math.roundToInt
 
 enum class ThemeMode { System, Light, Dark }
@@ -9,6 +12,18 @@ enum class TagStyle { Icons, Chips }
 
 /** How many lines of an entry's note a post card shows; [Full] shows all of it (and the whole title). */
 enum class PreviewLength(val noteLines: Int?) { Short(4), Medium(8), Long(16), Full(null) }
+
+/** The first day of the week (habits, the Insights heatmap, weekday rows). [Region] follows the device region. */
+enum class WeekStart(private val day: DayOfWeek?) {
+    Region(null),
+    Monday(DayOfWeek.MONDAY),
+    Saturday(DayOfWeek.SATURDAY),
+    Sunday(DayOfWeek.SUNDAY),
+    ;
+
+    /** The day this choice means, with [region] (the device's own locale) answering for [Region]. */
+    fun resolve(region: Locale): DayOfWeek = day ?: WeekFields.of(region).firstDayOfWeek
+}
 
 data class UserSettings(
     val themeMode: ThemeMode = ThemeMode.System,
@@ -30,6 +45,7 @@ data class UserSettings(
     val closeAfterSave: Boolean = true,
     /** Keywords (the extra) add their tag at once instead of suggesting it. */
     val keywordAutoAdd: Boolean = false,
+    val weekStart: WeekStart = WeekStart.Region,
 )
 
 /** The range of the entry text size settings. Only entry titles and notes scale, never the rest of the UI. */
