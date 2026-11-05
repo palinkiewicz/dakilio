@@ -17,3 +17,6 @@ build/
 /app/preview/
 *.apk
 *.aab
+
+# Personal Claude Code instructions for this machine
+CLAUDE.local.md

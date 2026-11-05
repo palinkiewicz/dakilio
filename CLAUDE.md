@@ -10,8 +10,7 @@ The app is past its proof-of-concept stage. `.materials/poc.md` was the original
 
 ## Commands
 
-The system JDK on this machine is a JRE without `javac`, so always use Android Studio's JDK:
-`export JAVA_HOME=/opt/android-studio/jbr`.
+Machine-specific setup (JDK path, emulator) lives in `CLAUDE.local.md`, which is git-ignored and may not exist.
 
 - Compile while iterating: `./gradlew :feature:<name>:impl:compileDebugKotlin` (or `:app:assembleDebug`).
 - All unit tests: `./gradlew testDebugUnitTest :core:model:test :core:daylio:test :core:backup:test :core:security:test`. The JVM modules' task is `test`, not `testDebugUnitTest`.
@@ -26,8 +25,7 @@ The system JDK on this machine is a JRE without `javac`, so always use Android S
   | `assembleRelease` | `pl.dakil.dakilio` | "Dakilio" | Signed only when a `keystore.properties` exists; otherwise unsigned. |
 
   Labels come from the `appName` manifest placeholder in `app/build.gradle.kts`.
-- Emulator verification:
-  - Use AVD `transport-test` (API 35, 1080×2400) and address it with `adb -s emulator-5554`.
+- Device verification:
   - Launch with `pl.dakil.dakilio.debug/pl.dakil.dakilio.MainActivity`.
   - Debug builds allow `run-as pl.dakil.dakilio.debug` (for example, `ls files/photos`).
 - Asset pipelines (both are reproducible; don't hand-edit their outputs):
@@ -37,7 +35,6 @@ The system JDK on this machine is a JRE without `javac`, so always use Android S
   1. Install `app-nonMinifiedRelease.apk` and the `baselineprofile` test APK.
   2. Run `adb shell am instrument -w -e targetAppId pl.dakil.dakilio pl.dakil.dakilio.baselineprofile/androidx.test.runner.AndroidJUnitRunner`.
   3. Copy the pulled profile into `app/src/main/generated/baselineProfiles/` as both `baseline-prof.txt` and `startup-prof.txt`.
-- If AAPT2 fails with "Daemon startup failed / spawn helper", a Gradle daemon is running on a JDK that was updated on disk. Run `./gradlew --stop`.
 
 ## Build setup
 
