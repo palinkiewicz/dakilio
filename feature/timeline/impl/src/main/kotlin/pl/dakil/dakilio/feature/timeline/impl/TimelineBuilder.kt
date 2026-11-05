@@ -177,3 +177,58 @@ fun buildTimeline(
     flushEmptyRun()
     return items
 }
+
+/** The day an item belongs to (a quiet stretch counts as its newest day); `null` for a month divider. */
+internal fun TimelineItem.dayOrNull(): LocalDate? = when (this) {
+    is TimelineItem.DayHeader -> date
+    is TimelineItem.TodayPrompt -> date
+    is TimelineItem.PostItem -> post.date
+    is TimelineItem.EmptyDay -> date
+    is TimelineItem.QuietStretch -> newest
+    is TimelineItem.OtherDiaries -> date
+    is TimelineItem.MonthDivider -> null
+}
+
+/** The month the row at [index] belongs to, for the month navigator; `null` for an empty list. */
+internal fun List<TimelineItem>.monthAt(index: Int): YearMonth? {
+    val item = getOrNull(index.coerceIn(0, (size - 1).coerceAtLeast(0))) ?: return null
+    if (item is TimelineItem.MonthDivider) return item.month
+    return item.dayOrNull()?.let(YearMonth::from)
+}
+
+/**
+ * The row a jump to [month] lands on: the top of its section, i.e. its divider. The newest month has
+ * no divider, so it's the list's first row. A month swallowed whole by a collapsed quiet stretch that
+ * started in a newer month has no section of its own, so it lands on that stretch. `null` if the
+ * month is outside the timeline.
+ */
+internal fun List<TimelineItem>.monthTopIndex(month: YearMonth): Int? {
+    if (isEmpty()) return null
+    if (monthAt(0) == month) return 0
+    indexOfFirst { it is TimelineItem.MonthDivider && it.month == month }.takeIf { it >= 0 }?.let { return it }
+    return indexOfFirst {
+        it is TimelineItem.QuietStretch && YearMonth.from(it.oldest) <= month && month <= YearMonth.from(it.newest)
+    }.takeIf { it >= 0 }
+}
+
+/** The months that have a section of their own (a divider, or the top of the list), newest first. */
+internal fun List<TimelineItem>.sectionMonths(): List<YearMonth> {
+    val first = monthAt(0) ?: return emptyList()
+    return listOf(first) + filterIsInstance<TimelineItem.MonthDivider>().map { it.month }
+}
+
+/** A month at a glance, for the month picker. [averageLevel] is `null` when no entry has a mood. */
+data class MonthSummary(val entries: Int, val averageLevel: Int?)
+
+/** Per-month entry counts and average mood level, for the posts shown under [selectedDiaryId]. */
+internal fun monthSummaries(posts: List<Post>, selectedDiaryId: Long?): Map<YearMonth, MonthSummary> =
+    posts.asSequence()
+        .filter { selectedDiaryId == null || it.diaryId == selectedDiaryId }
+        .groupBy { YearMonth.from(it.date) }
+        .mapValues { (_, monthPosts) ->
+            val levels = monthPosts.mapNotNull { it.mood?.level }
+            MonthSummary(
+                entries = monthPosts.size,
+                averageLevel = if (levels.isEmpty()) null else Math.round(levels.average()).toInt(),
+            )
+        }

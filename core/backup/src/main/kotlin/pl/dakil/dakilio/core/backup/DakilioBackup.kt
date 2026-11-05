@@ -67,6 +67,8 @@ data class BackupSettings(
     /** A `PreviewLength` name. */
     val previewLength: String? = null,
     val compactTags: Boolean? = null,
+    /** The timeline's floating month pill. */
+    val monthNavigator: Boolean? = null,
     val closeAfterSave: Boolean? = null,
     /** Keywords add their tag at once instead of suggesting it. */
     val keywordAutoAdd: Boolean? = null,

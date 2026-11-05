@@ -10,6 +10,7 @@ import androidx.compose.ui.res.stringResource
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.time.temporal.ChronoUnit
@@ -25,6 +26,7 @@ class DakilioFormats(private val locale: Locale, is24Hour: Boolean) {
     private val dayMonthShort = DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "dMMM"), locale)
     private val dayMonthYear = DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "dMMMyyyy"), locale)
     private val monthYear = DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "MMMMyyyy"), locale)
+    private val monthShort = DateTimeFormatter.ofPattern("LLL", locale)
     private val fullDate = DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "EEEEdMMMM"), locale)
     private val fullDateYear = DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "EEEEdMMMMyyyy"), locale)
 
@@ -39,6 +41,9 @@ class DakilioFormats(private val locale: Locale, is24Hour: Boolean) {
     fun dayMonthYear(date: LocalDate): String = dayMonthYear.format(date)
 
     fun monthYear(date: LocalDate): String = monthYear.format(date).replaceFirstChar { it.titlecase() }
+
+    /** The month's short standalone name ("Feb", „lut”), for month grids. */
+    fun monthShort(month: YearMonth): String = monthShort.format(month).trimEnd('.').replaceFirstChar { it.titlecase() }
 
     fun fullDate(date: LocalDate, today: LocalDate): String =
         (if (date.year == today.year) fullDate else fullDateYear).format(date).replaceFirstChar { it.titlecase() }

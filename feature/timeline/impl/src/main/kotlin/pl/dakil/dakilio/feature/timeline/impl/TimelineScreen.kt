@@ -68,6 +68,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -79,6 +80,7 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.time.Instant
 import java.time.LocalDate
+import java.time.YearMonth
 import java.time.ZoneOffset
 import kotlinx.coroutines.launch
 import pl.dakil.dakilio.core.designsystem.component.pressScale
@@ -130,6 +132,7 @@ internal fun TimelineRoute(
         onOpenSearch = onOpenSearch,
         onPreviewLength = viewModel::setPreviewLength,
         onCompactTags = viewModel::setCompactTags,
+        onMonthNavigator = viewModel::setMonthNavigator,
         onTextScale = viewModel::setTimelineTextScale,
     )
 }
@@ -144,6 +147,7 @@ internal fun TimelineScreen(
     onOpenSearch: () -> Unit,
     onPreviewLength: (PreviewLength) -> Unit,
     onCompactTags: (Boolean) -> Unit,
+    onMonthNavigator: (Boolean) -> Unit,
     onTextScale: (Float) -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -161,7 +165,27 @@ internal fun TimelineScreen(
     // key, falling back to its index: often a different day.
     var pendingJump by remember { mutableStateOf<DayJump?>(null) }
     var pickDate by rememberSaveable { mutableStateOf(false) }
+    var pickMonth by rememberSaveable { mutableStateOf(false) }
     var viewMenu by rememberSaveable { mutableStateOf(false) }
+    val density = LocalDensity.current
+    // The first row not covered by the month pill decides the month it shows.
+    val coveredPx = with(density) { MonthNavigatorClearance.roundToPx() }
+    val topIndex by remember(coveredPx) {
+        derivedStateOf {
+            listState.layoutInfo.visibleItemsInfo.firstOrNull { it.offset + it.size > coveredPx }?.index
+                ?: listState.firstVisibleItemIndex
+        }
+    }
+    // Jumps to the top of a month, just below the floating month pill (the newest month: the very
+    // top). Unlike a day jump it never waits for a new list, so it scrolls at once.
+    fun jumpToMonth(month: YearMonth) {
+        val items = ready?.items ?: return
+        when (val index = items.monthTopIndex(month)) {
+            null -> Unit
+            0 -> listState.requestScrollToItem(0)
+            else -> listState.requestScrollToItem(index, -coveredPx)
+        }
+    }
     SideEffect {
         val jump = pendingJump ?: return@SideEffect
         if (ready == null || (jump.diaryId != null && ready.selectedDiaryId != jump.diaryId)) return@SideEffect
@@ -208,6 +232,8 @@ internal fun TimelineScreen(
                                 onDismiss = { viewMenu = false },
                                 onPreviewLength = onPreviewLength,
                                 onCompactTags = onCompactTags,
+                                monthNavigator = ready?.monthNavigator ?: true,
+                                onMonthNavigator = onMonthNavigator,
                                 onTextScale = onTextScale,
                             )
                         }
@@ -354,11 +380,47 @@ internal fun TimelineScreen(
                         }
                     }
                 }
+                val month = state.items.monthAt(topIndex)
+                val sections = remember(state.items) { state.items.sectionMonths() }
+                AnimatedVisibility(
+                    visible = state.monthNavigator && month != null && listState.firstVisibleItemIndex >= 1,
+                    enter = scaleIn(MaterialTheme.motionScheme.fastSpatialSpec()) + fadeIn(MaterialTheme.motionScheme.fastEffectsSpec()),
+                    exit = scaleOut(MaterialTheme.motionScheme.fastSpatialSpec()) + fadeOut(MaterialTheme.motionScheme.fastEffectsSpec()),
+                    modifier = Modifier.padding(top = padding.calculateTopPadding() + Spacing.s),
+                ) {
+                    // Keeps the last month while the pill animates out.
+                    val shown = month ?: sections.firstOrNull() ?: YearMonth.from(state.today)
+                    val position = sections.indexOf(shown)
+                    MonthNavigator(
+                        month = shown,
+                        newer = sections.getOrNull(position - 1),
+                        older = if (position >= 0) sections.getOrNull(position + 1) else null,
+                        formats = formats,
+                        onJump = ::jumpToMonth,
+                        onPick = { pickMonth = true },
+                    )
+                }
             }
         }
     }
 
     viewer?.let { (photos, index) -> PhotoViewer(photos, index, onDismiss = { viewer = null }) }
+
+    if (pickMonth && ready != null) {
+        MonthPickerSheet(
+            current = ready.items.monthAt(topIndex) ?: YearMonth.from(ready.today),
+            firstDay = ready.firstDay,
+            lastDay = ready.lastDay,
+            months = ready.months,
+            moods = ready.moods,
+            formats = formats,
+            onPick = { month ->
+                pickMonth = false
+                jumpToMonth(month)
+            },
+            onDismiss = { pickMonth = false },
+        )
+    }
 
     if (pickDate && ready != null) {
         val topDay = ready.items.getOrNull(listState.firstVisibleItemIndex)?.dayOrNull()
@@ -422,17 +484,6 @@ private fun JumpToDateDialog(
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.timeline_cancel)) } },
     ) { DatePicker(pickerState) }
-}
-
-/** The day an item belongs to, for opening the date picker where the list currently is. */
-private fun TimelineItem.dayOrNull(): LocalDate? = when (this) {
-    is TimelineItem.DayHeader -> date
-    is TimelineItem.TodayPrompt -> date
-    is TimelineItem.PostItem -> post.date
-    is TimelineItem.EmptyDay -> date
-    is TimelineItem.QuietStretch -> newest
-    is TimelineItem.OtherDiaries -> date
-    is TimelineItem.MonthDivider -> null
 }
 
 /**

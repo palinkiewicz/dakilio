@@ -214,6 +214,8 @@ interface SettingsRepository {
 
     suspend fun setCompactTags(compact: Boolean)
 
+    suspend fun setMonthNavigator(show: Boolean)
+
     suspend fun setCloseAfterSave(close: Boolean)
 
     suspend fun setKeywordAutoAdd(auto: Boolean)

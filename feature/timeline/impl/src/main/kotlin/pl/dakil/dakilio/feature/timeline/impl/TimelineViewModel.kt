@@ -7,13 +7,16 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.YearMonth
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -42,6 +45,10 @@ sealed interface TimelineUiState {
         /** The range [buildTimeline] covers; the jump-to-date picker is limited to it. */
         val firstDay: LocalDate,
         val lastDay: LocalDate,
+        /** Entry counts and average moods per month in the filter, for the month picker. */
+        val months: Map<YearMonth, MonthSummary>,
+        /** The floating month pill is on (a view option). */
+        val monthNavigator: Boolean,
         val greeting: Greeting,
         val streak: Int,
         val isEmpty: Boolean,
@@ -63,9 +70,10 @@ class TimelineViewModel @Inject constructor(
     private val expandedStretches = MutableStateFlow(emptySet<Long>())
 
     private val inputs = combine(postRepository.posts, diaryRepository.diaries, moodRepository.moods, ::Triple)
+    private val monthNavigator = settingsRepository.settings.map { it.monthNavigator }.distinctUntilChanged()
 
     val uiState: StateFlow<TimelineUiState> =
-        combine(inputs, selectedDiaryId, today, expandedStretches) { (posts, diaries, moods), selected, today, expanded ->
+        combine(inputs, selectedDiaryId, today, expandedStretches, monthNavigator) { (posts, diaries, moods), selected, today, expanded, showMonths ->
             // A filter pointing at a deleted diary falls back to "All".
             val filter = selected?.takeIf { id -> diaries.any { it.id == id } }
             val visibleDays = posts.asSequence()
@@ -81,6 +89,8 @@ class TimelineViewModel @Inject constructor(
                 today = today,
                 firstDay = bounds.start,
                 lastDay = bounds.endInclusive,
+                months = monthSummaries(posts, filter),
+                monthNavigator = showMonths,
                 greeting = greetingFor(LocalTime.now(clock)),
                 streak = Streaks.current(visibleDays, today),
                 isEmpty = posts.isEmpty(),
@@ -110,6 +120,10 @@ class TimelineViewModel @Inject constructor(
 
     fun setCompactTags(compact: Boolean) {
         viewModelScope.launch { settingsRepository.setCompactTags(compact) }
+    }
+
+    fun setMonthNavigator(show: Boolean) {
+        viewModelScope.launch { settingsRepository.setMonthNavigator(show) }
     }
 
     fun setTimelineTextScale(scale: Float) {

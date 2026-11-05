@@ -18,6 +18,8 @@
     <string name="timeline_view_preview_full">Full</string>
     <string name="timeline_view_compact_tags">Compact tags</string>
     <string name="timeline_view_compact_tags_body">Only icons</string>
+    <string name="timeline_view_month_navigator">Month navigator</string>
+    <string name="timeline_view_month_navigator_body">Jump between months while scrolling</string>
     <string name="timeline_view_text_size">Text size</string>
     <string name="timeline_jump">Go</string>
     <string name="timeline_cancel">Cancel</string>
@@ -38,4 +40,10 @@
     <string name="timeline_empty_title">Your journey starts here</string>
     <string name="timeline_empty_body">Capture a mood, a few tags or a thought. It only takes a moment.</string>
     <string name="timeline_empty_action">Write your first entry</string>
+    <string name="timeline_month_newer">Newer month</string>
+    <string name="timeline_month_older">Older month</string>
+    <string name="timeline_month_choose">Choose month, now %1$s</string>
+    <string name="timeline_month_prev_year">Previous year</string>
+    <string name="timeline_month_next_year">Next year</string>
+    <string name="timeline_month_no_entries">%1$s, no entries</string>
 </resources>

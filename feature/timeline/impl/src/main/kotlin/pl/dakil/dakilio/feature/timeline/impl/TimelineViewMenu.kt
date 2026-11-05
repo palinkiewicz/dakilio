@@ -43,10 +43,11 @@ internal fun TimelineViewMenu(
     onDismiss: () -> Unit,
     onPreviewLength: (PreviewLength) -> Unit,
     onCompactTags: (Boolean) -> Unit,
+    monthNavigator: Boolean,
+    onMonthNavigator: (Boolean) -> Unit,
     onTextScale: (Float) -> Unit,
 ) {
     val display = LocalEntryDisplay.current
-    val haptics = rememberHaptics()
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismiss,
@@ -68,28 +69,18 @@ internal fun TimelineViewMenu(
                 contentPadding = PaddingValues(horizontal = 6.dp),
             )
 
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = Spacing.l)) {
-                Column(Modifier.weight(1f)) {
-                    MenuTitle(stringResource(R.string.timeline_view_compact_tags))
-                    Text(
-                        stringResource(R.string.timeline_view_compact_tags_body),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                Switch(
-                    checked = display.compactTags,
-                    onCheckedChange = {
-                        haptics.toggle(it)
-                        onCompactTags(it)
-                    },
-                    thumbContent = if (display.compactTags) {
-                        { DakilioIcon(DakilioSymbols.Check, contentDescription = null, modifier = Modifier.size(SwitchDefaults.IconSize)) }
-                    } else {
-                        null
-                    },
-                )
-            }
+            MenuSwitch(
+                title = stringResource(R.string.timeline_view_compact_tags),
+                body = stringResource(R.string.timeline_view_compact_tags_body),
+                checked = display.compactTags,
+                onCheckedChange = onCompactTags,
+            )
+            MenuSwitch(
+                title = stringResource(R.string.timeline_view_month_navigator),
+                body = stringResource(R.string.timeline_view_month_navigator_body),
+                checked = monthNavigator,
+                onCheckedChange = onMonthNavigator,
+            )
 
             MenuTitle(stringResource(R.string.timeline_view_text_size), Modifier.padding(top = Spacing.l))
             // Local so the thumb follows the finger; each step is saved, so the cards follow too.
@@ -102,6 +93,29 @@ internal fun TimelineViewMenu(
                 },
             )
         }
+    }
+}
+
+@Composable
+private fun MenuSwitch(title: String, body: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    val haptics = rememberHaptics()
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = Spacing.l)) {
+        Column(Modifier.weight(1f)) {
+            MenuTitle(title)
+            Text(body, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Switch(
+            checked = checked,
+            onCheckedChange = {
+                haptics.toggle(it)
+                onCheckedChange(it)
+            },
+            thumbContent = if (checked) {
+                { DakilioIcon(DakilioSymbols.Check, contentDescription = null, modifier = Modifier.size(SwitchDefaults.IconSize)) }
+            } else {
+                null
+            },
+        )
     }
 }
 

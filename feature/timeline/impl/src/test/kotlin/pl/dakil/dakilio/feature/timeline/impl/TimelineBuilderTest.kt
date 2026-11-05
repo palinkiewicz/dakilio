@@ -2,14 +2,18 @@ package pl.dakil.dakilio.feature.timeline.impl
 
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.YearMonth
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import pl.dakil.dakilio.core.model.Diary
+import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.Post
 import pl.dakil.dakilio.feature.timeline.impl.TimelineItem.DayHeader
 import pl.dakil.dakilio.feature.timeline.impl.TimelineItem.EmptyDay
+import pl.dakil.dakilio.feature.timeline.impl.TimelineItem.MonthDivider
 import pl.dakil.dakilio.feature.timeline.impl.TimelineItem.OtherDiaries
 import pl.dakil.dakilio.feature.timeline.impl.TimelineItem.PostItem
 import pl.dakil.dakilio.feature.timeline.impl.TimelineItem.QuietStretch
@@ -21,10 +25,10 @@ class TimelineBuilderTest {
     private val work = Diary(2, "Work", "work", 1, emptySet())
     private var nextId = 1L
 
-    private fun post(daysAgo: Long, hour: Int = 12, diary: Long = 1) = Post(
+    private fun post(daysAgo: Long, hour: Int = 12, diary: Long = 1, mood: Mood? = null) = Post(
         id = nextId++,
         dateTime = today.minusDays(daysAgo).atTime(LocalTime.of(hour, 0)),
-        mood = null,
+        mood = mood,
         title = "t",
         note = null,
         tags = emptyList(),
@@ -144,5 +148,60 @@ class TimelineBuilderTest {
         val filtered = buildTimeline(listOf(p), listOf(journey, work), 2L, today).filterIsInstance<PostItem>().single()
         assertEquals(work, all.diary)
         assertEquals(null, filtered.diary)
+    }
+
+    private fun mood(level: Int) = Mood(level.toLong(), level, "m$level", true, 0)
+
+    private val oct = YearMonth.of(2026, 10)
+    private val sep = YearMonth.of(2026, 9)
+    private val aug = YearMonth.of(2026, 8)
+    private val jul = YearMonth.of(2026, 7)
+
+    @Test
+    fun `monthAt reads dividers, days and stretches`() {
+        // Sep 2 and Aug 20: the stretch Sep 1..Aug 21 sits under September.
+        val items = buildTimeline(listOf(post(1), post(57), post(70)), listOf(journey), null, today)
+        assertEquals(oct, items.monthAt(0))
+        val sepDivider = items.indexOf(MonthDivider(sep))
+        assertEquals(sep, items.monthAt(sepDivider))
+        val stretch = items.indexOfFirst { it is QuietStretch && it.newest == today.minusDays(58) }
+        assertEquals(sep, items.monthAt(stretch))
+        assertEquals(aug, items.monthAt(items.lastIndex))
+        assertNull(emptyList<TimelineItem>().monthAt(0))
+    }
+
+    @Test
+    fun `monthTopIndex lands on the top of a month`() {
+        val items = buildTimeline(listOf(post(1), post(57), post(70)), listOf(journey), null, today)
+        assertEquals(0, items.monthTopIndex(oct))
+        assertEquals(items.indexOf(MonthDivider(sep)), items.monthTopIndex(sep))
+        assertEquals(items.indexOf(MonthDivider(aug)), items.monthTopIndex(aug))
+        assertNull(items.monthTopIndex(jul))
+        assertEquals(listOf(oct, sep, aug), items.sectionMonths())
+    }
+
+    @Test
+    fun `a month swallowed by a stretch lands on that stretch`() {
+        // Oct 28, then nothing until Aug 20: one stretch from Oct 27 covers all of September.
+        val items = buildTimeline(listOf(post(1), post(70)), listOf(journey), null, today)
+        val stretch = items.indexOfFirst { it is QuietStretch }
+        assertEquals(stretch, items.monthTopIndex(sep))
+        assertEquals(listOf(oct, aug), items.sectionMonths())
+    }
+
+    @Test
+    fun `month summaries count entries and average the mood level in the filter`() {
+        val posts = listOf(
+            post(1, mood = mood(5)),
+            post(2, mood = mood(4)),
+            post(3),
+            post(4, diary = 2, mood = mood(1)),
+            post(40),
+        )
+        val all = monthSummaries(posts, null)
+        assertEquals(MonthSummary(4, 3), all[oct]) // (5 + 4 + 1) / 3 = 3.3
+        assertEquals(MonthSummary(1, null), all[sep])
+        assertEquals(MonthSummary(3, 5), monthSummaries(posts, 1)[oct]) // 4.5 rounds up
+        assertNull(monthSummaries(posts, 2)[sep])
     }
 }

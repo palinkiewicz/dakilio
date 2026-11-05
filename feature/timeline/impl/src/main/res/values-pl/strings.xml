@@ -20,6 +20,8 @@
     <string name="timeline_view_preview_full">Cały</string>
     <string name="timeline_view_compact_tags">Kompaktowe tagi</string>
     <string name="timeline_view_compact_tags_body">Tylko ikony</string>
+    <string name="timeline_view_month_navigator">Nawigacja miesięcy</string>
+    <string name="timeline_view_month_navigator_body">Przechodzenie między miesiącami podczas przewijania</string>
     <string name="timeline_view_text_size">Rozmiar tekstu</string>
     <string name="timeline_jump">Przejdź</string>
     <string name="timeline_cancel">Anuluj</string>
@@ -42,4 +44,10 @@
     <string name="timeline_empty_title">Tu zaczyna się twoja historia</string>
     <string name="timeline_empty_body">Zapisz nastrój, kilka tagów albo jedną myśl. To zajmie tylko chwilę.</string>
     <string name="timeline_empty_action">Napisz pierwszy wpis</string>
+    <string name="timeline_month_newer">Nowszy miesiąc</string>
+    <string name="timeline_month_older">Starszy miesiąc</string>
+    <string name="timeline_month_choose">Wybierz miesiąc, teraz %1$s</string>
+    <string name="timeline_month_prev_year">Poprzedni rok</string>
+    <string name="timeline_month_next_year">Następny rok</string>
+    <string name="timeline_month_no_entries">%1$s, brak wpisów</string>
 </resources>

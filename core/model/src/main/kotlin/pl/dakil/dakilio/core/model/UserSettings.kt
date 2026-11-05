@@ -54,6 +54,8 @@ data class UserSettings(
     val previewLength: PreviewLength = PreviewLength.Short,
     /** Post cards show tags as icons only, without their names. */
     val compactTags: Boolean = false,
+    /** The timeline shows the floating month pill (▲ month ▼) once scrolled. */
+    val monthNavigator: Boolean = true,
     /** Saving edits to an existing entry closes it; otherwise the entry goes back to reading. */
     val closeAfterSave: Boolean = true,
     /** Keywords (the extra) add their tag at once instead of suggesting it. */

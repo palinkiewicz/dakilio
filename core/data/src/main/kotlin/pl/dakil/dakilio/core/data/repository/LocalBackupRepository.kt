@@ -128,6 +128,7 @@ internal class LocalBackupRepository @Inject constructor(
                 editorTextScale = userSettings.editorTextScale,
                 previewLength = userSettings.previewLength.name,
                 compactTags = userSettings.compactTags,
+                monthNavigator = userSettings.monthNavigator,
                 closeAfterSave = userSettings.closeAfterSave,
                 keywordAutoAdd = userSettings.keywordAutoAdd,
                 lastDiary = userSettings.lastEntryDiaryId,
@@ -378,6 +379,7 @@ internal class LocalBackupRepository @Inject constructor(
         s.editorTextScale?.let { settings.setEditorTextScale(it) }
         s.previewLength?.let { settings.setPreviewLength(it) }
         s.compactTags?.let { settings.setCompactTags(it) }
+        s.monthNavigator?.let { settings.setMonthNavigator(it) }
         s.closeAfterSave?.let { settings.setCloseAfterSave(it) }
         s.keywordAutoAdd?.let { settings.setKeywordAutoAdd(it) }
         s.weekStart?.let { settings.setWeekStart(it) }

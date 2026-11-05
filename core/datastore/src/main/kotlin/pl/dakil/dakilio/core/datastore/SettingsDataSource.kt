@@ -38,6 +38,7 @@ class SettingsDataSource @Inject constructor(
                 previewLength = prefs[PREVIEW_LENGTH]?.let { name -> PreviewLength.entries.firstOrNull { it.name == name } }
                     ?: PreviewLength.Short,
                 compactTags = prefs[COMPACT_TAGS] ?: false,
+                monthNavigator = prefs[MONTH_NAVIGATOR] ?: true,
                 closeAfterSave = prefs[CLOSE_AFTER_SAVE] ?: true,
                 keywordAutoAdd = prefs[KEYWORD_AUTO_ADD] ?: false,
                 weekStart = prefs[WEEK_START]?.let { name -> WeekStart.entries.firstOrNull { it.name == name } }
@@ -100,6 +101,10 @@ class SettingsDataSource @Inject constructor(
         dataStore.edit { it[COMPACT_TAGS] = compact }
     }
 
+    suspend fun setMonthNavigator(show: Boolean) {
+        dataStore.edit { it[MONTH_NAVIGATOR] = show }
+    }
+
     suspend fun setCloseAfterSave(close: Boolean) {
         dataStore.edit { it[CLOSE_AFTER_SAVE] = close }
     }
@@ -126,6 +131,7 @@ class SettingsDataSource @Inject constructor(
         val EDITOR_TEXT_SCALE = floatPreferencesKey("editor_text_scale")
         val PREVIEW_LENGTH = stringPreferencesKey("preview_length")
         val COMPACT_TAGS = booleanPreferencesKey("compact_tags")
+        val MONTH_NAVIGATOR = booleanPreferencesKey("month_navigator")
         val CLOSE_AFTER_SAVE = booleanPreferencesKey("close_after_save")
         val KEYWORD_AUTO_ADD = booleanPreferencesKey("keyword_auto_add")
         val WEEK_START = stringPreferencesKey("week_start")

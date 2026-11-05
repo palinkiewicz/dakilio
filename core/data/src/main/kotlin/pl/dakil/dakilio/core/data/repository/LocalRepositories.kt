@@ -257,6 +257,8 @@ internal class LocalSettingsRepository @Inject constructor(
 
     override suspend fun setCompactTags(compact: Boolean) = dataSource.setCompactTags(compact)
 
+    override suspend fun setMonthNavigator(show: Boolean) = dataSource.setMonthNavigator(show)
+
     override suspend fun setCloseAfterSave(close: Boolean) = dataSource.setCloseAfterSave(close)
 
     override suspend fun setKeywordAutoAdd(auto: Boolean) = dataSource.setKeywordAutoAdd(auto)
