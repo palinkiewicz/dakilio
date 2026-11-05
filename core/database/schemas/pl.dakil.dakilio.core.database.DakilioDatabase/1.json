@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "f9e6620942959e85ebc92baa50859edf",
+    "identityHash": "db92c16915c5503307f4b298faad981b",
     "entities": [
       {
         "tableName": "mood",
@@ -70,7 +70,7 @@
       },
       {
         "tableName": "diary",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `icon_key` TEXT NOT NULL, `position` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `reminder_on` INTEGER NOT NULL DEFAULT 0, `reminder_minute` INTEGER NOT NULL DEFAULT 1200)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `icon_key` TEXT NOT NULL, `position` INTEGER NOT NULL, `created_at` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -101,20 +101,6 @@
             "columnName": "created_at",
             "affinity": "INTEGER",
             "notNull": true
-          },
-          {
-            "fieldPath": "reminderOn",
-            "columnName": "reminder_on",
-            "affinity": "INTEGER",
-            "notNull": true,
-            "defaultValue": "0"
-          },
-          {
-            "fieldPath": "reminderMinute",
-            "columnName": "reminder_minute",
-            "affinity": "INTEGER",
-            "notNull": true,
-            "defaultValue": "1200"
           }
         ],
         "primaryKey": {
@@ -555,7 +541,7 @@
       },
       {
         "tableName": "habit",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `tag_id` INTEGER NOT NULL, `days_per_week` INTEGER NOT NULL, `position` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `reminder_on` INTEGER NOT NULL DEFAULT 0, `reminder_minute` INTEGER NOT NULL DEFAULT 1200, FOREIGN KEY(`tag_id`) REFERENCES `tag`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `tag_id` INTEGER NOT NULL, `days_per_week` INTEGER NOT NULL, `position` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, FOREIGN KEY(`tag_id`) REFERENCES `tag`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -586,20 +572,6 @@
             "columnName": "created_at",
             "affinity": "INTEGER",
             "notNull": true
-          },
-          {
-            "fieldPath": "reminderOn",
-            "columnName": "reminder_on",
-            "affinity": "INTEGER",
-            "notNull": true,
-            "defaultValue": "0"
-          },
-          {
-            "fieldPath": "reminderMinute",
-            "columnName": "reminder_minute",
-            "affinity": "INTEGER",
-            "notNull": true,
-            "defaultValue": "1200"
           }
         ],
         "primaryKey": {
@@ -702,7 +674,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f9e6620942959e85ebc92baa50859edf')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'db92c16915c5503307f4b298faad981b')"
     ]
   }
 }

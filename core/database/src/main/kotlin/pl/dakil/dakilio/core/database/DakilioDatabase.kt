@@ -35,9 +35,10 @@ import pl.dakil.dakilio.core.database.entity.TagKeywordEntity
         HabitEntity::class,
         TagKeywordEntity::class,
     ],
-    // Every schema change bumps the version and adds a migration (`autoMigrations` or a Migration),
-    // so installs keep their data. Never edit the exported schema of a version that has shipped.
-    version = 1,
+    // Every schema change bumps the version and adds a migration (`autoMigrations` or a Migration in
+    // Migrations.kt), so installs keep their data. Never edit an exported schema once committed.
+    // 1 = the released 1.0.0; 2 = reminders.
+    version = 2,
     exportSchema = true,
 )
 abstract class DakilioDatabase : RoomDatabase() {

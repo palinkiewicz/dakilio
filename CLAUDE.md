@@ -16,6 +16,7 @@ Machine-specific setup (JDK path, emulator) lives in `CLAUDE.local.md`, which is
 - All unit tests: `./gradlew testDebugUnitTest :core:model:test :core:daylio:test :core:backup:test :core:security:test`. The JVM modules' task is `test`, not `testDebugUnitTest`.
 - A single test class: `./gradlew :feature:timeline:impl:testDebugUnitTest --tests "pl.dakil.dakilio.feature.timeline.impl.TimelineBuilderTest"`.
 - Lint: `./gradlew :app:lintDebug`.
+- Versions: the release workflow passes the tag's version (`-Pdakilio.version=1.2.3`); local builds report the default from `app/build.gradle.kts`, so a local build of a release tag doesn't show that tag's version.
 - Build types, which all install side by side:
 
   | Build type | App id | Launcher label | Notes |
@@ -51,7 +52,9 @@ The layout follows NowInAndroid: `app` → `feature:*:impl` → `feature:*:api` 
 
 - `core:model` (pure JVM): domain models, plus pure logic that has to be host-testable (`EntryValidation`, `Streaks`, the mood helpers `primaries()`/`byLevel()`).
 - `core:database`: the Room schema, exported to `core/database/schemas/`.
-  - **Every schema change needs a migration.** Bump `version` in `DakilioDatabase` and add the step: an `AutoMigration(from, to)` where Room can infer it (new tables or columns; add a spec for renames and deletions), otherwise a hand-written `Migration`. Installs, including the released 1.0.0, must keep their data, so never edit a schema in place or fall back to a destructive migration.
+  - **Every schema change needs a migration.** Bump `version` in `DakilioDatabase` and add the step: an `AutoMigration(from, to)` where Room can infer it (new tables or columns; add a spec for renames and deletions), otherwise a hand-written `Migration` in `Migrations.kt`, listed in `ALL_MIGRATIONS`. Installs, including the released 1.0.0, must keep their data, so never edit a schema in place or fall back to a destructive migration. This applies between releases too: teammates' debug installs are real databases.
+  - Versions: 1 is the released 1.0.0; 2 added the diary and habit reminder columns. `MIGRATION_1_2` is hand-written and checks for existing columns, because those columns first landed by editing version 1 in place, so some development databases already had them.
+  - There's no `MigrationTestHelper` test (it needs a device). To check a migration: build the APK of the last release tag (a `git worktree` at the tag), install it, add data, then install the new build over it.
   - Never edit an exported `<n>.json` once that version has shipped or been committed. Auto-migrations are generated from those files, and the build writes the new version's file.
   - Data the new schema needs for existing rows is filled in by the migration itself, or lazily by the app.
   - `DefaultData` seeds everything inside `RoomDatabase.Callback.onCreate`: the 5 primary moods (ids 1..5 = their level), the "Your Journey" diary, tag groups and, in debug and preview builds only, 12 **sample entries with photos**.

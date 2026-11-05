@@ -14,6 +14,7 @@ import java.time.Clock
 import java.util.Optional
 import javax.inject.Singleton
 import pl.dakil.dakilio.core.common.PhotoDirectory
+import pl.dakil.dakilio.core.database.ALL_MIGRATIONS
 import pl.dakil.dakilio.core.database.DakilioDatabase
 import pl.dakil.dakilio.core.database.DefaultData
 import pl.dakil.dakilio.core.database.SampleData
@@ -45,6 +46,7 @@ internal object DatabaseModule {
                 }
             },
         )
+        .addMigrations(*ALL_MIGRATIONS)
         .build()
 
     @Provides fun moodDao(db: DakilioDatabase): MoodDao = db.moodDao()
