@@ -4,6 +4,7 @@ import android.net.Uri
 import java.time.DayOfWeek
 import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import pl.dakil.dakilio.core.model.ArchivedTags
 import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.model.GroupUsage
@@ -12,6 +13,7 @@ import pl.dakil.dakilio.core.model.Keyword
 import pl.dakil.dakilio.core.model.KeywordDraft
 import pl.dakil.dakilio.core.model.HabitStatus
 import pl.dakil.dakilio.core.model.Mood
+import pl.dakil.dakilio.core.model.PhotoSize
 import pl.dakil.dakilio.core.model.Post
 import pl.dakil.dakilio.core.model.PostDraft
 import pl.dakil.dakilio.core.model.Reminder
@@ -156,11 +158,17 @@ interface KeywordRepository {
 }
 
 interface PhotoRepository {
-    /** Copies a picked image into app storage (downscaled, re-encoded, metadata stripped). */
+    /**
+     * Copies a picked image into app storage: scaled down to the photo size setting, re-encoded as
+     * JPEG, metadata stripped.
+     */
     suspend fun import(uri: Uri): String?
 
-    /** Like [import], for an image held in memory; [rotationDegrees] applies when it has no EXIF orientation. */
-    suspend fun importBytes(bytes: ByteArray, rotationDegrees: Int = 0): String?
+    /**
+     * Like [import], for an image held in memory; [rotationDegrees] applies when it has no EXIF
+     * orientation. [size] overrides the photo size setting (a restore keeps its backup's own).
+     */
+    suspend fun importBytes(bytes: ByteArray, rotationDegrees: Int = 0, size: PhotoSize? = null): String?
 
     fun pathOf(fileName: String): String
 
@@ -168,6 +176,18 @@ interface PhotoRepository {
 
     /** Removes photo files no entry references (e.g. from an abandoned draft). */
     suspend fun sweepOrphans()
+
+    /** How many photos entries use are larger than [size] allows. Reads only the database, never the files. */
+    fun countLargerThan(size: PhotoSize): Flow<Int>
+
+    /** Whether [shrinkAll] is running. */
+    val shrinking: StateFlow<Boolean>
+
+    /**
+     * Scales every photo larger than [size] down to it, for good. Runs in the app's scope, so it
+     * goes on after the screen that started it closes; a call while one runs is ignored.
+     */
+    fun shrinkAll(size: PhotoSize)
 }
 
 interface SettingsRepository {
@@ -196,6 +216,8 @@ interface SettingsRepository {
     suspend fun setKeywordAutoAdd(auto: Boolean)
 
     suspend fun setWeekStart(start: WeekStart)
+
+    suspend fun setPhotoSize(size: PhotoSize)
 
     /** The first day of the week the user's [UserSettings.weekStart] means here (the region default resolved). */
     val firstDayOfWeek: Flow<DayOfWeek>

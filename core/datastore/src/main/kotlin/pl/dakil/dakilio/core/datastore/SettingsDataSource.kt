@@ -11,6 +11,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import pl.dakil.dakilio.core.model.PhotoSize
 import pl.dakil.dakilio.core.model.PreviewLength
 import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TextScale
@@ -41,6 +42,8 @@ class SettingsDataSource @Inject constructor(
                 keywordAutoAdd = prefs[KEYWORD_AUTO_ADD] ?: false,
                 weekStart = prefs[WEEK_START]?.let { name -> WeekStart.entries.firstOrNull { it.name == name } }
                     ?: WeekStart.Region,
+                photoSize = prefs[PHOTO_SIZE]?.let { name -> PhotoSize.entries.firstOrNull { it.name == name } }
+                    ?: PhotoSize.Px1280,
             )
         }
         .distinctUntilChanged()
@@ -109,6 +112,10 @@ class SettingsDataSource @Inject constructor(
         dataStore.edit { it[WEEK_START] = start.name }
     }
 
+    suspend fun setPhotoSize(size: PhotoSize) {
+        dataStore.edit { it[PHOTO_SIZE] = size.name }
+    }
+
     private companion object {
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val LAST_ENTRY_DIARY = longPreferencesKey("last_entry_diary_id")
@@ -122,6 +129,7 @@ class SettingsDataSource @Inject constructor(
         val CLOSE_AFTER_SAVE = booleanPreferencesKey("close_after_save")
         val KEYWORD_AUTO_ADD = booleanPreferencesKey("keyword_auto_add")
         val WEEK_START = stringPreferencesKey("week_start")
+        val PHOTO_SIZE = stringPreferencesKey("photo_size")
         val INTRO_STARTED = booleanPreferencesKey("intro_started")
         val INTRO_DONE = booleanPreferencesKey("intro_done")
     }

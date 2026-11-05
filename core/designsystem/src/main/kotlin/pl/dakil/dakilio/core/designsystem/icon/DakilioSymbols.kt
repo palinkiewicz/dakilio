@@ -73,6 +73,8 @@ object DakilioSymbols {
     val Help = DakilioSymbol("help", R.drawable.sym_help, R.drawable.sym_help_fill, SymbolCategory.Ui)
     val PhonelinkLock = DakilioSymbol("phonelink_lock", R.drawable.sym_phonelink_lock, R.drawable.sym_phonelink_lock_fill, SymbolCategory.Ui)
     val MatchWord = DakilioSymbol("match_word", R.drawable.sym_match_word, R.drawable.sym_match_word_fill, SymbolCategory.Ui)
+    val PhotoSizeSelectLarge = DakilioSymbol("photo_size_select_large", R.drawable.sym_photo_size_select_large, R.drawable.sym_photo_size_select_large_fill, SymbolCategory.Ui)
+    val Compress = DakilioSymbol("compress", R.drawable.sym_compress, R.drawable.sym_compress_fill, SymbolCategory.Ui)
     val SentimentVerySatisfied = DakilioSymbol("sentiment_very_satisfied", R.drawable.sym_sentiment_very_satisfied, R.drawable.sym_sentiment_very_satisfied_fill, SymbolCategory.Emotions)
     val SentimentSatisfied = DakilioSymbol("sentiment_satisfied", R.drawable.sym_sentiment_satisfied, R.drawable.sym_sentiment_satisfied_fill, SymbolCategory.Emotions)
     val SentimentNeutral = DakilioSymbol("sentiment_neutral", R.drawable.sym_sentiment_neutral, R.drawable.sym_sentiment_neutral_fill, SymbolCategory.Emotions)
@@ -265,6 +267,8 @@ object DakilioSymbols {
         Help,
         PhonelinkLock,
         MatchWord,
+        PhotoSizeSelectLarge,
+        Compress,
         SentimentVerySatisfied,
         SentimentSatisfied,
         SentimentNeutral,

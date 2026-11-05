@@ -132,6 +132,7 @@ internal class LocalBackupRepository @Inject constructor(
                 keywordAutoAdd = userSettings.keywordAutoAdd,
                 lastDiary = userSettings.lastEntryDiaryId,
                 weekStart = userSettings.weekStart.name,
+                photoSize = userSettings.photoSize.name,
             ),
             moods = snapshot.moods.map { BackupMood(it.id, it.level, it.label, it.isPrimary, it.position, it.isArchived, it.colorKey) },
             diaries = snapshot.diaries.map {
@@ -265,11 +266,12 @@ internal class LocalBackupRepository @Inject constructor(
         try {
             onProgress(0, total)
             // Photos first, one at a time; the database is only touched once they're all in place.
-            // They're re-encoded like any other photo: the file is untrusted.
+            // They're re-encoded like any other photo: the file is untrusted. The backup's own photo
+            // size applies, so a restore doesn't shrink photos the backed-up app kept larger.
             val posts = plan.entries.map { entry ->
                 val names = entry.photos.mapNotNull { path ->
                     ensureActive()
-                    val name = archive.readPhoto(path)?.let { photos.importBytes(it) }
+                    val name = archive.readPhoto(path)?.let { photos.importBytes(it, size = plan.settings.photoSize) }
                     if (name == null) failed++ else newFiles += name
                     onProgress(++done, total)
                     name
@@ -379,6 +381,7 @@ internal class LocalBackupRepository @Inject constructor(
         s.closeAfterSave?.let { settings.setCloseAfterSave(it) }
         s.keywordAutoAdd?.let { settings.setKeywordAutoAdd(it) }
         s.weekStart?.let { settings.setWeekStart(it) }
+        s.photoSize?.let { settings.setPhotoSize(it) }
         settings.setLastEntryDiaryId(diaryIds[s.lastDiaryIndex ?: 0])
         settings.setSampleHintDismissed(true)
     }

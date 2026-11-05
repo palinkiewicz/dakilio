@@ -34,7 +34,7 @@ Pretty-printed JSON. Fields that are null or at their default (`false`, `0`, `[]
     "timelineTextScale": 1.1, "editorTextScale": 1.0,
     "previewLength": "Short", "compactTags": true,
     "closeAfterSave": true, "keywordAutoAdd": false, "lastDiary": 1,
-    "weekStart": "Region"
+    "weekStart": "Region", "photoSize": "Px1280"
   },
   "moods": [
     { "id": 3, "level": 3, "name": "Okay", "primary": true, "color": "periwinkle" },
@@ -63,7 +63,7 @@ Pretty-printed JSON. Fields that are null or at their default (`false`, `0`, `[]
 | Field | Meaning |
 |---|---|
 | `format`, `version` | Always `"dakilio"` and `1`. A file with a higher version is refused ("made by a newer Dakilio"). |
-| `settings` | Every key is optional. Unknown enum names leave the device's value alone. `weekStart` is `Region` (follow the device's region), `Monday`, `Saturday` or `Sunday`. Search history, the language, intro state and the app lock (its settings and PIN or password, kept in a separate store) aren't included, so a restore never locks anyone out or carries over another device's credential. |
+| `settings` | Every key is optional. Unknown enum names leave the device's value alone. `weekStart` is `Region` (follow the device's region), `Monday`, `Saturday` or `Sunday`. `photoSize` is `Px640`, `Px960`, `Px1280`, `Px1600`, `Px2048` or `Original` (the long edge photos are scaled down to); a restore re-encodes the backup's photos at its own size. Search history, the language, intro state and the app lock (its settings and PIN or password, kept in a separate store) aren't included, so a restore never locks anyone out or carries over another device's credential. |
 | `moods` | `level`: 1 = worst … 5 = best. One `primary` per level, plus aliases (`position` orders them within a level). `color` is a `TagColor` palette key. |
 | `diaries` | `suggestedGroups`: ids of the tag groups the editor expands for that diary. `reminder` is its daily reminder (`time` is the local `HH:mm`, kept while it's off); a missing one is off. A restore keeps it, but a new phone still has to allow notifications. |
 | `tagGroups` | Tags are nested in their group. A tag's `color` overrides its group's. `icon` is a Material Symbol key. A tag's optional `keywords` (the Keywords extra) are words that suggest it; `approximate` makes the word's end also match longer words. Blank and duplicate words are dropped on restore. |

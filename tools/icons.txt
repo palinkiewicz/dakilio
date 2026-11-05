@@ -70,6 +70,8 @@ ui key
 ui help
 ui phonelink_lock
 ui match_word
+ui photo_size_select_large
+ui compress
 emotions sentiment_very_satisfied
 emotions sentiment_satisfied
 emotions sentiment_neutral

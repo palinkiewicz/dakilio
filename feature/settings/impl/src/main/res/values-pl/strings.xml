@@ -29,6 +29,34 @@
     <string name="settings_tag_style_chips">Etykiety</string>
     <string name="settings_close_after_save">Zamykaj po zapisaniu</string>
     <string name="settings_close_after_save_body">Po zapisaniu zmian we wpisie. Wyłącz, aby zostać przy nim i czytać dalej.</string>
+    <string name="settings_photos">Zdjęcia</string>
+    <string name="settings_photo_size">Zmniejszaj zdjęcia do</string>
+    <string name="settings_photo_size_body">Mniejsze zdjęcia zajmują mniej miejsca, a kopie zapasowe są lżejsze</string>
+    <string name="settings_photo_size_dialog_body">Dłuższy bok zdjęć, które dodasz od teraz. Lokalizacja i inne ukryte dane są zawsze usuwane.</string>
+    <string name="settings_photo_size_px">%1$d px</string>
+    <string name="settings_photo_size_original">Oryginał</string>
+    <string name="settings_photo_size_default">Domyślnie</string>
+    <plurals name="settings_shrink_photos">
+        <item quantity="one">Zmniejsz %d większe zdjęcie</item>
+        <item quantity="few">Zmniejsz %d większe zdjęcia</item>
+        <item quantity="many">Zmniejsz %d większych zdjęć</item>
+        <item quantity="other">Zmniejsz %d większego zdjęcia</item>
+    </plurals>
+    <string name="settings_shrink_photos_body">Zwalnia miejsce zajmowane przez zdjęcia większe niż %1$s</string>
+    <plurals name="settings_shrinking_photos">
+        <item quantity="one">Zmniejszanie… zostało %d</item>
+        <item quantity="few">Zmniejszanie… zostały %d</item>
+        <item quantity="many">Zmniejszanie… zostało %d</item>
+        <item quantity="other">Zmniejszanie… zostało %d</item>
+    </plurals>
+    <plurals name="settings_shrink_title">
+        <item quantity="one">Zmniejszyć %1$d zdjęcie do %2$s?</item>
+        <item quantity="few">Zmniejszyć %1$d zdjęcia do %2$s?</item>
+        <item quantity="many">Zmniejszyć %1$d zdjęć do %2$s?</item>
+        <item quantity="other">Zmniejszyć %1$d zdjęcia do %2$s?</item>
+    </plurals>
+    <string name="settings_shrink_body">Oryginały zostaną zastąpione i nie da się ich przywrócić. Jeśli chcesz je zachować, najpierw zrób kopię zapasową.</string>
+    <string name="settings_shrink_confirm">Zmniejsz</string>
     <string name="settings_guidance">Podpowiedzi</string>
     <string name="settings_hints">Pokazuj wskazówki dla początkujących</string>
     <string name="settings_hints_body">Krótkie objaśnienia pod tytułami, np. „Wybierz najbliższy nastrój”</string>

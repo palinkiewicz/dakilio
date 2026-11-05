@@ -25,6 +25,19 @@ enum class WeekStart(private val day: DayOfWeek?) {
     fun resolve(region: Locale): DayOfWeek = day ?: WeekFields.of(region).firstDayOfWeek
 }
 
+/**
+ * How large stored photos may be, as the length of their long edge in pixels. [Original] keeps the
+ * picked size (up to [PhotoSizing.MAX_ORIGINAL_PIXELS], so a huge photo can't exhaust memory).
+ */
+enum class PhotoSize(val maxEdge: Int?) {
+    Px640(640),
+    Px960(960),
+    Px1280(1280),
+    Px1600(1600),
+    Px2048(2048),
+    Original(null),
+}
+
 data class UserSettings(
     val themeMode: ThemeMode = ThemeMode.System,
     /** Diary of the last saved entry; the editor's default when the timeline shows "All". */
@@ -46,6 +59,8 @@ data class UserSettings(
     /** Keywords (the extra) add their tag at once instead of suggesting it. */
     val keywordAutoAdd: Boolean = false,
     val weekStart: WeekStart = WeekStart.Region,
+    /** How far new photos are scaled down when they're stored. */
+    val photoSize: PhotoSize = PhotoSize.Px1280,
 )
 
 /** The range of the entry text size settings. Only entry titles and notes scale, never the rest of the UI. */

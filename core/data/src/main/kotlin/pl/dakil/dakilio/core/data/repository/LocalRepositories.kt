@@ -39,6 +39,7 @@ import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TagUsage
 import pl.dakil.dakilio.core.model.ThemeMode
 import pl.dakil.dakilio.core.model.UserSettings
+import pl.dakil.dakilio.core.model.PhotoSize
 import pl.dakil.dakilio.core.model.WeekStart
 
 internal class LocalMoodRepository @Inject constructor(private val dao: MoodDao) : MoodRepository {
@@ -261,6 +262,8 @@ internal class LocalSettingsRepository @Inject constructor(
     override suspend fun setKeywordAutoAdd(auto: Boolean) = dataSource.setKeywordAutoAdd(auto)
 
     override suspend fun setWeekStart(start: WeekStart) = dataSource.setWeekStart(start)
+
+    override suspend fun setPhotoSize(size: PhotoSize) = dataSource.setPhotoSize(size)
 
     override val firstDayOfWeek: Flow<DayOfWeek> =
         dataSource.settings.map { it.weekStart.resolve(deviceLocale()) }.distinctUntilChanged()

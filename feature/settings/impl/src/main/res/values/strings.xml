@@ -29,6 +29,28 @@
     <string name="settings_tag_style_chips">Chips</string>
     <string name="settings_close_after_save">Close after saving</string>
     <string name="settings_close_after_save_body">When you save changes to an entry. Turn off to stay on it and keep reading.</string>
+    <string name="settings_photos">Photos</string>
+    <string name="settings_photo_size">Scale down photos to</string>
+    <string name="settings_photo_size_body">Smaller photos take less space and make backups smaller</string>
+    <string name="settings_photo_size_dialog_body">The longest side of photos you add from now on. Location and other hidden details are always removed.</string>
+    <string name="settings_photo_size_px">%1$d px</string>
+    <string name="settings_photo_size_original">Original</string>
+    <string name="settings_photo_size_default">Default</string>
+    <plurals name="settings_shrink_photos">
+        <item quantity="one">Scale down %d larger photo</item>
+        <item quantity="other">Scale down %d larger photos</item>
+    </plurals>
+    <string name="settings_shrink_photos_body">Frees up the space of photos larger than %1$s</string>
+    <plurals name="settings_shrinking_photos">
+        <item quantity="one">Scaling down… %d left</item>
+        <item quantity="other">Scaling down… %d left</item>
+    </plurals>
+    <plurals name="settings_shrink_title">
+        <item quantity="one">Scale down %1$d photo to %2$s?</item>
+        <item quantity="other">Scale down %1$d photos to %2$s?</item>
+    </plurals>
+    <string name="settings_shrink_body">The originals are replaced and can’t be brought back. To keep them, make a backup first.</string>
+    <string name="settings_shrink_confirm">Scale down</string>
     <string name="settings_guidance">Guidance</string>
     <string name="settings_hints">Show beginner hints</string>
     <string name="settings_hints_body">Short how-to lines under titles, like “Pick the closest mood”</string>

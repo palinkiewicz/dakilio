@@ -8,6 +8,7 @@ import pl.dakil.dakilio.core.database.dao.HabitDao
 import pl.dakil.dakilio.core.database.dao.ImportDao
 import pl.dakil.dakilio.core.database.dao.KeywordDao
 import pl.dakil.dakilio.core.database.dao.MoodDao
+import pl.dakil.dakilio.core.database.dao.PhotoDao
 import pl.dakil.dakilio.core.database.dao.PostDao
 import pl.dakil.dakilio.core.database.dao.ReminderDao
 import pl.dakil.dakilio.core.database.dao.TagDao
@@ -15,6 +16,7 @@ import pl.dakil.dakilio.core.database.entity.DiaryEntity
 import pl.dakil.dakilio.core.database.entity.DiarySuggestedGroupCrossRef
 import pl.dakil.dakilio.core.database.entity.HabitEntity
 import pl.dakil.dakilio.core.database.entity.MoodEntity
+import pl.dakil.dakilio.core.database.entity.PhotoFileEntity
 import pl.dakil.dakilio.core.database.entity.PostEntity
 import pl.dakil.dakilio.core.database.entity.PostPhotoEntity
 import pl.dakil.dakilio.core.database.entity.PostTagCrossRef
@@ -32,6 +34,7 @@ import pl.dakil.dakilio.core.database.entity.TagKeywordEntity
         PostEntity::class,
         PostTagCrossRef::class,
         PostPhotoEntity::class,
+        PhotoFileEntity::class,
         HabitEntity::class,
         TagKeywordEntity::class,
     ],
@@ -48,6 +51,7 @@ abstract class DakilioDatabase : RoomDatabase() {
     abstract fun habitDao(): HabitDao
     abstract fun keywordDao(): KeywordDao
     abstract fun reminderDao(): ReminderDao
+    abstract fun photoDao(): PhotoDao
 
     companion object {
         const val NAME = "dakilio.db"

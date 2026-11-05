@@ -6,6 +6,7 @@ import java.util.Locale
 import pl.dakil.dakilio.core.model.KeywordDraft
 import pl.dakil.dakilio.core.model.Keywords
 import pl.dakil.dakilio.core.model.MOOD_LEVELS
+import pl.dakil.dakilio.core.model.PhotoSize
 import pl.dakil.dakilio.core.model.PreviewLength
 import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TextScale
@@ -102,6 +103,7 @@ data class RestoreSettings(
     val closeAfterSave: Boolean? = null,
     val keywordAutoAdd: Boolean? = null,
     val weekStart: WeekStart? = null,
+    val photoSize: PhotoSize? = null,
     /** An index into [RestorePlan.diaries]. */
     val lastDiaryIndex: Int? = null,
 )
@@ -240,6 +242,7 @@ fun planRestore(backup: DakilioBackup, defaultDiaryName: String, now: Long): Res
             closeAfterSave = s.closeAfterSave,
             keywordAutoAdd = s.keywordAutoAdd,
             weekStart = WeekStart.entries.firstOrNull { it.name == s.weekStart },
+            photoSize = PhotoSize.entries.firstOrNull { it.name == s.photoSize },
             lastDiaryIndex = s.lastDiary?.let(diaryIndexById::get),
         )
     } ?: RestoreSettings()

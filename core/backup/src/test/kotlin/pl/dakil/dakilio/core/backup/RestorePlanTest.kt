@@ -9,6 +9,7 @@ import pl.dakil.dakilio.core.model.KeywordDraft
 import pl.dakil.dakilio.core.model.PreviewLength
 import pl.dakil.dakilio.core.model.Reminder
 import pl.dakil.dakilio.core.model.ThemeMode
+import pl.dakil.dakilio.core.model.PhotoSize
 import pl.dakil.dakilio.core.model.WeekStart
 
 class RestorePlanTest {
@@ -45,7 +46,7 @@ class RestorePlanTest {
                     BackupEntry(time = "2026-11-01T08:00Z", diary = 99, mood = 1),
                     BackupEntry(time = "yesterday", diary = 10),
                 ),
-                settings = BackupSettings(theme = "Dark", tagStyle = "Sparkles", timelineTextScale = 9f, previewLength = "Full", lastDiary = 20, weekStart = "Sunday"),
+                settings = BackupSettings(theme = "Dark", tagStyle = "Sparkles", timelineTextScale = 9f, previewLength = "Full", lastDiary = 20, weekStart = "Sunday", photoSize = "Px960"),
             ),
             defaultDiaryName = "Journey",
             now = now,
@@ -86,6 +87,7 @@ class RestorePlanTest {
         assertEquals(PreviewLength.Full, plan.settings.previewLength)
         assertEquals(1, plan.settings.lastDiaryIndex)
         assertEquals(WeekStart.Sunday, plan.settings.weekStart)
+        assertEquals(PhotoSize.Px960, plan.settings.photoSize)
     }
 
     @Test

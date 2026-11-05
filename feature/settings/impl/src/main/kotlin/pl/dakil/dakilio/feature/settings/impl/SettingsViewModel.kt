@@ -8,10 +8,15 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import pl.dakil.dakilio.core.data.repository.PhotoRepository
 import pl.dakil.dakilio.core.data.repository.PostRepository
 import pl.dakil.dakilio.core.data.repository.SettingsRepository
+import pl.dakil.dakilio.core.model.PhotoSize
 import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TextScale
 import pl.dakil.dakilio.core.model.ThemeMode
@@ -28,15 +33,31 @@ data class SettingsUiState(
     /** What [WeekStart.Region] means on this device. */
     val regionFirstDay: DayOfWeek = DayOfWeek.MONDAY,
     val samplePostCount: Int = 0,
+    val photoSize: PhotoSize = PhotoSize.Px1280,
+    /** Photos larger than [photoSize] allows, which "Scale down" would shrink. */
+    val oversizedPhotos: Int = 0,
+    val shrinkingPhotos: Boolean = false,
 )
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val postRepository: PostRepository,
     private val settingsRepository: SettingsRepository,
+    private val photoRepository: PhotoRepository,
 ) : ViewModel() {
+    // A count over the database's photo sizes, rerun only when photos or the setting change.
+    private val oversizedPhotos = settingsRepository.settings
+        .map { it.photoSize }
+        .distinctUntilChanged()
+        .flatMapLatest(photoRepository::countLargerThan)
+
     val uiState: StateFlow<SettingsUiState> =
-        combine(settingsRepository.settings, postRepository.samplePostCount) { settings, samples ->
+        combine(
+            settingsRepository.settings,
+            postRepository.samplePostCount,
+            oversizedPhotos,
+            photoRepository.shrinking,
+        ) { settings, samples, oversized, shrinking ->
             SettingsUiState(
                 themeMode = settings.themeMode,
                 tagStyle = settings.tagStyle,
@@ -47,6 +68,9 @@ class SettingsViewModel @Inject constructor(
                 weekStart = settings.weekStart,
                 regionFirstDay = settingsRepository.regionFirstDayOfWeek(),
                 samplePostCount = samples,
+                photoSize = settings.photoSize,
+                oversizedPhotos = oversized,
+                shrinkingPhotos = shrinking,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
@@ -76,6 +100,15 @@ class SettingsViewModel @Inject constructor(
 
     fun setWeekStart(start: WeekStart) {
         viewModelScope.launch { settingsRepository.setWeekStart(start) }
+    }
+
+    fun setPhotoSize(size: PhotoSize) {
+        viewModelScope.launch { settingsRepository.setPhotoSize(size) }
+    }
+
+    /** Scales the photos larger than the current setting down to it, for good. */
+    fun shrinkPhotos() {
+        photoRepository.shrinkAll(uiState.value.photoSize)
     }
 
     fun removeSamples(onDone: () -> Unit) {

@@ -4,6 +4,10 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -16,9 +20,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumFlexibleTopAppBar
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.SnackbarHost
@@ -37,10 +43,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.graphics.shapes.RoundedPolygon
 import androidx.compose.ui.unit.dp
@@ -57,9 +65,11 @@ import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbol
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
+import pl.dakil.dakilio.core.model.PhotoSize
 import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TextScale
 import pl.dakil.dakilio.core.model.ThemeMode
+import pl.dakil.dakilio.core.model.UserSettings
 import pl.dakil.dakilio.core.model.WeekStart
 import java.time.DayOfWeek
 import pl.dakil.dakilio.core.ui.canChooseAppLanguage
@@ -82,6 +92,8 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
     val formats = rememberFormats()
     var confirmRemove by rememberSaveable { mutableStateOf(false) }
     var textSizeDialog by rememberSaveable { mutableStateOf<TextSizeTarget?>(null) }
+    var photoSizeDialog by rememberSaveable { mutableStateOf(false) }
+    var confirmShrink by rememberSaveable { mutableStateOf(false) }
     val removedMessage = stringResource(R.string.settings_samples_removed)
 
     Scaffold(
@@ -214,6 +226,49 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
                     modifier = Modifier.padding(top = Spacing.s),
                 )
 
+                SectionHeader(stringResource(R.string.settings_photos))
+                // The shrink row shows only while there's something to shrink (or it's running).
+                val showShrink = state.oversizedPhotos > 0 || state.shrinkingPhotos
+                val photoRows = if (showShrink) 2 else 1
+                Column(verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)) {
+                    SegmentedListItem(
+                        onClick = { photoSizeDialog = true },
+                        shapes = ListItemDefaults.segmentedShapes(0, photoRows),
+                        colors = segmentedItemColors(),
+                        leadingContent = { ShapedIcon(DakilioSymbols.PhotoSizeSelectLarge, polygon = MaterialShapes.Square) },
+                        supportingContent = { Text(stringResource(R.string.settings_photo_size_body)) },
+                        trailingContent = { Text(photoSizeLabel(state.photoSize), style = MaterialTheme.typography.labelLarge) },
+                    ) { Text(stringResource(R.string.settings_photo_size)) }
+                    if (showShrink) {
+                        SegmentedListItem(
+                            onClick = { confirmShrink = true },
+                            enabled = !state.shrinkingPhotos,
+                            shapes = ListItemDefaults.segmentedShapes(1, photoRows),
+                            colors = segmentedItemColors(),
+                            leadingContent = {
+                                if (state.shrinkingPhotos) {
+                                    LoadingIndicator(Modifier.size(40.dp))
+                                } else {
+                                    ShapedIcon(DakilioSymbols.Compress, polygon = MaterialShapes.Cookie6Sided)
+                                }
+                            },
+                            supportingContent = if (state.shrinkingPhotos) {
+                                null
+                            } else {
+                                { Text(stringResource(R.string.settings_shrink_photos_body, photoSizeLabel(state.photoSize))) }
+                            },
+                        ) {
+                            Text(
+                                if (state.shrinkingPhotos) {
+                                    pluralStringResource(R.plurals.settings_shrinking_photos, state.oversizedPhotos, state.oversizedPhotos)
+                                } else {
+                                    pluralStringResource(R.plurals.settings_shrink_photos, state.oversizedPhotos, state.oversizedPhotos)
+                                },
+                            )
+                        }
+                    }
+                }
+
                 SectionHeader(stringResource(R.string.settings_guidance))
                 SwitchListItem(
                     title = stringResource(R.string.settings_hints),
@@ -269,6 +324,43 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
         )
     }
 
+    if (photoSizeDialog) {
+        PhotoSizeDialog(
+            selected = state.photoSize,
+            onSelect = { size ->
+                photoSizeDialog = false
+                viewModel.setPhotoSize(size)
+            },
+            onDismiss = { photoSizeDialog = false },
+        )
+    }
+
+    if (confirmShrink) {
+        AlertDialog(
+            onDismissRequest = { confirmShrink = false },
+            icon = { DakilioIcon(DakilioSymbols.Compress, contentDescription = null) },
+            title = {
+                Text(
+                    pluralStringResource(
+                        R.plurals.settings_shrink_title,
+                        state.oversizedPhotos,
+                        state.oversizedPhotos,
+                        photoSizeLabel(state.photoSize),
+                    ),
+                )
+            },
+            text = { Text(stringResource(R.string.settings_shrink_body)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirmShrink = false
+                    haptics.confirm()
+                    viewModel.shrinkPhotos()
+                }) { Text(stringResource(R.string.settings_shrink_confirm)) }
+            },
+            dismissButton = { TextButton(onClick = { confirmShrink = false }) { Text(stringResource(R.string.settings_cancel)) } },
+        )
+    }
+
     if (confirmRemove) {
         AlertDialog(
             onDismissRequest = { confirmRemove = false },
@@ -285,6 +377,68 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
             dismissButton = { TextButton(onClick = { confirmRemove = false }) { Text(stringResource(R.string.settings_cancel)) } },
         )
     }
+}
+
+@Composable
+private fun photoSizeLabel(size: PhotoSize): String =
+    size.maxEdge?.let { stringResource(R.string.settings_photo_size_px, it) } ?: stringResource(R.string.settings_photo_size_original)
+
+/** Picks the photo size: one tap on an option applies it. */
+@Composable
+private fun PhotoSizeDialog(
+    selected: PhotoSize,
+    onSelect: (PhotoSize) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val haptics = rememberHaptics()
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = { DakilioIcon(DakilioSymbols.PhotoSizeSelectLarge, contentDescription = null) },
+        title = { Text(stringResource(R.string.settings_photo_size)) },
+        text = {
+            Column(Modifier.selectableGroup()) {
+                Text(
+                    stringResource(R.string.settings_photo_size_dialog_body),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(bottom = Spacing.m),
+                )
+                PhotoSize.entries.forEach { size ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(16.dp))
+                            .selectable(
+                                selected = size == selected,
+                                role = Role.RadioButton,
+                                onClick = {
+                                    haptics.tick()
+                                    onSelect(size)
+                                },
+                            )
+                            .heightIn(min = 48.dp)
+                            .padding(horizontal = Spacing.xs),
+                    ) {
+                        RadioButton(selected = size == selected, onClick = null)
+                        Text(
+                            photoSizeLabel(size),
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(start = Spacing.l).weight(1f),
+                        )
+                        if (size == UserSettings().photoSize) {
+                            Text(
+                                stringResource(R.string.settings_photo_size_default),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.settings_cancel)) } },
+    )
 }
 
 /** The two entry text sizes, each a row in Settings that opens [TextSizeDialog]. */

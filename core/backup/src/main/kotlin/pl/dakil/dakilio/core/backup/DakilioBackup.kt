@@ -74,6 +74,8 @@ data class BackupSettings(
     val lastDiary: Long? = null,
     /** A `WeekStart` name: the first day of the week, or `Region` to follow the device's region. */
     val weekStart: String? = null,
+    /** A `PhotoSize` name: the long edge photos are scaled down to (`Px1280`, …) or `Original`. */
+    val photoSize: String? = null,
 )
 
 /** A mood: one primary per level (1 = worst … 5 = best), plus aliases. */

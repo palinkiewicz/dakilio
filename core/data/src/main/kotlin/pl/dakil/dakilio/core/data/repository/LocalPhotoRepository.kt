@@ -2,58 +2,79 @@ package pl.dakil.dakilio.core.data.repository
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.graphics.Matrix
 import android.media.ExifInterface
 import android.net.Uri
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.ByteArrayInputStream
+import java.io.File
 import java.nio.ByteBuffer
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import kotlin.math.max
-import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import pl.dakil.dakilio.core.common.ApplicationScope
 import pl.dakil.dakilio.core.common.DakilioDispatchers
 import pl.dakil.dakilio.core.common.Dispatcher
 import pl.dakil.dakilio.core.common.PhotoDirectory
 import pl.dakil.dakilio.core.database.DakilioDatabase
+import pl.dakil.dakilio.core.database.dao.PhotoDao
 import pl.dakil.dakilio.core.database.dao.PostDao
+import pl.dakil.dakilio.core.database.entity.PhotoFileEntity
+import pl.dakil.dakilio.core.datastore.SettingsDataSource
+import pl.dakil.dakilio.core.model.PhotoSize
+import pl.dakil.dakilio.core.model.PhotoSizing
 
 internal class LocalPhotoRepository @Inject constructor(
     @ApplicationContext private val context: Context,
     private val directory: PhotoDirectory,
     private val postDao: PostDao,
+    private val photoDao: PhotoDao,
+    private val settings: SettingsDataSource,
     @Dispatcher(DakilioDispatchers.IO) private val io: CoroutineDispatcher,
+    @ApplicationScope private val scope: CoroutineScope,
 ) : PhotoRepository {
 
+    private val _shrinking = MutableStateFlow(false)
+    override val shrinking: StateFlow<Boolean> = _shrinking.asStateFlow()
+
     override suspend fun import(uri: Uri): String? = withContext(io) {
-        runCatching { decodeAndStore(ImageDecoder.createSource(context.contentResolver, uri), rotationDegrees = 0) }.getOrNull()
+        val size = currentSize()
+        runCatching { decodeAndStore(ImageDecoder.createSource(context.contentResolver, uri), rotationDegrees = 0, size) }.getOrNull()
     }
 
-    override suspend fun importBytes(bytes: ByteArray, rotationDegrees: Int): String? = withContext(io) {
+    override suspend fun importBytes(bytes: ByteArray, rotationDegrees: Int, size: PhotoSize?): String? = withContext(io) {
+        val photoSize = size ?: currentSize()
         runCatching {
             // Only apply the extra rotation when the image doesn't carry its own EXIF orientation,
             // which ImageDecoder already honours.
             val hasExifOrientation = ExifInterface(ByteArrayInputStream(bytes))
                 .getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED) != ExifInterface.ORIENTATION_UNDEFINED
-            decodeAndStore(ImageDecoder.createSource(ByteBuffer.wrap(bytes)), if (hasExifOrientation) 0 else rotationDegrees)
+            decodeAndStore(ImageDecoder.createSource(ByteBuffer.wrap(bytes)), if (hasExifOrientation) 0 else rotationDegrees, photoSize)
         }.getOrNull()
     }
 
-    private fun decodeAndStore(source: ImageDecoder.Source, rotationDegrees: Int): String {
+    private suspend fun currentSize(): PhotoSize = settings.settings.first().photoSize
+
+    private suspend fun decodeAndStore(source: ImageDecoder.Source, rotationDegrees: Int, size: PhotoSize): String {
         // ImageDecoder applies EXIF orientation; re-encoding drops every other EXIF field,
         // GPS location included, so nothing private leaves with a future export.
-        val decoded = ImageDecoder.decodeBitmap(source) { decoder, info, _ ->
-            val longEdge = max(info.size.width, info.size.height)
-            if (longEdge > MAX_EDGE_PX) {
-                val scale = MAX_EDGE_PX.toFloat() / longEdge
-                decoder.setTargetSize((info.size.width * scale).roundToInt(), (info.size.height * scale).roundToInt())
-            }
-            decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
-        }
+        val decoded = decode(source, size)
         val bitmap = if (rotationDegrees % 360 != 0) {
             Bitmap.createBitmap(decoded, 0, 0, decoded.width, decoded.height, Matrix().apply { postRotate(rotationDegrees.toFloat()) }, true)
                 .also { if (it !== decoded) decoded.recycle() }
@@ -62,22 +83,40 @@ internal class LocalPhotoRepository @Inject constructor(
         }
         val fileName = "${UUID.randomUUID()}.jpg"
         directory.ensureExists()
+        val file = directory.file(fileName)
+        val stored = PhotoFileEntity(fileName, bitmap.width, bitmap.height)
         try {
-            directory.file(fileName).outputStream().buffered().use { bitmap.compress(Bitmap.CompressFormat.JPEG, JPEG_QUALITY, it) }
+            writeJpeg(bitmap, file)
         } catch (e: Exception) {
-            directory.file(fileName).delete()
+            file.delete()
             throw e
         } finally {
             bitmap.recycle()
         }
+        photoDao.upsert(stored)
         return fileName
+    }
+
+    /** Decodes [source] into memory, scaled down to fit [size]. */
+    private fun decode(source: ImageDecoder.Source, size: PhotoSize): Bitmap =
+        ImageDecoder.decodeBitmap(source) { decoder, info, _ ->
+            PhotoSizing.scaledSize(info.size.width, info.size.height, size.maxEdge)
+                ?.let { decoder.setTargetSize(it.width, it.height) }
+            decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
+        }
+
+    private fun writeJpeg(bitmap: Bitmap, file: File) {
+        file.outputStream().buffered().use { check(bitmap.compress(Bitmap.CompressFormat.JPEG, JPEG_QUALITY, it)) }
     }
 
     override fun pathOf(fileName: String): String = directory.file(fileName).absolutePath
 
     override suspend fun delete(fileNames: Collection<String>) {
         if (fileNames.isEmpty()) return
-        withContext(io) { fileNames.forEach { directory.file(it).delete() } }
+        withContext(io) {
+            fileNames.forEach { directory.file(it).delete() }
+            fileNames.chunked(SQL_CHUNK).forEach { photoDao.delete(it) }
+        }
     }
 
     override suspend fun sweepOrphans() = withContext(io) {
@@ -90,11 +129,66 @@ internal class LocalPhotoRepository @Inject constructor(
         directory.root.listFiles()
             ?.filter { it.name !in referenced && it.lastModified() < cutoff }
             ?.forEach { it.delete() }
-        Unit
+        // Forget the sizes of files that are gone.
+        val present = directory.root.list()?.toSet().orEmpty()
+        photoDao.allFileNames().filter { it !in present }.chunked(SQL_CHUNK).forEach { photoDao.delete(it) }
+        // Learn the sizes of photos written without one (the debug sample photos). Only the headers are read.
+        photoDao.usedWithoutSize().forEach { name ->
+            val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            BitmapFactory.decodeFile(directory.file(name).path, options)
+            if (options.outWidth > 0 && options.outHeight > 0) {
+                photoDao.upsert(PhotoFileEntity(name, options.outWidth, options.outHeight))
+            }
+        }
+    }
+
+    override fun countLargerThan(size: PhotoSize): Flow<Int> =
+        size.maxEdge?.let { photoDao.observeCountLargerThan(it).distinctUntilChanged() } ?: flowOf(0)
+
+    override fun shrinkAll(size: PhotoSize) {
+        val maxEdge = size.maxEdge ?: return
+        if (!_shrinking.compareAndSet(expect = false, update = true)) return
+        // The app's scope, so leaving the screen doesn't stop it halfway.
+        scope.launch(io) {
+            try {
+                photoDao.largerThan(maxEdge).forEach { photo ->
+                    ensureActive()
+                    runCatching { shrink(photo.fileName, size) }
+                }
+            } finally {
+                _shrinking.value = false
+            }
+        }
+    }
+
+    /**
+     * Rewrites one photo scaled down to [size], under the same name, so no entry changes. The new
+     * file is written beside it and moved over it in one step: the photo is always either the old
+     * one or the new one. A leftover temporary file is unreferenced, so [sweepOrphans] removes it.
+     */
+    private suspend fun shrink(fileName: String, size: PhotoSize) {
+        val file = directory.file(fileName)
+        if (!file.isFile) return
+        val bitmap = decode(ImageDecoder.createSource(file), size)
+        val temp = directory.file("$fileName.tmp")
+        val stored = PhotoFileEntity(fileName, bitmap.width, bitmap.height)
+        try {
+            writeJpeg(bitmap, temp)
+            Files.move(temp.toPath(), file.toPath(), StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
+        } catch (e: Exception) {
+            temp.delete()
+            throw e
+        } finally {
+            bitmap.recycle()
+        }
+        photoDao.upsert(stored)
     }
 
     private companion object {
-        const val MAX_EDGE_PX = 2560
-        const val JPEG_QUALITY = 88
+        /** JPEG quality of stored photos: the usual web standard, far smaller than 90+ and hard to tell apart. */
+        const val JPEG_QUALITY = 80
+
+        /** Keeps `IN (…)` lists under SQLite's bound-variable limit. */
+        const val SQL_CHUNK = 500
     }
 }
