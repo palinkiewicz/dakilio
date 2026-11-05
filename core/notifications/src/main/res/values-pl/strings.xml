@@ -4,6 +4,8 @@
     <string name="reminder_channel_diary_body">Codzienne przypomnienie o wpisie, osobno dla każdego dziennika</string>
     <string name="reminder_channel_habit">Przypomnienia o nawykach</string>
     <string name="reminder_channel_habit_body">Codzienne przypomnienia, dopóki nie zaliczysz celu na ten tydzień</string>
+    <string name="reminder_diary_title">Uzupełnij: %1$s</string>
+    <string name="reminder_habit_title">Pamiętaj o: %1$s</string>
     <string name="reminder_diary_public">Pora na krótki wpis</string>
     <string name="reminder_habit_public">Mały krok na dziś</string>
     <plurals name="reminder_habit_progress">
@@ -19,13 +21,18 @@
         <item>Twoje przyszłe „ja” pyta, co się dziś działo. Odpiszesz?</item>
         <item>Dzień jak co dzień? Nawet taki zasługuje na dwa słowa.</item>
         <item>Złap dzisiejszy dzień, zanim ucieknie.</item>
-        <item>Jeden humor, jeden tag, może jedno zdanie. I wpis gotowy.</item>
-        <item>Odłóż na moment scrollowanie. Jak się naprawdę masz?</item>
+        <item>Nastrój, tagi, a może i jedno zdanie. I wpis gotowy.</item>
+        <item>Odłóż na moment scrollowanie. Jak się masz?</item>
         <item>Kawa, herbata, a może szybki wpis?</item>
-        <item>Co dziś było najlepsze? Drobiazgi też się liczą.</item>
+        <item>Co dziś sprawiło ci radość? Drobiazgi też się liczą.</item>
         <item>Życie to podróż, a każda podróż potrzebuje dziennika.</item>
-        <item>Pyk i dzień zapisany. Wystarczy minutka.</item>
+        <item>Serio - wystarczy minutka.</item>
         <item>Ups, dzisiaj jeszcze bez wpisu. Naprawimy to?</item>
+        <item>Zostaw tu ślad, żeby ten dzień nie zniknął w tłumie.</item>
+        <item>Twój dziennik czeka na kolejną stronę. Dopiszemy coś?</item>
+        <item>Cokolwiek się dzisiaj działo – warto to zapamiętać.</item>
+        <item>Daj znać, jak mija ten dzień. Choćby w trzech słowach.</item>
+        <item>Zapisz dzisiejszy dzień, zanim stanie się mglistym wspomnieniem.</item>
     </string-array>
 
     <string-array name="reminder_habit_texts" tools:ignore="InconsistentArrays">
@@ -34,10 +41,10 @@
         <item>Trochę dziś to więcej niż dużo „kiedyś”.</item>
         <item>Wciąż na liście na ten tydzień. Dasz radę!</item>
         <item>Przyszłe „ja” przybije ci za to piątkę.</item>
-        <item>Nawyk rośnie dzień po dniu. Dzisiaj też się liczy.</item>
+        <item>Nawyk rośnie dzień po dniu. Dziś też może.</item>
         <item>Szybkie pytanie: dziś się uda?</item>
         <item>Mały wysiłek, prawdziwy postęp. Do dzieła!</item>
-        <item>Cel na ten tydzień na wyciągnięcie ręki. Jeszcze raz?</item>
+        <item>Cel na ten tydzień jest na wyciągnięcie ręki.</item>
         <item>Systematyczność to supermoc. Czas jej użyć.</item>
         <item>Nie musi być idealnie. Ważne, żeby było.</item>
     </string-array>

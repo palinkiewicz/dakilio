@@ -4,6 +4,10 @@
     <string name="reminder_channel_diary_body">A daily nudge to write, set for each diary</string>
     <string name="reminder_channel_habit">Habit reminders</string>
     <string name="reminder_channel_habit_body">Daily nudges until a habit\'s weekly goal is met</string>
+    <!-- Notification title; %1$s is the diary's name. -->
+    <string name="reminder_diary_title">Fill in: %1$s</string>
+    <!-- Notification title; %1$s is the habit's name. -->
+    <string name="reminder_habit_title">Remember: %1$s</string>
     <!-- On the lock screen, instead of the diary's or habit's name. -->
     <string name="reminder_diary_public">Time for a little note</string>
     <string name="reminder_habit_public">A small step for today</string>

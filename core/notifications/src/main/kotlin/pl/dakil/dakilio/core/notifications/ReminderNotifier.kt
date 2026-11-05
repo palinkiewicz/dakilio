@@ -60,7 +60,7 @@ class ReminderNotifier @Inject constructor(
             id = reminder.diaryId,
             channel = CHANNEL_DIARY,
             icon = DesignR.drawable.sym_edit_note,
-            title = reminder.name,
+            title = context.getString(R.string.reminder_diary_title, reminder.name),
             text = texts[Reminders.textIndex(texts.size, snapshot.today, reminder.diaryId)],
             subText = null,
             publicText = context.getString(R.string.reminder_diary_public),
@@ -75,7 +75,7 @@ class ReminderNotifier @Inject constructor(
             id = reminder.habitId,
             channel = CHANNEL_HABIT,
             icon = DesignR.drawable.sym_check_circle,
-            title = reminder.label,
+            title = context.getString(R.string.reminder_habit_title, reminder.label),
             text = texts[Reminders.textIndex(texts.size, snapshot.today, reminder.habitId)],
             subText = context.resources.getQuantityString(
                 R.plurals.reminder_habit_progress,
