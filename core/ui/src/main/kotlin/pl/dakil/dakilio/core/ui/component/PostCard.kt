@@ -100,7 +100,7 @@ fun PostCard(
         shape = shape,
         color = MaterialTheme.colorScheme.surfaceContainer,
         interactionSource = interaction,
-        modifier = modifier.fillMaxWidth().pressScale(interaction, pressedScale = 0.985f),
+        modifier = modifier.entryPeek(post, diary, highlight).fillMaxWidth().pressScale(interaction, pressedScale = 0.985f),
     ) {
         Row(
             modifier = Modifier
@@ -237,7 +237,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawThread(color: C
 }
 
 @Composable
-private fun highlighted(text: String, query: String?): AnnotatedString {
+internal fun highlighted(text: String, query: String?): AnnotatedString {
     if (query.isNullOrBlank()) return AnnotatedString(text)
     val colors = MaterialTheme.colorScheme
     return remember(text, query, colors.tertiaryContainer) {
