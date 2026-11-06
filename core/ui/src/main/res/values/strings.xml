@@ -3,7 +3,6 @@
     <string name="ui_today">Today</string>
     <string name="ui_yesterday">Yesterday</string>
     <string name="ui_all_diaries">All</string>
-    <string name="ui_all_diaries_long">All diaries</string>
     <string name="ui_share">Share</string>
     <string name="ui_share_footer" translatable="false">Dakilio</string>
     <string name="ui_diary_filter_cd">Diary: %1$s</string>

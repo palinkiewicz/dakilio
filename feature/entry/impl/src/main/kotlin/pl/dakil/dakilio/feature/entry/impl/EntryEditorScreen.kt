@@ -219,15 +219,8 @@ internal fun EntryEditorScreen(
                             readOnly = readOnly,
                             onDate = viewModel::setDate,
                             onTime = viewModel::setTime,
+                            onDiary = viewModel::selectDiary,
                         )
-                        if (!readOnly && current.diaries.size > 1) {
-                            DiarySelector(
-                                diaries = current.diaries,
-                                selectedId = current.diaryId,
-                                onSelect = viewModel::selectDiary,
-                                modifier = Modifier.padding(top = Spacing.s),
-                            )
-                        }
                         if (!current.isNew) {
                             EntryOverview(
                                 state = current,
@@ -370,7 +363,13 @@ private fun OverflowMenu(onDelete: () -> Unit) {
 }
 
 @Composable
-private fun DateTimeRow(state: EditorUiState, readOnly: Boolean, onDate: (LocalDate) -> Unit, onTime: (Int, Int) -> Unit) {
+private fun DateTimeRow(
+    state: EditorUiState,
+    readOnly: Boolean,
+    onDate: (LocalDate) -> Unit,
+    onTime: (Int, Int) -> Unit,
+    onDiary: (Long) -> Unit,
+) {
     val formats = rememberFormats()
     var pickDate by rememberSaveable { mutableStateOf(false) }
     var pickTime by rememberSaveable { mutableStateOf(false) }
@@ -382,13 +381,26 @@ private fun DateTimeRow(state: EditorUiState, readOnly: Boolean, onDate: (LocalD
             horizontalArrangement = Arrangement.spacedBy(Spacing.l),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            if (diary != null) InfoItem(symbolForKey(diary.iconKey), diary.name, Modifier.weight(1f, fill = false))
             InfoItem(DakilioSymbols.CalendarToday, relativeDayLabel(date, state.today, formats))
             InfoItem(DakilioSymbols.Schedule, formats.time(state.dateTime.toLocalTime()))
-            if (diary != null) InfoItem(symbolForKey(diary.iconKey), diary.name, Modifier.weight(1f, fill = false))
         }
         return
     }
-    Row(Modifier.padding(horizontal = Spacing.gutter), horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
+    Row(
+        Modifier.padding(horizontal = Spacing.gutter),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.s),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        // An entry is in exactly one diary; with only one there's nothing to pick.
+        if (state.diaries.size > 1) {
+            DiarySelector(
+                diaries = state.diaries,
+                selectedId = state.diaryId,
+                onSelect = onDiary,
+                modifier = Modifier.weight(1f, fill = false),
+            )
+        }
         AssistChip(
             onClick = { pickDate = true },
             label = { Text(relativeDayLabel(date, state.today, formats)) },

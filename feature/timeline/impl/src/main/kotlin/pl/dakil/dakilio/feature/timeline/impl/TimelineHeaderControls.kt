@@ -2,11 +2,9 @@ package pl.dakil.dakilio.feature.timeline.impl
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import java.time.YearMonth
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.ui.DakilioFormats
@@ -19,9 +17,6 @@ internal val TimelineUiState.Ready.hasHeaderControls: Boolean
 /** Both pickers share the bar: they're compacted, and search moves out to a FAB. */
 internal val TimelineUiState.Ready.hasBothPickers: Boolean
     get() = diaries.size > 1 && monthNavigator
-
-/** Next to the month navigator, keeps a long diary name from squeezing it out of the app bar. */
-private val DROPDOWN_MAX_WIDTH = 118.dp
 
 /**
  * The timeline app bar's pickers, in its navigation slot so they stay in place whether the bar is
@@ -52,7 +47,7 @@ internal fun TimelineHeaderControls(
                 diaries = state.diaries,
                 selectedDiaryId = state.selectedDiaryId,
                 onSelect = onSelectDiary,
-                modifier = if (both) Modifier.widthIn(max = DROPDOWN_MAX_WIDTH) else Modifier,
+                modifier = Modifier.weight(1f, fill = false),
             )
         }
         if (state.monthNavigator) {

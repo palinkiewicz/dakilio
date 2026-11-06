@@ -90,9 +90,8 @@ fun DiaryFilterRow(
 }
 
 /**
- * Single-select diary filter ("All diaries" + every diary) as a compact button that opens a menu,
- * small enough for an app bar's subtitle. It takes as much width as its label needs; a long name is
- * ellipsized when space is short.
+ * Single-select diary filter ("All" + every diary) as a compact button that opens a menu. It's as wide
+ * as its label needs, up to all the width it's given; a long name is ellipsized.
  */
 @Composable
 fun DiaryFilterDropdown(
@@ -100,11 +99,32 @@ fun DiaryFilterDropdown(
     selectedDiaryId: Long?,
     onSelect: (Long?) -> Unit,
     modifier: Modifier = Modifier,
+) = DiaryDropdown(diaries, selectedDiaryId, includeAll = true, onSelect = onSelect, modifier = modifier)
+
+/**
+ * Single-select diary picker for the entry editor, the same button as [DiaryFilterDropdown] without
+ * "All": an entry is in exactly one diary.
+ */
+@Composable
+fun DiarySelector(
+    diaries: List<Diary>,
+    selectedId: Long?,
+    onSelect: (Long) -> Unit,
+    modifier: Modifier = Modifier,
+) = DiaryDropdown(diaries, selectedId, includeAll = false, onSelect = { id -> id?.let(onSelect) }, modifier = modifier)
+
+@Composable
+private fun DiaryDropdown(
+    diaries: List<Diary>,
+    selectedId: Long?,
+    includeAll: Boolean,
+    onSelect: (Long?) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val haptics = rememberHaptics()
     var expanded by rememberSaveable { mutableStateOf(false) }
-    val selected = diaries.firstOrNull { it.id == selectedDiaryId }
-    val allLabel = stringResource(R.string.ui_all_diaries_long)
+    val selected = diaries.firstOrNull { it.id == selectedId }
+    val allLabel = stringResource(R.string.ui_all_diaries)
     val label = selected?.name ?: allLabel
     val description = stringResource(R.string.ui_diary_filter_cd, label)
     val rotation by animateFloatAsState(
@@ -113,7 +133,7 @@ fun DiaryFilterDropdown(
         label = "chevron",
     )
     val interaction = remember { MutableInteractionSource() }
-    // The menu anchors to this Box, so it opens right under the pill.
+    // The menu anchors to this Box, so it opens right under the button.
     Box(modifier) {
         Surface(
             onClick = {
@@ -163,11 +183,11 @@ fun DiaryFilterDropdown(
             fun pick(id: Long?) {
                 haptics.tick()
                 expanded = false
-                if (id != selectedDiaryId) onSelect(id)
+                if (id != selectedId) onSelect(id)
             }
-            DiaryMenuItem(allLabel, DakilioSymbols.AutoStories, selectedDiaryId == null) { pick(null) }
+            if (includeAll) DiaryMenuItem(allLabel, DakilioSymbols.AutoStories, selectedId == null) { pick(null) }
             diaries.forEach { diary ->
-                DiaryMenuItem(diary.name, symbolForKey(diary.iconKey), diary.id == selectedDiaryId) { pick(diary.id) }
+                DiaryMenuItem(diary.name, symbolForKey(diary.iconKey), diary.id == selectedId) { pick(diary.id) }
             }
         }
     }
@@ -193,41 +213,6 @@ private fun DiaryMenuItem(label: String, symbol: DakilioSymbol, selected: Boolea
         },
         modifier = Modifier.semantics { this.selected = selected },
     )
-}
-
-/**
- * Single-select diary picker for the entry editor: an entry is in exactly one diary, so the checked
- * one stays checked when tapped again.
- */
-@Composable
-fun DiarySelector(
-    diaries: List<Diary>,
-    selectedId: Long?,
-    onSelect: (Long) -> Unit,
-    modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp),
-) {
-    val haptics = rememberHaptics()
-    Row(
-        modifier = modifier.horizontalScroll(rememberScrollState()).padding(contentPadding),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        diaries.forEach { diary ->
-            val checked = diary.id == selectedId
-            DiaryToggle(
-                label = diary.name,
-                symbol = if (checked) DakilioSymbols.Check else symbolForKey(diary.iconKey),
-                checked = checked,
-                onClick = {
-                    if (!checked) {
-                        haptics.toggle(true)
-                        onSelect(diary.id)
-                    }
-                },
-            )
-        }
-    }
 }
 
 @Composable
