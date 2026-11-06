@@ -42,6 +42,8 @@ data class UserSettings(
     val themeMode: ThemeMode = ThemeMode.System,
     /** Diary of the last saved entry; the editor's default when the timeline shows "All". */
     val lastEntryDiaryId: Long? = null,
+    /** The diary the timeline shows; `null` is "All diaries". */
+    val timelineDiaryId: Long? = null,
     val sampleHintDismissed: Boolean = false,
     val tagStyle: TagStyle = TagStyle.Icons,
     /** Beginner how-to lines across the app (see `Hint` in core:ui). */

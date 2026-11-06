@@ -34,7 +34,7 @@ Pretty-printed JSON. Fields that are null or at their default (`false`, `0`, `[]
     "timelineTextScale": 1.1, "editorTextScale": 1.0,
     "previewLength": "Short", "compactTags": true, "monthNavigator": true,
     "closeAfterSave": true, "keywordAutoAdd": false, "lastDiary": 1,
-    "weekStart": "Region", "photoSize": "Px1280"
+    "timelineDiary": 2, "weekStart": "Region", "photoSize": "Px1280"
   },
   "moods": [
     { "id": 3, "level": 3, "name": "Okay", "primary": true, "color": "periwinkle" },

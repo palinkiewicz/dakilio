@@ -247,6 +247,8 @@ internal class LocalSettingsRepository @Inject constructor(
 
     override suspend fun setLastEntryDiaryId(id: Long) = dataSource.setLastEntryDiaryId(id)
 
+    override suspend fun setTimelineDiaryId(id: Long?) = dataSource.setTimelineDiaryId(id)
+
     override suspend fun setSampleHintDismissed(dismissed: Boolean) = dataSource.setSampleHintDismissed(dismissed)
 
     override suspend fun setTagStyle(style: TagStyle) = dataSource.setTagStyle(style)

@@ -107,6 +107,8 @@ data class RestoreSettings(
     val photoSize: PhotoSize? = null,
     /** An index into [RestorePlan.diaries]. */
     val lastDiaryIndex: Int? = null,
+    /** An index into [RestorePlan.diaries]; `null` (also for an unknown diary) is "All diaries". */
+    val timelineDiaryIndex: Int? = null,
 )
 
 data class RestoreStats(
@@ -246,6 +248,7 @@ fun planRestore(backup: DakilioBackup, defaultDiaryName: String, now: Long): Res
             weekStart = WeekStart.entries.firstOrNull { it.name == s.weekStart },
             photoSize = PhotoSize.entries.firstOrNull { it.name == s.photoSize },
             lastDiaryIndex = s.lastDiary?.let(diaryIndexById::get),
+            timelineDiaryIndex = s.timelineDiary?.let(diaryIndexById::get),
         )
     } ?: RestoreSettings()
 

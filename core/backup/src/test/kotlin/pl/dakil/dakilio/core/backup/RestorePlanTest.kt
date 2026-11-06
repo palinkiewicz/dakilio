@@ -46,7 +46,7 @@ class RestorePlanTest {
                     BackupEntry(time = "2026-11-01T08:00Z", diary = 99, mood = 1),
                     BackupEntry(time = "yesterday", diary = 10),
                 ),
-                settings = BackupSettings(theme = "Dark", tagStyle = "Sparkles", timelineTextScale = 9f, previewLength = "Full", lastDiary = 20, weekStart = "Sunday", photoSize = "Px960"),
+                settings = BackupSettings(theme = "Dark", tagStyle = "Sparkles", timelineTextScale = 9f, previewLength = "Full", lastDiary = 20, timelineDiary = 10, weekStart = "Sunday", photoSize = "Px960"),
             ),
             defaultDiaryName = "Journey",
             now = now,
@@ -86,8 +86,16 @@ class RestorePlanTest {
         assertEquals(1.6f, plan.settings.timelineTextScale!!, 0.001f)
         assertEquals(PreviewLength.Full, plan.settings.previewLength)
         assertEquals(1, plan.settings.lastDiaryIndex)
+        assertEquals(0, plan.settings.timelineDiaryIndex)
         assertEquals(WeekStart.Sunday, plan.settings.weekStart)
         assertEquals(PhotoSize.Px960, plan.settings.photoSize)
+    }
+
+    @Test
+    fun unknownTimelineDiaryShowsAll() {
+        val plan = planRestore(backup(settings = BackupSettings(timelineDiary = 404)), "Journey", now)
+        assertNull(plan.settings.timelineDiaryIndex)
+        assertNull(planRestore(backup(settings = BackupSettings()), "Journey", now).settings.timelineDiaryIndex)
     }
 
     @Test

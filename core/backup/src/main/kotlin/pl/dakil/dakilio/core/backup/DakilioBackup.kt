@@ -67,13 +67,15 @@ data class BackupSettings(
     /** A `PreviewLength` name. */
     val previewLength: String? = null,
     val compactTags: Boolean? = null,
-    /** The timeline's floating month pill. */
+    /** The timeline's month navigator. */
     val monthNavigator: Boolean? = null,
     val closeAfterSave: Boolean? = null,
     /** Keywords add their tag at once instead of suggesting it. */
     val keywordAutoAdd: Boolean? = null,
     /** The diary the editor picks by default. */
     val lastDiary: Long? = null,
+    /** The diary the timeline shows; absent means all diaries. */
+    val timelineDiary: Long? = null,
     /** A `WeekStart` name: the first day of the week, or `Region` to follow the device's region. */
     val weekStart: String? = null,
     /** A `PhotoSize` name: the long edge photos are scaled down to (`Px1280`, …) or `Original`. */

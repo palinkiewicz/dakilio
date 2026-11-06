@@ -132,6 +132,7 @@ internal class LocalBackupRepository @Inject constructor(
                 closeAfterSave = userSettings.closeAfterSave,
                 keywordAutoAdd = userSettings.keywordAutoAdd,
                 lastDiary = userSettings.lastEntryDiaryId,
+                timelineDiary = userSettings.timelineDiaryId,
                 weekStart = userSettings.weekStart.name,
                 photoSize = userSettings.photoSize.name,
             ),
@@ -385,6 +386,7 @@ internal class LocalBackupRepository @Inject constructor(
         s.weekStart?.let { settings.setWeekStart(it) }
         s.photoSize?.let { settings.setPhotoSize(it) }
         settings.setLastEntryDiaryId(diaryIds[s.lastDiaryIndex ?: 0])
+        settings.setTimelineDiaryId(s.timelineDiaryIndex?.let(diaryIds::getOrNull))
         settings.setSampleHintDismissed(true)
     }
 

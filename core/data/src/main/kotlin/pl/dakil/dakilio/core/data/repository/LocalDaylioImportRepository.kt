@@ -149,6 +149,8 @@ internal class LocalDaylioImportRepository @Inject constructor(
                 runCatching { photos.delete(oldFiles.toSet() - newFiles.toSet()) }
                 runCatching {
                     settings.setLastEntryDiaryId(diaryId)
+                    // The old diaries are gone, so the timeline shows everything again.
+                    settings.setTimelineDiaryId(null)
                     settings.setSampleHintDismissed(true)
                 }
             }

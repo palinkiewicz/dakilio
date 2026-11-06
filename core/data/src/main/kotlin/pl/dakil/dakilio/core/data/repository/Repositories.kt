@@ -206,6 +206,9 @@ interface SettingsRepository {
 
     suspend fun setLastEntryDiaryId(id: Long)
 
+    /** The diary the timeline shows; `null` is "All diaries". */
+    suspend fun setTimelineDiaryId(id: Long?)
+
     suspend fun setSampleHintDismissed(dismissed: Boolean)
 
     suspend fun setTagStyle(style: TagStyle)

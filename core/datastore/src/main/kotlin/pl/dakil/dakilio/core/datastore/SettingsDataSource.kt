@@ -29,6 +29,7 @@ class SettingsDataSource @Inject constructor(
                 themeMode = prefs[THEME_MODE]?.let { name -> ThemeMode.entries.firstOrNull { it.name == name } }
                     ?: ThemeMode.System,
                 lastEntryDiaryId = prefs[LAST_ENTRY_DIARY],
+                timelineDiaryId = prefs[TIMELINE_DIARY],
                 sampleHintDismissed = prefs[SAMPLE_HINT_DISMISSED] ?: false,
                 tagStyle = prefs[TAG_STYLE]?.let { name -> TagStyle.entries.firstOrNull { it.name == name } }
                     ?: TagStyle.Icons,
@@ -71,6 +72,11 @@ class SettingsDataSource @Inject constructor(
 
     suspend fun setLastEntryDiaryId(id: Long) {
         dataStore.edit { it[LAST_ENTRY_DIARY] = id }
+    }
+
+    /** `null` is "All diaries". */
+    suspend fun setTimelineDiaryId(id: Long?) {
+        dataStore.edit { if (id == null) it.remove(TIMELINE_DIARY) else it[TIMELINE_DIARY] = id }
     }
 
     suspend fun setSampleHintDismissed(dismissed: Boolean) {
@@ -124,6 +130,7 @@ class SettingsDataSource @Inject constructor(
     private companion object {
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val LAST_ENTRY_DIARY = longPreferencesKey("last_entry_diary_id")
+        val TIMELINE_DIARY = longPreferencesKey("timeline_diary_id")
         val SAMPLE_HINT_DISMISSED = booleanPreferencesKey("sample_hint_dismissed")
         val TAG_STYLE = stringPreferencesKey("tag_style")
         val SHOW_HINTS = booleanPreferencesKey("show_hints")

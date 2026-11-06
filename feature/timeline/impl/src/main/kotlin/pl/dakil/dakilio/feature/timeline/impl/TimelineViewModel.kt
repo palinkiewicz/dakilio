@@ -1,6 +1,5 @@
 package pl.dakil.dakilio.feature.timeline.impl
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -47,7 +46,7 @@ sealed interface TimelineUiState {
         val lastDay: LocalDate,
         /** Entry counts and average moods per month in the filter, for the month picker. */
         val months: Map<YearMonth, MonthSummary>,
-        /** The floating month pill is on (a view option). */
+        /** The month navigator is on (a view option). */
         val monthNavigator: Boolean,
         val greeting: Greeting,
         val streak: Int,
@@ -62,10 +61,10 @@ class TimelineViewModel @Inject constructor(
     moodRepository: MoodRepository,
     private val settingsRepository: SettingsRepository,
     private val clock: Clock,
-    private val savedStateHandle: SavedStateHandle,
     @Dispatcher(DakilioDispatchers.Default) default: CoroutineDispatcher,
 ) : ViewModel() {
-    private val selectedDiaryId = savedStateHandle.getStateFlow<Long?>(KEY_DIARY, null)
+    // Persisted, so the timeline reopens on the diary picked last time.
+    private val selectedDiaryId = settingsRepository.settings.map { it.timelineDiaryId }.distinctUntilChanged()
     private val today = MutableStateFlow(LocalDate.now(clock))
     private val expandedStretches = MutableStateFlow(emptySet<Long>())
 
@@ -100,7 +99,7 @@ class TimelineViewModel @Inject constructor(
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TimelineUiState.Loading)
 
     fun selectDiary(id: Long?) {
-        savedStateHandle[KEY_DIARY] = id
+        viewModelScope.launch { settingsRepository.setTimelineDiaryId(id) }
     }
 
     fun toggleStretch(newestEpochDay: Long) {
@@ -140,9 +139,5 @@ class TimelineViewModel @Inject constructor(
         in 12..16 -> Greeting.Afternoon
         in 17..21 -> Greeting.Evening
         else -> Greeting.Night
-    }
-
-    private companion object {
-        const val KEY_DIARY = "selected_diary"
     }
 }
