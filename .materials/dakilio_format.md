@@ -42,7 +42,8 @@ Pretty-printed JSON. Fields that are null or at their default (`false`, `0`, `[]
   ],
   "diaries": [
     { "id": 1, "name": "Your Journey", "icon": "explore", "createdAt": "2026-01-01T09:00:00Z", "suggestedGroups": [2],
-      "reminder": { "enabled": true, "time": "20:30" } }
+      "reminders": [ { "enabled": true, "time": "20:30" },
+                     { "enabled": false, "time": "07:15", "days": ["mon", "tue", "wed", "thu", "fri"] } ] }
   ],
   "tagGroups": [
     { "id": 2, "name": "People", "color": "orange",
@@ -50,7 +51,7 @@ Pretty-printed JSON. Fields that are null or at their default (`false`, `0`, `[]
                   "keywords": [ { "word": "mum" }, { "word": "famil", "approximate": true } ] } ] }
   ],
   "habits": [ { "tag": 5, "daysPerWeek": 3, "createdAt": "2026-02-01T10:00:00Z",
-                "reminder": { "enabled": false, "time": "20:00" } } ],
+                "reminders": [ { "enabled": true, "time": "08:00", "days": ["sat", "sun"] } ] } ],
   "entries": [
     { "time": "2026-11-02T21:05:13.12+01:00", "diary": 1, "mood": 3,
       "title": "Dinner", "note": "With everyone.", "tags": [5],
@@ -65,9 +66,9 @@ Pretty-printed JSON. Fields that are null or at their default (`false`, `0`, `[]
 | `format`, `version` | Always `"dakilio"` and `1`. A file with a higher version is refused ("made by a newer Dakilio"). |
 | `settings` | Every key is optional. Unknown enum names leave the device's value alone. `weekStart` is `Region` (follow the device's region), `Monday`, `Saturday` or `Sunday`. `photoSize` is `Px640`, `Px960`, `Px1280`, `Px1600`, `Px2048` or `Original` (the long edge photos are scaled down to); a restore re-encodes the backup's photos at its own size. Search history, the language, intro state and the app lock (its settings and PIN or password, kept in a separate store) aren't included, so a restore never locks anyone out or carries over another device's credential. |
 | `moods` | `level`: 1 = worst … 5 = best. One `primary` per level, plus aliases (`position` orders them within a level). `color` is a `TagColor` palette key. |
-| `diaries` | `suggestedGroups`: ids of the tag groups the editor expands for that diary. `reminder` is its daily reminder (`time` is the local `HH:mm`, kept while it's off); a missing one is off. A restore keeps it, but a new phone still has to allow notifications. |
+| `diaries` | `suggestedGroups`: ids of the tag groups the editor expands for that diary. `reminders` are its reminders (the Reminders extra): `time` is the local `HH:mm`, `days` the weekdays (`mon` … `sun`; missing means every day, unknown names are dropped), `enabled` whether it's switched on. A restore keeps them, but a new phone still has to allow notifications. Backups from 1.2.0 have a single `reminder` instead, which is read as one every-day reminder when it's enabled and ignored otherwise. |
 | `tagGroups` | Tags are nested in their group. A tag's `color` overrides its group's. `icon` is a Material Symbol key. A tag's optional `keywords` (the Keywords extra) are words that suggest it; `approximate` makes the word's end also match longer words. Blank and duplicate words are dropped on restore. |
-| `habits` | One per tag. `daysPerWeek` is 1–7. `reminder` works like a diary's. |
+| `habits` | One per tag. `daysPerWeek` is 1–7. `reminders` work like a diary's. |
 | `entries.time` | An ISO-8601 date-time **with the offset it was written in**. That's both the timestamp and `utc_offset_min`; the entry's day is the date part. |
 | `entries.mood` | Optional (an entry may have no mood). |
 | `entries.photos` | Archive paths, in display order. |
