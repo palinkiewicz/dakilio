@@ -1,5 +1,6 @@
 package pl.dakil.dakilio.core.ui.component
 
+import androidx.compose.ui.geometry.Rect
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -54,5 +55,24 @@ class ReorderableTest {
         val drawnTop = top(1) + 33f
         val shiftInNewSlot = drawnTop - top(2)
         assertEquals(0, direction(2, shiftInNewSlot, count = 4))
+    }
+
+    @Test
+    fun swappingDownMovesHeldRowToTheNeighboursSlot() {
+        val own = Rect(0f, top(0), 100f, top(0) + 48f)
+        val other = Rect(0f, top(1), 100f, top(1) + 48f)
+        val (ownAfter, otherAfter) = slotsAfterSwap(own, other, down = true)
+        assertEquals(other, ownAfter)
+        assertEquals(own, otherAfter)
+    }
+
+    @Test
+    fun swappingUpKeepsUnequalHeightsInTheSameSpan() {
+        // A 48px row above a 96px held row: afterwards the held row is on top, the short one below.
+        val other = Rect(0f, 0f, 100f, 48f)
+        val own = Rect(0f, 56f, 100f, 152f)
+        val (ownAfter, otherAfter) = slotsAfterSwap(own, other, down = false)
+        assertEquals(Rect(0f, 0f, 100f, 96f), ownAfter)
+        assertEquals(Rect(0f, 104f, 100f, 152f), otherAfter)
     }
 }

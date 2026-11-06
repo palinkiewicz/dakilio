@@ -163,8 +163,17 @@ class ReorderState<K : Any> internal constructor(
     }
 
     private fun swap(from: Int, to: Int, own: Rect, other: Rect) {
+        val ownKey = keys[from]
         val otherKey = keys[to]
         val down = to > from
+        // The new order and slots apply from now on, not once layout reports them: the held item's
+        // clamp is read while the next frame places it, before the position callbacks run. With the
+        // new keys but the old bounds, a first or last item would be clamped a whole row off for a
+        // frame, showing the two items swapped.
+        val (ownSlot, otherSlot) = slotsAfterSwap(own, other, down)
+        bounds[ownKey] = ownSlot
+        bounds[otherKey] = otherSlot
+        keys = keys.toMutableList().apply { add(to, removeAt(from)) }
         // The held item's slot moves by this much; shift it back so it stays under the finger.
         translation -= if (down) other.bottom - own.bottom else other.top - own.top
         // The neighbour takes the freed place: start it where it was and let it slide there.
@@ -240,6 +249,19 @@ internal fun swapDirection(ownTop: Float, ownBottom: Float, previousCenter: Floa
     nextCenter != null && ownBottom > nextCenter -> 1
     previousCenter != null && ownTop < previousCenter -> -1
     else -> 0
+}
+
+/**
+ * Where the held item ([own]) and its neighbour ([other]) lie once swapped: the held item ends where
+ * the neighbour's far edge was, the neighbour starts where the held item's near edge was. Matches the
+ * shifts in `swap`, so items of different heights stay consistent too.
+ */
+internal fun slotsAfterSwap(own: Rect, other: Rect, down: Boolean): Pair<Rect, Rect> = if (down) {
+    Rect(own.left, other.bottom - own.height, own.right, other.bottom) to
+        Rect(other.left, own.top, other.right, own.top + other.height)
+} else {
+    Rect(own.left, other.top, own.right, other.top + own.height) to
+        Rect(other.left, own.bottom - other.height, other.right, own.bottom)
 }
 
 /**
