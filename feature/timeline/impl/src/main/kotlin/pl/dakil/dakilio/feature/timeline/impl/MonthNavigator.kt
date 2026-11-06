@@ -128,7 +128,7 @@ internal fun MonthNavigator(
                 .width(labelWidth)
                 .height(NAV_HEIGHT)
                 .pressScale(interaction, 0.92f)
-                .clip(RoundedCornerShape(8.dp))
+                .clip(CircleShape)
                 .clickable(interactionSource = interaction, role = Role.Button) {
                     haptics.tick()
                     onPick()
@@ -205,7 +205,7 @@ private fun MonthArrow(up: Boolean, enabled: Boolean, description: String, onCli
         modifier = Modifier
             .size(width = 40.dp, height = NAV_HEIGHT)
             .pressScale(interaction, 0.88f)
-            .clip(RoundedCornerShape(12.dp))
+            .clip(CircleShape)
             .clickable(interactionSource = interaction, enabled = enabled, role = Role.Button, onClick = onClick)
             .semantics { contentDescription = description },
     ) {

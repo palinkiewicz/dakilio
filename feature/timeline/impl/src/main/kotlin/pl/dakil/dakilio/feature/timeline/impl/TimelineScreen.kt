@@ -440,10 +440,17 @@ internal fun TimelineScreen(
                         }
                     }
                 }
+                // Hidden only while the big greeting still shows: the large bar not yet collapsed, or
+                // the greeting row still in the list's view. A jump back to the newest month keeps it.
+                val bigTitleShowing = if (headerCount == 0) {
+                    scrollBehavior.state.collapsedFraction < 0.99f
+                } else {
+                    listState.firstVisibleItemIndex < headerCount
+                }
                 val month = state.items.monthAt(itemTop)
                 val sections = remember(state.items) { state.items.sectionMonths() }
                 AnimatedVisibility(
-                    visible = state.monthFloating && month != null && listState.firstVisibleItemIndex >= 1 + headerCount,
+                    visible = state.monthFloating && month != null && !bigTitleShowing,
                     enter = scaleIn(MaterialTheme.motionScheme.fastSpatialSpec()) + fadeIn(MaterialTheme.motionScheme.fastEffectsSpec()),
                     exit = scaleOut(MaterialTheme.motionScheme.fastSpatialSpec()) + fadeOut(MaterialTheme.motionScheme.fastEffectsSpec()),
                     modifier = Modifier.padding(top = padding.calculateTopPadding() + Spacing.s),
