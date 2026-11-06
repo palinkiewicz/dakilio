@@ -3,6 +3,8 @@
     <string name="ui_today">Dzisiaj</string>
     <string name="ui_yesterday">Wczoraj</string>
     <string name="ui_all_diaries">Wszystkie</string>
+    <string name="ui_all_diaries_long">Wszystkie dzienniki</string>
+    <string name="ui_diary_filter_cd">Dziennik: %1$s</string>
     <string name="ui_no_mood">Notatka</string>
     <string name="ui_entry">Wpis</string>
     <string name="ui_format_language">pl</string>

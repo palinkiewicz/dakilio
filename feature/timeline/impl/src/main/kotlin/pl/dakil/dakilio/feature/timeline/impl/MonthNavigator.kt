@@ -16,7 +16,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -62,8 +64,11 @@ import pl.dakil.dakilio.core.ui.DakilioFormats
 import pl.dakil.dakilio.core.ui.mood.moodColors
 
 /**
- * The floating month pill over the timeline: ▲ newer month · the current month (opens the picker) ·
- * ▼ older month. The arrows are disabled at the timeline's ends.
+ * The month navigator in the timeline's app bar: ▲ newer month · the current month (opens the picker)
+ * · ▼ older month, with no background of its own so it blends into the bar. [compact] (next to the
+ * diary dropdown) stacks the short month name over its year and fills the width it's given (pass a
+ * width or a weight); otherwise it's one line, "November 2026", and only as wide as it needs.
+ * The arrows are disabled at the timeline's ends.
  */
 @Composable
 internal fun MonthNavigator(
@@ -75,84 +80,118 @@ internal fun MonthNavigator(
     onJump: (YearMonth) -> Unit,
     onPick: () -> Unit,
     modifier: Modifier = Modifier,
+    compact: Boolean = false,
 ) {
     val haptics = rememberHaptics()
-    val label = formats.monthYear(month.atDay(1))
-    Surface(
+    Row(
         modifier = modifier,
-        shape = CircleShape,
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        contentColor = MaterialTheme.colorScheme.onSurface,
-        shadowElevation = 3.dp,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(
-                onClick = {
-                    haptics.tick()
-                    newer?.let(onJump)
-                },
-                enabled = newer != null,
-            ) {
-                DakilioIcon(
-                    DakilioSymbols.ExpandMore,
-                    contentDescription = stringResource(R.string.timeline_month_newer),
-                    modifier = Modifier.rotate(180f),
-                )
-            }
-            val interaction = remember { MutableInteractionSource() }
-            val description = stringResource(R.string.timeline_month_choose, label)
-            val spatial = MaterialTheme.motionScheme.fastSpatialSpec<IntOffset>()
-            val effects = MaterialTheme.motionScheme.fastEffectsSpec<Float>()
-            // As wide as the year's longest month name, so the arrows never shift between months.
-            val labelStyle = MaterialTheme.typography.titleSmallEmphasized
-            val measurer = rememberTextMeasurer()
-            val density = LocalDensity.current
-            val labelWidth = remember(month.year, labelStyle, formats, density) {
+        MonthArrow(
+            up = true,
+            enabled = newer != null,
+            description = stringResource(R.string.timeline_month_newer),
+            onClick = {
+                haptics.tick()
+                newer?.let(onJump)
+            },
+        )
+        val interaction = remember { MutableInteractionSource() }
+        val description = stringResource(R.string.timeline_month_choose, formats.monthYear(month.atDay(1)))
+        val spatial = MaterialTheme.motionScheme.fastSpatialSpec<IntOffset>()
+        val effects = MaterialTheme.motionScheme.fastEffectsSpec<Float>()
+        val monthStyle = if (compact) MaterialTheme.typography.labelLargeEmphasized else MaterialTheme.typography.titleSmallEmphasized
+        val yearStyle = MaterialTheme.typography.labelSmall
+        // Compact, the label fills what the arrows leave of the given width. Otherwise it's as wide as
+        // the year's widest month, so the arrows never shift between months.
+        val measurer = rememberTextMeasurer()
+        val density = LocalDensity.current
+        val labelWidth = if (compact) {
+            null
+        } else {
+            remember(month.year, monthStyle, formats, density) {
                 val widest = (1..12).maxOf { number ->
-                    measurer.measure(formats.monthYear(LocalDate.of(month.year, number, 1)), labelStyle, maxLines = 1).size.width
+                    measurer.measure(formats.monthYear(LocalDate.of(month.year, number, 1)), monthStyle, maxLines = 1).size.width
                 }
-                with(density) { widest.toDp() } + Spacing.xs * 2
-            }
-            AnimatedContent(
-                targetState = month,
-                transitionSpec = {
-                    // Newer months come from above, like the list they mirror.
-                    val newer = targetState > initialState
-                    (slideInVertically(spatial) { if (newer) -it else it } + fadeIn(effects))
-                        .togetherWith(slideOutVertically(spatial) { if (newer) it else -it } + fadeOut(effects))
-                        .using(SizeTransform(clip = true))
-                },
-                contentAlignment = Alignment.Center,
-                label = "month",
-                modifier = Modifier
-                    .width(labelWidth)
-                    .pressScale(interaction, 0.92f)
-                    .clip(CircleShape)
-                    .clickable(interactionSource = interaction, indication = null, role = Role.Button) {
-                        haptics.tick()
-                        onPick()
-                    }
-                    .semantics { contentDescription = description },
-            ) { shown ->
-                Text(
-                    formats.monthYear(shown.atDay(1)),
-                    style = labelStyle,
-                    maxLines = 1,
-                    softWrap = false,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth().padding(vertical = Spacing.s),
-                )
-            }
-            IconButton(
-                onClick = {
-                    haptics.tick()
-                    older?.let(onJump)
-                },
-                enabled = older != null,
-            ) {
-                DakilioIcon(DakilioSymbols.ExpandMore, contentDescription = stringResource(R.string.timeline_month_older))
+                with(density) { widest.toDp() } + LABEL_PADDING * 2
             }
         }
+        AnimatedContent(
+            targetState = month,
+            transitionSpec = {
+                // Newer months come from above, like the list they mirror.
+                val newer = targetState > initialState
+                (slideInVertically(spatial) { if (newer) -it else it } + fadeIn(effects))
+                    .togetherWith(slideOutVertically(spatial) { if (newer) it else -it } + fadeOut(effects))
+                    .using(SizeTransform(clip = true))
+            },
+            contentAlignment = Alignment.Center,
+            label = "month",
+            modifier = Modifier
+                .then(if (labelWidth != null) Modifier.width(labelWidth) else Modifier.weight(1f))
+                .height(NAV_HEIGHT)
+                .pressScale(interaction, 0.92f)
+                .clip(RoundedCornerShape(8.dp))
+                .clickable(interactionSource = interaction, role = Role.Button) {
+                    haptics.tick()
+                    onPick()
+                }
+                .semantics { contentDescription = description },
+        ) { shown ->
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                if (compact) {
+                    Text(formats.monthShort(shown), style = monthStyle, maxLines = 1, softWrap = false, textAlign = TextAlign.Center)
+                    Text(
+                        shown.year.toString(),
+                        style = yearStyle,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        softWrap = false,
+                        textAlign = TextAlign.Center,
+                    )
+                } else {
+                    Text(formats.monthYear(shown.atDay(1)), style = monthStyle, maxLines = 1, softWrap = false, textAlign = TextAlign.Center)
+                }
+            }
+        }
+        MonthArrow(
+            up = false,
+            enabled = older != null,
+            description = stringResource(R.string.timeline_month_older),
+            onClick = {
+                haptics.tick()
+                older?.let(onJump)
+            },
+        )
+    }
+}
+
+private val NAV_HEIGHT = 40.dp
+private val LABEL_PADDING = 4.dp
+
+@Composable
+private fun MonthArrow(up: Boolean, enabled: Boolean, description: String, onClick: () -> Unit) {
+    val interaction = remember { MutableInteractionSource() }
+    val tint = MaterialTheme.colorScheme.onSurfaceVariant
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .size(width = 40.dp, height = NAV_HEIGHT)
+            .pressScale(interaction, 0.88f)
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(interactionSource = interaction, enabled = enabled, role = Role.Button, onClick = onClick)
+            .semantics { contentDescription = description },
+    ) {
+        DakilioIcon(
+            DakilioSymbols.ExpandMore,
+            contentDescription = null,
+            tint = if (enabled) tint else tint.copy(alpha = 0.38f),
+            modifier = Modifier.size(26.dp).then(if (up) Modifier.rotate(180f) else Modifier),
+        )
     }
 }
 
@@ -314,6 +353,3 @@ private fun MonthCell(
         }
     }
 }
-
-/** The vertical room the pill takes over the list, so jumps land just below it. */
-internal val MonthNavigatorClearance = 48.dp + Spacing.s

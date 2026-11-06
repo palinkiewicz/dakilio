@@ -36,9 +36,11 @@ import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeFlexibleTopAppBar
+import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumFloatingActionButton
@@ -50,6 +52,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TwoRowsTopAppBar
 import androidx.compose.material3.animateFloatingActionButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
@@ -68,13 +71,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -98,7 +101,6 @@ import pl.dakil.dakilio.core.model.levelsBestFirst
 import pl.dakil.dakilio.core.ui.DakilioFormats
 import pl.dakil.dakilio.core.ui.Hint
 import pl.dakil.dakilio.core.ui.bottomBarPadding
-import pl.dakil.dakilio.core.ui.component.DiaryFilterRow
 import pl.dakil.dakilio.core.ui.component.EmptyState
 import pl.dakil.dakilio.core.ui.component.PhotoViewer
 import pl.dakil.dakilio.core.ui.component.PostCard
@@ -159,6 +161,7 @@ internal fun TimelineScreen(
     var viewer by remember { mutableStateOf<Pair<List<PostPhoto>, Int>?>(null) }
     val ready = state as? TimelineUiState.Ready
     val selectedDiary = ready?.selectedDiaryId
+    val searchInFab = ready?.hasBothPickers == true
 
     // Jumps to a day: from the date picker, or from an "Also this day" chip, which also switches
     // diaries. Without this, a diary switch keeps the list's position by the first visible item's
@@ -167,24 +170,18 @@ internal fun TimelineScreen(
     var pickDate by rememberSaveable { mutableStateOf(false) }
     var pickMonth by rememberSaveable { mutableStateOf(false) }
     var viewMenu by rememberSaveable { mutableStateOf(false) }
-    val density = LocalDensity.current
-    // The first row not covered by the month pill decides the month it shows.
-    val coveredPx = with(density) { MonthNavigatorClearance.roundToPx() }
-    val topIndex by remember(coveredPx) {
+    // The first row still showing under the app bar decides the month the navigator shows.
+    val topIndex by remember {
         derivedStateOf {
-            listState.layoutInfo.visibleItemsInfo.firstOrNull { it.offset + it.size > coveredPx }?.index
+            listState.layoutInfo.visibleItemsInfo.firstOrNull { it.offset + it.size > 0 }?.index
                 ?: listState.firstVisibleItemIndex
         }
     }
-    // Jumps to the top of a month, just below the floating month pill (the newest month: the very
-    // top). Unlike a day jump it never waits for a new list, so it scrolls at once.
+    // Jumps to the top of a month, right under the app bar (the newest month: the very top).
+    // Unlike a day jump it never waits for a new list, so it scrolls at once.
     fun jumpToMonth(month: YearMonth) {
-        val items = ready?.items ?: return
-        when (val index = items.monthTopIndex(month)) {
-            null -> Unit
-            0 -> listState.requestScrollToItem(0)
-            else -> listState.requestScrollToItem(index, -coveredPx)
-        }
+        val index = ready?.items?.monthTopIndex(month) ?: return
+        listState.requestScrollToItem(index)
     }
     SideEffect {
         val jump = pendingJump ?: return@SideEffect
@@ -215,9 +212,50 @@ internal fun TimelineScreen(
                 label = "barColor",
             )
             Column(Modifier.background(barColor)) {
-                LargeFlexibleTopAppBar(
-                    title = { Text(stringResource(greetingRes(ready?.greeting ?: Greeting.Morning))) },
-                    subtitle = ready?.let { { Subtitle(it, formats) } },
+                TwoRowsTopAppBar(
+                    title = { expanded ->
+                        when {
+                            expanded -> Text(
+                                stringResource(greetingRes(ready?.greeting ?: Greeting.Morning)),
+                                style = MaterialTheme.typography.displaySmall,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                            // Nothing to pick: the collapsed bar keeps the date and streak.
+                            ready != null && !ready.hasHeaderControls ->
+                                ProvideTextStyle(MaterialTheme.typography.titleMedium) { Subtitle(ready, formats) }
+                        }
+                    },
+                    subtitle = ready?.let { ready ->
+                        { expanded ->
+                            if (expanded) ProvideTextStyle(MaterialTheme.typography.titleMedium) { Subtitle(ready, formats) }
+                        }
+                    },
+                    // The navigation slot stays put in both states, so the pickers never move.
+                    navigationIcon = {
+                        if (ready != null && ready.hasHeaderControls) {
+                            val sections = remember(ready.items) { ready.items.sectionMonths() }
+                            val month = ready.items.monthAt(topIndex) ?: sections.firstOrNull() ?: YearMonth.from(ready.today)
+                            val position = sections.indexOf(month)
+                            TimelineHeaderControls(
+                                state = ready,
+                                month = month,
+                                newer = sections.getOrNull(position - 1),
+                                older = if (position >= 0) sections.getOrNull(position + 1) else null,
+                                formats = formats,
+                                onSelectDiary = onSelectDiary,
+                                onJump = ::jumpToMonth,
+                                onPick = { pickMonth = true },
+                                // The slot is measured against the bar's full width, so with both
+                                // pickers the month navigator fills up to the action buttons.
+                                modifier = if (ready.hasBothPickers) {
+                                    Modifier.fillMaxWidth().padding(start = Spacing.m, end = ACTIONS_RESERVE)
+                                } else {
+                                    Modifier.padding(start = Spacing.m)
+                                },
+                            )
+                        }
+                    },
                     actions = {
                         // The menu anchors to this Box, so it grows out of the button.
                         Box {
@@ -245,24 +283,20 @@ internal fun TimelineScreen(
                                 DakilioIcon(DakilioSymbols.CalendarMonth, contentDescription = stringResource(R.string.timeline_jump_to_date))
                             }
                         }
-                        IconButton(
-                            onClick = onOpenSearch,
-                            modifier = Modifier.sharedContainer(SearchKey.SHARED_ELEMENT_KEY, CircleShape),
-                        ) {
-                            DakilioIcon(DakilioSymbols.Search, contentDescription = stringResource(R.string.timeline_search))
+                        // With both pickers the bar is full, so search moves to a FAB.
+                        if (!searchInFab) {
+                            IconButton(
+                                onClick = onOpenSearch,
+                                modifier = Modifier.sharedContainer(SearchKey.SHARED_ELEMENT_KEY, CircleShape),
+                            ) {
+                                DakilioIcon(DakilioSymbols.Search, contentDescription = stringResource(R.string.timeline_search))
+                            }
                         }
                     },
+                    expandedHeight = TopAppBarDefaults.LargeFlexibleAppBarWithSubtitleExpandedHeight,
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent, scrolledContainerColor = Color.Transparent),
                     scrollBehavior = scrollBehavior,
                 )
-                if (ready != null && ready.diaries.size > 1) {
-                    DiaryFilterRow(
-                        diaries = ready.diaries,
-                        selectedDiaryId = ready.selectedDiaryId,
-                        onSelect = onSelectDiary,
-                        modifier = Modifier.padding(bottom = Spacing.s),
-                    )
-                }
             }
         },
         floatingActionButton = {
@@ -285,6 +319,19 @@ internal fun TimelineScreen(
                         contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                     ) {
                         DakilioIcon(DakilioSymbols.ArrowUpward, contentDescription = stringResource(R.string.timeline_scroll_to_top))
+                    }
+                }
+                if (searchInFab) {
+                    FloatingActionButton(
+                        onClick = {
+                            haptics.tick()
+                            onOpenSearch()
+                        },
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier.sharedContainer(SearchKey.SHARED_ELEMENT_KEY, FloatingActionButtonDefaults.shape),
+                    ) {
+                        DakilioIcon(DakilioSymbols.Search, contentDescription = stringResource(R.string.timeline_search))
                     }
                 }
                 MediumFloatingActionButton(
@@ -380,26 +427,6 @@ internal fun TimelineScreen(
                         }
                     }
                 }
-                val month = state.items.monthAt(topIndex)
-                val sections = remember(state.items) { state.items.sectionMonths() }
-                AnimatedVisibility(
-                    visible = state.monthNavigator && month != null && listState.firstVisibleItemIndex >= 1,
-                    enter = scaleIn(MaterialTheme.motionScheme.fastSpatialSpec()) + fadeIn(MaterialTheme.motionScheme.fastEffectsSpec()),
-                    exit = scaleOut(MaterialTheme.motionScheme.fastSpatialSpec()) + fadeOut(MaterialTheme.motionScheme.fastEffectsSpec()),
-                    modifier = Modifier.padding(top = padding.calculateTopPadding() + Spacing.s),
-                ) {
-                    // Keeps the last month while the pill animates out.
-                    val shown = month ?: sections.firstOrNull() ?: YearMonth.from(state.today)
-                    val position = sections.indexOf(shown)
-                    MonthNavigator(
-                        month = shown,
-                        newer = sections.getOrNull(position - 1),
-                        older = if (position >= 0) sections.getOrNull(position + 1) else null,
-                        formats = formats,
-                        onJump = ::jumpToMonth,
-                        onPick = { pickMonth = true },
-                    )
-                }
             }
         }
     }
@@ -437,6 +464,13 @@ internal fun TimelineScreen(
         )
     }
 }
+
+/**
+ * What the app bar's actions take at its end when both pickers show (two 48dp icon buttons, the
+ * bar's 4dp insets at both ends and a small gap), so the pickers can fill the rest. Update it with
+ * the actions.
+ */
+private val ACTIONS_RESERVE = 48.dp * 2 + 12.dp
 
 /** Rows scrolled past before the "scroll to top" button shows up. */
 private const val SCROLL_TO_TOP_THRESHOLD = 4
