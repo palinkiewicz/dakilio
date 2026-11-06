@@ -18,6 +18,7 @@ import pl.dakil.dakilio.core.database.entity.MoodEntity
 import pl.dakil.dakilio.core.database.entity.PostEntity
 import pl.dakil.dakilio.core.database.entity.PostPhotoEntity
 import pl.dakil.dakilio.core.database.entity.PostTagCrossRef
+import pl.dakil.dakilio.core.database.entity.ReminderEntity
 import pl.dakil.dakilio.core.database.entity.TagEntity
 import pl.dakil.dakilio.core.database.entity.TagGroupEntity
 import pl.dakil.dakilio.core.database.entity.TagKeywordEntity
@@ -34,11 +35,12 @@ import pl.dakil.dakilio.core.database.entity.TagKeywordEntity
         PostPhotoEntity::class,
         HabitEntity::class,
         TagKeywordEntity::class,
+        ReminderEntity::class,
     ],
     // Every schema change bumps the version and adds a migration (`autoMigrations` or a Migration in
     // Migrations.kt), so installs keep their data. Never edit an exported schema once committed.
-    // 1 = the released 1.0.0; 2 = reminders.
-    version = 2,
+    // 1 = the released 1.0.0; 2 = diary and habit reminder columns (1.2.0); 3 = the reminder table.
+    version = 3,
     exportSchema = true,
 )
 abstract class DakilioDatabase : RoomDatabase() {

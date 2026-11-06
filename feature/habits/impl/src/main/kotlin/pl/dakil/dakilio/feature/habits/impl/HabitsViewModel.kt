@@ -6,6 +6,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.Clock
 import java.time.LocalDate
 import javax.inject.Inject
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -13,9 +15,11 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import pl.dakil.dakilio.core.data.repository.HabitProgressEvents
 import pl.dakil.dakilio.core.data.repository.HabitRepository
+import pl.dakil.dakilio.core.data.repository.ReminderRepository
 import pl.dakil.dakilio.core.data.repository.TagRepository
 import pl.dakil.dakilio.core.model.Habit
 import pl.dakil.dakilio.core.model.Reminder
+import pl.dakil.dakilio.core.model.ReminderTarget
 import pl.dakil.dakilio.core.model.HabitBump
 import pl.dakil.dakilio.core.model.HabitStatus
 import pl.dakil.dakilio.core.model.TagGroup
@@ -31,9 +35,13 @@ data class HabitsUiState(
     val trackedTagIds: Set<Long> = habits.map { it.habit.tag.id }.toSet()
 }
 
+/** A deleted habit and the reminders that went with it, for Undo. */
+data class DeletedHabit(val habit: Habit, val reminders: List<Reminder>)
+
 @HiltViewModel
 class HabitsViewModel @Inject constructor(
     private val habitRepository: HabitRepository,
+    private val reminderRepository: ReminderRepository,
     tagRepository: TagRepository,
     private val clock: Clock,
 ) : ViewModel() {
@@ -42,17 +50,29 @@ class HabitsViewModel @Inject constructor(
         HabitsUiState(habits = habits, groups = groups, today = LocalDate.now(clock))
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
-    fun add(tagId: Long, daysPerWeek: Int, reminder: Reminder = Reminder()) {
-        viewModelScope.launch { habitRepository.addHabit(tagId, daysPerWeek, reminder) }
+    fun add(tagId: Long, daysPerWeek: Int) {
+        viewModelScope.launch { habitRepository.addHabit(tagId, daysPerWeek) }
     }
 
-    fun update(habit: Habit, daysPerWeek: Int, reminder: Reminder = habit.reminder) {
-        if (daysPerWeek == habit.daysPerWeek && reminder == habit.reminder) return
-        viewModelScope.launch { habitRepository.updateHabit(habit.id, daysPerWeek, reminder) }
+    fun update(habit: Habit, daysPerWeek: Int) {
+        if (daysPerWeek == habit.daysPerWeek) return
+        viewModelScope.launch { habitRepository.updateHabit(habit.id, daysPerWeek) }
     }
 
-    fun delete(habit: Habit) {
-        viewModelScope.launch { habitRepository.deleteHabit(habit.id) }
+    /** Deletes [habit], whose reminders go with it; returns what [restore] needs to bring both back. */
+    fun delete(habit: Habit): Deferred<DeletedHabit> = viewModelScope.async {
+        val reminders = reminderRepository.forHabit(habit.id)
+        habitRepository.deleteHabit(habit.id)
+        DeletedHabit(habit, reminders)
+    }
+
+    /** Undoes [delete]: the habit comes back under a new id, so its reminders follow it there. */
+    fun restore(deletion: Deferred<DeletedHabit>) {
+        viewModelScope.launch {
+            val deleted = deletion.await()
+            val id = habitRepository.addHabit(deleted.habit.tag.id, deleted.habit.daysPerWeek)
+            deleted.reminders.forEach { reminderRepository.add(it.copy(target = ReminderTarget.Habit(id))) }
+        }
     }
 }
 

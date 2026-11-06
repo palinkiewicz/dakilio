@@ -2,7 +2,6 @@ package pl.dakil.dakilio.core.model
 
 import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -14,77 +13,92 @@ class RemindersTest {
     private val today = LocalDate.of(2026, 11, 5)
     private val evening = LocalTime.of(20, 0)
 
-    private fun diary(id: Long, time: LocalTime = evening) = DiaryReminder(id, "Diary $id", time)
+    private fun diary(id: Long, time: LocalTime = evening, days: Set<DayOfWeek> = ReminderDays.EVERY_DAY, reminderId: Long = id) =
+        PlannedReminder(reminderId, ReminderSubject.Diary(id, "Diary $id"), time, days)
 
-    private fun habit(id: Long, target: Int = 3, time: LocalTime = evening) = HabitReminder(id, id * 10, "Habit $id", target, time)
+    private fun habit(id: Long, target: Int = 3, time: LocalTime = evening, days: Set<DayOfWeek> = ReminderDays.EVERY_DAY) =
+        PlannedReminder(100 + id, ReminderSubject.Habit(id, id * 10, "Habit $id", target), time, days)
 
     private fun snapshot(
-        diaries: List<DiaryReminder> = emptyList(),
-        habits: List<HabitReminder> = emptyList(),
+        vararg reminders: PlannedReminder,
         writtenToday: Set<Long> = emptySet(),
         weekCounts: Map<Long, Int> = emptyMap(),
         firstDay: DayOfWeek = DayOfWeek.MONDAY,
-    ) = ReminderSnapshot(today, firstDay, diaries, habits, writtenToday, weekCounts)
+        today: LocalDate = this.today,
+    ) = ReminderSnapshot(today, firstDay, reminders.toList(), writtenToday, weekCounts)
 
     private fun at(hour: Int, minute: Int = 0, date: LocalDate = today) = date.atTime(hour, minute)
 
     @Test fun `nothing on means no alarm`() = assertNull(Reminders.next(at(9), snapshot()))
 
     @Test fun `the earliest reminder wins and reminders at the same time share the alarm`() {
-        val next = Reminders.next(
-            at(9),
-            snapshot(diaries = listOf(diary(1), diary(2, LocalTime.of(18, 30))), habits = listOf(habit(5, time = LocalTime.of(18, 30)))),
-        )!!
+        val next = Reminders.next(at(9), snapshot(diary(1), diary(2, LocalTime.of(18, 30)), habit(5, time = LocalTime.of(18, 30))))!!
         assertEquals(at(18, 30), next.at)
-        assertEquals(setOf(2L), next.diaryIds)
-        assertEquals(setOf(5L), next.habitIds)
+        assertEquals(setOf(2L, 105L), next.reminderIds)
     }
 
     @Test fun `a time already past today moves to tomorrow`() =
-        assertEquals(at(20, date = today.plusDays(1)), Reminders.next(at(21), snapshot(diaries = listOf(diary(1))))!!.at)
+        assertEquals(at(20, date = today.plusDays(1)), Reminders.next(at(21), snapshot(diary(1)))!!.at)
 
     @Test fun `after is exclusive`() =
-        assertEquals(at(20, date = today.plusDays(1)), Reminders.next(at(20), snapshot(diaries = listOf(diary(1))))!!.at)
+        assertEquals(at(20, date = today.plusDays(1)), Reminders.next(at(20), snapshot(diary(1)))!!.at)
 
     @Test fun `a reminder just after a late alarm still comes, at once`() {
         // The 20:00 alarm went off late; the 20:05 reminder is planned after 20:00, so it isn't skipped.
-        val next = Reminders.next(at(20), snapshot(diaries = listOf(diary(1), diary(2, LocalTime.of(20, 5)))))!!
+        val next = Reminders.next(at(20), snapshot(diary(1), diary(2, LocalTime.of(20, 5))))!!
         assertEquals(at(20, 5), next.at)
-        assertEquals(setOf(2L), next.diaryIds)
+        assertEquals(setOf(2L), next.reminderIds)
     }
 
-    @Test fun `a diary written today waits until tomorrow`() {
-        val next = Reminders.next(at(9), snapshot(diaries = listOf(diary(1)), writtenToday = setOf(1)))!!
-        assertEquals(at(20, date = today.plusDays(1)), next.at)
+    @Test fun `a diary written today waits until tomorrow`() =
+        assertEquals(at(20, date = today.plusDays(1)), Reminders.next(at(9), snapshot(diary(1), writtenToday = setOf(1)))!!.at)
+
+    @Test fun `a reminder comes only on its weekdays`() {
+        // Thursday morning; only Mondays and Saturdays.
+        val next = Reminders.next(at(9), snapshot(diary(1, days = setOf(DayOfWeek.MONDAY, DayOfWeek.SATURDAY))))!!
+        assertEquals(at(20, date = LocalDate.of(2026, 11, 7)), next.at)
+    }
+
+    @Test fun `a diary written today skips to its next weekday, not to tomorrow`() {
+        val thursdays = setOf(DayOfWeek.THURSDAY)
+        val next = Reminders.next(at(9), snapshot(diary(1, days = thursdays), writtenToday = setOf(1)))!!
+        assertEquals(at(20, date = today.plusWeeks(1)), next.at)
     }
 
     @Test fun `a habit below its target comes every day`() =
-        assertEquals(at(20), Reminders.next(at(9), snapshot(habits = listOf(habit(1, target = 3)), weekCounts = mapOf(1L to 2)))!!.at)
+        assertEquals(at(20), Reminders.next(at(9), snapshot(habit(1, target = 3), weekCounts = mapOf(1L to 2)))!!.at)
 
     @Test fun `a habit that met its target rests until the next week`() {
-        val next = Reminders.next(at(9), snapshot(habits = listOf(habit(1, target = 2)), weekCounts = mapOf(1L to 2)))!!
+        val next = Reminders.next(at(9), snapshot(habit(1, target = 2), weekCounts = mapOf(1L to 2)))!!
         assertEquals(at(20, date = LocalDate.of(2026, 11, 9)), next.at) // Monday
     }
 
+    @Test fun `a met habit comes back on its first weekday of the next week`() {
+        // Met this week; it reminds only on Wednesdays, so the next one is next week's Wednesday.
+        val next = Reminders.next(at(9), snapshot(habit(1, target = 1, days = setOf(DayOfWeek.WEDNESDAY)), weekCounts = mapOf(1L to 1)))!!
+        assertEquals(at(20, date = LocalDate.of(2026, 11, 11)), next.at)
+    }
+
     @Test fun `with sunday weeks, a met habit comes back on sunday`() {
-        val next = Reminders.next(
-            at(9),
-            snapshot(habits = listOf(habit(1, target = 1)), weekCounts = mapOf(1L to 1), firstDay = DayOfWeek.SUNDAY),
-        )!!
+        val next = Reminders.next(at(9), snapshot(habit(1, target = 1), weekCounts = mapOf(1L to 1), firstDay = DayOfWeek.SUNDAY))!!
         assertEquals(at(20, date = LocalDate.of(2026, 11, 8)), next.at)
     }
 
     @Test fun `the last day of the week rolls into a fresh week`() {
         // Sunday evening, past the reminder: tomorrow is a new week, so this week's count doesn't matter.
         val sunday = LocalDate.of(2026, 11, 8)
-        val snapshot = ReminderSnapshot(sunday, DayOfWeek.MONDAY, emptyList(), listOf(habit(1, target = 3)), emptySet(), mapOf(1L to 1))
+        val snapshot = snapshot(habit(1, target = 3), weekCounts = mapOf(1L to 1), today = sunday)
         assertEquals(at(20, date = sunday.plusDays(1)), Reminders.next(at(21, date = sunday), snapshot)!!.at)
     }
 
     @Test fun `due keeps only reminders that still apply`() {
         val snapshot = snapshot(
-            diaries = listOf(diary(1), diary(2), diary(3, LocalTime.of(21, 0))),
-            habits = listOf(habit(4, target = 1), habit(5, target = 2)),
+            diary(1),
+            diary(2),
+            diary(3, LocalTime.of(21, 0)),
+            diary(4, days = setOf(DayOfWeek.FRIDAY)),
+            habit(4, target = 1),
+            habit(5, target = 2),
             writtenToday = setOf(2),
             weekCounts = mapOf(4L to 1, 5L to 1),
         )
@@ -93,8 +107,13 @@ class RemindersTest {
         assertEquals(listOf(5L), due.habits.map { it.habitId })
     }
 
+    @Test fun `two reminders of one diary at the same moment show once`() {
+        val due = Reminders.due(at(20), snapshot(diary(1, reminderId = 1), diary(1, reminderId = 2)))
+        assertEquals(listOf(1L), due.diaries.map { it.diaryId })
+    }
+
     @Test fun `an alarm from another day shows nothing`() =
-        assertTrue(Reminders.due(at(20, date = today.minusDays(1)), snapshot(diaries = listOf(diary(1)))).isEmpty)
+        assertTrue(Reminders.due(at(20, date = today.minusDays(1)), snapshot(diary(1))).isEmpty)
 
     @Test fun `texts rotate without repeating on consecutive days`() {
         val size = 10
@@ -105,8 +124,23 @@ class RemindersTest {
     }
 
     @Test fun `minutes round-trip`() {
-        val reminder = Reminder.ofMinute(enabled = true, minuteOfDay = 7 * 60 + 45)
-        assertEquals(LocalTime.of(7, 45), reminder.time)
-        assertEquals(7 * 60 + 45, reminder.minuteOfDay)
+        val time = Reminder.timeOf(7 * 60 + 45)
+        assertEquals(LocalTime.of(7, 45), time)
+        assertEquals(7 * 60 + 45, time.minuteOfDay())
+    }
+
+    @Test fun `days round-trip through the mask`() {
+        val days = setOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.SUNDAY)
+        assertEquals(0b100_0101, ReminderDays.toMask(days))
+        assertEquals(days, ReminderDays.fromMask(ReminderDays.toMask(days)))
+        assertEquals(ReminderDays.EVERY_DAY_MASK, ReminderDays.toMask(ReminderDays.EVERY_DAY))
+        assertEquals(ReminderDays.EVERY_DAY, ReminderDays.fromMask(0))
+    }
+
+    @Test fun `usual sets of days have names`() {
+        assertEquals(ReminderDays.Kind.EveryDay, ReminderDays.kind(ReminderDays.EVERY_DAY))
+        assertEquals(ReminderDays.Kind.Workdays, ReminderDays.kind(ReminderDays.WORKDAYS))
+        assertEquals(ReminderDays.Kind.Weekend, ReminderDays.kind(ReminderDays.WEEKEND))
+        assertEquals(ReminderDays.Kind.Custom, ReminderDays.kind(setOf(DayOfWeek.MONDAY)))
     }
 }

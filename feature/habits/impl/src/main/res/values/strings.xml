@@ -41,9 +41,4 @@
         <item quantity="other">+%d more habits</item>
     </plurals>
     <string name="habits_progress_dismiss">Dismiss</string>
-    <string name="habits_sheet_reminder">Remind me</string>
-    <plurals name="habits_sheet_reminder_body">
-        <item quantity="one">Every day at the time you set, until it\'s done %d day this week</item>
-        <item quantity="other">Every day at the time you set, until it\'s done %d days this week</item>
-    </plurals>
 </resources>

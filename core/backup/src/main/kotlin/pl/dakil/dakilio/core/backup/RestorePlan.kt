@@ -1,5 +1,6 @@
 package pl.dakil.dakilio.core.backup
 
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
 import java.util.Locale
@@ -9,6 +10,7 @@ import pl.dakil.dakilio.core.model.MOOD_LEVELS
 import pl.dakil.dakilio.core.model.PhotoSize
 import pl.dakil.dakilio.core.model.PreviewLength
 import pl.dakil.dakilio.core.model.Reminder
+import pl.dakil.dakilio.core.model.ReminderDays
 import pl.dakil.dakilio.core.model.TagLimit
 import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TextScale
@@ -43,7 +45,14 @@ data class RestoreDiary(
     val createdAt: Long,
     /** Indices into [RestorePlan.groups]. */
     val suggestedGroups: List<Int>,
-    val reminder: Reminder = Reminder(),
+    val reminders: List<RestoreReminder> = emptyList(),
+)
+
+/** A reminder of a diary or habit. */
+data class RestoreReminder(
+    val time: LocalTime = Reminder.DEFAULT_TIME,
+    val days: Set<DayOfWeek> = ReminderDays.EVERY_DAY,
+    val enabled: Boolean = true,
 )
 
 data class RestoreGroup(val name: String, val position: Int, val archived: Boolean, val colorKey: String?, val tags: List<RestoreTag>)
@@ -65,7 +74,7 @@ data class RestoreHabit(
     val daysPerWeek: Int,
     val position: Int,
     val createdAt: Long,
-    val reminder: Reminder = Reminder(),
+    val reminders: List<RestoreReminder> = emptyList(),
 )
 
 sealed interface RestoreMoodRef {
@@ -197,7 +206,7 @@ fun planRestore(backup: DakilioBackup, defaultDiaryName: String, now: Long): Res
             position = index,
             createdAt = BackupTime.parseMillis(diary.createdAt) ?: now,
             suggestedGroups = diary.suggestedGroups.distinct().mapNotNull { id -> groupIndexById[id].also { if (it == null) missing++ } },
-            reminder = diary.reminder.toReminder(),
+            reminders = restoreReminders(diary.reminders, diary.reminder),
         )
     }.ifEmpty { listOf(RestoreDiary(defaultDiaryName, "", 0, now, emptyList())) }
 
@@ -206,7 +215,13 @@ fun planRestore(backup: DakilioBackup, defaultDiaryName: String, now: Long): Res
         .distinctBy { (_, ref) -> ref }
         .sortedBy { (habit, _) -> habit.position }
         .mapIndexed { position, (habit, ref) ->
-            RestoreHabit(ref, habit.daysPerWeek.coerceIn(1, 7), position, BackupTime.parseMillis(habit.createdAt) ?: now, habit.reminder.toReminder())
+            RestoreHabit(
+                ref,
+                habit.daysPerWeek.coerceIn(1, 7),
+                position,
+                BackupTime.parseMillis(habit.createdAt) ?: now,
+                restoreReminders(habit.reminders, habit.reminder),
+            )
         }
 
     // Entries.
@@ -282,12 +297,29 @@ fun planRestore(backup: DakilioBackup, defaultDiaryName: String, now: Long): Res
     )
 }
 
-/** A backup's reminder; a missing one is off, and an unreadable time keeps the default. */
-private fun BackupReminder?.toReminder(): Reminder {
-    this ?: return Reminder()
-    val time = runCatching { LocalTime.parse(time) }.getOrNull()?.withSecond(0)?.withNano(0) ?: Reminder.DEFAULT_TIME
-    return Reminder(enabled, time)
+/**
+ * A diary's or habit's reminders: the list, or else 1.2.0's single reminder when it was on (one that
+ * was off was only a remembered time). An unreadable time keeps the default; unknown day names are
+ * dropped, and no day left means every day.
+ */
+private fun restoreReminders(reminders: List<BackupReminder>, legacy: BackupReminder?): List<RestoreReminder> {
+    val source = reminders.ifEmpty { listOfNotNull(legacy?.takeIf { it.enabled }) }
+    return source.map { reminder ->
+        RestoreReminder(
+            time = runCatching { LocalTime.parse(reminder.time) }.getOrNull()?.withSecond(0)?.withNano(0) ?: Reminder.DEFAULT_TIME,
+            days = reminder.days.orEmpty().mapNotNull { name -> DAY_NAMES.entries.firstOrNull { it.value == name.lowercase(Locale.ROOT) }?.key }
+                .toSet()
+                .ifEmpty { ReminderDays.EVERY_DAY },
+            enabled = reminder.enabled,
+        )
+    }
 }
 
-/** How a reminder is written into a backup. */
-fun Reminder.toBackup(): BackupReminder = BackupReminder(enabled, String.format(Locale.ROOT, "%02d:%02d", time.hour, time.minute))
+/** How a reminder is written into a backup; every day writes no days. */
+fun Reminder.toBackup(): BackupReminder = BackupReminder(
+    enabled = enabled,
+    time = String.format(Locale.ROOT, "%02d:%02d", time.hour, time.minute),
+    days = days.takeIf { it != ReminderDays.EVERY_DAY }?.sorted()?.map { DAY_NAMES.getValue(it) },
+)
+
+private val DAY_NAMES: Map<DayOfWeek, String> = DayOfWeek.entries.associateWith { it.name.take(3).lowercase(Locale.ROOT) }

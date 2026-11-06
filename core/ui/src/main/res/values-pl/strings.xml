@@ -90,9 +90,4 @@
     <string name="ui_tag_color_brown">Brązowy</string>
     <string name="ui_tag_color_slate">Grafitowy</string>
     <string name="ui_percent">%d%%</string>
-    <string name="ui_reminder_time">Godzina</string>
-    <string name="ui_reminder_pick_time">Godzina przypomnienia</string>
-    <string name="ui_reminder_ok">OK</string>
-    <string name="ui_reminder_blocked">Powiadomienia Dakilio są wyłączone, więc przypomnienia się nie pokażą.</string>
-    <string name="ui_reminder_open_settings">Ustawienia</string>
 </resources>

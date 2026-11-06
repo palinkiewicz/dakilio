@@ -54,8 +54,8 @@ abstract class HabitDao {
     @Insert
     abstract suspend fun insert(habit: HabitEntity): Long
 
-    @Query("UPDATE habit SET days_per_week = :days, reminder_on = :reminderOn, reminder_minute = :reminderMinute WHERE id = :id")
-    abstract suspend fun update(id: Long, days: Int, reminderOn: Boolean, reminderMinute: Int)
+    @Query("UPDATE habit SET days_per_week = :days WHERE id = :id")
+    abstract suspend fun update(id: Long, days: Int)
 
     @Query("DELETE FROM habit WHERE id = :id")
     abstract suspend fun delete(id: Long)

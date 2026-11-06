@@ -45,11 +45,4 @@
         <item quantity="other">+%d innego nawyku</item>
     </plurals>
     <string name="habits_progress_dismiss">Zamknij</string>
-    <string name="habits_sheet_reminder">Przypominaj mi</string>
-    <plurals name="habits_sheet_reminder_body">
-        <item quantity="one">Codziennie o wybranej godzinie, aż w tym tygodniu uzbiera się %d dzień</item>
-        <item quantity="few">Codziennie o wybranej godzinie, aż w tym tygodniu uzbierają się %d dni</item>
-        <item quantity="many">Codziennie o wybranej godzinie, aż w tym tygodniu uzbiera się %d dni</item>
-        <item quantity="other">Codziennie o wybranej godzinie, aż w tym tygodniu uzbiera się %d dnia</item>
-    </plurals>
 </resources>

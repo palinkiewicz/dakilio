@@ -39,6 +39,7 @@ import pl.dakil.dakilio.core.backup.RestoreMoodRef
 import pl.dakil.dakilio.core.backup.RestorePlan
 import pl.dakil.dakilio.core.backup.detectBackupKind
 import pl.dakil.dakilio.core.backup.planRestore
+import pl.dakil.dakilio.core.backup.RestoreReminder
 import pl.dakil.dakilio.core.backup.toBackup
 import pl.dakil.dakilio.core.backup.writeBackup
 import pl.dakil.dakilio.core.common.DakilioDispatchers
@@ -52,16 +53,19 @@ import pl.dakil.dakilio.core.database.dao.ReplaceDiary
 import pl.dakil.dakilio.core.database.dao.ReplaceGroup
 import pl.dakil.dakilio.core.database.dao.ReplaceHabit
 import pl.dakil.dakilio.core.database.dao.ReplaceKeyword
+import pl.dakil.dakilio.core.database.dao.ReplaceReminder
 import pl.dakil.dakilio.core.database.dao.ReplacePost
 import pl.dakil.dakilio.core.database.entity.DiaryEntity
 import pl.dakil.dakilio.core.database.entity.HabitEntity
 import pl.dakil.dakilio.core.database.entity.MoodEntity
 import pl.dakil.dakilio.core.database.entity.PostEntity
+import pl.dakil.dakilio.core.database.entity.ReminderEntity
 import pl.dakil.dakilio.core.database.entity.TagEntity
 import pl.dakil.dakilio.core.database.entity.TagGroupEntity
 import pl.dakil.dakilio.core.database.entity.TagKeywordEntity
 import pl.dakil.dakilio.core.model.MOOD_LEVELS
-import pl.dakil.dakilio.core.model.Reminder
+import pl.dakil.dakilio.core.model.ReminderDays
+import pl.dakil.dakilio.core.model.minuteOfDay
 import pl.dakil.dakilio.core.model.UserSettings
 
 internal class LocalBackupRepository @Inject constructor(
@@ -113,6 +117,9 @@ internal class LocalBackupRepository @Inject constructor(
         val suggestions = snapshot.suggestedGroups.groupBy({ it.diaryId }, { it.groupId })
         val tagsByGroup = snapshot.tags.groupBy { it.groupId }
         val keywordsByTag = snapshot.keywords.groupBy { it.tagId }
+        val reminders = snapshot.reminders.mapNotNull { entity -> entity.asModel()?.let { entity to it.toBackup() } }
+        val remindersByDiary = reminders.filter { it.first.diaryId != null }.groupBy({ it.first.diaryId }, { it.second })
+        val remindersByHabit = reminders.filter { it.first.habitId != null }.groupBy({ it.first.habitId }, { it.second })
         val tagsByPost = snapshot.postTags.groupBy({ it.postId }, { it.tagId })
         val photosByPost = snapshot.photos.groupBy({ it.postId }, { it.fileName })
         return DakilioBackup(
@@ -147,7 +154,7 @@ internal class LocalBackupRepository @Inject constructor(
                     position = it.position,
                     createdAt = BackupTime.formatInstant(it.createdAt),
                     suggestedGroups = suggestions[it.id].orEmpty().sorted(),
-                    reminder = Reminder.ofMinute(it.reminderOn, it.reminderMinute).toBackup(),
+                    reminders = remindersByDiary[it.id].orEmpty(),
                 )
             },
             tagGroups = snapshot.groups.map { group ->
@@ -171,7 +178,7 @@ internal class LocalBackupRepository @Inject constructor(
                     daysPerWeek = it.daysPerWeek,
                     position = it.position,
                     createdAt = BackupTime.formatInstant(it.createdAt),
-                    reminder = Reminder.ofMinute(it.reminderOn, it.reminderMinute).toBackup(),
+                    reminders = remindersByHabit[it.id].orEmpty(),
                 )
             },
             entries = snapshot.posts.map { post ->
@@ -317,8 +324,6 @@ internal class LocalBackupRepository @Inject constructor(
                                 iconKey = it.iconKey.ifBlank { defaultDiary.iconKey },
                                 position = it.position,
                                 createdAt = it.createdAt,
-                                reminderOn = it.reminder.enabled,
-                                reminderMinute = it.reminder.minuteOfDay,
                             ),
                             it.suggestedGroups,
                         )
@@ -342,13 +347,13 @@ internal class LocalBackupRepository @Inject constructor(
                                 daysPerWeek = it.daysPerWeek,
                                 position = it.position,
                                 createdAt = it.createdAt,
-                                reminderOn = it.reminder.enabled,
-                                reminderMinute = it.reminder.minuteOfDay,
                             ),
                             it.tag.groupIndex,
                             it.tag.tagIndex,
                         )
                     },
+                    reminders = plan.diaries.flatMapIndexed { index, diary -> diary.reminders.map { it.toReplace(clock.millis(), diaryIndex = index) } } +
+                        plan.habits.flatMapIndexed { index, habit -> habit.reminders.map { it.toReplace(clock.millis(), habitIndex = index) } },
                     keywords = plan.groups.flatMapIndexed { groupIndex, group ->
                         group.tags.flatMapIndexed { tagIndex, tag ->
                             tag.keywords.mapIndexed { position, keyword ->
@@ -411,3 +416,14 @@ internal class LocalBackupRepository @Inject constructor(
         const val MAX_FILE_BYTES = 2L * 1024 * 1024 * 1024
     }
 }
+
+private fun RestoreReminder.toReplace(createdAt: Long, diaryIndex: Int? = null, habitIndex: Int? = null) = ReplaceReminder(
+    ReminderEntity(
+        minute = time.minuteOfDay(),
+        days = ReminderDays.toMask(days),
+        enabled = enabled,
+        createdAt = createdAt,
+    ),
+    diaryIndex = diaryIndex,
+    habitIndex = habitIndex,
+)

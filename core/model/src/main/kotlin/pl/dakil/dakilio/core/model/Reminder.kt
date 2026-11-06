@@ -5,57 +5,123 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
+/** What a reminder is about: writing in a diary, or keeping a habit going. */
+sealed interface ReminderTarget {
+    val id: Long
+
+    data class Diary(override val id: Long) : ReminderTarget
+
+    data class Habit(override val id: Long) : ReminderTarget
+}
+
 /**
- * A daily nudge at [time], for a diary ("write something") or a habit ("keep it going"). Off by
- * default; the time is kept while it's off, so turning it back on brings the old time back.
+ * A reminder (the Reminders extra): a nudge at [time] on each of [days], about a diary ("write
+ * something") or a habit ("keep it going"). A diary or habit can have any number of them.
+ *
+ * @property enabled switched off, it stays in the list but never comes.
  */
 data class Reminder(
-    val enabled: Boolean = false,
+    val id: Long = 0,
+    val target: ReminderTarget,
     val time: LocalTime = DEFAULT_TIME,
+    val days: Set<DayOfWeek> = ReminderDays.EVERY_DAY,
+    val enabled: Boolean = true,
 ) {
-    val minuteOfDay: Int get() = time.hour * 60 + time.minute
+    val minuteOfDay: Int get() = time.minuteOfDay()
 
     companion object {
         val DEFAULT_TIME: LocalTime = LocalTime.of(20, 0)
 
-        fun ofMinute(enabled: Boolean, minuteOfDay: Int): Reminder =
-            Reminder(enabled, LocalTime.of((minuteOfDay / 60).coerceIn(0, 23), (minuteOfDay % 60).coerceIn(0, 59)))
+        /** [minuteOfDay] minutes after midnight, clamped to the day. */
+        fun timeOf(minuteOfDay: Int): LocalTime =
+            LocalTime.of((minuteOfDay / 60).coerceIn(0, 23), (minuteOfDay % 60).coerceIn(0, 59))
     }
 }
 
-/** A diary whose reminder is on. */
-data class DiaryReminder(val diaryId: Long, val name: String, val time: LocalTime)
+fun LocalTime.minuteOfDay(): Int = hour * 60 + minute
 
-/** A habit whose reminder is on. Its name is its tag's label. */
-data class HabitReminder(val habitId: Long, val tagId: Long, val label: String, val daysPerWeek: Int, val time: LocalTime)
+/** The weekdays a reminder comes on, and how they're stored (a bit per day, Monday first). */
+object ReminderDays {
+    val EVERY_DAY: Set<DayOfWeek> = DayOfWeek.entries.toSet()
+    val WORKDAYS: Set<DayOfWeek> = setOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY)
+    val WEEKEND: Set<DayOfWeek> = setOf(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)
+
+    /** Every day: all seven bits. */
+    const val EVERY_DAY_MASK = 0b111_1111
+
+    fun toMask(days: Set<DayOfWeek>): Int = days.fold(0) { mask, day -> mask or (1 shl (day.value - 1)) }
+
+    /** The days in [mask]; a mask with no day (never stored) reads as every day. */
+    fun fromMask(mask: Int): Set<DayOfWeek> =
+        DayOfWeek.entries.filter { mask and (1 shl (it.value - 1)) != 0 }.toSet().ifEmpty { EVERY_DAY }
+
+    /** How to name a set of days: one of the usual names, or the days themselves. */
+    fun kind(days: Set<DayOfWeek>): Kind = when (days) {
+        EVERY_DAY -> Kind.EveryDay
+        WORKDAYS -> Kind.Workdays
+        WEEKEND -> Kind.Weekend
+        else -> Kind.Custom
+    }
+
+    enum class Kind { EveryDay, Workdays, Weekend, Custom }
+}
+
+/** A reminder's diary or habit, with what the planner and the notification need to know. */
+sealed interface ReminderSubject {
+    /** The id notifications are kept by: one per diary or habit, however many reminders it has. */
+    val id: Long
+
+    data class Diary(val diaryId: Long, val name: String) : ReminderSubject {
+        override val id: Long get() = diaryId
+    }
+
+    /** A habit; its name is its tag's label. */
+    data class Habit(val habitId: Long, val tagId: Long, val label: String, val daysPerWeek: Int) : ReminderSubject {
+        override val id: Long get() = habitId
+    }
+}
+
+/** A reminder that's on, as the schedule sees it. */
+data class PlannedReminder(
+    val id: Long,
+    val subject: ReminderSubject,
+    val time: LocalTime,
+    val days: Set<DayOfWeek> = ReminderDays.EVERY_DAY,
+)
 
 /**
  * Everything the planner needs, read for [today].
  *
+ * @property reminders the reminders that are on.
  * @property writtenToday diaries with an entry on [today].
  * @property weekCounts days with each habit's tag in [today]'s week, by habit id; habits at 0 are absent.
  */
 data class ReminderSnapshot(
     val today: LocalDate,
     val firstDay: DayOfWeek,
-    val diaries: List<DiaryReminder>,
-    val habits: List<HabitReminder>,
+    val reminders: List<PlannedReminder>,
     val writtenToday: Set<Long>,
     val weekCounts: Map<Long, Int>,
 ) {
-    val isEmpty: Boolean get() = diaries.isEmpty() && habits.isEmpty()
+    val isEmpty: Boolean get() = reminders.isEmpty()
 
-    fun weekCount(habit: HabitReminder): Int = weekCounts[habit.habitId] ?: 0
+    fun weekCount(habit: ReminderSubject.Habit): Int = weekCounts[habit.habitId] ?: 0
 
     /** The habit has met its target for [today]'s week, so it rests until the next one. */
-    fun isMet(habit: HabitReminder): Boolean = weekCount(habit) >= habit.daysPerWeek
+    fun isMet(habit: ReminderSubject.Habit): Boolean = weekCount(habit) >= habit.daysPerWeek
+
+    /** Whether a notification for [subject] still applies today. */
+    fun applies(subject: ReminderSubject): Boolean = when (subject) {
+        is ReminderSubject.Diary -> subject.diaryId !in writtenToday
+        is ReminderSubject.Habit -> !isMet(subject)
+    }
 }
 
 /** The next alarm: the reminders due at [at] (all of them share the time). */
-data class NextAlarm(val at: LocalDateTime, val diaryIds: Set<Long>, val habitIds: Set<Long>)
+data class NextAlarm(val at: LocalDateTime, val reminderIds: Set<Long>)
 
-/** The reminders to show now, when an alarm set for some time today goes off. */
-data class DueReminders(val diaries: List<DiaryReminder>, val habits: List<HabitReminder>) {
+/** What to show now, when an alarm set for some time today goes off: one per diary or habit. */
+data class DueReminders(val diaries: List<ReminderSubject.Diary>, val habits: List<ReminderSubject.Habit>) {
     val isEmpty: Boolean get() = diaries.isEmpty() && habits.isEmpty()
 }
 
@@ -63,50 +129,44 @@ data class DueReminders(val diaries: List<DiaryReminder>, val habits: List<Habit
  * The reminder schedule. One alarm at a time: the earliest reminder still to come. When it goes off,
  * the reminders due then are checked again against fresh data, shown, and the next alarm is planned.
  *
+ * - A reminder comes only on its weekdays.
  * - A diary reminder is skipped on a day that diary already has an entry.
- * - A habit reminder comes every day until the week's target is met, then rests until the next week
- *   (starting on the user's first day of the week).
+ * - A habit reminder comes until the week's target is met, then rests until the next week (starting
+ *   on the user's first day of the week).
  */
 object Reminders {
+    /** Far enough to reach any weekday of next week, from any day of this one. */
+    private const val LOOKAHEAD_DAYS = 14L
+
     /**
      * The earliest reminder strictly after [after], with every other reminder due at the same moment;
      * `null` when none is on. [after] must not be before [ReminderSnapshot.today]: the snapshot only
      * knows about today's entries and this week's counts.
      */
     fun next(after: LocalDateTime, snapshot: ReminderSnapshot): NextAlarm? {
-        val weekStart = Habits.weekStart(snapshot.today, snapshot.firstDay)
-        val nextWeek = weekStart.plusWeeks(1)
-
-        val diaryTimes = snapshot.diaries.associate { reminder ->
-            var at = firstAfter(after, reminder.time)
-            if (at.toLocalDate() == snapshot.today && reminder.diaryId in snapshot.writtenToday) at = at.plusDays(1)
-            reminder.diaryId to at
-        }
-        val habitTimes = snapshot.habits.associate { reminder ->
-            var at = firstAfter(after, reminder.time)
-            // The counts are this week's; a later week starts from zero.
-            if (at.toLocalDate() < nextWeek && snapshot.isMet(reminder)) at = nextWeek.atTime(reminder.time)
-            reminder.habitId to at
-        }
-        val earliest = (diaryTimes.values + habitTimes.values).minOrNull() ?: return null
-        return NextAlarm(
-            at = earliest,
-            diaryIds = diaryTimes.filterValues { it == earliest }.keys,
-            habitIds = habitTimes.filterValues { it == earliest }.keys,
-        )
+        val nextWeek = Habits.weekStart(snapshot.today, snapshot.firstDay).plusWeeks(1)
+        val times = snapshot.reminders.mapNotNull { reminder ->
+            val at = (0..LOOKAHEAD_DAYS).asSequence()
+                .map { after.toLocalDate().plusDays(it).atTime(reminder.time) }
+                .firstOrNull { at -> at > after && at.dayOfWeek in reminder.days && !skipped(reminder.subject, at.toLocalDate(), snapshot, nextWeek) }
+            at?.let { reminder.id to it }
+        }.toMap()
+        val earliest = times.values.minOrNull() ?: return null
+        return NextAlarm(earliest, times.filterValues { it == earliest }.keys)
     }
 
     /**
-     * The reminders due at [at] that still apply: still on at that time, [at] is today, and the diary
-     * has no entry today or the habit hasn't met its target this week.
+     * What's due at [at] and still applies: reminders on at that time and weekday, [at] is today, and
+     * the diary has no entry today or the habit hasn't met its target this week. A diary or habit with
+     * several reminders at that moment shows once.
      */
     fun due(at: LocalDateTime, snapshot: ReminderSnapshot): DueReminders {
         if (at.toLocalDate() != snapshot.today) return DueReminders(emptyList(), emptyList())
-        val time = at.toLocalTime()
-        return DueReminders(
-            diaries = snapshot.diaries.filter { it.time == time && it.diaryId !in snapshot.writtenToday },
-            habits = snapshot.habits.filter { it.time == time && !snapshot.isMet(it) },
-        )
+        val subjects = snapshot.reminders
+            .filter { it.time == at.toLocalTime() && at.dayOfWeek in it.days && snapshot.applies(it.subject) }
+            .map { it.subject }
+            .distinct()
+        return DueReminders(subjects.filterIsInstance<ReminderSubject.Diary>(), subjects.filterIsInstance<ReminderSubject.Habit>())
     }
 
     /**
@@ -116,8 +176,10 @@ object Reminders {
     fun textIndex(size: Int, date: LocalDate, id: Long): Int =
         if (size <= 0) 0 else Math.floorMod(date.toEpochDay() + id * 3, size.toLong()).toInt()
 
-    private fun firstAfter(after: LocalDateTime, time: LocalTime): LocalDateTime {
-        val sameDay = after.toLocalDate().atTime(time)
-        return if (sameDay > after) sameDay else sameDay.plusDays(1)
-    }
+    private fun skipped(subject: ReminderSubject, date: LocalDate, snapshot: ReminderSnapshot, nextWeek: LocalDate): Boolean =
+        when (subject) {
+            is ReminderSubject.Diary -> date == snapshot.today && subject.diaryId in snapshot.writtenToday
+            // The counts are this week's; a later week starts from zero.
+            is ReminderSubject.Habit -> date < nextWeek && snapshot.isMet(subject)
+        }
 }

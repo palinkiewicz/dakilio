@@ -161,8 +161,8 @@ internal fun HabitsScreen(viewModel: HabitsViewModel, onBack: () -> Unit) {
             habit = null,
             groups = current.groups,
             trackedTagIds = current.trackedTagIds,
-            onSave = { tagId, days, reminder ->
-                viewModel.add(tagId, days, reminder)
+            onSave = { tagId, days ->
+                viewModel.add(tagId, days)
                 sheet = null
             },
             onDelete = {},
@@ -177,17 +177,17 @@ internal fun HabitsScreen(viewModel: HabitsViewModel, onBack: () -> Unit) {
                     habit = habit,
                     groups = current.groups,
                     trackedTagIds = current.trackedTagIds,
-                    onSave = { _, days, reminder ->
-                        viewModel.update(habit, days, reminder)
+                    onSave = { _, days ->
+                        viewModel.update(habit, days)
                         sheet = null
                     },
                     onDelete = {
                         sheet = null
-                        viewModel.delete(habit)
+                        val deleted = viewModel.delete(habit)
                         scope.launch {
                             snackbar.currentSnackbarData?.dismiss()
                             val result = snackbar.showSnackbar(deletedMessage, undoLabel, withDismissAction = true)
-                            if (result == SnackbarResult.ActionPerformed) viewModel.add(habit.tag.id, habit.daysPerWeek, habit.reminder)
+                            if (result == SnackbarResult.ActionPerformed) viewModel.restore(deleted)
                         }
                     },
                     onDismiss = { sheet = null },

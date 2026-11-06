@@ -21,7 +21,6 @@ import pl.dakil.dakilio.core.database.entity.PopulatedHabit
 import pl.dakil.dakilio.core.model.Habit
 import pl.dakil.dakilio.core.model.HabitStatus
 import pl.dakil.dakilio.core.model.Habits
-import pl.dakil.dakilio.core.model.Reminder
 
 internal class LocalHabitRepository @Inject constructor(
     private val dao: HabitDao,
@@ -65,19 +64,16 @@ internal class LocalHabitRepository @Inject constructor(
         return dao.dayCounts(start.toEpochDay(), start.plusDays(6).toEpochDay())
     }
 
-    override suspend fun addHabit(tagId: Long, daysPerWeek: Int, reminder: Reminder): Long = dao.insert(
+    override suspend fun addHabit(tagId: Long, daysPerWeek: Int): Long = dao.insert(
         HabitEntity(
             tagId = tagId,
             daysPerWeek = daysPerWeek.coerceIn(Habits.DAYS_RANGE),
             position = dao.nextPosition(),
             createdAt = clock.millis(),
-            reminderOn = reminder.enabled,
-            reminderMinute = reminder.minuteOfDay,
         ),
     )
 
-    override suspend fun updateHabit(id: Long, daysPerWeek: Int, reminder: Reminder) =
-        dao.update(id, daysPerWeek.coerceIn(Habits.DAYS_RANGE), reminder.enabled, reminder.minuteOfDay)
+    override suspend fun updateHabit(id: Long, daysPerWeek: Int) = dao.update(id, daysPerWeek.coerceIn(Habits.DAYS_RANGE))
 
     override suspend fun deleteHabit(id: Long) = dao.delete(id)
 }
@@ -87,5 +83,4 @@ private fun PopulatedHabit.asModel(groupColors: Map<Long, String?>) = Habit(
     tag = tag.asModel(groupColors[tag.groupId]),
     daysPerWeek = habit.daysPerWeek,
     position = habit.position,
-    reminder = Reminder.ofMinute(habit.reminderOn, habit.reminderMinute),
 )

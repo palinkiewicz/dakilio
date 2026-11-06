@@ -52,18 +52,15 @@ data class HabitDay(
     val localDate: Long,
 )
 
-/** A diary whose reminder is on. */
-data class DiaryReminderRow(
-    val diaryId: Long,
-    val name: String,
+/** A reminder that's on, with its diary's name, or its habit's tag and target. */
+data class PlannedReminderRow(
+    val id: Long,
     val minute: Int,
-)
-
-/** A habit whose reminder is on, with its tag's label. */
-data class HabitReminderRow(
-    val habitId: Long,
-    val tagId: Long,
-    val label: String,
-    val daysPerWeek: Int,
-    val minute: Int,
+    val days: Int,
+    val diaryId: Long?,
+    val diaryName: String?,
+    val habitId: Long?,
+    val tagId: Long?,
+    val label: String?,
+    val daysPerWeek: Int?,
 )

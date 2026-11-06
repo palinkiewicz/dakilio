@@ -74,7 +74,6 @@ import pl.dakil.dakilio.core.designsystem.icon.symbolForKey
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.ui.Hint
-import pl.dakil.dakilio.core.ui.component.ReminderSettingRow
 import pl.dakil.dakilio.core.ui.component.IconPicker
 
 @Composable
@@ -157,14 +156,6 @@ internal fun DiaryEditorScreen(viewModel: DiaryEditorViewModel, onClose: () -> U
                     lineLimits = TextFieldLineLimits.SingleLine,
                     textStyle = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.fillMaxWidth().padding(top = Spacing.xl),
-                )
-
-                SectionHeader(stringResource(R.string.diaries_reminder_title), Modifier.padding(top = Spacing.m))
-                ReminderSettingRow(
-                    reminder = current.reminder,
-                    onChange = viewModel::setReminder,
-                    title = stringResource(R.string.diaries_reminder),
-                    body = stringResource(R.string.diaries_reminder_body),
                 )
 
                 SectionHeader(stringResource(R.string.diaries_suggested_title), Modifier.padding(top = Spacing.m))

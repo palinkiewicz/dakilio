@@ -42,7 +42,4 @@
     <string name="diaries_delete_confirm">Usuń</string>
     <string name="diaries_cancel">Anuluj</string>
     <string name="diaries_done">Gotowe</string>
-    <string name="diaries_reminder_title">Przypomnienie</string>
-    <string name="diaries_reminder">Przypominaj mi o wpisie</string>
-    <string name="diaries_reminder_body">Codziennie o wybranej godzinie, chyba że tego dnia w tym dzienniku już jest wpis</string>
 </resources>

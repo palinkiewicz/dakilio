@@ -8,7 +8,6 @@ import pl.dakil.dakilio.core.database.entity.PopulatedPost
 import pl.dakil.dakilio.core.database.entity.PopulatedTagGroup
 import pl.dakil.dakilio.core.database.entity.TagEntity
 import pl.dakil.dakilio.core.model.Diary
-import pl.dakil.dakilio.core.model.Reminder
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.Post
 import pl.dakil.dakilio.core.model.PostPhoto
@@ -44,7 +43,6 @@ internal fun PopulatedDiary.asModel() = Diary(
     iconKey = diary.iconKey,
     position = diary.position,
     suggestedGroupIds = suggestedGroupIds.toSet(),
-    reminder = Reminder.ofMinute(diary.reminderOn, diary.reminderMinute),
 )
 
 /** [keep] picks which tags to include; by default only active ones. */

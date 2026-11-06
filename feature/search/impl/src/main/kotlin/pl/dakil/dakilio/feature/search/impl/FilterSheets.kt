@@ -19,7 +19,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.FilterChip
@@ -33,7 +32,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -53,13 +51,13 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import java.time.DayOfWeek
 import java.time.Instant
 import java.time.ZoneOffset
 import pl.dakil.dakilio.core.designsystem.component.ConnectedToggleRow
 import pl.dakil.dakilio.core.designsystem.component.SectionHeader
 import pl.dakil.dakilio.core.designsystem.component.ToggleOption
 import pl.dakil.dakilio.core.designsystem.component.pressScale
-import pl.dakil.dakilio.core.designsystem.component.raisedToggleColors
 import pl.dakil.dakilio.core.designsystem.component.rememberHaptics
 import pl.dakil.dakilio.core.designsystem.component.segmentedItemColors
 import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
@@ -70,9 +68,8 @@ import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.Tag
 import pl.dakil.dakilio.core.ui.color.tagColors
 import pl.dakil.dakilio.core.ui.mood.MoodBadge
-import pl.dakil.dakilio.core.ui.LocalFirstDayOfWeek
+import pl.dakil.dakilio.core.ui.component.WeekdayToggles
 import pl.dakil.dakilio.core.ui.rememberFormats
-import pl.dakil.dakilio.core.ui.weekdaysFrom
 
 /**
  * The sheet of one [facet]. Picks apply at once, and the header counts the matching entries live,
@@ -281,7 +278,7 @@ private fun WhenFacet(state: SearchUiState, viewModel: SearchViewModel) {
     }
 
     SectionHeader(stringResource(R.string.search_weekdays))
-    WeekdayToggles(state.filters.weekdays, viewModel::toggleWeekday)
+    WeekdayToggles(state.filters.weekdays.map(DayOfWeek::of).toSet(), { viewModel.toggleWeekday(it.value) })
 
     if (pickRange) {
         val todayUtc = state.today.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
@@ -317,34 +314,6 @@ private fun WhenFacet(state: SearchUiState, viewModel: SearchViewModel) {
 }
 
 private fun Long.toUtcDate() = Instant.ofEpochMilli(this).atZone(ZoneOffset.UTC).toLocalDate()
-
-/** Seven connected toggles from the first day of the week; unlike [ConnectedToggleRow] any number can be on. */
-@Composable
-private fun WeekdayToggles(days: Set<Int>, onToggle: (Int) -> Unit) {
-    val haptics = rememberHaptics()
-    val formats = rememberFormats()
-    val weekdays = weekdaysFrom(LocalFirstDayOfWeek.current)
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)) {
-        weekdays.forEachIndexed { index, day ->
-            val checked = day.value in days
-            ToggleButton(
-                checked = checked,
-                onCheckedChange = {
-                    haptics.toggle(it)
-                    onToggle(day.value)
-                },
-                shapes = when (index) {
-                    0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
-                    weekdays.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
-                    else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
-                },
-                colors = raisedToggleColors(),
-                contentPadding = PaddingValues(0.dp),
-                modifier = Modifier.weight(1f).semantics { role = Role.Checkbox },
-            ) { Text(formats.weekdayNarrow(day), maxLines = 1) }
-        }
-    }
-}
 
 @Composable
 private fun HasFacet(has: Set<Has>, onToggle: (Has) -> Unit) {

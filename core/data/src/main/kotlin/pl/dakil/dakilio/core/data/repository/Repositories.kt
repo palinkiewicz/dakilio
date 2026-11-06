@@ -66,7 +66,7 @@ interface DiaryRepository {
 
     suspend fun getDiary(id: Long): Diary?
 
-    suspend fun saveDiary(id: Long?, name: String, iconKey: String, suggestedGroupIds: Set<Long>, reminder: Reminder): Long
+    suspend fun saveDiary(id: Long?, name: String, iconKey: String, suggestedGroupIds: Set<Long>): Long
 
     /** How many entries are in this diary. */
     suspend fun postCount(diaryId: Long): Int
@@ -143,9 +143,9 @@ interface HabitRepository {
     /** Days with each habit's tag in the week of [date] (by the user's first day of the week), by habit id; habits at 0 are absent. */
     suspend fun weekCounts(date: LocalDate): Map<Long, Int>
 
-    suspend fun addHabit(tagId: Long, daysPerWeek: Int, reminder: Reminder = Reminder()): Long
+    suspend fun addHabit(tagId: Long, daysPerWeek: Int): Long
 
-    suspend fun updateHabit(id: Long, daysPerWeek: Int, reminder: Reminder)
+    suspend fun updateHabit(id: Long, daysPerWeek: Int)
 
     suspend fun deleteHabit(id: Long)
 }
@@ -244,8 +244,26 @@ interface SettingsRepository {
     fun regionFirstDayOfWeek(): DayOfWeek
 }
 
-/** What the reminder schedule reads (see `Reminders` in core:model). */
+/** The Reminders extra, and what the reminder schedule reads (see `Reminders` in core:model). */
 interface ReminderRepository {
+    /** Every reminder, by time of day. */
+    val reminders: Flow<List<Reminder>>
+
+    /** How many reminders there are, on or off; 0 means the extra isn't used yet. */
+    val count: Flow<Int>
+
+    /** Adds [reminder] (its id is ignored) and returns its id. */
+    suspend fun add(reminder: Reminder): Long
+
+    suspend fun update(reminder: Reminder)
+
+    suspend fun setEnabled(id: Long, enabled: Boolean)
+
+    suspend fun delete(id: Long)
+
+    /** The habit's reminders, read before deleting it so an Undo can bring them back. */
+    suspend fun forHabit(habitId: Long): List<Reminder>
+
     /**
      * The reminders that are on, with today's entries and this week's habit counts; `null` before the
      * database exists (it must not be created before the intro's language step).

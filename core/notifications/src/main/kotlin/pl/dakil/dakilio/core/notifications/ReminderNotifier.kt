@@ -14,15 +14,15 @@ import androidx.core.content.ContextCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
-import pl.dakil.dakilio.core.model.DiaryReminder
 import pl.dakil.dakilio.core.model.DueReminders
-import pl.dakil.dakilio.core.model.HabitReminder
 import pl.dakil.dakilio.core.model.ReminderSnapshot
+import pl.dakil.dakilio.core.model.ReminderSubject
 import pl.dakil.dakilio.core.model.Reminders
 import pl.dakil.dakilio.core.designsystem.R as DesignR
 
 /**
- * Shows reminder notifications: one per diary or habit, with a line picked from that language's
+ * Shows reminder notifications: one per diary or habit (however many reminders it has, a later one
+ * replaces the earlier notification), with a line picked from that language's
  * own list of texts. On the lock screen they only say "Dakilio" and a generic line, since diary and
  * habit names can be private.
  */
@@ -41,8 +41,9 @@ class ReminderNotifier @Inject constructor(
 
     /** Takes down notifications that no longer apply: the diary got its entry, the habit met its target. */
     fun dismissStale(snapshot: ReminderSnapshot) {
-        val diaries = snapshot.diaries.filter { it.diaryId !in snapshot.writtenToday }.map { it.diaryId.toInt() }.toSet()
-        val habits = snapshot.habits.filterNot(snapshot::isMet).map { it.habitId.toInt() }.toSet()
+        val live = snapshot.reminders.map { it.subject }.filter(snapshot::applies)
+        val diaries = live.filterIsInstance<ReminderSubject.Diary>().map { it.diaryId.toInt() }.toSet()
+        val habits = live.filterIsInstance<ReminderSubject.Habit>().map { it.habitId.toInt() }.toSet()
         manager.activeNotifications.forEach { posted ->
             val stale = when (posted.tag) {
                 TAG_DIARY -> posted.id !in diaries
@@ -53,7 +54,7 @@ class ReminderNotifier @Inject constructor(
         }
     }
 
-    private fun show(reminder: DiaryReminder, snapshot: ReminderSnapshot) {
+    private fun show(reminder: ReminderSubject.Diary, snapshot: ReminderSnapshot) {
         val texts = context.resources.getStringArray(R.array.reminder_diary_texts)
         post(
             tag = TAG_DIARY,
@@ -68,7 +69,7 @@ class ReminderNotifier @Inject constructor(
         )
     }
 
-    private fun show(reminder: HabitReminder, snapshot: ReminderSnapshot) {
+    private fun show(reminder: ReminderSubject.Habit, snapshot: ReminderSnapshot) {
         val texts = context.resources.getStringArray(R.array.reminder_habit_texts)
         post(
             tag = TAG_HABIT,

@@ -11,6 +11,7 @@ import pl.dakil.dakilio.core.database.entity.MoodEntity
 import pl.dakil.dakilio.core.database.entity.PostEntity
 import pl.dakil.dakilio.core.database.entity.PostPhotoEntity
 import pl.dakil.dakilio.core.database.entity.PostTagCrossRef
+import pl.dakil.dakilio.core.database.entity.ReminderEntity
 import pl.dakil.dakilio.core.database.entity.TagEntity
 import pl.dakil.dakilio.core.database.entity.TagGroupEntity
 import pl.dakil.dakilio.core.database.entity.TagKeywordEntity
@@ -29,6 +30,7 @@ class ReplaceData(
     val posts: List<ReplacePost>,
     val habits: List<ReplaceHabit> = emptyList(),
     val keywords: List<ReplaceKeyword> = emptyList(),
+    val reminders: List<ReplaceReminder> = emptyList(),
 )
 
 /** The diary's id is ignored; [suggestedGroups] are indices into [ReplaceData.groups]. */
@@ -39,6 +41,12 @@ class ReplaceHabit(val habit: HabitEntity, val groupIndex: Int, val tagIndex: In
 
 /** The keyword's `id` and `tag_id` are ignored: the tag is (group index, tag index within the group). */
 class ReplaceKeyword(val keyword: TagKeywordEntity, val groupIndex: Int, val tagIndex: Int)
+
+/**
+ * The reminder's `id`, `diary_id` and `habit_id` are ignored: it's about [diaryIndex] (into
+ * [ReplaceData.diaries]) or else [habitIndex] (into [ReplaceData.habits]).
+ */
+class ReplaceReminder(val reminder: ReminderEntity, val diaryIndex: Int? = null, val habitIndex: Int? = null)
 
 /** The group's and tags' ids and `group_id` are ignored. */
 class ReplaceGroup(val group: TagGroupEntity, val tags: List<TagEntity>)
@@ -72,6 +80,7 @@ class ContentSnapshot(
     val photos: List<PostPhotoEntity>,
     val habits: List<HabitEntity>,
     val keywords: List<TagKeywordEntity>,
+    val reminders: List<ReminderEntity>,
 )
 
 /** What the user would lose by replacing their content. */
@@ -119,6 +128,9 @@ abstract class ImportDao {
     @Query("SELECT * FROM tag_keyword ORDER BY tag_id, position, id")
     protected abstract suspend fun allKeywords(): List<TagKeywordEntity>
 
+    @Query("SELECT * FROM reminder ORDER BY minute, id")
+    protected abstract suspend fun allReminders(): List<ReminderEntity>
+
     @Transaction
     open suspend fun snapshot(): ContentSnapshot = ContentSnapshot(
         moods = allMoods(),
@@ -131,6 +143,7 @@ abstract class ImportDao {
         photos = allPhotos(),
         habits = allHabits(),
         keywords = allKeywords(),
+        reminders = allReminders(),
     )
 
     @Query("DELETE FROM post")
@@ -162,6 +175,9 @@ abstract class ImportDao {
 
     @Insert
     protected abstract suspend fun insertHabit(habit: HabitEntity): Long
+
+    @Insert
+    protected abstract suspend fun insertReminders(reminders: List<ReminderEntity>)
 
     @Insert
     protected abstract suspend fun insertKeywords(keywords: List<TagKeywordEntity>)
@@ -228,7 +244,15 @@ abstract class ImportDao {
             diaryId
         }
 
-        data.habits.forEach { item -> insertHabit(item.habit.copy(id = 0, tagId = tagIds[item.groupIndex][item.tagIndex])) }
+        val habitIds = data.habits.map { item -> insertHabit(item.habit.copy(id = 0, tagId = tagIds[item.groupIndex][item.tagIndex])) }
+
+        insertReminders(
+            data.reminders.mapNotNull { item ->
+                val diaryId = item.diaryIndex?.let(diaryIds::getOrNull)
+                val habitId = if (diaryId == null) item.habitIndex?.let(habitIds::getOrNull) else null
+                if (diaryId == null && habitId == null) null else item.reminder.copy(id = 0, diaryId = diaryId, habitId = habitId)
+            },
+        )
 
         insertKeywords(data.keywords.map { item -> item.keyword.copy(id = 0, tagId = tagIds[item.groupIndex][item.tagIndex]) })
 

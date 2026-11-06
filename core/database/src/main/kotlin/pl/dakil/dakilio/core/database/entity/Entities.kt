@@ -35,10 +35,13 @@ data class DiaryEntity(
     @ColumnInfo(name = "icon_key") val iconKey: String,
     val position: Int,
     @ColumnInfo(name = "created_at") val createdAt: Long,
-    /** A daily reminder to write in the diary. Off by default, also for the seeded diary. */
-    @ColumnInfo(name = "reminder_on", defaultValue = "0") val reminderOn: Boolean = false,
-    /** The reminder's time as minutes after midnight; kept while it's off. */
-    @ColumnInfo(name = "reminder_minute", defaultValue = "1200") val reminderMinute: Int = 1200,
+    /**
+     * Legacy, unused since version 3: the single reminder of 1.2.0, moved into [ReminderEntity] by
+     * MIGRATION_2_3. Kept because dropping a column means rebuilding a table that others reference.
+     */
+    @ColumnInfo(name = "reminder_on", defaultValue = "0") val legacyReminderOn: Boolean = false,
+    /** Legacy, unused since version 3 (see [legacyReminderOn]). */
+    @ColumnInfo(name = "reminder_minute", defaultValue = "1200") val legacyReminderMinute: Int = 1200,
 )
 
 @Entity(tableName = "tag_group")
@@ -155,10 +158,10 @@ data class HabitEntity(
     @ColumnInfo(name = "days_per_week") val daysPerWeek: Int,
     val position: Int,
     @ColumnInfo(name = "created_at") val createdAt: Long,
-    /** A daily reminder until the week's target is met. */
-    @ColumnInfo(name = "reminder_on", defaultValue = "0") val reminderOn: Boolean = false,
-    /** The reminder's time as minutes after midnight; kept while it's off. */
-    @ColumnInfo(name = "reminder_minute", defaultValue = "1200") val reminderMinute: Int = 1200,
+    /** Legacy, unused since version 3 (see [DiaryEntity.legacyReminderOn]). */
+    @ColumnInfo(name = "reminder_on", defaultValue = "0") val legacyReminderOn: Boolean = false,
+    /** Legacy, unused since version 3 (see [DiaryEntity.legacyReminderOn]). */
+    @ColumnInfo(name = "reminder_minute", defaultValue = "1200") val legacyReminderMinute: Int = 1200,
 )
 
 /**
@@ -180,4 +183,28 @@ data class TagKeywordEntity(
     val approximate: Boolean,
     /** Order within the tag's keywords. */
     val position: Int,
+)
+
+/**
+ * A reminder (the Reminders extra): a nudge at [minute] on the weekdays in [days], about exactly one
+ * of a diary ([diaryId]) or a habit ([habitId]). It goes with its diary or habit.
+ */
+@Entity(
+    tableName = "reminder",
+    foreignKeys = [
+        ForeignKey(DiaryEntity::class, ["id"], ["diary_id"], onDelete = ForeignKey.CASCADE),
+        ForeignKey(HabitEntity::class, ["id"], ["habit_id"], onDelete = ForeignKey.CASCADE),
+    ],
+    indices = [Index("diary_id"), Index("habit_id")],
+)
+data class ReminderEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    @ColumnInfo(name = "diary_id") val diaryId: Long? = null,
+    @ColumnInfo(name = "habit_id") val habitId: Long? = null,
+    /** The time as minutes after midnight. */
+    val minute: Int,
+    /** A bit per weekday, Monday first (`ReminderDays.toMask`); 127 is every day. */
+    @ColumnInfo(defaultValue = "127") val days: Int = 127,
+    @ColumnInfo(defaultValue = "1") val enabled: Boolean = true,
+    @ColumnInfo(name = "created_at") val createdAt: Long,
 )

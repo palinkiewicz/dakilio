@@ -109,16 +109,20 @@ data class BackupDiary(
     val createdAt: String? = null,
     /** Ids of the tag groups the editor expands for this diary. */
     val suggestedGroups: List<Long> = emptyList(),
-    /** The daily reminder to write; none means off. */
+    /** Reminders to write in this diary (the Reminders extra). */
+    val reminders: List<BackupReminder> = emptyList(),
+    /** The single daily reminder of 1.2.0, only read; newer backups use [reminders]. */
     val reminder: BackupReminder? = null,
 )
 
-/** A daily reminder. Its time is kept while it's off. */
+/** A reminder (the Reminders extra). */
 @Serializable
 data class BackupReminder(
     val enabled: Boolean = false,
     /** Local time of day, `HH:mm`. */
     val time: String = "20:00",
+    /** The weekdays it comes on (`mon` … `sun`); none means every day. */
+    val days: List<String>? = null,
 )
 
 @Serializable
@@ -159,7 +163,9 @@ data class BackupHabit(
     val daysPerWeek: Int,
     val position: Int = 0,
     val createdAt: String? = null,
-    /** The daily reminder until the week's target is met; none means off. */
+    /** Reminders to keep the habit going (the Reminders extra). */
+    val reminders: List<BackupReminder> = emptyList(),
+    /** The single daily reminder of 1.2.0, only read; newer backups use [reminders]. */
     val reminder: BackupReminder? = null,
 )
 

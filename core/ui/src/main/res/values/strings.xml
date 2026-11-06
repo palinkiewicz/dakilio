@@ -76,9 +76,4 @@
     <string name="ui_tag_color_brown">Brown</string>
     <string name="ui_tag_color_slate">Slate</string>
     <string name="ui_percent">%d%%</string>
-    <string name="ui_reminder_time">Time</string>
-    <string name="ui_reminder_pick_time">Reminder time</string>
-    <string name="ui_reminder_ok">OK</string>
-    <string name="ui_reminder_blocked">Notifications are off for Dakilio, so reminders can\'t show up.</string>
-    <string name="ui_reminder_open_settings">Settings</string>
 </resources>
