@@ -20,7 +20,7 @@ data class EntryDisplay(
     val editorTextScale: Float = TextScale.DEFAULT,
     val previewLength: PreviewLength = PreviewLength.Short,
     val compactTags: Boolean = false,
-    val tagLimit: TagLimit = TagLimit.Six,
+    val tagLimit: TagLimit = TagLimit.Default,
 )
 
 val LocalEntryDisplay = compositionLocalOf { EntryDisplay() }

@@ -32,7 +32,7 @@ Pretty-printed JSON. Fields that are null or at their default (`false`, `0`, `[]
   "settings": {
     "theme": "Dark", "tagStyle": "Icons", "showHints": false,
     "timelineTextScale": 1.1, "editorTextScale": 1.0,
-    "previewLength": "Short", "compactTags": true, "tagLimit": "Six", "monthNavigator": true, "monthNavigatorInAppBar": false,
+    "previewLength": "Short", "compactTags": true, "tagLimit": "6", "monthNavigator": true, "monthNavigatorInAppBar": false,
     "closeAfterSave": true, "keywordAutoAdd": false, "lastDiary": 1,
     "timelineDiary": 2, "weekStart": "Region", "photoSize": "Px1280"
   },

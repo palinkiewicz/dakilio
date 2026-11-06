@@ -128,7 +128,7 @@ internal class LocalBackupRepository @Inject constructor(
                 editorTextScale = userSettings.editorTextScale,
                 previewLength = userSettings.previewLength.name,
                 compactTags = userSettings.compactTags,
-                tagLimit = userSettings.tagLimit.name,
+                tagLimit = userSettings.tagLimit.key,
                 monthNavigator = userSettings.monthNavigator,
                 monthNavigatorInAppBar = userSettings.monthNavigatorInAppBar,
                 closeAfterSave = userSettings.closeAfterSave,

@@ -86,7 +86,7 @@ class RestorePlanTest {
         assertNull(plan.settings.tagStyle)
         assertEquals(1.6f, plan.settings.timelineTextScale!!, 0.001f)
         assertEquals(PreviewLength.Full, plan.settings.previewLength)
-        assertEquals(TagLimit.Twelve, plan.settings.tagLimit)
+        assertEquals(TagLimit.of(TagLimit.MAX), plan.settings.tagLimit)
         assertEquals(1, plan.settings.lastDiaryIndex)
         assertEquals(0, plan.settings.timelineDiaryIndex)
         assertEquals(WeekStart.Sunday, plan.settings.weekStart)

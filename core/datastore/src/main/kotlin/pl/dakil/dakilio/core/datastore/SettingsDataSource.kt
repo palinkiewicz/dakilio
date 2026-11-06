@@ -41,8 +41,8 @@ class SettingsDataSource @Inject constructor(
                     ?: PreviewLength.Short,
                 compactTags = prefs[COMPACT_TAGS] ?: false,
                 // Never picked: what cards showed before the option existed (icons take less room).
-                tagLimit = prefs[TAG_LIMIT]?.let { name -> TagLimit.entries.firstOrNull { it.name == name } }
-                    ?: if (prefs[COMPACT_TAGS] == true) TagLimit.Twelve else TagLimit.Six,
+                tagLimit = prefs[TAG_LIMIT]?.let(TagLimit::parse)
+                    ?: if (prefs[COMPACT_TAGS] == true) TagLimit.of(TagLimit.MAX) else TagLimit.Default,
                 monthNavigator = prefs[MONTH_NAVIGATOR] ?: true,
                 monthNavigatorInAppBar = prefs[MONTH_NAVIGATOR_IN_APP_BAR] ?: false,
                 closeAfterSave = prefs[CLOSE_AFTER_SAVE] ?: true,
@@ -109,7 +109,7 @@ class SettingsDataSource @Inject constructor(
     }
 
     suspend fun setTagLimit(limit: TagLimit) {
-        dataStore.edit { it[TAG_LIMIT] = limit.name }
+        dataStore.edit { it[TAG_LIMIT] = limit.key }
     }
 
     suspend fun setCompactTags(compact: Boolean) {

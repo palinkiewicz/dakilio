@@ -245,7 +245,7 @@ fun planRestore(backup: DakilioBackup, defaultDiaryName: String, now: Long): Res
             editorTextScale = s.editorTextScale?.takeIf { it.isFinite() }?.let(TextScale::coerce),
             previewLength = PreviewLength.entries.firstOrNull { it.name == s.previewLength },
             compactTags = s.compactTags,
-            tagLimit = TagLimit.entries.firstOrNull { it.name == s.tagLimit },
+            tagLimit = s.tagLimit?.let(TagLimit::parse),
             monthNavigator = s.monthNavigator,
             monthNavigatorInAppBar = s.monthNavigatorInAppBar,
             closeAfterSave = s.closeAfterSave,

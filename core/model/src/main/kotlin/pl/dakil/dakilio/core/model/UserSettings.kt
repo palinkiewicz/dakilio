@@ -13,8 +13,34 @@ enum class TagStyle { Icons, Chips }
 /** How many lines of an entry's note a post card shows; [Full] shows all of it (and the whole title). */
 enum class PreviewLength(val noteLines: Int?) { Short(4), Medium(8), Long(16), Full(null) }
 
-/** How many tags post cards show before a "+N" pill; [All] (`null`) shows every tag. */
-enum class TagLimit(val count: Int?) { Three(3), Six(6), Twelve(12), All(null) }
+/**
+ * How many tags post cards show before a "+N" pill: 0 to [MAX], or [All] (`count == null`) for every
+ * tag. Stored and backed up as [key]: the number, or "All".
+ */
+@JvmInline
+value class TagLimit private constructor(private val raw: Int) {
+    val count: Int? get() = if (raw == ALL) null else raw
+    val key: String get() = count?.toString() ?: ALL_KEY
+
+    companion object {
+        const val MAX = 10
+        private const val ALL = -1
+        private const val ALL_KEY = "All"
+        val All = TagLimit(ALL)
+        val Default = of(6)
+
+        fun of(count: Int) = TagLimit(count.coerceIn(0, MAX))
+
+        /** Reads a [key], and also the names of the old fixed choices (`Three`, `Six`, `Twelve`). */
+        fun parse(key: String): TagLimit? = when (key) {
+            ALL_KEY -> All
+            "Three" -> of(3)
+            "Six" -> of(6)
+            "Twelve" -> of(MAX)
+            else -> key.toIntOrNull()?.takeIf { it >= 0 }?.let(::of)
+        }
+    }
+}
 
 /** The first day of the week (habits, the Insights heatmap, weekday rows). [Region] follows the device region. */
 enum class WeekStart(private val day: DayOfWeek?) {
@@ -60,7 +86,7 @@ data class UserSettings(
     /** Post cards show tags as icons only, without their names. */
     val compactTags: Boolean = false,
     /** How many tags post cards show (timeline and search). */
-    val tagLimit: TagLimit = TagLimit.Six,
+    val tagLimit: TagLimit = TagLimit.Default,
     /** The timeline shows the month navigator (▲ month ▼). */
     val monthNavigator: Boolean = true,
     /** The month navigator sits in the timeline's app bar instead of floating over the list. */

@@ -1,5 +1,10 @@
 package pl.dakil.dakilio.feature.timeline.impl
 
+import androidx.compose.runtime.mutableStateOf
+import kotlin.math.roundToInt
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.Slider
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.fadeIn
@@ -86,17 +91,14 @@ internal fun TimelineViewMenu(
             )
 
             MenuTitle(stringResource(R.string.timeline_view_tag_limit), Modifier.padding(top = Spacing.l))
-            ConnectedToggleRow(
-                options = TagLimit.entries.map { limit ->
-                    when (val count = limit.count) {
-                        null -> ToggleOption(limit, stringResource(R.string.timeline_view_tag_limit_all), weight = 2.4f)
-                        else -> ToggleOption(limit, count.toString())
-                    }
+            // Local so the thumb follows the finger; each step is saved, so the cards follow too.
+            var tagLimit by remember(display.tagLimit) { mutableStateOf(display.tagLimit) }
+            TagLimitSlider(
+                value = tagLimit,
+                onValueChange = {
+                    tagLimit = it
+                    onTagLimit(it)
                 },
-                selected = display.tagLimit,
-                onSelect = onTagLimit,
-                modifier = Modifier.padding(top = Spacing.s),
-                contentPadding = PaddingValues(horizontal = 6.dp),
             )
             MenuSwitch(
                 title = stringResource(R.string.timeline_view_month_navigator),
@@ -157,4 +159,34 @@ private fun MenuSwitch(title: String, body: String, checked: Boolean, onCheckedC
 @Composable
 private fun MenuTitle(text: String, modifier: Modifier = Modifier) {
     Text(text, style = MaterialTheme.typography.titleSmallEmphasized, modifier = modifier)
+}
+
+/** 0 to [TagLimit.MAX] tags, then "All" as the last stop. */
+@Composable
+private fun TagLimitSlider(value: TagLimit, onValueChange: (TagLimit) -> Unit) {
+    val haptics = rememberHaptics()
+    val allStop = TagLimit.MAX + 1
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Slider(
+            value = (value.count ?: allStop).toFloat(),
+            onValueChange = {
+                val stop = it.roundToInt()
+                val picked = if (stop >= allStop) TagLimit.All else TagLimit.of(stop)
+                if (picked != value) {
+                    haptics.tick()
+                    onValueChange(picked)
+                }
+            },
+            valueRange = 0f..allStop.toFloat(),
+            steps = allStop - 1,
+            modifier = Modifier.weight(1f),
+        )
+        Text(
+            value.count?.toString() ?: stringResource(R.string.timeline_view_tag_limit_all),
+            style = MaterialTheme.typography.labelLarge,
+            textAlign = TextAlign.End,
+            maxLines = 1,
+            modifier = Modifier.padding(start = Spacing.s).widthIn(min = 48.dp),
+        )
+    }
 }
