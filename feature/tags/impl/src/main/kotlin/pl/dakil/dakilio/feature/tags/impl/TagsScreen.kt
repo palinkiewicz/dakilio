@@ -112,7 +112,7 @@ private sealed interface GroupDialog {
 internal fun TagsScreen(viewModel: TagsViewModel, onBack: () -> Unit) {
     val groups by viewModel.groups.collectAsStateWithLifecycle()
     val tagStyle by viewModel.tagStyle.collectAsStateWithLifecycle()
-    val reorderDraft by viewModel.reorderDraft.collectAsStateWithLifecycle()
+    val reorderDraft = viewModel.reorderDraft
     val reordering = reorderDraft != null
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val listState = rememberLazyListState()

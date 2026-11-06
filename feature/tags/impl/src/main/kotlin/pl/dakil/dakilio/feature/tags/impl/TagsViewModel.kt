@@ -1,17 +1,17 @@
 package pl.dakil.dakilio.feature.tags.impl
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import pl.dakil.dakilio.core.data.repository.OnboardingRepository
 import pl.dakil.dakilio.core.data.repository.SettingsRepository
@@ -39,35 +39,38 @@ class TagsViewModel @Inject constructor(
         .distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TagStyle.Icons)
 
-    private val _reorderDraft = MutableStateFlow<List<TagGroup>?>(null)
-
     /**
      * The groups as being reordered, or `null` outside reorder mode. Drags change only this copy, so
-     * they never fight the database's re-emissions; each drop saves the order.
+     * they never fight the database's re-emissions; each drop saves the order. Snapshot state, not a
+     * flow: a swap's new order must reach the very frame that applies its offsets, or the two rows
+     * are drawn for a frame with each other's labels.
      */
-    val reorderDraft: StateFlow<List<TagGroup>?> = _reorderDraft.asStateFlow()
+    var reorderDraft by mutableStateOf<List<TagGroup>?>(null)
+        private set
 
     fun startReorder() {
-        _reorderDraft.value = groups.value ?: return
+        reorderDraft = groups.value ?: return
     }
 
     fun stopReorder() {
-        _reorderDraft.value = null
+        reorderDraft = null
     }
 
-    fun moveGroup(from: Int, to: Int) = _reorderDraft.update { it?.moved(from, to) }
+    fun moveGroup(from: Int, to: Int) {
+        reorderDraft = reorderDraft?.moved(from, to)
+    }
 
-    fun moveTag(groupId: Long, from: Int, to: Int) = _reorderDraft.update { list ->
-        list?.map { if (it.id == groupId) it.copy(tags = it.tags.moved(from, to)) else it }
+    fun moveTag(groupId: Long, from: Int, to: Int) {
+        reorderDraft = reorderDraft?.map { if (it.id == groupId) it.copy(tags = it.tags.moved(from, to)) else it }
     }
 
     fun saveGroupOrder() {
-        val ids = _reorderDraft.value?.map { it.id } ?: return
+        val ids = reorderDraft?.map { it.id } ?: return
         launch { repository.reorderGroups(ids) }
     }
 
     fun saveTagOrder(groupId: Long) {
-        val ids = _reorderDraft.value?.firstOrNull { it.id == groupId }?.tags?.map { it.id } ?: return
+        val ids = reorderDraft?.firstOrNull { it.id == groupId }?.tags?.map { it.id } ?: return
         launch { repository.reorderTags(ids) }
     }
 
