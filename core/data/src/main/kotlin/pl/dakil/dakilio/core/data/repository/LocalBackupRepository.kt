@@ -130,6 +130,7 @@ internal class LocalBackupRepository @Inject constructor(
                 compactTags = userSettings.compactTags,
                 tagLimit = userSettings.tagLimit.name,
                 monthNavigator = userSettings.monthNavigator,
+                monthNavigatorInAppBar = userSettings.monthNavigatorInAppBar,
                 closeAfterSave = userSettings.closeAfterSave,
                 keywordAutoAdd = userSettings.keywordAutoAdd,
                 lastDiary = userSettings.lastEntryDiaryId,
@@ -383,6 +384,7 @@ internal class LocalBackupRepository @Inject constructor(
         s.compactTags?.let { settings.setCompactTags(it) }
         s.tagLimit?.let { settings.setTagLimit(it) }
         s.monthNavigator?.let { settings.setMonthNavigator(it) }
+        s.monthNavigatorInAppBar?.let { settings.setMonthNavigatorInAppBar(it) }
         s.closeAfterSave?.let { settings.setCloseAfterSave(it) }
         s.keywordAutoAdd?.let { settings.setKeywordAutoAdd(it) }
         s.weekStart?.let { settings.setWeekStart(it) }

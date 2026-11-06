@@ -1,5 +1,10 @@
 package pl.dakil.dakilio.feature.timeline.impl
 
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -47,6 +52,8 @@ internal fun TimelineViewMenu(
     onTagLimit: (TagLimit) -> Unit,
     monthNavigator: Boolean,
     onMonthNavigator: (Boolean) -> Unit,
+    monthNavigatorInAppBar: Boolean,
+    onMonthNavigatorInAppBar: (Boolean) -> Unit,
     onTextScale: (Float) -> Unit,
 ) {
     val display = LocalEntryDisplay.current
@@ -97,6 +104,18 @@ internal fun TimelineViewMenu(
                 checked = monthNavigator,
                 onCheckedChange = onMonthNavigator,
             )
+            AnimatedVisibility(
+                visible = monthNavigator,
+                enter = expandVertically(MaterialTheme.motionScheme.fastSpatialSpec()) + fadeIn(MaterialTheme.motionScheme.fastEffectsSpec()),
+                exit = shrinkVertically(MaterialTheme.motionScheme.fastSpatialSpec()) + fadeOut(MaterialTheme.motionScheme.fastEffectsSpec()),
+            ) {
+                MenuSwitch(
+                    title = stringResource(R.string.timeline_view_month_in_app_bar),
+                    body = stringResource(R.string.timeline_view_month_in_app_bar_body),
+                    checked = monthNavigatorInAppBar,
+                    onCheckedChange = onMonthNavigatorInAppBar,
+                )
+            }
 
             MenuTitle(stringResource(R.string.timeline_view_text_size), Modifier.padding(top = Spacing.l))
             // Local so the thumb follows the finger; each step is saved, so the cards follow too.

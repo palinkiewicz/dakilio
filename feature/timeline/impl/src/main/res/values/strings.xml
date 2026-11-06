@@ -22,6 +22,8 @@
     <string name="timeline_view_tag_limit_all">All</string>
     <string name="timeline_view_month_navigator">Month navigator</string>
     <string name="timeline_view_month_navigator_body">Jump between months while scrolling</string>
+    <string name="timeline_view_month_in_app_bar">In the app bar</string>
+    <string name="timeline_view_month_in_app_bar_body">Keep it at the top instead of floating over the list</string>
     <string name="timeline_view_text_size">Text size</string>
     <string name="timeline_jump">Go</string>
     <string name="timeline_cancel">Cancel</string>

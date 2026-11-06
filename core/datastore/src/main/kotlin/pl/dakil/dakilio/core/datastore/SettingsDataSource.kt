@@ -44,6 +44,7 @@ class SettingsDataSource @Inject constructor(
                 tagLimit = prefs[TAG_LIMIT]?.let { name -> TagLimit.entries.firstOrNull { it.name == name } }
                     ?: if (prefs[COMPACT_TAGS] == true) TagLimit.Twelve else TagLimit.Six,
                 monthNavigator = prefs[MONTH_NAVIGATOR] ?: true,
+                monthNavigatorInAppBar = prefs[MONTH_NAVIGATOR_IN_APP_BAR] ?: false,
                 closeAfterSave = prefs[CLOSE_AFTER_SAVE] ?: true,
                 keywordAutoAdd = prefs[KEYWORD_AUTO_ADD] ?: false,
                 weekStart = prefs[WEEK_START]?.let { name -> WeekStart.entries.firstOrNull { it.name == name } }
@@ -119,6 +120,10 @@ class SettingsDataSource @Inject constructor(
         dataStore.edit { it[MONTH_NAVIGATOR] = show }
     }
 
+    suspend fun setMonthNavigatorInAppBar(inAppBar: Boolean) {
+        dataStore.edit { it[MONTH_NAVIGATOR_IN_APP_BAR] = inAppBar }
+    }
+
     suspend fun setCloseAfterSave(close: Boolean) {
         dataStore.edit { it[CLOSE_AFTER_SAVE] = close }
     }
@@ -148,6 +153,7 @@ class SettingsDataSource @Inject constructor(
         val COMPACT_TAGS = booleanPreferencesKey("compact_tags")
         val TAG_LIMIT = stringPreferencesKey("tag_limit")
         val MONTH_NAVIGATOR = booleanPreferencesKey("month_navigator")
+        val MONTH_NAVIGATOR_IN_APP_BAR = booleanPreferencesKey("month_navigator_in_app_bar")
         val CLOSE_AFTER_SAVE = booleanPreferencesKey("close_after_save")
         val KEYWORD_AUTO_ADD = booleanPreferencesKey("keyword_auto_add")
         val WEEK_START = stringPreferencesKey("week_start")

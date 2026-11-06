@@ -64,11 +64,11 @@ import pl.dakil.dakilio.core.ui.DakilioFormats
 import pl.dakil.dakilio.core.ui.mood.moodColors
 
 /**
- * The month navigator in the timeline's app bar: ▲ newer month · the current month (opens the picker)
- * · ▼ older month, with no background of its own so it blends into the bar. [compact] (next to the
- * diary dropdown) stacks the short month name over its year and fills the width it's given (pass a
- * width or a weight); otherwise it's one line, "November 2026", and only as wide as it needs.
- * The arrows are disabled at the timeline's ends.
+ * The month navigator: ▲ newer month · the current month (opens the picker) · ▼ older month, with no
+ * background of its own (it blends into the app bar; [FloatingMonthNavigator] puts it on a pill).
+ * [compact] (next to the diary dropdown) stacks the short month name over its year; otherwise it's one
+ * line, "November 2026". Either way the label is as wide as the year's widest month, so the arrows sit
+ * right next to it and never shift. The arrows are disabled at the timeline's ends.
  */
 @Composable
 internal fun MonthNavigator(
@@ -102,19 +102,16 @@ internal fun MonthNavigator(
         val effects = MaterialTheme.motionScheme.fastEffectsSpec<Float>()
         val monthStyle = if (compact) MaterialTheme.typography.labelLargeEmphasized else MaterialTheme.typography.titleSmallEmphasized
         val yearStyle = MaterialTheme.typography.labelSmall
-        // Compact, the label fills what the arrows leave of the given width. Otherwise it's as wide as
-        // the year's widest month, so the arrows never shift between months.
+        // As wide as the year's widest month, so the arrows never shift between months.
         val measurer = rememberTextMeasurer()
         val density = LocalDensity.current
-        val labelWidth = if (compact) {
-            null
-        } else {
-            remember(month.year, monthStyle, formats, density) {
-                val widest = (1..12).maxOf { number ->
-                    measurer.measure(formats.monthYear(LocalDate.of(month.year, number, 1)), monthStyle, maxLines = 1).size.width
-                }
-                with(density) { widest.toDp() } + LABEL_PADDING * 2
+        val labelWidth = remember(month.year, compact, monthStyle, formats, density) {
+            val widest = (1..12).maxOf { number ->
+                val first = YearMonth.of(month.year, number)
+                val text = if (compact) formats.monthShort(first) else formats.monthYear(first.atDay(1))
+                measurer.measure(text, monthStyle, maxLines = 1).size.width
             }
+            with(density) { widest.toDp() } + LABEL_PADDING * 2
         }
         AnimatedContent(
             targetState = month,
@@ -128,7 +125,7 @@ internal fun MonthNavigator(
             contentAlignment = Alignment.Center,
             label = "month",
             modifier = Modifier
-                .then(if (labelWidth != null) Modifier.width(labelWidth) else Modifier.weight(1f))
+                .width(labelWidth)
                 .height(NAV_HEIGHT)
                 .pressScale(interaction, 0.92f)
                 .clip(RoundedCornerShape(8.dp))
@@ -171,6 +168,32 @@ internal fun MonthNavigator(
 }
 
 private val NAV_HEIGHT = 40.dp
+
+/** [MonthNavigator] on a raised pill, floating over the timeline once it's scrolled past today. */
+@Composable
+internal fun FloatingMonthNavigator(
+    month: YearMonth,
+    newer: YearMonth?,
+    older: YearMonth?,
+    formats: DakilioFormats,
+    onJump: (YearMonth) -> Unit,
+    onPick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier,
+        shape = CircleShape,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        shadowElevation = 3.dp,
+    ) {
+        MonthNavigator(month, newer, older, formats, onJump, onPick, Modifier.padding(horizontal = 2.dp))
+    }
+}
+
+/** The vertical room the floating pill takes over the list, so jumps land just below it. */
+internal val MonthNavigatorClearance = NAV_HEIGHT + Spacing.s * 2
+
 private val LABEL_PADDING = 4.dp
 
 @Composable

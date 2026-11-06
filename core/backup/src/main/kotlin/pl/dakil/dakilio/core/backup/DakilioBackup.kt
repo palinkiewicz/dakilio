@@ -71,6 +71,8 @@ data class BackupSettings(
     val tagLimit: String? = null,
     /** The timeline's month navigator. */
     val monthNavigator: Boolean? = null,
+    /** The month navigator sits in the timeline's app bar instead of floating. */
+    val monthNavigatorInAppBar: Boolean? = null,
     val closeAfterSave: Boolean? = null,
     /** Keywords add their tag at once instead of suggesting it. */
     val keywordAutoAdd: Boolean? = null,

@@ -49,6 +49,8 @@ sealed interface TimelineUiState {
         val months: Map<YearMonth, MonthSummary>,
         /** The month navigator is on (a view option). */
         val monthNavigator: Boolean,
+        /** It sits in the app bar instead of floating over the list (a view option). */
+        val monthNavigatorInAppBar: Boolean,
         val greeting: Greeting,
         val streak: Int,
         val isEmpty: Boolean,
@@ -70,7 +72,9 @@ class TimelineViewModel @Inject constructor(
     private val expandedStretches = MutableStateFlow(emptySet<Long>())
 
     private val inputs = combine(postRepository.posts, diaryRepository.diaries, moodRepository.moods, ::Triple)
-    private val monthNavigator = settingsRepository.settings.map { it.monthNavigator }.distinctUntilChanged()
+    private val monthNavigator = settingsRepository.settings
+        .map { it.monthNavigator to it.monthNavigatorInAppBar }
+        .distinctUntilChanged()
 
     val uiState: StateFlow<TimelineUiState> =
         combine(inputs, selectedDiaryId, today, expandedStretches, monthNavigator) { (posts, diaries, moods), selected, today, expanded, showMonths ->
@@ -90,7 +94,8 @@ class TimelineViewModel @Inject constructor(
                 firstDay = bounds.start,
                 lastDay = bounds.endInclusive,
                 months = monthSummaries(posts, filter),
-                monthNavigator = showMonths,
+                monthNavigator = showMonths.first,
+                monthNavigatorInAppBar = showMonths.second,
                 greeting = greetingFor(LocalTime.now(clock)),
                 streak = Streaks.current(visibleDays, today),
                 isEmpty = posts.isEmpty(),
@@ -128,6 +133,10 @@ class TimelineViewModel @Inject constructor(
 
     fun setMonthNavigator(show: Boolean) {
         viewModelScope.launch { settingsRepository.setMonthNavigator(show) }
+    }
+
+    fun setMonthNavigatorInAppBar(inAppBar: Boolean) {
+        viewModelScope.launch { settingsRepository.setMonthNavigatorInAppBar(inAppBar) }
     }
 
     fun setTimelineTextScale(scale: Float) {

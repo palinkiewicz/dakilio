@@ -12,11 +12,19 @@ import pl.dakil.dakilio.core.ui.component.DiaryFilterDropdown
 
 /** Whether the app bar shows [TimelineHeaderControls] (the collapsed bar shows the date otherwise). */
 internal val TimelineUiState.Ready.hasHeaderControls: Boolean
-    get() = diaries.size > 1 || monthNavigator
+    get() = diaries.size > 1 || monthInAppBar
 
 /** Both pickers share the bar: they're compacted, and search moves out to a FAB. */
 internal val TimelineUiState.Ready.hasBothPickers: Boolean
-    get() = diaries.size > 1 && monthNavigator
+    get() = diaries.size > 1 && monthInAppBar
+
+/** The month navigator shows, in the app bar rather than floating over the list. */
+internal val TimelineUiState.Ready.monthInAppBar: Boolean
+    get() = monthNavigator && monthNavigatorInAppBar
+
+/** The month navigator shows, floating over the list once it's scrolled past today. */
+internal val TimelineUiState.Ready.monthFloating: Boolean
+    get() = monthNavigator && !monthNavigatorInAppBar
 
 /**
  * The timeline app bar's pickers, in its navigation slot so they stay in place whether the bar is
@@ -50,7 +58,7 @@ internal fun TimelineHeaderControls(
                 modifier = Modifier.weight(1f, fill = false),
             )
         }
-        if (state.monthNavigator) {
+        if (state.monthInAppBar) {
             MonthNavigator(
                 month = month,
                 newer = newer,
@@ -59,7 +67,6 @@ internal fun TimelineHeaderControls(
                 onJump = onJump,
                 onPick = onPick,
                 compact = both,
-                modifier = if (both) Modifier.weight(1f) else Modifier,
             )
         }
     }

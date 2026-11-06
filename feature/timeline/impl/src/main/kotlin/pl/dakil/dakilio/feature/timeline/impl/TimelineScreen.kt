@@ -71,6 +71,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -137,6 +138,7 @@ internal fun TimelineRoute(
         onCompactTags = viewModel::setCompactTags,
         onTagLimit = viewModel::setTagLimit,
         onMonthNavigator = viewModel::setMonthNavigator,
+        onMonthNavigatorInAppBar = viewModel::setMonthNavigatorInAppBar,
         onTextScale = viewModel::setTimelineTextScale,
     )
 }
@@ -153,6 +155,7 @@ internal fun TimelineScreen(
     onCompactTags: (Boolean) -> Unit,
     onTagLimit: (TagLimit) -> Unit,
     onMonthNavigator: (Boolean) -> Unit,
+    onMonthNavigatorInAppBar: (Boolean) -> Unit,
     onTextScale: (Float) -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -173,18 +176,23 @@ internal fun TimelineScreen(
     var pickDate by rememberSaveable { mutableStateOf(false) }
     var pickMonth by rememberSaveable { mutableStateOf(false) }
     var viewMenu by rememberSaveable { mutableStateOf(false) }
-    // The first row still showing under the app bar decides the month the navigator shows.
-    val topIndex by remember {
+    // The floating month pill covers the top of the list; in the app bar, nothing does.
+    val coveredPx = if (ready?.monthFloating == true) with(LocalDensity.current) { MonthNavigatorClearance.roundToPx() } else 0
+    // The first row not covered decides the month the navigator shows.
+    val topIndex by remember(coveredPx) {
         derivedStateOf {
-            listState.layoutInfo.visibleItemsInfo.firstOrNull { it.offset + it.size > 0 }?.index
+            listState.layoutInfo.visibleItemsInfo.firstOrNull { it.offset + it.size > coveredPx }?.index
                 ?: listState.firstVisibleItemIndex
         }
     }
-    // Jumps to the top of a month, right under the app bar (the newest month: the very top).
-    // Unlike a day jump it never waits for a new list, so it scrolls at once.
+    // Jumps to the top of a month, just below whatever covers the list (the newest month: the very
+    // top). Unlike a day jump it never waits for a new list, so it scrolls at once.
     fun jumpToMonth(month: YearMonth) {
-        val index = ready?.items?.monthTopIndex(month) ?: return
-        listState.requestScrollToItem(index)
+        when (val index = ready?.items?.monthTopIndex(month)) {
+            null -> Unit
+            0 -> listState.requestScrollToItem(0)
+            else -> listState.requestScrollToItem(index, -coveredPx)
+        }
     }
     SideEffect {
         val jump = pendingJump ?: return@SideEffect
@@ -276,6 +284,8 @@ internal fun TimelineScreen(
                                 onTagLimit = onTagLimit,
                                 monthNavigator = ready?.monthNavigator ?: true,
                                 onMonthNavigator = onMonthNavigator,
+                                monthNavigatorInAppBar = ready?.monthNavigatorInAppBar ?: false,
+                                onMonthNavigatorInAppBar = onMonthNavigatorInAppBar,
                                 onTextScale = onTextScale,
                             )
                         }
@@ -430,6 +440,26 @@ internal fun TimelineScreen(
                             )
                         }
                     }
+                }
+                val month = state.items.monthAt(topIndex)
+                val sections = remember(state.items) { state.items.sectionMonths() }
+                AnimatedVisibility(
+                    visible = state.monthFloating && month != null && listState.firstVisibleItemIndex >= 1,
+                    enter = scaleIn(MaterialTheme.motionScheme.fastSpatialSpec()) + fadeIn(MaterialTheme.motionScheme.fastEffectsSpec()),
+                    exit = scaleOut(MaterialTheme.motionScheme.fastSpatialSpec()) + fadeOut(MaterialTheme.motionScheme.fastEffectsSpec()),
+                    modifier = Modifier.padding(top = padding.calculateTopPadding() + Spacing.s),
+                ) {
+                    // Keeps the last month while the pill animates out.
+                    val shown = month ?: sections.firstOrNull() ?: YearMonth.from(state.today)
+                    val position = sections.indexOf(shown)
+                    FloatingMonthNavigator(
+                        month = shown,
+                        newer = sections.getOrNull(position - 1),
+                        older = if (position >= 0) sections.getOrNull(position + 1) else null,
+                        formats = formats,
+                        onJump = ::jumpToMonth,
+                        onPick = { pickMonth = true },
+                    )
                 }
             }
         }

@@ -61,8 +61,10 @@ data class UserSettings(
     val compactTags: Boolean = false,
     /** How many tags post cards show (timeline and search). */
     val tagLimit: TagLimit = TagLimit.Six,
-    /** The timeline's app bar shows the month navigator (▲ month ▼). */
+    /** The timeline shows the month navigator (▲ month ▼). */
     val monthNavigator: Boolean = true,
+    /** The month navigator sits in the timeline's app bar instead of floating over the list. */
+    val monthNavigatorInAppBar: Boolean = false,
     /** Saving edits to an existing entry closes it; otherwise the entry goes back to reading. */
     val closeAfterSave: Boolean = true,
     /** Keywords (the extra) add their tag at once instead of suggesting it. */

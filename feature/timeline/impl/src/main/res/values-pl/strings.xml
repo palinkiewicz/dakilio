@@ -24,6 +24,8 @@
     <string name="timeline_view_tag_limit_all">Wszystkie</string>
     <string name="timeline_view_month_navigator">Nawigacja miesięcy</string>
     <string name="timeline_view_month_navigator_body">Przechodzenie między miesiącami podczas przewijania</string>
+    <string name="timeline_view_month_in_app_bar">Na górnym pasku</string>
+    <string name="timeline_view_month_in_app_bar_body">Zawsze na górze zamiast nad listą</string>
     <string name="timeline_view_text_size">Rozmiar tekstu</string>
     <string name="timeline_jump">Przejdź</string>
     <string name="timeline_cancel">Anuluj</string>

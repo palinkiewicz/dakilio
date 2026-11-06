@@ -227,6 +227,7 @@ interface SettingsRepository {
     suspend fun setTagLimit(limit: TagLimit)
 
     suspend fun setMonthNavigator(show: Boolean)
+    suspend fun setMonthNavigatorInAppBar(inAppBar: Boolean)
 
     suspend fun setCloseAfterSave(close: Boolean)
 

@@ -267,6 +267,7 @@ internal class LocalSettingsRepository @Inject constructor(
     override suspend fun setTagLimit(limit: TagLimit) = dataSource.setTagLimit(limit)
 
     override suspend fun setMonthNavigator(show: Boolean) = dataSource.setMonthNavigator(show)
+    override suspend fun setMonthNavigatorInAppBar(inAppBar: Boolean) = dataSource.setMonthNavigatorInAppBar(inAppBar)
 
     override suspend fun setCloseAfterSave(close: Boolean) = dataSource.setCloseAfterSave(close)
 
