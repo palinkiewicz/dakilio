@@ -24,7 +24,13 @@ import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbol
 
 @Immutable
-data class ToggleOption<T>(val value: T, val label: String, val symbol: DakilioSymbol? = null)
+data class ToggleOption<T>(
+    val value: T,
+    val label: String,
+    val symbol: DakilioSymbol? = null,
+    /** The share of the row's width, relative to the other options; raise it for a long label. */
+    val weight: Float = 1f,
+)
 
 /**
  * M3 Expressive connected button group used as a single-select segmented control: the checked
@@ -52,7 +58,7 @@ fun <T> ConnectedToggleRow(
                     onSelect(option.value)
                 }
             }
-            val buttonModifier = Modifier.weight(1f).semantics { role = Role.RadioButton }
+            val buttonModifier = Modifier.weight(option.weight).semantics { role = Role.RadioButton }
             val shapes = when (index) {
                 0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
                 options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()

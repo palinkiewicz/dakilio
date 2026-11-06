@@ -81,7 +81,10 @@ internal fun TimelineViewMenu(
             MenuTitle(stringResource(R.string.timeline_view_tag_limit), Modifier.padding(top = Spacing.l))
             ConnectedToggleRow(
                 options = TagLimit.entries.map { limit ->
-                    ToggleOption(limit, limit.count?.toString() ?: stringResource(R.string.timeline_view_tag_limit_all))
+                    when (val count = limit.count) {
+                        null -> ToggleOption(limit, stringResource(R.string.timeline_view_tag_limit_all), weight = 2.4f)
+                        else -> ToggleOption(limit, count.toString())
+                    }
                 },
                 selected = display.tagLimit,
                 onSelect = onTagLimit,
