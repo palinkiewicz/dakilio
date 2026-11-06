@@ -8,9 +8,10 @@ import pl.dakil.dakilio.core.model.Keywords
 import pl.dakil.dakilio.core.model.MOOD_LEVELS
 import pl.dakil.dakilio.core.model.PhotoSize
 import pl.dakil.dakilio.core.model.PreviewLength
+import pl.dakil.dakilio.core.model.Reminder
+import pl.dakil.dakilio.core.model.TagLimit
 import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TextScale
-import pl.dakil.dakilio.core.model.Reminder
 import pl.dakil.dakilio.core.model.ThemeMode
 import pl.dakil.dakilio.core.model.WeekStart
 
@@ -100,6 +101,7 @@ data class RestoreSettings(
     val editorTextScale: Float? = null,
     val previewLength: PreviewLength? = null,
     val compactTags: Boolean? = null,
+    val tagLimit: TagLimit? = null,
     val monthNavigator: Boolean? = null,
     val closeAfterSave: Boolean? = null,
     val keywordAutoAdd: Boolean? = null,
@@ -242,6 +244,7 @@ fun planRestore(backup: DakilioBackup, defaultDiaryName: String, now: Long): Res
             editorTextScale = s.editorTextScale?.takeIf { it.isFinite() }?.let(TextScale::coerce),
             previewLength = PreviewLength.entries.firstOrNull { it.name == s.previewLength },
             compactTags = s.compactTags,
+            tagLimit = TagLimit.entries.firstOrNull { it.name == s.tagLimit },
             monthNavigator = s.monthNavigator,
             closeAfterSave = s.closeAfterSave,
             keywordAutoAdd = s.keywordAutoAdd,

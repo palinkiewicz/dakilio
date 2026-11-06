@@ -28,18 +28,19 @@ import pl.dakil.dakilio.core.datastore.SettingsDataSource
 import pl.dakil.dakilio.core.model.ArchivedTags
 import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.model.GroupUsage
-import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.MOOD_LEVELS
+import pl.dakil.dakilio.core.model.Mood
+import pl.dakil.dakilio.core.model.PhotoSize
 import pl.dakil.dakilio.core.model.Post
 import pl.dakil.dakilio.core.model.PostDraft
+import pl.dakil.dakilio.core.model.PreviewLength
 import pl.dakil.dakilio.core.model.Reminder
 import pl.dakil.dakilio.core.model.TagGroup
-import pl.dakil.dakilio.core.model.PreviewLength
+import pl.dakil.dakilio.core.model.TagLimit
 import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TagUsage
 import pl.dakil.dakilio.core.model.ThemeMode
 import pl.dakil.dakilio.core.model.UserSettings
-import pl.dakil.dakilio.core.model.PhotoSize
 import pl.dakil.dakilio.core.model.WeekStart
 
 internal class LocalMoodRepository @Inject constructor(private val dao: MoodDao) : MoodRepository {
@@ -262,6 +263,8 @@ internal class LocalSettingsRepository @Inject constructor(
     override suspend fun setPreviewLength(length: PreviewLength) = dataSource.setPreviewLength(length)
 
     override suspend fun setCompactTags(compact: Boolean) = dataSource.setCompactTags(compact)
+
+    override suspend fun setTagLimit(limit: TagLimit) = dataSource.setTagLimit(limit)
 
     override suspend fun setMonthNavigator(show: Boolean) = dataSource.setMonthNavigator(show)
 

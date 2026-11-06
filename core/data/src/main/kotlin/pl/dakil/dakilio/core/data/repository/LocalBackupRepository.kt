@@ -55,11 +55,11 @@ import pl.dakil.dakilio.core.database.dao.ReplaceKeyword
 import pl.dakil.dakilio.core.database.dao.ReplacePost
 import pl.dakil.dakilio.core.database.entity.DiaryEntity
 import pl.dakil.dakilio.core.database.entity.HabitEntity
-import pl.dakil.dakilio.core.database.entity.TagKeywordEntity
 import pl.dakil.dakilio.core.database.entity.MoodEntity
 import pl.dakil.dakilio.core.database.entity.PostEntity
 import pl.dakil.dakilio.core.database.entity.TagEntity
 import pl.dakil.dakilio.core.database.entity.TagGroupEntity
+import pl.dakil.dakilio.core.database.entity.TagKeywordEntity
 import pl.dakil.dakilio.core.model.MOOD_LEVELS
 import pl.dakil.dakilio.core.model.Reminder
 import pl.dakil.dakilio.core.model.UserSettings
@@ -128,6 +128,7 @@ internal class LocalBackupRepository @Inject constructor(
                 editorTextScale = userSettings.editorTextScale,
                 previewLength = userSettings.previewLength.name,
                 compactTags = userSettings.compactTags,
+                tagLimit = userSettings.tagLimit.name,
                 monthNavigator = userSettings.monthNavigator,
                 closeAfterSave = userSettings.closeAfterSave,
                 keywordAutoAdd = userSettings.keywordAutoAdd,
@@ -380,6 +381,7 @@ internal class LocalBackupRepository @Inject constructor(
         s.editorTextScale?.let { settings.setEditorTextScale(it) }
         s.previewLength?.let { settings.setPreviewLength(it) }
         s.compactTags?.let { settings.setCompactTags(it) }
+        s.tagLimit?.let { settings.setTagLimit(it) }
         s.monthNavigator?.let { settings.setMonthNavigator(it) }
         s.closeAfterSave?.let { settings.setCloseAfterSave(it) }
         s.keywordAutoAdd?.let { settings.setKeywordAutoAdd(it) }

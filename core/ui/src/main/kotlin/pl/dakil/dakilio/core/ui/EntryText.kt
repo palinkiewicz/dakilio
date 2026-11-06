@@ -5,12 +5,14 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.isSpecified
 import pl.dakil.dakilio.core.model.PreviewLength
+import pl.dakil.dakilio.core.model.TagLimit
 import pl.dakil.dakilio.core.model.TextScale
 
 /**
  * How entries are displayed, provided at the app root from `UserSettings`. The text sizes scale
  * only what the user wrote (entry titles and notes), never moods, times, tags or the rest of the UI.
- * [timelineTextScale], [previewLength] and [compactTags] apply to every `PostCard` (timeline and search).
+ * [timelineTextScale], [previewLength], [compactTags] and [tagLimit] apply to every `PostCard` (timeline
+ * and search).
  */
 @Immutable
 data class EntryDisplay(
@@ -18,6 +20,7 @@ data class EntryDisplay(
     val editorTextScale: Float = TextScale.DEFAULT,
     val previewLength: PreviewLength = PreviewLength.Short,
     val compactTags: Boolean = false,
+    val tagLimit: TagLimit = TagLimit.Six,
 )
 
 val LocalEntryDisplay = compositionLocalOf { EntryDisplay() }

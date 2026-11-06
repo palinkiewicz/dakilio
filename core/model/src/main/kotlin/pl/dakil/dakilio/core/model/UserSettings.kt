@@ -13,6 +13,9 @@ enum class TagStyle { Icons, Chips }
 /** How many lines of an entry's note a post card shows; [Full] shows all of it (and the whole title). */
 enum class PreviewLength(val noteLines: Int?) { Short(4), Medium(8), Long(16), Full(null) }
 
+/** How many tags post cards show before a "+N" pill; [All] (`null`) shows every tag. */
+enum class TagLimit(val count: Int?) { Three(3), Six(6), Twelve(12), All(null) }
+
 /** The first day of the week (habits, the Insights heatmap, weekday rows). [Region] follows the device region. */
 enum class WeekStart(private val day: DayOfWeek?) {
     Region(null),
@@ -56,7 +59,9 @@ data class UserSettings(
     val previewLength: PreviewLength = PreviewLength.Short,
     /** Post cards show tags as icons only, without their names. */
     val compactTags: Boolean = false,
-    /** The timeline shows the floating month pill (▲ month ▼) once scrolled. */
+    /** How many tags post cards show (timeline and search). */
+    val tagLimit: TagLimit = TagLimit.Six,
+    /** The timeline's app bar shows the month navigator (▲ month ▼). */
     val monthNavigator: Boolean = true,
     /** Saving edits to an existing entry closes it; otherwise the entry goes back to reading. */
     val closeAfterSave: Boolean = true,

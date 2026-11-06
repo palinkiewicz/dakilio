@@ -67,6 +67,8 @@ data class BackupSettings(
     /** A `PreviewLength` name. */
     val previewLength: String? = null,
     val compactTags: Boolean? = null,
+    /** A `TagLimit` name: how many tags post cards show (`Six`, …, `All`). */
+    val tagLimit: String? = null,
     /** The timeline's month navigator. */
     val monthNavigator: Boolean? = null,
     val closeAfterSave: Boolean? = null,

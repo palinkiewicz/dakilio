@@ -5,29 +5,30 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import pl.dakil.dakilio.core.backup.RestoreStats
+import pl.dakil.dakilio.core.daylio.ImportStats
 import pl.dakil.dakilio.core.model.ArchivedTags
 import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.model.GroupUsage
 import pl.dakil.dakilio.core.model.Habit
+import pl.dakil.dakilio.core.model.HabitStatus
 import pl.dakil.dakilio.core.model.Keyword
 import pl.dakil.dakilio.core.model.KeywordDraft
-import pl.dakil.dakilio.core.model.HabitStatus
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.PhotoSize
 import pl.dakil.dakilio.core.model.Post
 import pl.dakil.dakilio.core.model.PostDraft
+import pl.dakil.dakilio.core.model.PreviewLength
 import pl.dakil.dakilio.core.model.Reminder
 import pl.dakil.dakilio.core.model.ReminderSnapshot
 import pl.dakil.dakilio.core.model.SuggestedGroup
 import pl.dakil.dakilio.core.model.TagGroup
-import pl.dakil.dakilio.core.model.PreviewLength
+import pl.dakil.dakilio.core.model.TagLimit
 import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TagUsage
 import pl.dakil.dakilio.core.model.ThemeMode
 import pl.dakil.dakilio.core.model.UserSettings
 import pl.dakil.dakilio.core.model.WeekStart
-import pl.dakil.dakilio.core.backup.RestoreStats
-import pl.dakil.dakilio.core.daylio.ImportStats
 
 interface MoodRepository {
     /** Every pickable (non-archived) mood: by level, worst first; primary before its aliases. */
@@ -222,6 +223,8 @@ interface SettingsRepository {
     suspend fun setPreviewLength(length: PreviewLength)
 
     suspend fun setCompactTags(compact: Boolean)
+
+    suspend fun setTagLimit(limit: TagLimit)
 
     suspend fun setMonthNavigator(show: Boolean)
 

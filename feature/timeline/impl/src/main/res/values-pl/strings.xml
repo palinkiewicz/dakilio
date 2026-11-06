@@ -20,6 +20,8 @@
     <string name="timeline_view_preview_full">Cały</string>
     <string name="timeline_view_compact_tags">Kompaktowe tagi</string>
     <string name="timeline_view_compact_tags_body">Tylko ikony</string>
+    <string name="timeline_view_tag_limit">Widoczne tagi</string>
+    <string name="timeline_view_tag_limit_all">Wszystkie</string>
     <string name="timeline_view_month_navigator">Nawigacja miesięcy</string>
     <string name="timeline_view_month_navigator_body">Przechodzenie między miesiącami podczas przewijania</string>
     <string name="timeline_view_text_size">Rozmiar tekstu</string>

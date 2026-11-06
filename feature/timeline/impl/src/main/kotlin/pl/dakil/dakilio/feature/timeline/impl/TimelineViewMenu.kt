@@ -29,6 +29,7 @@ import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.model.PreviewLength
+import pl.dakil.dakilio.core.model.TagLimit
 import pl.dakil.dakilio.core.ui.LocalEntryDisplay
 import pl.dakil.dakilio.core.ui.component.TextScaleSlider
 
@@ -43,6 +44,7 @@ internal fun TimelineViewMenu(
     onDismiss: () -> Unit,
     onPreviewLength: (PreviewLength) -> Unit,
     onCompactTags: (Boolean) -> Unit,
+    onTagLimit: (TagLimit) -> Unit,
     monthNavigator: Boolean,
     onMonthNavigator: (Boolean) -> Unit,
     onTextScale: (Float) -> Unit,
@@ -74,6 +76,17 @@ internal fun TimelineViewMenu(
                 body = stringResource(R.string.timeline_view_compact_tags_body),
                 checked = display.compactTags,
                 onCheckedChange = onCompactTags,
+            )
+
+            MenuTitle(stringResource(R.string.timeline_view_tag_limit), Modifier.padding(top = Spacing.l))
+            ConnectedToggleRow(
+                options = TagLimit.entries.map { limit ->
+                    ToggleOption(limit, limit.count?.toString() ?: stringResource(R.string.timeline_view_tag_limit_all))
+                },
+                selected = display.tagLimit,
+                onSelect = onTagLimit,
+                modifier = Modifier.padding(top = Spacing.s),
+                contentPadding = PaddingValues(horizontal = 6.dp),
             )
             MenuSwitch(
                 title = stringResource(R.string.timeline_view_month_navigator),

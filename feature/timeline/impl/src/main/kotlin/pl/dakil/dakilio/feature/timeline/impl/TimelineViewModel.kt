@@ -29,6 +29,7 @@ import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.PreviewLength
 import pl.dakil.dakilio.core.model.Streaks
+import pl.dakil.dakilio.core.model.TagLimit
 
 enum class Greeting { Morning, Afternoon, Evening, Night }
 
@@ -119,6 +120,10 @@ class TimelineViewModel @Inject constructor(
 
     fun setCompactTags(compact: Boolean) {
         viewModelScope.launch { settingsRepository.setCompactTags(compact) }
+    }
+
+    fun setTagLimit(limit: TagLimit) {
+        viewModelScope.launch { settingsRepository.setTagLimit(limit) }
     }
 
     fun setMonthNavigator(show: Boolean) {

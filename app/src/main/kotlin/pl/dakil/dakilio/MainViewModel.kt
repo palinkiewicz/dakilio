@@ -47,7 +47,15 @@ class MainViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
     val entryDisplay: StateFlow<EntryDisplay> = settingsRepository.settings
-        .map { EntryDisplay(it.timelineTextScale, it.editorTextScale, it.previewLength, it.compactTags) }
+        .map {
+            EntryDisplay(
+                timelineTextScale = it.timelineTextScale,
+                editorTextScale = it.editorTextScale,
+                previewLength = it.previewLength,
+                compactTags = it.compactTags,
+                tagLimit = it.tagLimit,
+            )
+        }
         .stateIn(viewModelScope, SharingStarted.Eagerly, EntryDisplay())
 
     /** The first day of the week, for rows of weekdays and week views across the UI. */

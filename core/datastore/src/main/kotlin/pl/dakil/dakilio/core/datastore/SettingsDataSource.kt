@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import pl.dakil.dakilio.core.model.PhotoSize
 import pl.dakil.dakilio.core.model.PreviewLength
+import pl.dakil.dakilio.core.model.TagLimit
 import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TextScale
 import pl.dakil.dakilio.core.model.ThemeMode
@@ -39,6 +40,9 @@ class SettingsDataSource @Inject constructor(
                 previewLength = prefs[PREVIEW_LENGTH]?.let { name -> PreviewLength.entries.firstOrNull { it.name == name } }
                     ?: PreviewLength.Short,
                 compactTags = prefs[COMPACT_TAGS] ?: false,
+                // Never picked: what cards showed before the option existed (icons take less room).
+                tagLimit = prefs[TAG_LIMIT]?.let { name -> TagLimit.entries.firstOrNull { it.name == name } }
+                    ?: if (prefs[COMPACT_TAGS] == true) TagLimit.Twelve else TagLimit.Six,
                 monthNavigator = prefs[MONTH_NAVIGATOR] ?: true,
                 closeAfterSave = prefs[CLOSE_AFTER_SAVE] ?: true,
                 keywordAutoAdd = prefs[KEYWORD_AUTO_ADD] ?: false,
@@ -103,6 +107,10 @@ class SettingsDataSource @Inject constructor(
         dataStore.edit { it[PREVIEW_LENGTH] = length.name }
     }
 
+    suspend fun setTagLimit(limit: TagLimit) {
+        dataStore.edit { it[TAG_LIMIT] = limit.name }
+    }
+
     suspend fun setCompactTags(compact: Boolean) {
         dataStore.edit { it[COMPACT_TAGS] = compact }
     }
@@ -138,6 +146,7 @@ class SettingsDataSource @Inject constructor(
         val EDITOR_TEXT_SCALE = floatPreferencesKey("editor_text_scale")
         val PREVIEW_LENGTH = stringPreferencesKey("preview_length")
         val COMPACT_TAGS = booleanPreferencesKey("compact_tags")
+        val TAG_LIMIT = stringPreferencesKey("tag_limit")
         val MONTH_NAVIGATOR = booleanPreferencesKey("month_navigator")
         val CLOSE_AFTER_SAVE = booleanPreferencesKey("close_after_save")
         val KEYWORD_AUTO_ADD = booleanPreferencesKey("keyword_auto_add")

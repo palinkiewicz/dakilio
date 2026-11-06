@@ -18,6 +18,8 @@
     <string name="timeline_view_preview_full">Full</string>
     <string name="timeline_view_compact_tags">Compact tags</string>
     <string name="timeline_view_compact_tags_body">Only icons</string>
+    <string name="timeline_view_tag_limit">Tags shown</string>
+    <string name="timeline_view_tag_limit_all">All</string>
     <string name="timeline_view_month_navigator">Month navigator</string>
     <string name="timeline_view_month_navigator_body">Jump between months while scrolling</string>
     <string name="timeline_view_text_size">Text size</string>

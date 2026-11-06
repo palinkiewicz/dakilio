@@ -53,17 +53,14 @@ import pl.dakil.dakilio.core.model.noteExcerpt
 import pl.dakil.dakilio.core.ui.DakilioFormats
 import pl.dakil.dakilio.core.ui.LocalEntryDisplay
 import pl.dakil.dakilio.core.ui.R
-import pl.dakil.dakilio.core.ui.scaled
 import pl.dakil.dakilio.core.ui.mood.MoodBadge
 import pl.dakil.dakilio.core.ui.mood.NoMoodBadge
 import pl.dakil.dakilio.core.ui.mood.moodColors
+import pl.dakil.dakilio.core.ui.scaled
 
 private val BadgeSize = 44.dp
 private val CardPaddingH = 16.dp
 private val CardPaddingV = 14.dp
-private const val MAX_VISIBLE_TAGS = 6
-/** Icon-only tags take far less room. */
-private const val MAX_VISIBLE_COMPACT_TAGS = 12
 
 /**
  * One journal entry. Cards of the same day are drawn as a segmented group ([index] of [count]) and
@@ -92,7 +89,7 @@ fun PostCard(
     val display = LocalEntryDisplay.current
     val textScale = display.timelineTextScale
     val full = display.previewLength == PreviewLength.Full
-    val maxTags = if (display.compactTags) MAX_VISIBLE_COMPACT_TAGS else MAX_VISIBLE_TAGS
+    val maxTags = display.tagLimit.count ?: Int.MAX_VALUE
     val hasBody = post.title != null || post.note != null || post.tags.isNotEmpty() || post.photos.isNotEmpty()
 
     Surface(

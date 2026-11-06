@@ -97,6 +97,7 @@ import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.PostPhoto
 import pl.dakil.dakilio.core.model.PreviewLength
+import pl.dakil.dakilio.core.model.TagLimit
 import pl.dakil.dakilio.core.model.levelsBestFirst
 import pl.dakil.dakilio.core.ui.DakilioFormats
 import pl.dakil.dakilio.core.ui.Hint
@@ -134,6 +135,7 @@ internal fun TimelineRoute(
         onOpenSearch = onOpenSearch,
         onPreviewLength = viewModel::setPreviewLength,
         onCompactTags = viewModel::setCompactTags,
+        onTagLimit = viewModel::setTagLimit,
         onMonthNavigator = viewModel::setMonthNavigator,
         onTextScale = viewModel::setTimelineTextScale,
     )
@@ -149,6 +151,7 @@ internal fun TimelineScreen(
     onOpenSearch: () -> Unit,
     onPreviewLength: (PreviewLength) -> Unit,
     onCompactTags: (Boolean) -> Unit,
+    onTagLimit: (TagLimit) -> Unit,
     onMonthNavigator: (Boolean) -> Unit,
     onTextScale: (Float) -> Unit,
 ) {
@@ -270,6 +273,7 @@ internal fun TimelineScreen(
                                 onDismiss = { viewMenu = false },
                                 onPreviewLength = onPreviewLength,
                                 onCompactTags = onCompactTags,
+                                onTagLimit = onTagLimit,
                                 monthNavigator = ready?.monthNavigator ?: true,
                                 onMonthNavigator = onMonthNavigator,
                                 onTextScale = onTextScale,
