@@ -5,6 +5,7 @@ ui add
 ui close
 ui block
 ui search
+ui share
 ui arrow_back
 ui arrow_upward
 ui check

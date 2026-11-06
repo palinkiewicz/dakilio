@@ -8,6 +8,7 @@ object DakilioSymbols {
     val Close = DakilioSymbol("close", R.drawable.sym_close, R.drawable.sym_close_fill, SymbolCategory.Ui)
     val Block = DakilioSymbol("block", R.drawable.sym_block, R.drawable.sym_block_fill, SymbolCategory.Ui)
     val Search = DakilioSymbol("search", R.drawable.sym_search, R.drawable.sym_search_fill, SymbolCategory.Ui)
+    val Share = DakilioSymbol("share", R.drawable.sym_share, R.drawable.sym_share_fill, SymbolCategory.Ui)
     val ArrowBack = DakilioSymbol("arrow_back", R.drawable.sym_arrow_back, R.drawable.sym_arrow_back_fill, SymbolCategory.Ui)
     val ArrowUpward = DakilioSymbol("arrow_upward", R.drawable.sym_arrow_upward, R.drawable.sym_arrow_upward_fill, SymbolCategory.Ui)
     val Check = DakilioSymbol("check", R.drawable.sym_check, R.drawable.sym_check_fill, SymbolCategory.Ui)
@@ -206,6 +207,7 @@ object DakilioSymbols {
         Close,
         Block,
         Search,
+        Share,
         ArrowBack,
         ArrowUpward,
         Check,
