@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="reminders_title">Przypomnienia</string>
+    <string name="reminders_subtitle">Szturchnięcie we właściwej chwili</string>
+    <string name="reminders_back">Wstecz</string>
+    <string name="reminders_new">Nowe przypomnienie</string>
+    <string name="reminders_hint">Przypomnienie o dzienniku pomija dni, w których ten dziennik ma już wpis. Przypomnienie o nawyku milknie, gdy cel na ten tydzień jest osiągnięty.</string>
+    <string name="reminders_empty_title">Nie masz jeszcze przypomnień</string>
+    <string name="reminders_empty_body">Niech coś ci przypomni o wpisie w dzienniku albo o nawyku, o wybranej godzinie i w wybrane dni.</string>
+    <string name="reminders_about_diary">Wpis w dzienniku „%s”</string>
+    <string name="reminders_about_habit">Nawyk „%s”</string>
+    <string name="reminders_days_every_day">Codziennie</string>
+    <string name="reminders_days_workdays">W dni robocze</string>
+    <string name="reminders_days_weekend">W weekendy</string>
+    <string name="reminders_deleted">Usunięto przypomnienie</string>
+    <string name="reminders_undo">Cofnij</string>
+    <string name="reminders_blocked">Powiadomienia Dakilio są wyłączone, więc przypomnienia się nie pokażą.</string>
+    <string name="reminders_open_settings">Ustawienia</string>
+
+    <string name="reminders_sheet_new">Nowe przypomnienie</string>
+    <string name="reminders_sheet_edit">Przypomnienie</string>
+    <string name="reminders_sheet_about">O czym przypominać</string>
+    <string name="reminders_sheet_kind_diary">Dziennik</string>
+    <string name="reminders_sheet_kind_habit">Nawyk</string>
+    <string name="reminders_sheet_no_habits">Nie masz jeszcze nawyków. Dodasz je w sekcji Więcej → Nawyki.</string>
+    <string name="reminders_sheet_time">Godzina</string>
+    <string name="reminders_sheet_days">Dni</string>
+    <string name="reminders_sheet_pick_diary">Najpierw wybierz dziennik</string>
+    <string name="reminders_sheet_pick_habit">Najpierw wybierz nawyk</string>
+    <string name="reminders_sheet_save">Zapisz</string>
+    <string name="reminders_sheet_add">Dodaj przypomnienie</string>
+    <string name="reminders_sheet_delete">Usuń przypomnienie</string>
+    <string name="reminders_pick_time">Godzina przypomnienia</string>
+    <string name="reminders_ok">OK</string>
+    <string name="reminders_cancel">Anuluj</string>
+
+    <string name="reminders_when_every_day">Codziennie o %s</string>
+    <string name="reminders_when_workdays">W dni robocze o %s</string>
+    <string name="reminders_when_weekend">W weekendy o %s</string>
+    <string name="reminders_when_days">W dni: %1$s, o %2$s</string>
+    <string name="reminders_summary_diary">%1$s, chyba że w dzienniku „%2$s” jest już wpis z tego dnia</string>
+    <plurals name="reminders_summary_habit">
+        <item quantity="one">%1$s, dopóki „%2$s” nie pojawi się we wpisach przez %3$d dzień w tym tygodniu</item>
+        <item quantity="few">%1$s, dopóki „%2$s” nie pojawi się we wpisach przez %3$d dni w tym tygodniu</item>
+        <item quantity="many">%1$s, dopóki „%2$s” nie pojawi się we wpisach przez %3$d dni w tym tygodniu</item>
+        <item quantity="other">%1$s, dopóki „%2$s” nie pojawi się we wpisach przez %3$d dnia w tym tygodniu</item>
+    </plurals>
+</resources>

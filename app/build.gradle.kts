@@ -132,6 +132,7 @@ dependencies {
     implementation(projects.feature.habits.impl)
     implementation(projects.feature.lock.impl)
     implementation(projects.feature.keywords.impl)
+    implementation(projects.feature.reminders.impl)
 
     // Sample entries only in builds for development and testers; release installs start empty.
     debugImplementation(projects.core.samples)

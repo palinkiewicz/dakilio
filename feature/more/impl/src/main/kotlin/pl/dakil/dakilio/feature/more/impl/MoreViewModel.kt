@@ -14,6 +14,7 @@ import pl.dakil.dakilio.core.data.repository.HabitRepository
 import pl.dakil.dakilio.core.data.repository.KeywordRepository
 import pl.dakil.dakilio.core.data.repository.LockRepository
 import pl.dakil.dakilio.core.data.repository.PostRepository
+import pl.dakil.dakilio.core.data.repository.ReminderRepository
 import pl.dakil.dakilio.core.data.repository.SettingsRepository
 import pl.dakil.dakilio.core.model.LockSettings
 
@@ -22,6 +23,7 @@ class MoreViewModel @Inject constructor(
     postRepository: PostRepository,
     habitRepository: HabitRepository,
     keywordRepository: KeywordRepository,
+    reminderRepository: ReminderRepository,
     lockRepository: LockRepository,
     private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
@@ -33,6 +35,10 @@ class MoreViewModel @Inject constructor(
     val keywordTagCount: StateFlow<Int> =
         keywordRepository.keywords.map { keywords -> keywords.map { it.tagId }.distinct().size }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0)
+
+    /** Reminders set up (the Reminders extra), on or off; 0 means it isn't used yet. */
+    val reminderCount: StateFlow<Int> =
+        reminderRepository.count.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0)
 
     /** The app lock's state, for the App lock row's status. */
     val lock: StateFlow<LockSettings> =

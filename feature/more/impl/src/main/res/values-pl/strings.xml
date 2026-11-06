@@ -20,6 +20,14 @@
         <item quantity="many">Ustawione dla %d tagów</item>
         <item quantity="other">Ustawione dla %d tagu</item>
     </plurals>
+    <string name="more_reminders">Przypomnienia</string>
+    <string name="more_reminders_body">Szturchnięcie, żeby coś zapisać albo pilnować nawyku</string>
+    <plurals name="more_reminders_status">
+        <item quantity="one">%d przypomnienie</item>
+        <item quantity="few">%d przypomnienia</item>
+        <item quantity="many">%d przypomnień</item>
+        <item quantity="other">%d przypomnienia</item>
+    </plurals>
     <string name="more_section_customize">Personalizacja</string>
     <string name="more_moods">Nastroje</string>
     <string name="more_moods_body">Nazwy i aliasy</string>

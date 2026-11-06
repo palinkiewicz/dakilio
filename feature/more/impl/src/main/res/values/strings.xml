@@ -16,6 +16,12 @@
         <item quantity="one">Set for %d tag</item>
         <item quantity="other">Set for %d tags</item>
     </plurals>
+    <string name="more_reminders">Reminders</string>
+    <string name="more_reminders_body">A nudge to write, or to keep up a habit</string>
+    <plurals name="more_reminders_status">
+        <item quantity="one">%d reminder</item>
+        <item quantity="other">%d reminders</item>
+    </plurals>
     <string name="more_section_customize">Customize</string>
     <string name="more_moods">Moods</string>
     <string name="more_moods_body">Names and aliases</string>

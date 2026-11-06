@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="reminders_title">Reminders</string>
+    <string name="reminders_subtitle">A nudge at the right time</string>
+    <string name="reminders_back">Back</string>
+    <string name="reminders_new">New reminder</string>
+    <string name="reminders_hint">A diary reminder skips days when that diary already has an entry. A habit reminder rests once the week\'s goal is met.</string>
+    <string name="reminders_empty_title">No reminders yet</string>
+    <string name="reminders_empty_body">Get a nudge to write in a diary or to keep up a habit, at the time and on the days you choose.</string>
+    <string name="reminders_about_diary">Write in %s</string>
+    <string name="reminders_about_habit">Keep up %s</string>
+    <string name="reminders_days_every_day">Every day</string>
+    <string name="reminders_days_workdays">Weekdays</string>
+    <string name="reminders_days_weekend">Weekends</string>
+    <string name="reminders_deleted">Reminder deleted</string>
+    <string name="reminders_undo">Undo</string>
+    <string name="reminders_blocked">Notifications are off for Dakilio, so reminders can\'t show up.</string>
+    <string name="reminders_open_settings">Settings</string>
+
+    <string name="reminders_sheet_new">New reminder</string>
+    <string name="reminders_sheet_edit">Reminder</string>
+    <string name="reminders_sheet_about">Remind me about</string>
+    <string name="reminders_sheet_kind_diary">Diary</string>
+    <string name="reminders_sheet_kind_habit">Habit</string>
+    <string name="reminders_sheet_no_habits">No habits yet. Set one up in More → Habits.</string>
+    <string name="reminders_sheet_time">Time</string>
+    <string name="reminders_sheet_days">Days</string>
+    <string name="reminders_sheet_pick_diary">Pick a diary first</string>
+    <string name="reminders_sheet_pick_habit">Pick a habit first</string>
+    <string name="reminders_sheet_save">Save</string>
+    <string name="reminders_sheet_add">Add reminder</string>
+    <string name="reminders_sheet_delete">Delete reminder</string>
+    <string name="reminders_pick_time">Reminder time</string>
+    <string name="reminders_ok">OK</string>
+    <string name="reminders_cancel">Cancel</string>
+
+    <string name="reminders_when_every_day">Every day at %s</string>
+    <string name="reminders_when_workdays">On weekdays at %s</string>
+    <string name="reminders_when_weekend">On weekends at %s</string>
+    <string name="reminders_when_days">On %1$s at %2$s</string>
+    <string name="reminders_summary_diary">%1$s, unless %2$s already has an entry that day</string>
+    <plurals name="reminders_summary_habit">
+        <item quantity="one">%1$s, until %2$s is on your entries %3$d day this week</item>
+        <item quantity="other">%1$s, until %2$s is on your entries %3$d days this week</item>
+    </plurals>
+</resources>

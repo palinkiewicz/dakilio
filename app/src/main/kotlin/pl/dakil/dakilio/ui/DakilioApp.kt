@@ -62,6 +62,7 @@ import pl.dakil.dakilio.feature.tags.impl.tagsEntry
 import pl.dakil.dakilio.feature.habits.impl.HabitProgressHost
 import pl.dakil.dakilio.feature.habits.impl.habitsEntry
 import pl.dakil.dakilio.feature.keywords.impl.keywordsEntry
+import pl.dakil.dakilio.feature.reminders.impl.remindersEntry
 import pl.dakil.dakilio.feature.lock.api.AppLockKey
 import pl.dakil.dakilio.feature.lock.impl.appLockEntry
 import pl.dakil.dakilio.feature.entry.api.EntryEditorKey
@@ -144,6 +145,7 @@ fun DakilioApp(
         archiveEntry(navigator)
         habitsEntry(navigator)
         keywordsEntry(navigator)
+        remindersEntry(navigator)
         appLockEntry(navigator)
     }
 
