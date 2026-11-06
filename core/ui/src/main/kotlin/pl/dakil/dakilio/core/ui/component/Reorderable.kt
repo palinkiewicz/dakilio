@@ -39,8 +39,8 @@ import pl.dakil.dakilio.core.designsystem.component.rememberHaptics
 /*
  * A small drag-to-reorder helper for vertical lists, without a library. Items mark themselves with
  * [reorderableItem]; a [dragHandle] inside an item starts the drag. While held, the item follows the
- * finger and swaps with a neighbour once its center passes the neighbour's; the neighbour slides into
- * the freed place. Works for lazy items and for plain Columns alike, since it only reads positions.
+ * finger and swaps with a neighbour once its leading edge passes the neighbour's middle; the
+ * neighbour slides into the freed place. Works for lazy items and for plain Columns alike, since it only reads positions.
  *
  * The caller owns the order: [ReorderState] calls `onMove(from, to)` for each swap (update the list
  * right away) and `onDrop()` when the item is let go (persist then).
@@ -153,12 +153,12 @@ class ReorderState<K : Any> internal constructor(
         val index = keys.indexOf(key)
         if (index < 0) return
         val own = bounds[key] ?: return
-        val center = own.center.y + clampedTranslation(key)
+        val shift = clampedTranslation(key)
         val next = keys.getOrNull(index + 1)?.let { bounds[it] }
         val previous = keys.getOrNull(index - 1)?.let { bounds[it] }
-        when {
-            next != null && center > next.center.y -> swap(index, index + 1, own, next)
-            previous != null && center < previous.center.y -> swap(index, index - 1, own, previous)
+        when (swapDirection(own.top + shift, own.bottom + shift, previous?.center?.y, next?.center?.y)) {
+            1 -> swap(index, index + 1, own, next!!)
+            -1 -> swap(index, index - 1, own, previous!!)
         }
     }
 
@@ -228,6 +228,18 @@ class ReorderState<K : Any> internal constructor(
             else -> 0f
         }
     }
+}
+
+/**
+ * Which way the held item (drawn between [ownTop] and [ownBottom]) swaps: +1 with the next item, −1
+ * with the previous one, 0 not at all. It swaps once its leading edge passes the neighbour's middle.
+ * Not its center: a clamped item can only go as far as lying exactly over the end item, where the
+ * centers are equal, so the swap with the end item could never happen.
+ */
+internal fun swapDirection(ownTop: Float, ownBottom: Float, previousCenter: Float?, nextCenter: Float?): Int = when {
+    nextCenter != null && ownBottom > nextCenter -> 1
+    previousCenter != null && ownTop < previousCenter -> -1
+    else -> 0
 }
 
 /**
