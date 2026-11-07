@@ -1,10 +1,8 @@
 package pl.dakil.dakilio.feature.timeline.impl
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.Layout
 import java.time.YearMonth
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.ui.DakilioFormats
@@ -27,10 +25,11 @@ internal val TimelineUiState.Ready.monthFloating: Boolean
     get() = monthNavigator && !monthNavigatorInAppBar
 
 /**
- * The timeline app bar's pickers, in its navigation slot so they stay in place whether the bar is
- * expanded or collapsed: the diary dropdown (only with more than one diary) followed by the month
- * navigator (when enabled). With both, give it a bounded width: the navigator fills what the
- * dropdown leaves.
+ * The timeline app bar's pickers, in its title slot so they stay in place whether the bar is expanded
+ * or collapsed: the diary dropdown (only with more than one diary) followed by the month navigator
+ * (when enabled). The dropdown is as wide as its label, up to what the narrowest navigator leaves;
+ * the navigator then takes all the rest. Next to the dropdown it stacks the short month over its year
+ * only when the one-line label doesn't fit.
  */
 @Composable
 internal fun TimelineHeaderControls(
@@ -45,29 +44,53 @@ internal fun TimelineHeaderControls(
     modifier: Modifier = Modifier,
 ) {
     val both = state.hasBothPickers
-    Row(
+    val navigatorMin = rememberMonthLabelWidths(month.year, formats).minNavigatorWidth(canCompact = both)
+    val showDropdown = state.diaries.size > 1
+    val showMonth = state.monthInAppBar
+    Layout(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        if (state.diaries.size > 1) {
-            DiaryFilterDropdown(
-                diaries = state.diaries,
-                selectedDiaryId = state.selectedDiaryId,
-                onSelect = onSelectDiary,
-                modifier = Modifier.weight(1f, fill = false),
-            )
+        content = {
+            if (showDropdown) {
+                DiaryFilterDropdown(
+                    diaries = state.diaries,
+                    selectedDiaryId = state.selectedDiaryId,
+                    onSelect = onSelectDiary,
+                )
+            }
+            if (showMonth) {
+                MonthNavigator(
+                    month = month,
+                    newer = newer,
+                    older = older,
+                    formats = formats,
+                    onJump = onJump,
+                    onPick = onPick,
+                    canCompact = both,
+                    fill = true,
+                )
+            }
+        },
+    ) { measurables, constraints ->
+        val loose = constraints.copy(minWidth = 0, minHeight = 0)
+        val gap = Spacing.xs.roundToPx()
+        val reserved = if (showMonth && showDropdown) navigatorMin.roundToPx() + gap else 0
+        val dropdown = if (showDropdown) {
+            measurables[0].measure(loose.copy(maxWidth = (loose.maxWidth - reserved).coerceAtLeast(0)))
+        } else {
+            null
         }
-        if (state.monthInAppBar) {
-            MonthNavigator(
-                month = month,
-                newer = newer,
-                older = older,
-                formats = formats,
-                onJump = onJump,
-                onPick = onPick,
-                compact = both,
-            )
+        val used = dropdown?.let { it.width + gap } ?: 0
+        val navigator = if (showMonth) {
+            val width = (loose.maxWidth - used).coerceAtLeast(0)
+            measurables.last().measure(loose.copy(minWidth = width, maxWidth = width))
+        } else {
+            null
+        }
+        val width = if (navigator != null) loose.maxWidth else dropdown?.width ?: 0
+        val height = maxOf(dropdown?.height ?: 0, navigator?.height ?: 0).coerceIn(constraints.minHeight, constraints.maxHeight)
+        layout(width.coerceIn(constraints.minWidth, constraints.maxWidth), height) {
+            dropdown?.placeRelative(0, (height - dropdown.height) / 2)
+            navigator?.placeRelative(used, (height - navigator.height) / 2)
         }
     }
 }

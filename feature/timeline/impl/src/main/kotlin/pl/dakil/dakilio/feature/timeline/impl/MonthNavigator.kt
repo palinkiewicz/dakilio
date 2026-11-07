@@ -14,6 +14,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -47,9 +48,12 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import java.time.LocalDate
 import java.time.YearMonth
@@ -66,9 +70,11 @@ import pl.dakil.dakilio.core.ui.mood.moodColors
 /**
  * The month navigator: ▲ newer month · the current month (opens the picker) · ▼ older month, with no
  * background of its own (it blends into the app bar; [FloatingMonthNavigator] puts it on a pill).
- * [compact] (next to the diary dropdown) stacks the short month name over its year; otherwise it's one
- * line, "November 2026". Either way the label is as wide as the year's widest month, so the arrows sit
- * right next to it and never shift. The arrows are disabled at the timeline's ends.
+ * The label is one line, "November 2026". [canCompact] (next to the diary dropdown) lets it stack the
+ * short month name over its year when one line doesn't fit. Without [fill], the label is as wide as the
+ * year's widest month, so the arrows sit right next to it and never shift; with [fill] the label takes
+ * every bit of the width it's given, and the arrows sit at its ends. The arrows are disabled at the
+ * timeline's ends.
  */
 @Composable
 internal fun MonthNavigator(
@@ -80,7 +86,68 @@ internal fun MonthNavigator(
     onJump: (YearMonth) -> Unit,
     onPick: () -> Unit,
     modifier: Modifier = Modifier,
-    compact: Boolean = false,
+    canCompact: Boolean = false,
+    fill: Boolean = false,
+) {
+    val widths = rememberMonthLabelWidths(month.year, formats)
+    if (fill) {
+        BoxWithConstraints(modifier) {
+            val room = maxWidth - ARROW_WIDTH * 2
+            val compact = canCompact && widths.full > room
+            MonthNavigatorRow(
+                month, newer, older, formats, onJump, onPick,
+                compact = compact,
+                labelWidth = room.coerceAtLeast(if (compact) widths.compact else widths.full),
+            )
+        }
+    } else {
+        MonthNavigatorRow(
+            month, newer, older, formats, onJump, onPick,
+            compact = canCompact,
+            labelWidth = if (canCompact) widths.compact else widths.full,
+            modifier = modifier,
+        )
+    }
+}
+
+/** The widest month label of a year (padding included): one line ([full]) and stacked ([compact]). */
+internal class MonthLabelWidths(val full: Dp, val compact: Dp)
+
+/** The narrowest [MonthNavigator] that still fits its label, one line or (with [canCompact]) stacked. */
+internal fun MonthLabelWidths.minNavigatorWidth(canCompact: Boolean): Dp =
+    (if (canCompact) compact else full) + ARROW_WIDTH * 2
+
+@Composable
+internal fun rememberMonthLabelWidths(year: Int, formats: DakilioFormats): MonthLabelWidths {
+    val fullStyle = MaterialTheme.typography.titleSmallEmphasized
+    val compactStyle = MaterialTheme.typography.labelLargeEmphasized
+    val measurer = rememberTextMeasurer()
+    val density = LocalDensity.current
+    return remember(year, fullStyle, compactStyle, formats, density) {
+        fun widest(style: TextStyle, text: (YearMonth) -> String): Dp {
+            val px = (1..12).maxOf { number ->
+                measurer.measure(text(YearMonth.of(year, number)), style, maxLines = 1).size.width
+            }
+            return with(density) { px.toDp() } + LABEL_PADDING * 2
+        }
+        MonthLabelWidths(
+            full = widest(fullStyle) { formats.monthYear(it.atDay(1)) },
+            compact = widest(compactStyle) { formats.monthShort(it) },
+        )
+    }
+}
+
+@Composable
+private fun MonthNavigatorRow(
+    month: YearMonth,
+    newer: YearMonth?,
+    older: YearMonth?,
+    formats: DakilioFormats,
+    onJump: (YearMonth) -> Unit,
+    onPick: () -> Unit,
+    compact: Boolean,
+    labelWidth: Dp,
+    modifier: Modifier = Modifier,
 ) {
     val haptics = rememberHaptics()
     Row(
@@ -102,17 +169,6 @@ internal fun MonthNavigator(
         val effects = MaterialTheme.motionScheme.fastEffectsSpec<Float>()
         val monthStyle = if (compact) MaterialTheme.typography.labelLargeEmphasized else MaterialTheme.typography.titleSmallEmphasized
         val yearStyle = MaterialTheme.typography.labelSmall
-        // As wide as the year's widest month, so the arrows never shift between months.
-        val measurer = rememberTextMeasurer()
-        val density = LocalDensity.current
-        val labelWidth = remember(month.year, compact, monthStyle, formats, density) {
-            val widest = (1..12).maxOf { number ->
-                val first = YearMonth.of(month.year, number)
-                val text = if (compact) formats.monthShort(first) else formats.monthYear(first.atDay(1))
-                measurer.measure(text, monthStyle, maxLines = 1).size.width
-            }
-            with(density) { widest.toDp() } + LABEL_PADDING * 2
-        }
         AnimatedContent(
             targetState = month,
             transitionSpec = {
@@ -168,6 +224,7 @@ internal fun MonthNavigator(
 }
 
 private val NAV_HEIGHT = 40.dp
+private val ARROW_WIDTH = 40.dp
 
 /** [MonthNavigator] on a raised pill, floating over the timeline once it's scrolled past today. */
 @Composable
@@ -203,7 +260,7 @@ private fun MonthArrow(up: Boolean, enabled: Boolean, description: String, onCli
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
-            .size(width = 40.dp, height = NAV_HEIGHT)
+            .size(width = ARROW_WIDTH, height = NAV_HEIGHT)
             .pressScale(interaction, 0.88f)
             .clip(CircleShape)
             .clickable(interactionSource = interaction, enabled = enabled, role = Role.Button, onClick = onClick)
