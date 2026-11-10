@@ -96,7 +96,8 @@ class PdfJournalWriter @Inject constructor(
         private val subtitlePaint = textPaint(11f, SECONDARY)
         private val dayPaint = textPaint(14f, TEXT, weight = 600, rounded = true)
         private val metaPaint = textPaint(10f, SECONDARY, weight = 500)
-        private val entryTitlePaint = textPaint(12.5f, TEXT, weight = 600)
+        // Between the note and the day heading, so the two headings never look alike.
+        private val entryTitlePaint = textPaint(11.5f, TEXT, weight = 600)
         private val notePaint = textPaint(10.5f, TEXT)
         private val tagPaint = textPaint(8.5f, TEXT, weight = 500)
         private val footerPaint = textPaint(8.5f, SECONDARY)
