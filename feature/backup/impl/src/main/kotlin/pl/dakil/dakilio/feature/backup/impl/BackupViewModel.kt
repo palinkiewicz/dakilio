@@ -8,20 +8,36 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
+import java.time.Clock
+import java.time.Instant
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import pl.dakil.dakilio.core.backup.AutoBackup
 import pl.dakil.dakilio.core.backup.BackupError
 import pl.dakil.dakilio.core.backup.BackupException
 import pl.dakil.dakilio.core.data.repository.BackupExportResult
 import pl.dakil.dakilio.core.data.repository.BackupOpenResult
 import pl.dakil.dakilio.core.data.repository.BackupPreview
+import pl.dakil.dakilio.core.data.repository.AutoBackupRepository
 import pl.dakil.dakilio.core.data.repository.BackupRepository
 import pl.dakil.dakilio.core.data.repository.BackupRestoreResult
+import pl.dakil.dakilio.core.data.repository.FolderBackup
 import pl.dakil.dakilio.core.data.repository.IncomingBackups
+import pl.dakil.dakilio.core.model.AutoBackupConfig
+import pl.dakil.dakilio.core.model.AutoBackupFrequency
+import pl.dakil.dakilio.core.model.AutoBackupProgress
+import pl.dakil.dakilio.core.model.AutoBackupStatus
 
 internal enum class BackupStage { Export, Open, Restore }
 
@@ -52,6 +68,17 @@ internal sealed interface BackupUiState {
     data class Failed(val reason: BackupError?, val stage: BackupStage) : BackupUiState
 }
 
+/** Automatic backups as the screen shows them. */
+internal data class AutoBackupUi(
+    val config: AutoBackupConfig,
+    val status: AutoBackupStatus,
+    val running: AutoBackupProgress?,
+    /** No backup for longer than the frequency allows (see `AutoBackup.isOverdue`). */
+    val overdue: Boolean,
+    /** The automatic backups in the folder, newest first. */
+    val folderBackups: List<FolderBackup>,
+)
+
 /** States the user must not leave: an export or restore in flight, or a key being derived. */
 internal val BackupUiState.isBusy: Boolean
     get() = this is BackupUiState.Exporting || this is BackupUiState.Restoring || this is BackupUiState.Unlocking
@@ -59,12 +86,35 @@ internal val BackupUiState.isBusy: Boolean
 @HiltViewModel
 internal class BackupViewModel @Inject constructor(
     private val repository: BackupRepository,
+    private val autoBackup: AutoBackupRepository,
+    private val clock: Clock,
     incoming: IncomingBackups,
 ) : ViewModel() {
     private val _state = MutableStateFlow<BackupUiState>(BackupUiState.Home)
     val state: StateFlow<BackupUiState> = _state.asStateFlow()
 
     private var job: Job? = null
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val folderBackups = combine(autoBackup.config.map { it.folderUri }, autoBackup.status) { folder, status -> folder to status.lastRunAt }
+        .distinctUntilChanged()
+        .mapLatest { autoBackup.folderBackups() }
+
+    /** Null until it's loaded, so the screen doesn't flash "off" for a moment. */
+    val auto: StateFlow<AutoBackupUi?> = combine(autoBackup.config, autoBackup.status, autoBackup.running, folderBackups) { config, status, running, files ->
+        AutoBackupUi(
+            config = config,
+            status = status,
+            running = running,
+            overdue = config.isOn && AutoBackup.isOverdue(
+                lastSuccess = status.lastSuccessAt?.let(Instant::ofEpochMilli),
+                since = config.enabledAt?.let(Instant::ofEpochMilli),
+                now = clock.instant(),
+                frequency = config.frequency,
+            ),
+            folderBackups = files,
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     init {
         // A backup shared to Dakilio replaces whatever is on screen, unless something is running.
@@ -154,6 +204,43 @@ internal class BackupViewModel @Inject constructor(
                 repository.close()
             }
         }
+    }
+
+    // Automatic backups.
+
+    fun chooseFolder(treeUri: Uri) {
+        viewModelScope.launch {
+            try {
+                autoBackup.setFolder(treeUri)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.w(TAG, "Can't use the folder", e)
+            }
+        }
+    }
+
+    fun setFrequency(frequency: AutoBackupFrequency) {
+        viewModelScope.launch { autoBackup.setFrequency(frequency) }
+    }
+
+    fun setOnlyWhileCharging(only: Boolean) {
+        viewModelScope.launch { autoBackup.setOnlyWhileCharging(only) }
+    }
+
+    fun setKeep(keep: Int) {
+        viewModelScope.launch { autoBackup.setKeep(keep) }
+    }
+
+    /** [password] null removes it; it's cleared either way. */
+    fun setAutoPassword(password: CharArray?) {
+        viewModelScope.launch { autoBackup.setPassword(password) }
+    }
+
+    fun backUpNow() = autoBackup.runNow()
+
+    fun turnOffAutoBackup() {
+        viewModelScope.launch { autoBackup.turnOff() }
     }
 
     /** Back to the start (from a preview, a password prompt, a result or an error). */

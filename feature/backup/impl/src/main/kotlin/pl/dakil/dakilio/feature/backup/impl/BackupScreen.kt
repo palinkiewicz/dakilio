@@ -1,5 +1,12 @@
 package pl.dakil.dakilio.feature.backup.impl
 
+import pl.dakil.dakilio.core.model.AutoBackupFrequency
+import pl.dakil.dakilio.core.designsystem.component.segmentedItemColors
+import pl.dakil.dakilio.core.designsystem.component.ShapedIcon
+import pl.dakil.dakilio.core.designsystem.component.SectionHeader
+import androidx.compose.material3.SegmentedListItem
+import androidx.compose.material3.ListItemDefaults
+import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -92,8 +99,15 @@ private fun TextFieldState.toCharArray(): CharArray = text.let { text -> CharArr
  * screen instead of returning to its start.
  */
 @Composable
-internal fun BackupScreen(viewModel: BackupViewModel, restoreOnly: Boolean, onBack: () -> Unit, onRestored: () -> Unit) {
+internal fun BackupScreen(
+    viewModel: BackupViewModel,
+    restoreOnly: Boolean,
+    onBack: () -> Unit,
+    onRestored: () -> Unit,
+    onOpenExport: (() -> Unit)?,
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val auto by viewModel.auto.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val busy = state.isBusy
 
@@ -113,6 +127,20 @@ internal fun BackupScreen(viewModel: BackupViewModel, restoreOnly: Boolean, onBa
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let(viewModel::open) }
     val pick = { picker.launch(arrayOf("*/*")) }
     var confirming by rememberSaveable { mutableStateOf(false) }
+    val folderPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri -> uri?.let(viewModel::chooseFolder) }
+    var editingPassword by rememberSaveable { mutableStateOf(false) }
+    var turningOff by rememberSaveable { mutableStateOf(false) }
+    val autoActions = remember(viewModel) {
+        AutoBackupActions(
+            chooseFolder = { folderPicker.launch(null) },
+            setFrequency = viewModel::setFrequency,
+            setCharging = viewModel::setOnlyWhileCharging,
+            setKeep = viewModel::setKeep,
+            editPassword = { editingPassword = true },
+            backUpNow = viewModel::backUpNow,
+            turnOff = { turningOff = true },
+        )
+    }
 
     // Leaving mid-way would cancel the work; keep the user here. Elsewhere, Back returns to the start.
     BackHandler(enabled = busy) {}
@@ -156,12 +184,16 @@ internal fun BackupScreen(viewModel: BackupViewModel, restoreOnly: Boolean, onBa
                     when (current) {
                         BackupUiState.Home -> HomeStep(
                             restoreOnly = restoreOnly,
+                            auto = auto,
                             protect = protect,
                             onProtectChange = { protect = it },
                             password = password,
                             repeat = repeat,
                             onCreate = { creator.launch(backupFileName(LocalDate.now())) },
                             onRestore = pick,
+                            onOpenFolderBackup = viewModel::open,
+                            onOpenExport = onOpenExport,
+                            autoActions = autoActions,
                         )
                         is BackupUiState.Exporting -> ProgressStep(
                             symbol = DakilioSymbols.Save,
@@ -202,6 +234,28 @@ internal fun BackupScreen(viewModel: BackupViewModel, restoreOnly: Boolean, onBa
         }
     }
 
+    val autoState = auto
+    if (editingPassword && autoState != null && autoState.config.isOn) {
+        AutoBackupPasswordSheet(
+            hasPassword = autoState.config.hasPassword,
+            onSave = {
+                viewModel.setAutoPassword(it)
+                editingPassword = false
+            },
+            onDismiss = { editingPassword = false },
+        )
+    }
+    if (turningOff && autoState != null && autoState.config.isOn) {
+        TurnOffAutoBackupDialog(
+            folderName = autoState.config.folderName,
+            onConfirm = {
+                turningOff = false
+                viewModel.turnOffAutoBackup()
+            },
+            onDismiss = { turningOff = false },
+        )
+    }
+
     if (confirming && state is BackupUiState.Preview) {
         val haptics = rememberHaptics()
         AlertDialog(
@@ -227,29 +281,44 @@ internal fun BackupScreen(viewModel: BackupViewModel, restoreOnly: Boolean, onBa
 @Composable
 private fun ColumnScope.HomeStep(
     restoreOnly: Boolean,
+    auto: AutoBackupUi?,
     protect: Boolean,
     onProtectChange: (Boolean) -> Unit,
     password: TextFieldState,
     repeat: TextFieldState,
     onCreate: () -> Unit,
     onRestore: () -> Unit,
+    onOpenFolderBackup: (Uri) -> Unit,
+    onOpenExport: (() -> Unit)?,
+    autoActions: AutoBackupActions,
 ) {
     val haptics = rememberHaptics()
-    StepHero(DakilioSymbols.SettingsBackupRestore, MaterialShapes.Cookie9Sided)
-    Text(
-        stringResource(R.string.backup_home_title),
-        style = MaterialTheme.typography.headlineSmallEmphasized,
-        textAlign = TextAlign.Center,
-        modifier = Modifier.fillMaxWidth(),
-    )
     Text(
         stringResource(R.string.backup_home_body),
         style = MaterialTheme.typography.bodyLarge,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        textAlign = TextAlign.Center,
-        modifier = Modifier.fillMaxWidth().padding(bottom = Spacing.s),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.xs),
     )
 
+    if (!restoreOnly && auto != null) {
+        SectionHeader(stringResource(R.string.backup_auto_title))
+        if (auto.config.isOn) {
+            AutoBackupOnSection(
+                auto = auto,
+                onChooseFolder = autoActions.chooseFolder,
+                onFrequency = autoActions.setFrequency,
+                onCharging = autoActions.setCharging,
+                onKeep = autoActions.setKeep,
+                onPassword = autoActions.editPassword,
+                onBackUpNow = autoActions.backUpNow,
+                onTurnOff = autoActions.turnOff,
+            )
+        } else {
+            AutoBackupOffCard(onChooseFolder = autoActions.chooseFolder)
+        }
+    }
+
+    if (!restoreOnly) SectionHeader(stringResource(R.string.backup_file_section))
     // The two cards read as one segmented block.
     Column(verticalArrangement = Arrangement.spacedBy(Spacing.xxs)) {
     if (!restoreOnly) Surface(shape = RoundedCornerShape(28.dp, 28.dp, 6.dp, 6.dp), color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.fillMaxWidth()) {
@@ -330,13 +399,38 @@ private fun ColumnScope.HomeStep(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            val recent = auto?.folderBackups.orEmpty().take(RECENT_FOLDER_BACKUPS)
+            if (recent.isNotEmpty()) {
+                Text(
+                    stringResource(R.string.backup_folder_backups),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(top = Spacing.s),
+                )
+                Column(verticalArrangement = Arrangement.spacedBy(Spacing.xxs)) {
+                    recent.forEach { backup -> FolderBackupRow(backup.time, backup.bytes, onClick = { onOpenFolderBackup(backup.uri) }) }
+                }
+            }
             OutlinedButton(onClick = onRestore, modifier = Modifier.align(Alignment.End).padding(top = Spacing.xs)) {
                 DakilioIcon(DakilioSymbols.FolderOpen, contentDescription = null, modifier = Modifier.padding(end = Spacing.s))
-                Text(stringResource(R.string.backup_restore_button))
+                Text(stringResource(if (recent.isEmpty()) R.string.backup_restore_button else R.string.backup_restore_other))
             }
         }
     }
     }
+
+    if (!restoreOnly && onOpenExport != null) {
+        SectionHeader(stringResource(R.string.backup_export_section))
+        SegmentedListItem(
+            onClick = onOpenExport,
+            shapes = ListItemDefaults.segmentedShapes(0, 1),
+            colors = segmentedItemColors(),
+            leadingContent = { ShapedIcon(DakilioSymbols.Description, polygon = MaterialShapes.Cookie7Sided) },
+            supportingContent = { Text(stringResource(R.string.backup_export_body)) },
+            trailingContent = { DakilioIcon(DakilioSymbols.ChevronRight, contentDescription = null) },
+        ) { Text(stringResource(R.string.backup_export_title)) }
+    }
+
     Row(Modifier.fillMaxWidth().padding(top = Spacing.l), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
         DakilioIcon(DakilioSymbols.Shield, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         Text(
@@ -348,8 +442,21 @@ private fun ColumnScope.HomeStep(
     }
 }
 
+/** What the automatic backup section can do, bundled so [HomeStep] stays readable. */
+internal class AutoBackupActions(
+    val chooseFolder: () -> Unit,
+    val setFrequency: (AutoBackupFrequency) -> Unit,
+    val setCharging: (Boolean) -> Unit,
+    val setKeep: (Int) -> Unit,
+    val editPassword: () -> Unit,
+    val backUpNow: () -> Unit,
+    val turnOff: () -> Unit,
+)
+
+private const val RECENT_FOLDER_BACKUPS = 3
+
 @Composable
-private fun CardTitle(symbol: DakilioSymbol, title: String) {
+internal fun CardTitle(symbol: DakilioSymbol, title: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         DakilioIcon(symbol, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
         Text(title, style = MaterialTheme.typography.titleMediumEmphasized, modifier = Modifier.padding(start = Spacing.m))
@@ -357,7 +464,7 @@ private fun CardTitle(symbol: DakilioSymbol, title: String) {
 }
 
 @Composable
-private fun PasswordField(
+internal fun PasswordField(
     state: TextFieldState,
     label: String,
     modifier: Modifier = Modifier,

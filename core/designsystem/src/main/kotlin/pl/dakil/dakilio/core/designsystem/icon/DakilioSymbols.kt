@@ -81,6 +81,12 @@ object DakilioSymbols {
     val PhotoSizeSelectLarge = DakilioSymbol("photo_size_select_large", R.drawable.sym_photo_size_select_large, R.drawable.sym_photo_size_select_large_fill, SymbolCategory.Ui)
     val Compress = DakilioSymbol("compress", R.drawable.sym_compress, R.drawable.sym_compress_fill, SymbolCategory.Ui)
     val BatteryAlert = DakilioSymbol("battery_alert", R.drawable.sym_battery_alert, R.drawable.sym_battery_alert_fill, SymbolCategory.Ui)
+    val Backup = DakilioSymbol("backup", R.drawable.sym_backup, R.drawable.sym_backup_fill, SymbolCategory.Ui)
+    val BatteryChargingFull = DakilioSymbol("battery_charging_full", R.drawable.sym_battery_charging_full, R.drawable.sym_battery_charging_full_fill, SymbolCategory.Ui)
+    val Warning = DakilioSymbol("warning", R.drawable.sym_warning, R.drawable.sym_warning_fill, SymbolCategory.Ui)
+    val PictureAsPdf = DakilioSymbol("picture_as_pdf", R.drawable.sym_picture_as_pdf, R.drawable.sym_picture_as_pdf_fill, SymbolCategory.Ui)
+    val Description = DakilioSymbol("description", R.drawable.sym_description, R.drawable.sym_description_fill, SymbolCategory.Ui)
+    val Folder = DakilioSymbol("folder", R.drawable.sym_folder, R.drawable.sym_folder_fill, SymbolCategory.Ui)
     val SentimentVerySatisfied = DakilioSymbol("sentiment_very_satisfied", R.drawable.sym_sentiment_very_satisfied, R.drawable.sym_sentiment_very_satisfied_fill, SymbolCategory.Emotions)
     val SentimentSatisfied = DakilioSymbol("sentiment_satisfied", R.drawable.sym_sentiment_satisfied, R.drawable.sym_sentiment_satisfied_fill, SymbolCategory.Emotions)
     val SentimentNeutral = DakilioSymbol("sentiment_neutral", R.drawable.sym_sentiment_neutral, R.drawable.sym_sentiment_neutral_fill, SymbolCategory.Emotions)
@@ -281,6 +287,12 @@ object DakilioSymbols {
         PhotoSizeSelectLarge,
         Compress,
         BatteryAlert,
+        Backup,
+        BatteryChargingFull,
+        Warning,
+        PictureAsPdf,
+        Description,
+        Folder,
         SentimentVerySatisfied,
         SentimentSatisfied,
         SentimentNeutral,

@@ -55,6 +55,8 @@ private data class MoreItem(
     val onClick: (() -> Unit)? = null,
     val status: String? = null,
     val inUse: Boolean = false,
+    /** The status is a problem the user should look at. */
+    val warning: Boolean = false,
 )
 
 @Composable
@@ -77,6 +79,7 @@ internal fun MoreScreen(
     val lock by viewModel.lock.collectAsStateWithLifecycle()
     val keywordTags by viewModel.keywordTagCount.collectAsStateWithLifecycle()
     val reminders by viewModel.reminderCount.collectAsStateWithLifecycle()
+    val autoBackup by viewModel.autoBackup.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val version = remember {
         runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }.getOrNull().orEmpty()
@@ -146,7 +149,21 @@ internal fun MoreScreen(
             Group(
                 stringResource(R.string.more_section_data),
                 listOf(
-                    MoreItem(DakilioSymbols.SettingsBackupRestore, stringResource(R.string.more_backup), stringResource(R.string.more_backup_body), onOpenBackup),
+                    MoreItem(
+                        DakilioSymbols.SettingsBackupRestore,
+                        stringResource(R.string.more_backup),
+                        stringResource(R.string.more_backup_body),
+                        onOpenBackup,
+                        status = when (val row = autoBackup) {
+                            AutoBackupRow.Off -> null
+                            AutoBackupRow.On -> stringResource(R.string.more_backup_auto_on)
+                            AutoBackupRow.Failed -> stringResource(R.string.more_backup_auto_failed)
+                            AutoBackupRow.NoneYet -> stringResource(R.string.more_backup_auto_none)
+                            is AutoBackupRow.Overdue -> pluralStringResource(R.plurals.more_backup_auto_overdue, row.days, row.days)
+                        },
+                        inUse = autoBackup == AutoBackupRow.On,
+                        warning = autoBackup != AutoBackupRow.Off && autoBackup != AutoBackupRow.On,
+                    ),
                     MoreItem(DakilioSymbols.DriveFileMove, stringResource(R.string.more_import_daylio), stringResource(R.string.more_import_daylio_body), onOpenImport),
                 ),
             )
@@ -274,7 +291,11 @@ private fun Group(title: String, items: List<MoreItem>) {
                         Text(
                             item.status,
                             style = MaterialTheme.typography.labelMedium,
-                            color = if (item.inUse) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = when {
+                                item.warning -> MaterialTheme.colorScheme.error
+                                item.inUse -> MaterialTheme.colorScheme.primary
+                                else -> MaterialTheme.colorScheme.onSurfaceVariant
+                            },
                             modifier = Modifier.padding(top = Spacing.xs),
                         )
                     }

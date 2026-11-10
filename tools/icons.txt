@@ -78,6 +78,12 @@ ui match_word
 ui photo_size_select_large
 ui compress
 ui battery_alert
+ui backup
+ui battery_charging_full
+ui warning
+ui picture_as_pdf
+ui description
+ui folder
 emotions sentiment_very_satisfied
 emotions sentiment_satisfied
 emotions sentiment_neutral

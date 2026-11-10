@@ -39,7 +39,16 @@
     <string name="more_archive_body">Przywracaj lub usuwaj zarchiwizowane nastroje i tagi</string>
     <string name="more_section_data">Dane</string>
     <string name="more_backup">Kopia zapasowa</string>
-    <string name="more_backup_body">Zapisz wszystko do pliku .dakilio albo przywróć go</string>
+    <string name="more_backup_body">Automatyczne kopie, pliki kopii i eksport</string>
+    <string name="more_backup_auto_on">Automatyczne kopie włączone</string>
+    <string name="more_backup_auto_failed">Ostatnia automatyczna kopia się nie udała</string>
+    <string name="more_backup_auto_none">Nie ma jeszcze automatycznej kopii</string>
+    <plurals name="more_backup_auto_overdue">
+        <item quantity="one">Brak kopii od %d dnia</item>
+        <item quantity="few">Brak kopii od %d dni</item>
+        <item quantity="many">Brak kopii od %d dni</item>
+        <item quantity="other">Brak kopii od %d dnia</item>
+    </plurals>
     <string name="more_import_daylio">Import z Daylio</string>
     <string name="more_import_daylio_body">Zastąp wszystko kopią zapasową .daylio</string>
     <string name="more_section_app">Aplikacja</string>
