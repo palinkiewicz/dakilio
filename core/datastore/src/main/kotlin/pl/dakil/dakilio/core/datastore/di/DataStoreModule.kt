@@ -16,6 +16,7 @@ import kotlinx.coroutines.CoroutineScope
 import pl.dakil.dakilio.core.common.ApplicationScope
 import pl.dakil.dakilio.core.common.DakilioDispatchers
 import pl.dakil.dakilio.core.common.Dispatcher
+import pl.dakil.dakilio.core.datastore.AutoBackupStore
 import pl.dakil.dakilio.core.datastore.LockStore
 
 @Module
@@ -42,4 +43,19 @@ internal object DataStoreModule {
     ): DataStore<Preferences> = PreferenceDataStoreFactory.create(
         scope = CoroutineScope(scope.coroutineContext + io),
     ) { context.preferencesDataStoreFile("lock") }
+
+    /** Automatic backups, in their own file: not in backups, and not moved to a new phone. */
+    @Provides
+    @Singleton
+    @AutoBackupStore
+    fun autoBackupPreferences(
+        @ApplicationContext context: Context,
+        @ApplicationScope scope: CoroutineScope,
+        @Dispatcher(DakilioDispatchers.IO) io: CoroutineDispatcher,
+    ): DataStore<Preferences> = PreferenceDataStoreFactory.create(
+        scope = CoroutineScope(scope.coroutineContext + io),
+    ) { context.preferencesDataStoreFile(AUTO_BACKUP_FILE) }
+
+    /** Also named in `data_extraction_rules.xml` (as `datastore/autobackup.preferences_pb`). */
+    private const val AUTO_BACKUP_FILE = "autobackup"
 }

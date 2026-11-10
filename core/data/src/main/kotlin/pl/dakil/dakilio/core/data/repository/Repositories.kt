@@ -3,11 +3,17 @@ package pl.dakil.dakilio.core.data.repository
 import android.net.Uri
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.LocalDateTime
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import pl.dakil.dakilio.core.backup.RestoreStats
 import pl.dakil.dakilio.core.daylio.ImportStats
 import pl.dakil.dakilio.core.model.ArchivedTags
+import pl.dakil.dakilio.core.model.AutoBackupConfig
+import pl.dakil.dakilio.core.model.AutoBackupFrequency
+import pl.dakil.dakilio.core.model.AutoBackupProgress
+import pl.dakil.dakilio.core.model.AutoBackupResult
+import pl.dakil.dakilio.core.model.AutoBackupStatus
 import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.model.GroupUsage
 import pl.dakil.dakilio.core.model.Habit
@@ -389,4 +395,48 @@ interface BackupRepository {
     suspend fun restore(onProgress: (done: Int, total: Int) -> Unit): BackupRestoreResult
 
     fun close()
+}
+
+/** An automatic backup found in the backup folder. */
+data class FolderBackup(val uri: Uri, val name: String, val time: LocalDateTime, val bytes: Long)
+
+/**
+ * Automatic backups: a `.dakilio` file written now and then into a folder the user picked (see
+ * `AutoBackup` in core:backup for the rules). A background job calls [runScheduled]; nothing here
+ * schedules it (`core:autobackup` follows [config]).
+ */
+interface AutoBackupRepository {
+    val config: Flow<AutoBackupConfig>
+    val status: Flow<AutoBackupStatus>
+
+    /** The backup being written right now, by the job or [runNow]; null otherwise. */
+    val running: StateFlow<AutoBackupProgress?>
+
+    /**
+     * Turns automatic backups on (or moves them) to the folder [treeUri] from `OpenDocumentTree`:
+     * keeps its permission, lets go of the old folder's, and writes a first backup at once.
+     */
+    suspend fun setFolder(treeUri: Uri)
+
+    suspend fun setFrequency(frequency: AutoBackupFrequency)
+
+    suspend fun setOnlyWhileCharging(only: Boolean)
+
+    /** Also deletes the automatic backups past the new count right away. */
+    suspend fun setKeep(keep: Int)
+
+    /** [password] null removes it. The caller's array is cleared. */
+    suspend fun setPassword(password: CharArray?)
+
+    /** Lets go of the folder and forgets the password. The backups already written stay. */
+    suspend fun turnOff()
+
+    /** Writes a backup now, even if nothing changed. Runs in the app's scope, so leaving the screen doesn't stop it. */
+    fun runNow()
+
+    /** The job's run: skips when nothing changed since the last backup. Null when turned off. */
+    suspend fun runScheduled(): AutoBackupResult?
+
+    /** The automatic backups in the folder, newest first; empty when off or unreachable. */
+    suspend fun folderBackups(): List<FolderBackup>
 }

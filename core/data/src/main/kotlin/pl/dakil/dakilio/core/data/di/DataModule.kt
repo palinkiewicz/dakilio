@@ -21,6 +21,8 @@ import pl.dakil.dakilio.core.data.repository.LocalDaylioImportRepository
 import pl.dakil.dakilio.core.data.repository.LocalDiaryRepository
 import pl.dakil.dakilio.core.data.repository.LocalMoodRepository
 import pl.dakil.dakilio.core.data.repository.LocalOnboardingRepository
+import pl.dakil.dakilio.core.data.repository.LocalAutoBackupRepository
+import pl.dakil.dakilio.core.data.repository.AutoBackupRepository
 import pl.dakil.dakilio.core.data.repository.LocalPhotoRepository
 import pl.dakil.dakilio.core.data.repository.LocalPostRepository
 import pl.dakil.dakilio.core.data.repository.LocalSearchHistoryRepository
@@ -60,6 +62,8 @@ internal interface DataModule {
     @Binds @Singleton fun lock(impl: LocalLockRepository): LockRepository
 
     @Binds @Singleton fun onboarding(impl: LocalOnboardingRepository): OnboardingRepository
+
+    @Binds @Singleton fun autoBackup(impl: LocalAutoBackupRepository): AutoBackupRepository
 
     /** Unscoped: it holds the opened file, so every screen gets its own. */
     @Binds fun daylioImport(impl: LocalDaylioImportRepository): DaylioImportRepository
