@@ -22,6 +22,9 @@
     <string name="reminders_exact_title">Exact timing is off</string>
     <string name="reminders_exact_body">Reminders can come a little late, sometimes up to an hour. Allow alarms and reminders to get them on time.</string>
     <string name="reminders_exact_action">Allow</string>
+    <string name="reminders_battery_title">If reminders don\'t come</string>
+    <string name="reminders_battery_body">Some phones stop apps in the background to save battery, and their reminders with them. In Dakilio\'s app settings, set battery use to unrestricted and allow autostart if your phone has it.</string>
+    <string name="reminders_battery_action">App settings</string>
 
     <string name="reminders_sheet_new">New reminder</string>
     <string name="reminders_sheet_edit">Reminder</string>

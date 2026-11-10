@@ -43,6 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -166,15 +167,31 @@ internal fun RemindersScreen(viewModel: RemindersViewModel, onBack: () -> Unit) 
                             modifier = Modifier.animateItem(),
                         )
                     }
-                    if (current.anyEnabled && !access.exactTiming) {
-                        item(key = "exact") {
-                            AccessTip(
+                    val tips = buildList {
+                        if (current.anyEnabled && !access.exactTiming) add(Tip.ExactTiming)
+                        if (current.anyEnabled && access.batteryRestricted) add(Tip.Battery)
+                    }
+                    itemsIndexed(tips, key = { _, tip -> tip }) { index, tip ->
+                        val modifier = Modifier.padding(top = if (index == 0) Spacing.l else 0.dp).animateItem()
+                        val shape = segmentedShape(index, tips.size)
+                        when (tip) {
+                            Tip.ExactTiming -> AccessTip(
                                 symbol = DakilioSymbols.Alarm,
                                 title = stringResource(R.string.reminders_exact_title),
                                 body = stringResource(R.string.reminders_exact_body),
                                 action = stringResource(R.string.reminders_exact_action),
                                 onAction = access::openExactTimingSettings,
-                                modifier = Modifier.padding(top = Spacing.l).animateItem(),
+                                shape = shape,
+                                modifier = modifier,
+                            )
+                            Tip.Battery -> AccessTip(
+                                symbol = DakilioSymbols.BatteryAlert,
+                                title = stringResource(R.string.reminders_battery_title),
+                                body = stringResource(R.string.reminders_battery_body),
+                                action = stringResource(R.string.reminders_battery_action),
+                                onAction = access::openAppSettings,
+                                shape = shape,
+                                modifier = modifier,
                             )
                         }
                     }
@@ -355,6 +372,17 @@ private fun BlockedNotice(blocked: Blocked, onOpenSettings: () -> Unit, modifier
     }
 }
 
+/** Tips at the end of the list, about system settings that make reminders late or keep them away. */
+private enum class Tip { ExactTiming, Battery }
+
+/** Large outer corners, small inner ones: the tips read as one group, like a segmented list. */
+private fun segmentedShape(index: Int, count: Int) = RoundedCornerShape(
+    topStart = if (index == 0) 20.dp else 4.dp,
+    topEnd = if (index == 0) 20.dp else 4.dp,
+    bottomStart = if (index == count - 1) 20.dp else 4.dp,
+    bottomEnd = if (index == count - 1) 20.dp else 4.dp,
+)
+
 /** Something that makes reminders come late or not at all, with the system setting that fixes it. */
 @Composable
 private fun AccessTip(
@@ -363,10 +391,11 @@ private fun AccessTip(
     body: String,
     action: String,
     onAction: () -> Unit,
+    shape: Shape,
     modifier: Modifier = Modifier,
 ) {
     Surface(
-        shape = RoundedCornerShape(20.dp),
+        shape = shape,
         color = MaterialTheme.colorScheme.surfaceContainerLow,
         modifier = modifier.fillMaxWidth(),
     ) {

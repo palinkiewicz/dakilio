@@ -77,6 +77,7 @@ ui phonelink_lock
 ui match_word
 ui photo_size_select_large
 ui compress
+ui battery_alert
 emotions sentiment_very_satisfied
 emotions sentiment_satisfied
 emotions sentiment_neutral

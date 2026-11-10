@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.os.PowerManager
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
@@ -49,10 +50,18 @@ internal class ReminderAccess(private val context: Context) {
     var blockedChannels by mutableStateOf(blockedChannels(context))
         private set
 
+    /**
+     * The app is under battery optimization (the default). Stock Android still delivers reminder
+     * alarms then, but some phones' own battery savers stop apps in the background.
+     */
+    var batteryRestricted by mutableStateOf(batteryRestricted(context))
+        private set
+
     internal fun refresh() {
         notificationsAllowed = notificationsAllowed(context)
         exactTiming = exactTimingAllowed(context)
         blockedChannels = blockedChannels(context)
+        batteryRestricted = batteryRestricted(context)
     }
 
     /** Asks for the permission if it's missing; the reminder is saved either way. */
@@ -73,6 +82,14 @@ internal class ReminderAccess(private val context: Context) {
     fun openExactTimingSettings() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
         open(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, packageUri()))
+    }
+
+    /**
+     * The app's own system page: its battery setting (Android 12+) and, on phones that add one, the
+     * maker's autostart or background switch. Closer than the list of every app's optimization.
+     */
+    fun openAppSettings() {
+        open(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, packageUri()))
     }
 
     private fun packageUri() = Uri.fromParts("package", context.packageName, null)
@@ -112,6 +129,9 @@ private fun blockedChannels(context: Context): Set<String> {
     return listOf(ReminderChannels.DIARY, ReminderChannels.HABIT)
         .filterTo(mutableSetOf()) { manager.getNotificationChannel(it)?.importance == NotificationManager.IMPORTANCE_NONE }
 }
+
+private fun batteryRestricted(context: Context): Boolean =
+    !context.getSystemService(PowerManager::class.java).isIgnoringBatteryOptimizations(context.packageName)
 
 private fun exactTimingAllowed(context: Context): Boolean =
     Build.VERSION.SDK_INT < Build.VERSION_CODES.S || context.getSystemService(AlarmManager::class.java).canScheduleExactAlarms()

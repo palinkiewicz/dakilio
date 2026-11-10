@@ -80,6 +80,7 @@ object DakilioSymbols {
     val MatchWord = DakilioSymbol("match_word", R.drawable.sym_match_word, R.drawable.sym_match_word_fill, SymbolCategory.Ui)
     val PhotoSizeSelectLarge = DakilioSymbol("photo_size_select_large", R.drawable.sym_photo_size_select_large, R.drawable.sym_photo_size_select_large_fill, SymbolCategory.Ui)
     val Compress = DakilioSymbol("compress", R.drawable.sym_compress, R.drawable.sym_compress_fill, SymbolCategory.Ui)
+    val BatteryAlert = DakilioSymbol("battery_alert", R.drawable.sym_battery_alert, R.drawable.sym_battery_alert_fill, SymbolCategory.Ui)
     val SentimentVerySatisfied = DakilioSymbol("sentiment_very_satisfied", R.drawable.sym_sentiment_very_satisfied, R.drawable.sym_sentiment_very_satisfied_fill, SymbolCategory.Emotions)
     val SentimentSatisfied = DakilioSymbol("sentiment_satisfied", R.drawable.sym_sentiment_satisfied, R.drawable.sym_sentiment_satisfied_fill, SymbolCategory.Emotions)
     val SentimentNeutral = DakilioSymbol("sentiment_neutral", R.drawable.sym_sentiment_neutral, R.drawable.sym_sentiment_neutral_fill, SymbolCategory.Emotions)
@@ -279,6 +280,7 @@ object DakilioSymbols {
         MatchWord,
         PhotoSizeSelectLarge,
         Compress,
+        BatteryAlert,
         SentimentVerySatisfied,
         SentimentSatisfied,
         SentimentNeutral,
