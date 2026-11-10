@@ -1,5 +1,7 @@
 package pl.dakil.dakilio.core.notifications
 
+import android.annotation.SuppressLint
+import android.app.AlarmManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -46,12 +48,21 @@ class ReminderAlarmReceiver : BroadcastReceiver() {
     }
 }
 
-/** A reboot, an app update or a clock change: the alarm is gone or points at the wrong moment. */
+/**
+ * A reboot, an app update or a clock change: the alarm is gone or points at the wrong moment. Or exact
+ * alarms were just allowed: the inexact one is set again as exact.
+ */
 class ReminderRescheduleReceiver : BroadcastReceiver() {
+    // The action's constant is inlined, and the broadcast only ever comes on Android 12+.
+    @SuppressLint("InlinedApi")
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
-            Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_MY_PACKAGE_REPLACED, Intent.ACTION_TIME_CHANGED, Intent.ACTION_TIMEZONE_CHANGED ->
-                work(context) { it.reschedule() }
+            Intent.ACTION_BOOT_COMPLETED,
+            Intent.ACTION_MY_PACKAGE_REPLACED,
+            Intent.ACTION_TIME_CHANGED,
+            Intent.ACTION_TIMEZONE_CHANGED,
+            AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED,
+            -> work(context) { it.reschedule() }
         }
     }
 }

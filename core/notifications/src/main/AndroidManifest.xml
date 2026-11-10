@@ -5,6 +5,9 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- Alarms don't survive a reboot; the reschedule receiver is only enabled while a reminder is on. -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Reminders on time instead of up to an hour late. Optional: the user grants it in "Alarms &
+         reminders" (off by default on Android 14+); without it the alarm is inexact. -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <application>
         <!-- The one reminder alarm. Only the app's own PendingIntent reaches it. -->
@@ -12,8 +15,8 @@
             android:name=".ReminderAlarmReceiver"
             android:exported="false" />
 
-        <!-- Sets the alarm again after a reboot, an app update or a clock/time zone change.
-             Disabled until a reminder is turned on (ReminderScheduler toggles it). -->
+        <!-- Sets the alarm again after a reboot, an app update, a clock/time zone change or exact
+             alarms being allowed. Disabled until a reminder is turned on (ReminderScheduler toggles it). -->
         <receiver
             android:name=".ReminderRescheduleReceiver"
             android:enabled="false"
@@ -23,6 +26,7 @@
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
                 <action android:name="android.intent.action.TIME_SET" />
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
             </intent-filter>
         </receiver>
     </application>

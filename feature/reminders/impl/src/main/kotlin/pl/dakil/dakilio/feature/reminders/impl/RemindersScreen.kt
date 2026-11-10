@@ -53,6 +53,7 @@ import pl.dakil.dakilio.core.designsystem.component.ShapedIcon
 import pl.dakil.dakilio.core.designsystem.component.rememberHaptics
 import pl.dakil.dakilio.core.designsystem.component.segmentedItemColors
 import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
+import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbol
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.icon.symbolForKey
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
@@ -79,7 +80,7 @@ internal fun RemindersScreen(viewModel: RemindersViewModel, onBack: () -> Unit) 
     val listState = rememberLazyListState()
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    val access = rememberNotificationAccess()
+    val access = rememberReminderAccess()
     var sheet by rememberSaveable { mutableStateOf<Long?>(null) }
 
     val deletedMessage = stringResource(R.string.reminders_deleted)
@@ -131,9 +132,9 @@ internal fun RemindersScreen(viewModel: RemindersViewModel, onBack: () -> Unit) 
                     ),
                     verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
                 ) {
-                    if (current.anyEnabled && !access.allowed) {
+                    if (current.anyEnabled && !access.notificationsAllowed) {
                         item(key = "blocked") {
-                            BlockedNotice(onOpenSettings = access::openSettings, modifier = Modifier.padding(bottom = Spacing.m))
+                            BlockedNotice(onOpenSettings = access::openNotificationSettings, modifier = Modifier.padding(bottom = Spacing.m))
                         }
                     }
                     item(key = "hint") {
@@ -158,6 +159,18 @@ internal fun RemindersScreen(viewModel: RemindersViewModel, onBack: () -> Unit) 
                             },
                             modifier = Modifier.animateItem(),
                         )
+                    }
+                    if (current.anyEnabled && !access.exactTiming) {
+                        item(key = "exact") {
+                            AccessTip(
+                                symbol = DakilioSymbols.Alarm,
+                                title = stringResource(R.string.reminders_exact_title),
+                                body = stringResource(R.string.reminders_exact_body),
+                                action = stringResource(R.string.reminders_exact_action),
+                                onAction = access::openExactTimingSettings,
+                                modifier = Modifier.padding(top = Spacing.l).animateItem(),
+                            )
+                        }
                     }
                 }
             }
@@ -302,6 +315,39 @@ private fun BlockedNotice(onOpenSettings: () -> Unit, modifier: Modifier = Modif
             DakilioIcon(DakilioSymbols.Notifications, contentDescription = null)
             Text(stringResource(R.string.reminders_blocked), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
             TextButton(onClick = onOpenSettings) { Text(stringResource(R.string.reminders_open_settings)) }
+        }
+    }
+}
+
+/** Something that makes reminders come late or not at all, with the system setting that fixes it. */
+@Composable
+private fun AccessTip(
+    symbol: DakilioSymbol,
+    title: String,
+    body: String,
+    action: String,
+    onAction: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        shape = RoundedCornerShape(20.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        Column(Modifier.padding(start = Spacing.l, end = Spacing.s, top = Spacing.l, bottom = Spacing.xs)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.m), modifier = Modifier.padding(end = Spacing.s)) {
+                DakilioIcon(symbol, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                Column(Modifier.weight(1f)) {
+                    Text(title, style = MaterialTheme.typography.titleSmall)
+                    Text(
+                        body,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = Spacing.xxs),
+                    )
+                }
+            }
+            TextButton(onClick = onAction, modifier = Modifier.align(Alignment.End)) { Text(action) }
         }
     }
 }

@@ -16,6 +16,9 @@
     <string name="reminders_undo">Cofnij</string>
     <string name="reminders_blocked">Powiadomienia Dakilio są wyłączone, więc przypomnienia się nie pokażą.</string>
     <string name="reminders_open_settings">Ustawienia</string>
+    <string name="reminders_exact_title">Dokładny czas jest wyłączony</string>
+    <string name="reminders_exact_body">Przypomnienia mogą przychodzić z opóźnieniem, czasem nawet godzinnym. Zezwól na alarmy i przypomnienia, żeby przychodziły punktualnie.</string>
+    <string name="reminders_exact_action">Zezwól</string>
 
     <string name="reminders_sheet_new">Nowe przypomnienie</string>
     <string name="reminders_sheet_edit">Przypomnienie</string>

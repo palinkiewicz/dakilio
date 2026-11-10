@@ -6,6 +6,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.time.Clock
 import java.time.LocalDateTime
@@ -26,9 +27,10 @@ import pl.dakil.dakilio.core.model.Reminders
 /**
  * Keeps the single reminder alarm pointing at the next reminder (see `Reminders` in core:model).
  *
- * There's no service and no WorkManager: one inexact `AlarmManager` alarm wakes
- * [ReminderAlarmReceiver], which shows what's due and sets the next one. Inexact alarms need no
- * permission and still go off in Doze, usually within a few minutes of the time.
+ * There's no service and no WorkManager: one `AlarmManager` alarm wakes [ReminderAlarmReceiver],
+ * which shows what's due and sets the next one. The alarm is exact when the user allows it ("Alarms &
+ * reminders", Android 12+; always below), otherwise inexact: that needs no permission and still goes
+ * off in Doze, but can come up to an hour late.
  */
 @Singleton
 class ReminderScheduler @Inject constructor(
@@ -73,12 +75,25 @@ class ReminderScheduler @Inject constructor(
         if (next == null) {
             existingAlarm()?.let(alarmManager::cancel)
         } else {
-            val millis = next.at.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-            alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, millis, alarm(next.at))
+            setAlarm(next.at)
         }
         setRescheduleReceiverEnabled(!snapshot.isEmpty)
         notifier.dismissStale(snapshot)
     }
+
+    private fun setAlarm(at: LocalDateTime) {
+        val millis = at.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        val operation = alarm(at)
+        if (canScheduleExact()) {
+            // The permission can be taken away between the check and the call.
+            val set = runCatching { alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, millis, operation) }
+            if (set.isSuccess) return
+        }
+        alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, millis, operation)
+    }
+
+    private fun canScheduleExact(): Boolean =
+        Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarmManager.canScheduleExactAlarms()
 
     // The zone is read each time: a time zone change keeps the injected clock's old one.
     private fun now() = LocalDateTime.now(clock.withZone(ZoneId.systemDefault()))
