@@ -31,7 +31,7 @@ Machine-specific setup (JDK path, emulator) lives in `CLAUDE.local.md`, which is
   - Debug builds allow `run-as pl.dakil.dakilio.debug` (for example, `ls files/photos`).
 - Asset pipelines (both are reproducible; don't hand-edit their outputs):
   - `python3 -I tools/fetch-icons.py` regenerates `core/designsystem/res/drawable/sym_*.xml` and the generated `DakilioSymbols.kt` from `tools/icons.txt`. To add an icon, add a line to `icons.txt` and re-run the script.
-  - `tools/subset-font.sh` rebuilds the Google Sans Flex subset (axes `wght` and `ROND`).
+  - `tools/subset-font.sh` rebuilds the Google Sans Flex subset (axes `wght`, `ROND` and `wdth` 75–100).
 - Baseline profile: `:app:generateBaselineProfile` times out under Gradle's runner on the emulator. Instead:
   1. Install `app-nonMinifiedRelease.apk` and the `baselineprofile` test APK.
   2. Run `adb shell am instrument -w -e targetAppId pl.dakil.dakilio pl.dakil.dakilio.baselineprofile/androidx.test.runner.AndroidJUnitRunner`.
@@ -67,7 +67,7 @@ The layout follows NowInAndroid: `app` → `feature:*:impl` → `feature:*:api` 
 - `core:autobackup`: the automatic backup job (`AutoBackupScheduler`, `AutoBackupJobService`, `AutoBackupSync`). Only `:app` depends on it; the screen talks to `AutoBackupRepository` (core:data).
 - `core:notifications`: diary and habit reminders (`ReminderScheduler`, `ReminderNotifier`, the two receivers, `ReminderSync`, `ReminderLaunches`) and their texts. Only `:app` depends on it; features edit reminders through `ReminderRepository`.
 - `core:datastore`: user preferences only (theme, the tag limit, the last-used diary of the editor, the timeline's chosen diary, the sample-hint flag, tag style, beginner hints, entry text sizes, timeline view options, close after saving, the first day of the week, the photo size). User content lives in Room. The app lock lives in its own DataStore file (`LockDataSource`, `@LockStore`), and so do automatic backups (`AutoBackupDataSource`, `@AutoBackupStore`).
-- `core:designsystem`: the theme, the Google Sans Flex typography (rounded `ROND` axis for display and headline styles), shapes, the symbol catalog, haptics, `MorphShape`/`PolygonShape`, and generic expressive primitives.
+- `core:designsystem`: the theme, the Google Sans Flex typography (rounded `ROND` axis for display and headline styles; `FittingText` narrows a one-line label on the `wdth` axis before cutting it off, used by `ConnectedToggleRow`), shapes, the symbol catalog, haptics, `MorphShape`/`PolygonShape`, and generic expressive primitives.
 - `core:ui`: domain-aware components (`MoodBadge`, `PostCard`, diary selectors, `IconPicker`, `PhotoViewer`, the delete dialogs, `SuggestedGroupCard`, `DaylioBackupCard`, `SwitchListItem`), formatters, `NavTransitions`, and `Modifier.sharedContainer`.
 - `core:navigation`: Navigation 3 with **one back stack per bottom-bar tab** (`NavigationState` and `Navigator`). Back from another tab's root returns to the Timeline tab. The entries of each stack are decorated separately so state and ViewModels survive tab switches.
 - Feature `api` modules contain only `@Serializable` NavKeys. `impl` modules expose `EntryProviderScope<NavKey>.xxxEntry(navigator)`, which `app/ui/DakilioApp.kt` wires up. A feature may depend only on other features' `api` modules.

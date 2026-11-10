@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ButtonGroupDefaults
-import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.runtime.Composable
@@ -18,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbol
@@ -63,7 +61,7 @@ fun <T> ConnectedToggleRow(
                     DakilioIcon(it, contentDescription = null, filled = checked, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(ToggleButtonDefaults.IconSpacing))
                 }
-                Text(option.label, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                FittingText(option.label)
             }
             // ToggleButton's default padding is private, so it can only be kept by not passing one.
             if (contentPadding == null) {

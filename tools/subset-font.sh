@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Rebuilds core/designsystem/src/main/res/font/google_sans_flex.ttf from upstream Google Sans Flex (OFL-1.1).
 #
-# Keeps the two axes Dakilio animates/uses (wght 300–900, ROND 0–100), pins the rest
-# (opsz=18, wdth=100, slnt=0) and subsets to Latin + Latin Extended-A + common punctuation.
-# Result is ~170 KB instead of ~3.9 MB.
+# Keeps the axes Dakilio uses (wght 300–900, ROND 0–100, and wdth 75–100 so labels that don't fit
+# can narrow instead of being cut off), pins the rest (opsz=18, slnt=0) and subsets to Latin +
+# Latin Extended-A + common punctuation. The result is a small fraction of the ~3.9 MB source.
 #
 # Usage: tools/subset-font.sh [work-dir]   (needs python3; installs fonttools into a throwaway venv)
 set -euo pipefail
@@ -17,7 +17,7 @@ UNICODES="U+0020-007E,U+00A0-00FF,U+0100-017F,U+0218-021B,U+02C6,U+02DA,U+02DC,U
 python3 -m venv "$WORK/venv"
 "$WORK/venv/bin/pip" install -q fonttools
 curl -sSL -o "$WORK/source.ttf" "$SRC_URL"
-"$WORK/venv/bin/fonttools" varLib.instancer "$WORK/source.ttf" opsz=18 wdth=100 slnt=0 "wght=300:900" -o "$WORK/instanced.ttf" -q
+"$WORK/venv/bin/fonttools" varLib.instancer "$WORK/source.ttf" opsz=18 "wdth=75:100" slnt=0 "wght=300:900" -o "$WORK/instanced.ttf" -q
 mkdir -p "$(dirname "$OUT")"
 "$WORK/venv/bin/pyftsubset" "$WORK/instanced.ttf" \
   --unicodes="$UNICODES" \

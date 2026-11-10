@@ -10,17 +10,45 @@ import pl.dakil.dakilio.core.designsystem.R
 
 // Google Sans Flex (OFL-1.1, bundled subset; see tools/subset-font.sh). Display and headline styles
 // use the fully rounded ROND axis for the expressive, friendly "big type"; everything else stays crisp.
-private fun googleSansFlex(weight: Int, roundness: Float) = Font(
+// The width axis (wdth 75–100) narrows labels that don't fit (`FittingText`).
+private fun googleSansFlex(weight: Int, roundness: Float, width: Float) = Font(
     resId = R.font.google_sans_flex,
     weight = FontWeight(weight),
     variationSettings = FontVariation.Settings(
         FontVariation.weight(weight),
+        FontVariation.width(width),
         FontVariation.Setting("ROND", roundness),
     ),
 )
 
-val RoundedDisplayFamily: FontFamily = FontFamily((300..900 step 100).map { googleSansFlex(it, roundness = 100f) })
-val TextFamily: FontFamily = FontFamily((300..900 step 100).map { googleSansFlex(it, roundness = 0f) })
+private fun googleSansFlexFamily(roundness: Float, width: Float) =
+    FontFamily((300..900 step 100).map { googleSansFlex(it, roundness, width) })
+
+val RoundedDisplayFamily: FontFamily = googleSansFlexFamily(roundness = 100f, width = FULL_WIDTH)
+val TextFamily: FontFamily = googleSansFlexFamily(roundness = 0f, width = FULL_WIDTH)
+
+/** The normal width, and the narrowest the bundled font goes. */
+const val FULL_WIDTH = 100f
+const val NARROWEST_WIDTH = 75f
+
+private val narrowedFamilies = mutableMapOf<Pair<Boolean, Float>, FontFamily>()
+
+/**
+ * [family] ([TextFamily] or [RoundedDisplayFamily]) at [width] (75–100) on the font's width axis.
+ * Any other family comes back as it is, since it has no such axis.
+ */
+fun narrowed(family: FontFamily?, width: Float): FontFamily? {
+    val rounded = when (family) {
+        TextFamily -> false
+        RoundedDisplayFamily -> true
+        else -> return family
+    }
+    if (width >= FULL_WIDTH) return family
+    val clamped = width.coerceAtLeast(NARROWEST_WIDTH)
+    return synchronized(narrowedFamilies) {
+        narrowedFamilies.getOrPut(rounded to clamped) { googleSansFlexFamily(if (rounded) 100f else 0f, clamped) }
+    }
+}
 
 private fun TextStyle.rounded() = copy(fontFamily = RoundedDisplayFamily)
 private fun TextStyle.text() = copy(fontFamily = TextFamily)
