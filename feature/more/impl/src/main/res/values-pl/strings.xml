@@ -38,8 +38,10 @@
     <string name="more_archive">Archiwum</string>
     <string name="more_archive_body">Przywracaj lub usuwaj zarchiwizowane nastroje i tagi</string>
     <string name="more_section_data">Dane</string>
+    <string name="more_export">Eksport</string>
+    <string name="more_export_body">Dziennik jako PDF albo Markdown do czytania, drukowania lub udostępniania</string>
     <string name="more_backup">Kopia zapasowa</string>
-    <string name="more_backup_body">Automatyczne kopie, pliki kopii i eksport</string>
+    <string name="more_backup_body">Automatyczne kopie albo zapis i przywracanie pliku .dakilio</string>
     <string name="more_backup_auto_on">Automatyczne kopie włączone</string>
     <string name="more_backup_auto_failed">Ostatnia automatyczna kopia się nie udała</string>
     <string name="more_backup_auto_none">Nie ma jeszcze automatycznej kopii</string>

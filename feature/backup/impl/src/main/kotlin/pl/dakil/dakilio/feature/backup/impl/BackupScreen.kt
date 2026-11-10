@@ -1,11 +1,7 @@
 package pl.dakil.dakilio.feature.backup.impl
 
 import pl.dakil.dakilio.core.model.AutoBackupFrequency
-import pl.dakil.dakilio.core.designsystem.component.segmentedItemColors
-import pl.dakil.dakilio.core.designsystem.component.ShapedIcon
 import pl.dakil.dakilio.core.designsystem.component.SectionHeader
-import androidx.compose.material3.SegmentedListItem
-import androidx.compose.material3.ListItemDefaults
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -104,7 +100,6 @@ internal fun BackupScreen(
     restoreOnly: Boolean,
     onBack: () -> Unit,
     onRestored: () -> Unit,
-    onOpenExport: (() -> Unit)?,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val auto by viewModel.auto.collectAsStateWithLifecycle()
@@ -192,7 +187,6 @@ internal fun BackupScreen(
                             onCreate = { creator.launch(backupFileName(LocalDate.now())) },
                             onRestore = pick,
                             onOpenFolderBackup = viewModel::open,
-                            onOpenExport = onOpenExport,
                             autoActions = autoActions,
                         )
                         is BackupUiState.Exporting -> ProgressStep(
@@ -289,7 +283,6 @@ private fun ColumnScope.HomeStep(
     onCreate: () -> Unit,
     onRestore: () -> Unit,
     onOpenFolderBackup: (Uri) -> Unit,
-    onOpenExport: (() -> Unit)?,
     autoActions: AutoBackupActions,
 ) {
     val haptics = rememberHaptics()
@@ -417,18 +410,6 @@ private fun ColumnScope.HomeStep(
             }
         }
     }
-    }
-
-    if (!restoreOnly && onOpenExport != null) {
-        SectionHeader(stringResource(R.string.backup_export_section))
-        SegmentedListItem(
-            onClick = onOpenExport,
-            shapes = ListItemDefaults.segmentedShapes(0, 1),
-            colors = segmentedItemColors(),
-            leadingContent = { ShapedIcon(DakilioSymbols.Description, polygon = MaterialShapes.Cookie7Sided) },
-            supportingContent = { Text(stringResource(R.string.backup_export_body)) },
-            trailingContent = { DakilioIcon(DakilioSymbols.ChevronRight, contentDescription = null) },
-        ) { Text(stringResource(R.string.backup_export_title)) }
     }
 
     Row(Modifier.fillMaxWidth().padding(top = Spacing.l), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {

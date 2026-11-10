@@ -32,8 +32,10 @@
     <string name="more_archive">Archived</string>
     <string name="more_archive_body">Restore or delete archived moods and tags</string>
     <string name="more_section_data">Data</string>
+    <string name="more_export">Export</string>
+    <string name="more_export_body">Your journal as a PDF or Markdown, to read, print or share</string>
     <string name="more_backup">Backup &amp; restore</string>
-    <string name="more_backup_body">Automatic backups, backup files and exports</string>
+    <string name="more_backup_body">Automatic backups, or save and restore a .dakilio file</string>
     <string name="more_backup_auto_on">Automatic backups on</string>
     <string name="more_backup_auto_failed">The last automatic backup failed</string>
     <string name="more_backup_auto_none">No automatic backup yet</string>

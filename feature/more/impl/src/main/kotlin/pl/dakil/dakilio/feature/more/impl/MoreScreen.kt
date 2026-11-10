@@ -67,6 +67,7 @@ internal fun MoreScreen(
     onOpenDiaries: () -> Unit,
     onOpenSettings: () -> Unit,
     onOpenImport: () -> Unit,
+    onOpenExport: () -> Unit,
     onOpenBackup: () -> Unit,
     onOpenArchive: () -> Unit,
     onOpenHabits: () -> Unit,
@@ -149,6 +150,7 @@ internal fun MoreScreen(
             Group(
                 stringResource(R.string.more_section_data),
                 listOf(
+                    MoreItem(DakilioSymbols.Description, stringResource(R.string.more_export), stringResource(R.string.more_export_body), onOpenExport),
                     MoreItem(
                         DakilioSymbols.SettingsBackupRestore,
                         stringResource(R.string.more_backup),

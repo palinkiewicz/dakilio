@@ -142,9 +142,6 @@
     <string name="backup_file_section">Plik kopii</string>
     <string name="backup_restore_other">Wybierz inny plik</string>
     <string name="backup_folder_backups">Z folderu kopii</string>
-    <string name="backup_export_section">Eksport</string>
-    <string name="backup_export_title">Eksport do czytania</string>
-    <string name="backup_export_body">PDF albo Markdown do czytania, drukowania lub udostępniania. Eksportu nie da się przywrócić.</string>
 
     <string name="backup_auto_title">Automatyczne kopie</string>
     <string name="backup_auto_off_body">Dakilio może samo zapisywać kopię w wybranym folderze. Czeka, aż telefon będzie się ładował, i tworzy nowy plik tylko wtedy, gdy coś się zmieniło, więc nie rozładuje baterii.</string>

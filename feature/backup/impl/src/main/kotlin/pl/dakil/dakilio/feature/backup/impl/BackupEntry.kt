@@ -8,15 +8,14 @@ import pl.dakil.dakilio.feature.backup.api.BackupKey
 /**
  * The backup screen. Used by the app shell (More → Backup & restore) and by the first-run intro,
  * which decide where Back and a finished restore lead. The intro passes [restoreOnly]: a fresh
- * install has nothing to back up. [onOpenExport] shows the Export card (PDF and Markdown).
+ * install has nothing to back up.
  */
 fun EntryProviderScope<NavKey>.backupEntry(
     onBack: () -> Unit,
     onRestored: () -> Unit,
     restoreOnly: Boolean = false,
-    onOpenExport: (() -> Unit)? = null,
 ) {
     entry<BackupKey> {
-        BackupScreen(viewModel = hiltViewModel(), restoreOnly = restoreOnly, onBack = onBack, onRestored = onRestored, onOpenExport = onOpenExport)
+        BackupScreen(viewModel = hiltViewModel(), restoreOnly = restoreOnly, onBack = onBack, onRestored = onRestored)
     }
 }

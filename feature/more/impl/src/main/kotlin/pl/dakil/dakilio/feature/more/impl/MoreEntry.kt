@@ -11,6 +11,7 @@ import pl.dakil.dakilio.feature.habits.api.HabitsKey
 import pl.dakil.dakilio.feature.keywords.api.KeywordsKey
 import pl.dakil.dakilio.feature.reminders.api.RemindersKey
 import pl.dakil.dakilio.feature.backup.api.BackupKey
+import pl.dakil.dakilio.feature.export.api.ExportKey
 import pl.dakil.dakilio.feature.importer.api.DaylioImportKey
 import pl.dakil.dakilio.feature.lock.api.AppLockKey
 import pl.dakil.dakilio.feature.more.api.MoreKey
@@ -27,6 +28,7 @@ fun EntryProviderScope<NavKey>.moreEntry(navigator: Navigator) {
             onOpenDiaries = { navigator.navigate(DiariesKey) },
             onOpenSettings = { navigator.navigate(SettingsKey) },
             onOpenImport = { navigator.navigate(DaylioImportKey) },
+            onOpenExport = { navigator.navigate(ExportKey) },
             onOpenBackup = { navigator.navigate(BackupKey) },
             onOpenArchive = { navigator.navigate(ArchiveKey) },
             onOpenHabits = { navigator.navigate(HabitsKey) },

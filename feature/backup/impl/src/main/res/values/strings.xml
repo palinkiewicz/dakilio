@@ -120,9 +120,6 @@
     <string name="backup_file_section">Backup file</string>
     <string name="backup_restore_other">Choose another file</string>
     <string name="backup_folder_backups">From your backup folder</string>
-    <string name="backup_export_section">Export</string>
-    <string name="backup_export_title">Export to read</string>
-    <string name="backup_export_body">PDF or Markdown, to read, print or share. An export can\'t be restored.</string>
 
     <string name="backup_auto_title">Automatic backups</string>
     <string name="backup_auto_off_body">Dakilio can save a backup to a folder you choose, on its own. It waits until your phone is charging and writes a new file only when something changed, so it won\'t drain your battery.</string>
