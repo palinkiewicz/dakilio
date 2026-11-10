@@ -50,10 +50,10 @@ internal class LocalReminderRepository @Inject constructor(
 
     override suspend fun forHabit(habitId: Long): List<Reminder> = dao.forHabit(habitId).mapNotNull { it.asModel() }
 
-    override suspend fun snapshot(): ReminderSnapshot? {
+    override suspend fun snapshot(date: LocalDate?): ReminderSnapshot? {
         if (!DakilioDatabase.exists(context)) return null
         // The zone is read each time: after a time zone change the injected clock keeps the old one.
-        val today = LocalDate.now(clock.withZone(ZoneId.systemDefault()))
+        val today = date ?: LocalDate.now(clock.withZone(ZoneId.systemDefault()))
         val firstDay = settings.firstDayOfWeek.first()
         val reminders = dao.planned().mapNotNull { it.asModel() }
         val writtenToday = if (reminders.none { it.subject is ReminderSubject.Diary }) {

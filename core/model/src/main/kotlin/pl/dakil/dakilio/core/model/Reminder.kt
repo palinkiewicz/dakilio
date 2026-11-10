@@ -1,6 +1,7 @@
 package pl.dakil.dakilio.core.model
 
 import java.time.DayOfWeek
+import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -137,6 +138,27 @@ data class DueReminders(val diaries: List<ReminderSubject.Diary>, val habits: Li
 object Reminders {
     /** Far enough to reach any weekday of next week, from any day of this one. */
     private const val LOOKAHEAD_DAYS = 14L
+
+    /**
+     * How late an alarm from an earlier day may still show. Alarms can come late (inexact timing,
+     * Doze, app standby), and a late-evening reminder that slips past midnight shouldn't be lost.
+     */
+    val LATE_GRACE: Duration = Duration.ofHours(3)
+
+    /**
+     * Whether the alarm set for [at] still shows when it goes off at [now]: any time on its own day,
+     * or up to [LATE_GRACE] after it on a later day.
+     */
+    fun stillDue(at: LocalDateTime, now: LocalDateTime): Boolean =
+        at.toLocalDate() == now.toLocalDate() || (at < now && Duration.between(at, now) <= LATE_GRACE)
+
+    /**
+     * After the alarm for [at] went off late, at [now]: the next reminder that's already past but
+     * still due, to set off at once (a late alarm can pass several). [snapshot] is read for [at]'s
+     * day. `null` when there's none, and the next alarm is planned from [now].
+     */
+    fun missed(at: LocalDateTime, now: LocalDateTime, snapshot: ReminderSnapshot): NextAlarm? =
+        next(at, snapshot)?.takeIf { it.at <= now && stillDue(it.at, now) }
 
     /**
      * The earliest reminder strictly after [after], with every other reminder due at the same moment;

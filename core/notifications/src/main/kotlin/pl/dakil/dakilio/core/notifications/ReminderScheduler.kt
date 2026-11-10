@@ -19,6 +19,7 @@ import kotlinx.coroutines.withContext
 import pl.dakil.dakilio.core.common.DakilioDispatchers
 import pl.dakil.dakilio.core.common.Dispatcher
 import pl.dakil.dakilio.core.data.repository.ReminderRepository
+import pl.dakil.dakilio.core.model.NextAlarm
 import pl.dakil.dakilio.core.model.ReminderSnapshot
 import pl.dakil.dakilio.core.model.Reminders
 
@@ -44,25 +45,31 @@ class ReminderScheduler @Inject constructor(
     suspend fun reschedule() = withContext(io) {
         mutex.withLock {
             val snapshot = reminders.snapshot() ?: return@withLock
-            plan(now(), snapshot)
+            plan(snapshot, Reminders.next(now(), snapshot))
         }
     }
 
     /** The alarm set for [at] went off: shows what's still due then and plans the next one. */
     suspend fun onAlarm(at: LocalDateTime?) = withContext(io) {
         mutex.withLock {
-            val snapshot = reminders.snapshot() ?: return@withLock
+            val today = reminders.snapshot() ?: return@withLock
             val now = now()
-            if (at != null) notifier.show(Reminders.due(at, snapshot), snapshot)
-            // Plan from the alarm's own time, so a reminder a little later that's already past (the
-            // alarm came late) still comes, at once. An alarm from an earlier day plans from now.
-            val from = at?.takeIf { it.toLocalDate() == snapshot.today && it <= now } ?: now
-            plan(from, snapshot)
+            // What the alarm's own day knew: an alarm that slipped past midnight is checked against
+            // that evening's entries. One that came too late shows nothing (`Reminders.stillDue`).
+            val ofAlarm = when {
+                at == null || !Reminders.stillDue(at, now) -> null
+                at.toLocalDate() == today.today -> today
+                else -> reminders.snapshot(at.toLocalDate())
+            }
+            if (at != null && ofAlarm != null) notifier.show(Reminders.due(at, ofAlarm), ofAlarm)
+            // A reminder a little later that's already past (the alarm came late) still comes, at once.
+            val missed = if (at != null && ofAlarm != null && at <= now) Reminders.missed(at, now, ofAlarm) else null
+            plan(today, missed ?: Reminders.next(now, today))
         }
     }
 
-    private fun plan(after: LocalDateTime, snapshot: ReminderSnapshot) {
-        val next = Reminders.next(after, snapshot)
+    /** Sets the alarm for [next] (or none), with [snapshot] read for today. */
+    private fun plan(snapshot: ReminderSnapshot, next: NextAlarm?) {
         if (next == null) {
             existingAlarm()?.let(alarmManager::cancel)
         } else {

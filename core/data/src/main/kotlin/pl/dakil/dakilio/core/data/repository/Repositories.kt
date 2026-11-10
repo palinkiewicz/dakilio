@@ -265,10 +265,11 @@ interface ReminderRepository {
     suspend fun forHabit(habitId: Long): List<Reminder>
 
     /**
-     * The reminders that are on, with today's entries and this week's habit counts; `null` before the
-     * database exists (it must not be created before the intro's language step).
+     * The reminders that are on, with [date]'s entries and that week's habit counts (today's by
+     * default; an earlier day for an alarm that came late); `null` before the database exists (it
+     * must not be created before the intro's language step).
      */
-    suspend fun snapshot(): ReminderSnapshot?
+    suspend fun snapshot(date: LocalDate? = null): ReminderSnapshot?
 
     /** Emits whenever something the schedule depends on may have changed (and once at the start). */
     val changes: Flow<Unit>

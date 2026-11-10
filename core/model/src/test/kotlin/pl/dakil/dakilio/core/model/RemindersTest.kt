@@ -4,6 +4,7 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -114,6 +115,42 @@ class RemindersTest {
 
     @Test fun `an alarm from another day shows nothing`() =
         assertTrue(Reminders.due(at(20, date = today.minusDays(1)), snapshot(diary(1))).isEmpty)
+
+    @Test fun `an alarm later on its own day still shows`() =
+        assertTrue(Reminders.stillDue(at(20), at(23, 50)))
+
+    @Test fun `an alarm that slipped past midnight shows within the grace`() {
+        val lateEvening = at(23, 30, date = today.minusDays(1))
+        assertTrue(Reminders.stillDue(lateEvening, at(0, 40)))
+        assertTrue(Reminders.stillDue(lateEvening, at(2, 30)))
+        assertFalse(Reminders.stillDue(lateEvening, at(2, 31)))
+    }
+
+    @Test fun `an alarm from yesterday's evening isn't due the next morning`() =
+        assertFalse(Reminders.stillDue(at(20, date = today.minusDays(1)), at(9)))
+
+    @Test fun `a late alarm sets off the reminders it passed, one by one`() {
+        // The 23:00 alarm came at 00:50; the 23:30 reminder is past but still due.
+        val yesterday = today.minusDays(1)
+        val snapshot = snapshot(diary(1, LocalTime.of(23, 0)), diary(2, LocalTime.of(23, 30)), today = yesterday)
+        val missed = Reminders.missed(at(23, date = yesterday), at(0, 50), snapshot)!!
+        assertEquals(at(23, 30, date = yesterday), missed.at)
+        assertEquals(setOf(2L), missed.reminderIds)
+        // After that one, the next is tonight's 23:00: still to come, so nothing is missed.
+        assertNull(Reminders.missed(missed.at, at(0, 50), snapshot))
+    }
+
+    @Test fun `a passed reminder beyond the grace isn't set off`() {
+        val yesterday = today.minusDays(1)
+        val snapshot = snapshot(diary(1, LocalTime.of(20, 0)), diary(2, LocalTime.of(21, 0)), today = yesterday)
+        assertNull(Reminders.missed(at(20, date = yesterday), at(9), snapshot))
+    }
+
+    @Test fun `the reminder after a late alarm checks entries of the alarm's own day`() {
+        val yesterday = today.minusDays(1)
+        val snapshot = snapshot(diary(1, LocalTime.of(23, 0)), diary(2, LocalTime.of(23, 30)), writtenToday = setOf(2), today = yesterday)
+        assertTrue(Reminders.due(at(23, 30, date = yesterday), snapshot).isEmpty)
+    }
 
     @Test fun `texts rotate without repeating on consecutive days`() {
         val size = 10
