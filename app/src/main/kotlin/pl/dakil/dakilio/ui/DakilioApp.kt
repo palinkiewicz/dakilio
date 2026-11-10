@@ -53,6 +53,8 @@ import pl.dakil.dakilio.feature.importer.api.DaylioImportKey
 import pl.dakil.dakilio.feature.importer.impl.daylioImportEntry
 import pl.dakil.dakilio.feature.backup.api.BackupKey
 import pl.dakil.dakilio.feature.backup.impl.backupEntry
+import pl.dakil.dakilio.feature.export.api.ExportKey
+import pl.dakil.dakilio.feature.export.impl.exportEntry
 import pl.dakil.dakilio.core.data.repository.IncomingBackup
 import pl.dakil.dakilio.core.notifications.ReminderLaunch
 import pl.dakil.dakilio.feature.more.impl.moreEntry
@@ -138,7 +140,9 @@ fun DakilioApp(
                 navigator.goBack()
                 navigator.navigate(TimelineKey)
             },
+            onOpenExport = { navigator.navigate(ExportKey) },
         )
+        exportEntry(navigator)
         tagsEntry(navigator)
         diariesEntries(navigator)
         settingsEntry(navigator)

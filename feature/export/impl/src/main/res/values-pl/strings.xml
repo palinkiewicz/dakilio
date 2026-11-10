@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="export_title">Eksport</string>
+    <string name="export_subtitle">Twój dziennik do czytania, drukowania lub udostępniania</string>
+    <string name="export_back">Wstecz</string>
+
+    <string name="export_format">Format</string>
+    <string name="export_format_pdf">PDF</string>
+    <string name="export_format_markdown">Markdown</string>
+    <string name="export_format_pdf_body">Dokument jak książka: każdy dzień z wpisami, nastrojami, tagami i zdjęciami. Otworzysz go wszędzie i dobrze się drukuje.</string>
+    <string name="export_format_markdown_body">Zwykły tekst, który otworzy każda aplikacja do notatek czy edytor tekstu, np. Obsidian. Ze zdjęciami to plik ZIP ze zdjęciami obok tekstu.</string>
+
+    <string name="export_period">Wpisy</string>
+    <string name="export_period_all">Wszystkie</string>
+    <string name="export_period_year">Ten rok</string>
+    <string name="export_period_12_months">12 miesięcy</string>
+    <string name="export_period_custom">Daty</string>
+    <string name="export_period_ok">OK</string>
+    <string name="export_period_cancel">Anuluj</string>
+    <string name="export_diaries">Dzienniki</string>
+    <string name="export_diaries_all">Wszystkie dzienniki</string>
+
+    <string name="export_content">Zawartość</string>
+    <string name="export_photos">Dołącz zdjęcia</string>
+    <string name="export_photos_pdf_body">Pod każdym wpisem, pomniejszone, żeby plik był mały.</string>
+    <string name="export_photos_markdown_body">Zapisane w pełnej jakości obok tekstu, więc eksport będzie plikiem ZIP.</string>
+
+    <string name="export_summary">%1$s, %2$s</string>
+    <plurals name="export_entries">
+        <item quantity="one">%d wpis</item>
+        <item quantity="few">%d wpisy</item>
+        <item quantity="many">%d wpisów</item>
+        <item quantity="other">%d wpisu</item>
+    </plurals>
+    <plurals name="export_photos">
+        <item quantity="one">%d zdjęcie</item>
+        <item quantity="few">%d zdjęcia</item>
+        <item quantity="many">%d zdjęć</item>
+        <item quantity="other">%d zdjęcia</item>
+    </plurals>
+    <string name="export_not_encrypted">Eksport nie jest szyfrowany: każdy, kto ma plik, może go przeczytać. Nie da się go też przywrócić; do tego służy kopia zapasowa.</string>
+    <string name="export_button_pdf">Eksportuj PDF</string>
+    <string name="export_button_markdown">Eksportuj Markdown</string>
+
+    <string name="export_exporting">Eksportowanie…</string>
+    <string name="export_exporting_photos">Dodawanie zdjęć: %1$d z %2$d</string>
+    <string name="export_cancel">Anuluj</string>
+    <string name="export_done_title">Eksport zapisany</string>
+    <string name="export_done_button">Gotowe</string>
+    <string name="export_failed_title">Nie udało się wyeksportować</string>
+    <string name="export_failed_body">Coś poszło nie tak podczas zapisu pliku. Sprawdź, czy jest dość miejsca, i spróbuj ponownie.</string>
+    <string name="export_try_again">Spróbuj ponownie</string>
+
+    <!-- Inside the exported file. -->
+    <string name="export_doc_title">Mój dziennik</string>
+    <string name="export_doc_range">%1$s – %2$s</string>
+    <string name="export_doc_photo">Zdjęcie</string>
+    <string name="export_doc_footer">Wyeksportowano z Dakilio</string>
+</resources>

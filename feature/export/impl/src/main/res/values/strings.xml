@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="export_title">Export</string>
+    <string name="export_subtitle">Your journal to read, print or share</string>
+    <string name="export_back">Back</string>
+
+    <string name="export_format">Format</string>
+    <string name="export_format_pdf">PDF</string>
+    <string name="export_format_markdown">Markdown</string>
+    <string name="export_format_pdf_body">A document like a book: each day with its entries, moods, tags and photos. Opens anywhere and prints well.</string>
+    <string name="export_format_markdown_body">Plain text that any notes app or text editor opens, like Obsidian. With photos, it\'s a ZIP with the photos next to the text.</string>
+
+    <string name="export_period">Entries</string>
+    <string name="export_period_all">All</string>
+    <string name="export_period_year">This year</string>
+    <string name="export_period_12_months">12 months</string>
+    <string name="export_period_custom">Dates</string>
+    <string name="export_period_ok">OK</string>
+    <string name="export_period_cancel">Cancel</string>
+    <string name="export_diaries">Diaries</string>
+    <string name="export_diaries_all">All diaries</string>
+
+    <string name="export_content">Content</string>
+    <string name="export_photos">Include photos</string>
+    <string name="export_photos_pdf_body">Shown under each entry, scaled down to keep the file small.</string>
+    <string name="export_photos_markdown_body">Saved in full next to the text, so the export becomes a ZIP.</string>
+
+    <string name="export_summary">%1$s, %2$s</string>
+    <plurals name="export_entries">
+        <item quantity="one">%d entry</item>
+        <item quantity="other">%d entries</item>
+    </plurals>
+    <plurals name="export_photos">
+        <item quantity="one">%d photo</item>
+        <item quantity="other">%d photos</item>
+    </plurals>
+    <string name="export_not_encrypted">An export isn\'t encrypted: anyone with the file can read it. It can\'t be restored either; for that, make a backup.</string>
+    <string name="export_button_pdf">Export PDF</string>
+    <string name="export_button_markdown">Export Markdown</string>
+
+    <string name="export_exporting">Exporting…</string>
+    <string name="export_exporting_photos">Adding photos: %1$d of %2$d</string>
+    <string name="export_cancel">Cancel</string>
+    <string name="export_done_title">Export saved</string>
+    <string name="export_done_button">Done</string>
+    <string name="export_failed_title">Couldn\'t export</string>
+    <string name="export_failed_body">Something went wrong while writing the file. Check that there\'s enough space and try again.</string>
+    <string name="export_try_again">Try again</string>
+
+    <!-- Inside the exported file. -->
+    <string name="export_doc_title">My journal</string>
+    <string name="export_doc_range">%1$s – %2$s</string>
+    <string name="export_doc_photo">Photo</string>
+    <string name="export_doc_footer">Exported from Dakilio</string>
+</resources>
