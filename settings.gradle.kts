@@ -49,7 +49,7 @@ include(":core:samples")
 include(":core:notifications")
 include(":core:autobackup")
 
-listOf("timeline", "search", "entry", "insights", "more", "moods", "tags", "diaries", "settings", "importer", "backup", "archive", "intro", "habits", "keywords", "reminders", "lock").forEach { feature ->
+listOf("timeline", "search", "entry", "insights", "more", "moods", "tags", "diaries", "settings", "importer", "backup", "archive", "intro", "habits", "keywords", "reminders", "lock", "export").forEach { feature ->
     include(":feature:$feature:api")
     include(":feature:$feature:impl")
 }
