@@ -20,7 +20,7 @@ import pl.dakil.dakilio.core.model.Mood
  * contentment as soft petals and sun rays.
  */
 @Immutable
-class MoodGlyph(rest: RoundedPolygon, active: RoundedPolygon, val smile: Float) {
+class MoodGlyph(val rest: RoundedPolygon, active: RoundedPolygon, val smile: Float) {
     val morph: Morph = Morph(rest, active)
 }
 
@@ -56,6 +56,10 @@ fun moodColors(mood: Mood): MoodColors {
     val seed = TagColor.fromKey(mood.color)?.seed ?: seedColorsByLevel[levelIndex(mood.level)]
     return remember(seed, dark) { deriveAccentColors(seed, dark) }
 }
+
+/** A mood's colors in a given theme, outside composition: for drawing off-screen (the PDF export). */
+fun moodColors(mood: Mood, dark: Boolean): MoodColors =
+    deriveAccentColors(TagColor.fromKey(mood.color)?.seed ?: seedColorsByLevel[levelIndex(mood.level)], dark)
 
 /** The built-in colors of [level] in the current theme, which moods without a color of their own show. */
 @Composable
