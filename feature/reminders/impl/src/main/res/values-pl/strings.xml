@@ -20,10 +20,10 @@
     <string name="reminders_blocked_channels">Oba rodzaje powiadomień o przypomnieniach są wyłączone, więc przypomnienia się nie pokażą.</string>
     <string name="reminders_open_settings">Ustawienia</string>
     <string name="reminders_exact_title">Dokładny czas jest wyłączony</string>
-    <string name="reminders_exact_body">Przypomnienia mogą przychodzić z opóźnieniem, czasem nawet godzinnym. Zezwól na alarmy i przypomnienia, żeby przychodziły punktualnie.</string>
+    <string name="reminders_exact_body">Przypomnienia mogą się spóźniać nawet o godzinę. Zezwól na alarmy i przypomnienia, żeby przychodziły punktualnie.</string>
     <string name="reminders_exact_action">Zezwól</string>
     <string name="reminders_battery_title">Jeśli przypomnienia nie przychodzą</string>
-    <string name="reminders_battery_body">Niektóre telefony zatrzymują aplikacje w tle, żeby oszczędzać baterię, a razem z nimi ich przypomnienia. W ustawieniach aplikacji Dakilio ustaw użycie baterii na nieograniczone i włącz autostart, jeśli twój telefon go ma.</string>
+    <string name="reminders_battery_body">Niektóre telefony zatrzymują aplikacje w tle, a z nimi przypomnienia. Ustaw użycie baterii na nieograniczone i włącz autostart, jeśli jest. Dakilio nie działa w tle, tylko ustawia systemowy alarm na następne przypomnienie, więc bateria prawie tego nie odczuje.</string>
     <string name="reminders_battery_action">Ustawienia aplikacji</string>
 
     <string name="reminders_sheet_new">Nowe przypomnienie</string>
