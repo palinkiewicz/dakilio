@@ -115,6 +115,7 @@ dependencies {
     implementation(projects.core.ui)
     implementation(projects.core.navigation)
     implementation(projects.core.notifications)
+    implementation(projects.core.autobackup)
 
     implementation(projects.feature.timeline.impl)
     implementation(projects.feature.search.impl)

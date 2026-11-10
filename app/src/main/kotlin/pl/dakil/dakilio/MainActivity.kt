@@ -25,6 +25,7 @@ import pl.dakil.dakilio.core.data.repository.AppLock
 import pl.dakil.dakilio.core.data.repository.IncomingBackups
 import pl.dakil.dakilio.core.notifications.ReminderLaunches
 import pl.dakil.dakilio.core.notifications.ReminderSync
+import pl.dakil.dakilio.core.autobackup.AutoBackupSync
 import pl.dakil.dakilio.feature.lock.impl.LockGate
 import javax.inject.Inject
 import pl.dakil.dakilio.ui.DakilioApp
@@ -41,6 +42,8 @@ class MainActivity : ComponentActivity() {
     @Inject lateinit var reminderLaunches: ReminderLaunches
 
     @Inject lateinit var reminderSync: ReminderSync
+
+    @Inject lateinit var autoBackupSync: AutoBackupSync
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -89,7 +92,10 @@ class MainActivity : ComponentActivity() {
                             IntroFlow(incomingBackup = incomingBackup, onFinished = viewModel::finishIntro)
                         } else {
                             // Past the intro the database may exist, so reminders can follow it.
-                            LaunchedEffect(Unit) { reminderSync.start() }
+                            LaunchedEffect(Unit) {
+                                reminderSync.start()
+                                autoBackupSync.start()
+                            }
                             DakilioApp(
                                 incomingBackup = incomingBackup,
                                 openAppLock = recovered,

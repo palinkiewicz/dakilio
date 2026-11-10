@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Privacy: nothing goes to cloud backup. Moving to a new phone (device-to-device transfer) keeps everything. -->
+<!-- Privacy: nothing goes to cloud backup. Moving to a new phone (device-to-device transfer) keeps
+     everything but the automatic backup setup: its folder grant and Keystore key stay behind, so the
+     new phone starts with automatic backups off instead of failing ones. -->
 <data-extraction-rules>
     <cloud-backup>
         <exclude domain="root" />
@@ -10,6 +12,7 @@
     </cloud-backup>
     <device-transfer>
         <include domain="file" />
+        <exclude domain="file" path="datastore/autobackup.preferences_pb" />
         <include domain="database" />
         <include domain="sharedpref" />
     </device-transfer>

@@ -47,6 +47,7 @@ include(":core:backup")
 include(":core:security")
 include(":core:samples")
 include(":core:notifications")
+include(":core:autobackup")
 
 listOf("timeline", "search", "entry", "insights", "more", "moods", "tags", "diaries", "settings", "importer", "backup", "archive", "intro", "habits", "keywords", "reminders", "lock").forEach { feature ->
     include(":feature:$feature:api")
