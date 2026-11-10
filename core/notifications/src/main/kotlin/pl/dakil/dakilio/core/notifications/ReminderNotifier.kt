@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import pl.dakil.dakilio.core.data.repository.ReminderChannels
 import pl.dakil.dakilio.core.model.DueReminders
 import pl.dakil.dakilio.core.model.ReminderSnapshot
 import pl.dakil.dakilio.core.model.ReminderSubject
@@ -33,10 +34,25 @@ class ReminderNotifier @Inject constructor(
     private val manager get() = context.getSystemService(NotificationManager::class.java)
 
     fun show(due: DueReminders, snapshot: ReminderSnapshot) {
-        if (due.isEmpty || !canNotify()) return
+        if (due.isEmpty) return
         ensureChannels()
-        due.diaries.forEach { show(it, snapshot) }
-        due.habits.forEach { show(it, snapshot) }
+        if (canNotify(CHANNEL_DIARY)) due.diaries.forEach { show(it, snapshot) }
+        if (canNotify(CHANNEL_HABIT)) due.habits.forEach { show(it, snapshot) }
+    }
+
+    /**
+     * Creates the channels, or brings their names up to date with the app's language. Called once a
+     * reminder is on, so they're in the system settings before the first notification.
+     */
+    fun ensureChannels() {
+        manager.createNotificationChannels(
+            listOf(
+                NotificationChannel(CHANNEL_DIARY, context.getString(R.string.reminder_channel_diary), NotificationManager.IMPORTANCE_DEFAULT)
+                    .apply { description = context.getString(R.string.reminder_channel_diary_body) },
+                NotificationChannel(CHANNEL_HABIT, context.getString(R.string.reminder_channel_habit), NotificationManager.IMPORTANCE_DEFAULT)
+                    .apply { description = context.getString(R.string.reminder_channel_habit_body) },
+            ),
+        )
     }
 
     /** Takes down notifications that no longer apply: the diary got its entry, the habit met its target. */
@@ -125,32 +141,23 @@ class ReminderNotifier @Inject constructor(
                 }
             }
             .build()
-        if (canNotify()) manager.notify(tag, id.toInt(), notification)
+        manager.notify(tag, id.toInt(), notification)
     }
 
-    private fun canNotify(): Boolean {
+    /** The permission is granted, notifications are on for the app, and [channel] isn't turned off. */
+    private fun canNotify(channel: String): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
         ) {
             return false
         }
-        return NotificationManagerCompat.from(context).areNotificationsEnabled()
-    }
-
-    private fun ensureChannels() {
-        manager.createNotificationChannels(
-            listOf(
-                NotificationChannel(CHANNEL_DIARY, context.getString(R.string.reminder_channel_diary), NotificationManager.IMPORTANCE_DEFAULT)
-                    .apply { description = context.getString(R.string.reminder_channel_diary_body) },
-                NotificationChannel(CHANNEL_HABIT, context.getString(R.string.reminder_channel_habit), NotificationManager.IMPORTANCE_DEFAULT)
-                    .apply { description = context.getString(R.string.reminder_channel_habit_body) },
-            ),
-        )
+        return NotificationManagerCompat.from(context).areNotificationsEnabled() &&
+            manager.getNotificationChannel(channel)?.importance != NotificationManager.IMPORTANCE_NONE
     }
 
     private companion object {
-        const val CHANNEL_DIARY = "diary_reminders"
-        const val CHANNEL_HABIT = "habit_reminders"
+        const val CHANNEL_DIARY = ReminderChannels.DIARY
+        const val CHANNEL_HABIT = ReminderChannels.HABIT
         const val TAG_DIARY = "diary"
         const val TAG_HABIT = "habit"
     }

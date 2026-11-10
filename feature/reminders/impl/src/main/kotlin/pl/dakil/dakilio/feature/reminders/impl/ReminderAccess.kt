@@ -2,6 +2,7 @@ package pl.dakil.dakilio.feature.reminders.impl
 
 import android.Manifest
 import android.app.AlarmManager
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -22,6 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import pl.dakil.dakilio.core.data.repository.ReminderChannels
 
 /**
  * Whether reminders can reach the user, and the ways to fix it. The notification permission (Android
@@ -43,9 +45,14 @@ internal class ReminderAccess(private val context: Context) {
     var exactTiming by mutableStateOf(exactTimingAllowed(context))
         private set
 
+    /** Reminder channels (`ReminderChannels` ids) the user turned off in the system settings. */
+    var blockedChannels by mutableStateOf(blockedChannels(context))
+        private set
+
     internal fun refresh() {
         notificationsAllowed = notificationsAllowed(context)
         exactTiming = exactTimingAllowed(context)
+        blockedChannels = blockedChannels(context)
     }
 
     /** Asks for the permission if it's missing; the reminder is saved either way. */
@@ -53,8 +60,14 @@ internal class ReminderAccess(private val context: Context) {
         if (needsPermission(context)) permissionLauncher?.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
 
-    fun openNotificationSettings() {
-        open(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName))
+    /** The app's notification settings, or straight to one [channel]'s. */
+    fun openNotificationSettings(channel: String? = null) {
+        val intent = if (channel != null) {
+            Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_CHANNEL_ID, channel)
+        } else {
+            Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+        }
+        open(intent.putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName))
     }
 
     fun openExactTimingSettings() {
@@ -93,6 +106,12 @@ private fun needsPermission(context: Context): Boolean =
 
 private fun notificationsAllowed(context: Context): Boolean =
     !needsPermission(context) && NotificationManagerCompat.from(context).areNotificationsEnabled()
+
+private fun blockedChannels(context: Context): Set<String> {
+    val manager = context.getSystemService(NotificationManager::class.java)
+    return listOf(ReminderChannels.DIARY, ReminderChannels.HABIT)
+        .filterTo(mutableSetOf()) { manager.getNotificationChannel(it)?.importance == NotificationManager.IMPORTANCE_NONE }
+}
 
 private fun exactTimingAllowed(context: Context): Boolean =
     Build.VERSION.SDK_INT < Build.VERSION_CODES.S || context.getSystemService(AlarmManager::class.java).canScheduleExactAlarms()

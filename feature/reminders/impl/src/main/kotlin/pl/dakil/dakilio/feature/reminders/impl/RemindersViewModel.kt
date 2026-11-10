@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import pl.dakil.dakilio.core.data.repository.DiaryRepository
 import pl.dakil.dakilio.core.data.repository.HabitRepository
+import pl.dakil.dakilio.core.data.repository.ReminderChannels
 import pl.dakil.dakilio.core.data.repository.ReminderRepository
 import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.model.Habit
@@ -29,6 +30,10 @@ data class RemindersUiState(
     val habits: List<Habit>,
 ) {
     val anyEnabled: Boolean get() = items.any { it.reminder.enabled }
+
+    /** Kinds of reminders that are on, as their notification channels (`ReminderChannels`). */
+    val enabledChannels: Set<String>
+        get() = items.filter { it.reminder.enabled }.mapTo(mutableSetOf()) { if (it.habit != null) ReminderChannels.HABIT else ReminderChannels.DIARY }
 }
 
 @HiltViewModel

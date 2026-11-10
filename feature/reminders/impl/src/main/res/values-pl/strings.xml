@@ -15,6 +15,9 @@
     <string name="reminders_deleted">Usunięto przypomnienie</string>
     <string name="reminders_undo">Cofnij</string>
     <string name="reminders_blocked">Powiadomienia Dakilio są wyłączone, więc przypomnienia się nie pokażą.</string>
+    <string name="reminders_blocked_diary">Powiadomienia „Przypomnienia o dzienniku” są wyłączone, więc przypomnienia o dziennikach się nie pokażą.</string>
+    <string name="reminders_blocked_habit">Powiadomienia „Przypomnienia o nawykach” są wyłączone, więc przypomnienia o nawykach się nie pokażą.</string>
+    <string name="reminders_blocked_channels">Oba rodzaje powiadomień o przypomnieniach są wyłączone, więc przypomnienia się nie pokażą.</string>
     <string name="reminders_open_settings">Ustawienia</string>
     <string name="reminders_exact_title">Dokładny czas jest wyłączony</string>
     <string name="reminders_exact_body">Przypomnienia mogą przychodzić z opóźnieniem, czasem nawet godzinnym. Zezwól na alarmy i przypomnienia, żeby przychodziły punktualnie.</string>

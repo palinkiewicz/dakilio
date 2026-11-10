@@ -78,6 +78,7 @@ class ReminderScheduler @Inject constructor(
             setAlarm(next.at)
         }
         setRescheduleReceiverEnabled(!snapshot.isEmpty)
+        if (!snapshot.isEmpty) notifier.ensureChannels()
         notifier.dismissStale(snapshot)
     }
 

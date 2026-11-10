@@ -56,6 +56,7 @@ import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbol
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.icon.symbolForKey
+import pl.dakil.dakilio.core.data.repository.ReminderChannels
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.model.ReminderDays
 import pl.dakil.dakilio.core.ui.DakilioFormats
@@ -132,9 +133,14 @@ internal fun RemindersScreen(viewModel: RemindersViewModel, onBack: () -> Unit) 
                     ),
                     verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
                 ) {
-                    if (current.anyEnabled && !access.notificationsAllowed) {
+                    val blocked = blockedReminders(current.enabledChannels, access.notificationsAllowed, access.blockedChannels)
+                    if (blocked != null) {
                         item(key = "blocked") {
-                            BlockedNotice(onOpenSettings = access::openNotificationSettings, modifier = Modifier.padding(bottom = Spacing.m))
+                            BlockedNotice(
+                                blocked = blocked,
+                                onOpenSettings = { access.openNotificationSettings(blocked.channel) },
+                                modifier = Modifier.padding(bottom = Spacing.m),
+                            )
                         }
                     }
                     item(key = "hint") {
@@ -298,9 +304,39 @@ private fun ReminderRow(
     }
 }
 
-/** Some reminder is on, but notifications can't show (denied, or off in the system). */
+/** Why reminders that are on can't show. */
+private enum class Blocked(val channel: String? = null) {
+    /** Denied, or notifications are off for the whole app. */
+    App,
+    Diary(ReminderChannels.DIARY),
+    Habit(ReminderChannels.HABIT),
+
+    /** Both channels are off (the app's notification settings list them). */
+    Channels,
+}
+
+/** What keeps the reminders that are on ([enabledChannels]) from showing, or `null` when nothing does. */
+private fun blockedReminders(enabledChannels: Set<String>, notificationsAllowed: Boolean, blockedChannels: Set<String>): Blocked? {
+    if (enabledChannels.isEmpty()) return null
+    if (!notificationsAllowed) return Blocked.App
+    val blocked = enabledChannels intersect blockedChannels
+    return when {
+        blocked.isEmpty() -> null
+        blocked.size > 1 -> Blocked.Channels
+        ReminderChannels.HABIT in blocked -> Blocked.Habit
+        else -> Blocked.Diary
+    }
+}
+
+/** Some reminder is on, but notifications can't show (denied, off in the system, or its channel is off). */
 @Composable
-private fun BlockedNotice(onOpenSettings: () -> Unit, modifier: Modifier = Modifier) {
+private fun BlockedNotice(blocked: Blocked, onOpenSettings: () -> Unit, modifier: Modifier = Modifier) {
+    val message = when (blocked) {
+        Blocked.App -> R.string.reminders_blocked
+        Blocked.Diary -> R.string.reminders_blocked_diary
+        Blocked.Habit -> R.string.reminders_blocked_habit
+        Blocked.Channels -> R.string.reminders_blocked_channels
+    }
     Surface(
         shape = RoundedCornerShape(20.dp),
         color = MaterialTheme.colorScheme.errorContainer,
@@ -313,7 +349,7 @@ private fun BlockedNotice(onOpenSettings: () -> Unit, modifier: Modifier = Modif
             modifier = Modifier.padding(start = Spacing.l, end = Spacing.s, top = Spacing.s, bottom = Spacing.s),
         ) {
             DakilioIcon(DakilioSymbols.Notifications, contentDescription = null)
-            Text(stringResource(R.string.reminders_blocked), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+            Text(stringResource(message), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
             TextButton(onClick = onOpenSettings) { Text(stringResource(R.string.reminders_open_settings)) }
         }
     }
