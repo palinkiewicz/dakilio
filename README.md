@@ -3,6 +3,10 @@
 A small, private, open-source mood journal for Android. It's an alternative to Daylio, built with
 Jetpack Compose and Material 3 Expressive. Requires Android 10 or newer.
 
+<a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/palinkiewicz/dakilio">
+  <img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" alt="Get it on Obtainium" height="60" />
+</a>
+
 ## Features
 
 - **Private by design:** no account, and no `INTERNET` permission. Entries stay on the device.
