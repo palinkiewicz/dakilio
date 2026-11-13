@@ -9,4 +9,8 @@
     <string name="symbol_category_weather">Pogoda</string>
     <string name="symbol_category_places">Miejsca</string>
     <string name="symbol_category_objects">Przedmioty</string>
+    <string name="symbol_category_uppercase">Wielkie litery</string>
+    <string name="symbol_category_lowercase">Małe litery</string>
+    <string name="symbol_letters_upper">AĄBCĆDEĘFGHIJKLŁMNŃOÓPQRSŚTUVWXYZŹŻ</string>
+    <string name="symbol_letters_lower">aąbcćdeęfghijklłmnńoópqrsśtuvwxyzźż</string>
 </resources>

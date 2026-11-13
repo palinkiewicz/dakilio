@@ -12,6 +12,8 @@
     <string name="ui_photo">Zdjęcie %1$d z %2$d</string>
     <string name="ui_close">Zamknij</string>
     <string name="ui_selected_icon">Wybrana ikona</string>
+    <string name="ui_icon_picker_icons">Ikony</string>
+    <string name="ui_icon_picker_letters">Litery</string>
     <string name="ui_more_photos">+%1$d</string>
     <string name="mood_clear">Wyczyść nastrój</string>
     <string name="ui_daylio_open">Otwórz kopię zapasową Daylio</string>

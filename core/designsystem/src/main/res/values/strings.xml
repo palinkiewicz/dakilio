@@ -9,4 +9,9 @@
     <string name="symbol_category_weather">Weather</string>
     <string name="symbol_category_places">Places</string>
     <string name="symbol_category_objects">Things</string>
+    <string name="symbol_category_uppercase">Uppercase</string>
+    <string name="symbol_category_lowercase">Lowercase</string>
+    <!-- The letters offered as icons: this language's alphabet, one icon per character. -->
+    <string name="symbol_letters_upper">ABCDEFGHIJKLMNOPQRSTUVWXYZ</string>
+    <string name="symbol_letters_lower">abcdefghijklmnopqrstuvwxyz</string>
 </resources>

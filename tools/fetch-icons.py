@@ -83,12 +83,12 @@ def main() -> int:
     for category, name in available:
         cat = camel(category)
         lines.append(
-            f'    val {camel(name)} = DakilioSymbol("{name}", R.drawable.sym_{name}, '
+            f'    val {camel(name)} = VectorSymbol("{name}", R.drawable.sym_{name}, '
             f"R.drawable.sym_{name}_fill, SymbolCategory.{cat})"
         )
     lines += [
         "",
-        "    val all: List<DakilioSymbol> = listOf(",
+        "    val all: List<VectorSymbol> = listOf(",
         *[f"        {camel(name)}," for _, name in available],
         "    )",
         "}",
