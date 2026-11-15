@@ -21,6 +21,7 @@ import java.io.File
 import pl.dakil.dakilio.core.model.PostPhoto
 import pl.dakil.dakilio.core.ui.LocalEntryDisplay
 import pl.dakil.dakilio.core.ui.component.PhotoViewer
+import pl.dakil.dakilio.core.ui.component.formattedNote
 import pl.dakil.dakilio.core.ui.scaled
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -271,7 +272,7 @@ private fun MoodSummary(mood: Mood, modifier: Modifier = Modifier) {
     }
 }
 
-/** Title, note and photos as plain, selectable text; a blank title or note takes no space at all. */
+/** Title, note (with its formatting) and photos as selectable text; a blank title or note takes no space at all. */
 @Composable
 private fun NoteReadView(title: String, note: String, photos: List<EditorPhoto>, modifier: Modifier = Modifier) {
     val textScale = LocalEntryDisplay.current.editorTextScale
@@ -286,7 +287,7 @@ private fun NoteReadView(title: String, note: String, photos: List<EditorPhoto>,
                     Text(title.trim(), style = MaterialTheme.typography.headlineSmall.scaled(textScale))
                 }
                 if (note.isNotBlank()) {
-                    Text(note.trim(), style = MaterialTheme.typography.bodyLarge.scaled(textScale))
+                    Text(formattedNote(note.trim()), style = MaterialTheme.typography.bodyLarge.scaled(textScale))
                 }
             }
         }

@@ -49,6 +49,7 @@ import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.model.Post
 import pl.dakil.dakilio.core.model.PostPhoto
 import pl.dakil.dakilio.core.model.PreviewLength
+import pl.dakil.dakilio.core.model.NoteMarkup
 import pl.dakil.dakilio.core.model.noteExcerpt
 import pl.dakil.dakilio.core.ui.DakilioFormats
 import pl.dakil.dakilio.core.ui.LocalEntryDisplay
@@ -118,10 +119,16 @@ fun PostCard(
                     )
                 }
                 post.note?.let {
-                    // In search, a note whose match is past the preview starts just before it.
-                    val shown = if (highlight.isNullOrBlank() || full) it else noteExcerpt(it, highlight)
+                    // In search, a note whose match is past the preview starts just before it. An
+                    // excerpt is cut from the plain text, so it shows without the note's formatting.
+                    val excerpt = if (highlight.isNullOrBlank() || full) {
+                        null
+                    } else {
+                        val plain = remember(it) { NoteMarkup.plain(it) }
+                        noteExcerpt(plain, highlight).takeIf { cut -> cut != plain }
+                    }
                     Text(
-                        highlighted(shown, highlight),
+                        if (excerpt != null) highlighted(excerpt, highlight) else formattedNote(it, highlight),
                         style = MaterialTheme.typography.bodyMedium.scaled(textScale),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = display.previewLength.noteLines ?: Int.MAX_VALUE,

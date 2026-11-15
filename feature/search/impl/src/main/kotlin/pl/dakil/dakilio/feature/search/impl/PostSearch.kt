@@ -4,6 +4,7 @@ import java.time.LocalDate
 import java.time.Month
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import pl.dakil.dakilio.core.model.NoteMarkup
 import pl.dakil.dakilio.core.model.Post
 import pl.dakil.dakilio.core.model.foldForSearch
 
@@ -113,12 +114,13 @@ private fun Post.matchesTags(filters: SearchFilters): Boolean {
 internal fun Post.has(kind: Has): Boolean = when (kind) {
     Has.Photos -> photos.isNotEmpty()
     Has.Text -> !title.isNullOrBlank() || !note.isNullOrBlank()
-    Has.LongNote -> (note?.split(WHITESPACE)?.count { it.isNotEmpty() } ?: 0) >= LONG_NOTE_WORDS
+    Has.LongNote -> (note?.let(NoteMarkup::plain)?.split(WHITESPACE)?.count { it.isNotEmpty() } ?: 0) >= LONG_NOTE_WORDS
 }
 
 private val WHITESPACE = "\\s+".toRegex()
 
 private fun Post.haystack(): String = buildString {
     title?.let { append(it).append('\n') }
-    note?.let { append(it).append('\n') }
+    // Without the formatting markers: "good day" finds "**good** day".
+    note?.let { append(NoteMarkup.plain(it)).append('\n') }
 }.foldForSearch()

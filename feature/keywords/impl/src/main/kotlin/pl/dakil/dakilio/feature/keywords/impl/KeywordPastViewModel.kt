@@ -26,6 +26,7 @@ import pl.dakil.dakilio.core.common.Dispatcher
 import pl.dakil.dakilio.core.data.repository.KeywordRepository
 import pl.dakil.dakilio.core.data.repository.PostRepository
 import pl.dakil.dakilio.core.data.repository.TagRepository
+import pl.dakil.dakilio.core.model.NoteMarkup
 import pl.dakil.dakilio.core.model.Excerpt
 import pl.dakil.dakilio.core.model.Keyword
 import pl.dakil.dakilio.core.model.Keywords
@@ -120,7 +121,8 @@ class KeywordPastViewModel @AssistedInject constructor(
     }
 
     private fun row(post: Post): PastRow {
-        val note = post.note.orEmpty()
+        // The excerpt is plain text, so the note's formatting markers stay out of it.
+        val note = NoteMarkup.plain(post.note.orEmpty())
         val title = post.title.orEmpty()
         val noteRanges = Keywords.matchRanges(note, keywords)
         val excerpt = when {

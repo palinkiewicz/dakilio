@@ -44,6 +44,7 @@ class NoteMarkupTest {
         assertEquals(listOf("Bold:both", "Italic:both"), pieces("***both***"))
         assertEquals(listOf("Bold:bold italic", "Italic:italic"), pieces("**bold *italic***"))
         assertEquals(listOf("Bold:italic bold", "Italic:italic"), pieces("***italic* bold**"))
+        assertEquals(listOf("Italic:italic bold", "Bold:bold"), pieces("*italic **bold***"))
         assertEquals(listOf("Italic:a b c", "Bold:b"), pieces("*a **b** c*"))
         assertEquals(listOf("Bold:Big", "Heading:Big day"), pieces("# **Big** day"))
         assertEquals("a b c", parse("*a **b** c*").text)
@@ -129,6 +130,13 @@ class NoteMarkupTest {
         assertEquals(NoteEdit("***word***", 3, 7), both)
         assertEquals(NoteEdit("*word*", 1, 5), NoteMarkup.toggleInline(both.text, 3, 7, NoteMarkup.BOLD))
         assertEquals(NoteEdit("**word**", 2, 6), NoteMarkup.toggleInline(both.text, 3, 7, NoteMarkup.ITALIC))
+    }
+
+    @Test
+    fun `wrap gives every line with text its own pair`() {
+        assertEquals("a **b c** d", NoteMarkup.wrap("a b c d", 2, 5, NoteMarkup.BOLD))
+        assertEquals("**one** \n\n **two**", NoteMarkup.wrap("one \n\n two", 0, 10, NoteMarkup.BOLD))
+        assertEquals("   ", NoteMarkup.wrap("   ", 0, 3, NoteMarkup.ITALIC))
     }
 
     @Test

@@ -136,13 +136,33 @@ object NoteMarkup {
                 continue
             }
             if (s.startsWith(marker, k) && !s[k - 1].isWhitespace()) {
-                // In a longer run of stars the pair closes at the run's end, leaving the first stars
-                // to whatever is inside ("**bold *italic***").
-                return k + starsAt(s, k) - marker.length
+                // In a longer run of stars, the first ones belong to an italic still open inside
+                // ("**bold *italic***"); otherwise the last one is left for an italic around the
+                // pair ("*italic **bold***").
+                val openInside = marker == BOLD && singleStars(s, from, k) % 2 == 1
+                return if (openInside) k + starsAt(s, k) - marker.length else k
             }
             k++
         }
         return null
+    }
+
+    /** How many lone asterisks (not part of a longer run, not escaped) `s[from until to]` holds. */
+    private fun singleStars(s: String, from: Int, to: Int): Int {
+        var count = 0
+        var k = from
+        while (k < to) {
+            when {
+                s[k] == '\\' -> k += 2
+                s[k] == '*' -> {
+                    val run = starsAt(s, k)
+                    if (run == 1) count++
+                    k += run
+                }
+                else -> k++
+            }
+        }
+        return count
     }
 
     /** Like [closing] for a single `*`, which must also end a word and may hold `**bold**` inside. */
@@ -192,8 +212,18 @@ object NoteMarkup {
             return NoteEdit(wrapped, from + marker.length, from + marker.length + content.length)
         }
         // A pair can't cross a line break: every line with text gets its own.
-        val wrapped = StringBuilder(text.substring(0, start))
-        selected.split('\n').forEachIndexed { index, line ->
+        val wrapped = wrap(text, start, end, marker)
+        return NoteEdit(wrapped, start, end + wrapped.length - text.length)
+    }
+
+    /**
+     * [text] with `text[start until end]` wrapped in [marker]: each of its lines that has text gets
+     * its own pair, hugging the text (spaces at a line's ends stay outside). Also how an import turns
+     * another app's bold and italic into markers.
+     */
+    fun wrap(text: String, start: Int, end: Int, marker: String): String {
+        val wrapped = StringBuilder(text.length + 2 * marker.length).append(text, 0, start)
+        text.substring(start, end).split('\n').forEachIndexed { index, line ->
             if (index > 0) wrapped.append('\n')
             val content = line.trim()
             if (content.isEmpty()) {
@@ -203,9 +233,7 @@ object NoteMarkup {
                 wrapped.append(line, 0, lead).append(marker).append(content).append(marker).append(line, lead + content.length, line.length)
             }
         }
-        val newEnd = wrapped.length
-        wrapped.append(text, end, text.length)
-        return NoteEdit(wrapped.toString(), start, newEnd)
+        return wrapped.append(text, end, text.length).toString()
     }
 
     /** Whether `text[start until end]` sits right inside a [marker] pair (and not a longer run of stars). */

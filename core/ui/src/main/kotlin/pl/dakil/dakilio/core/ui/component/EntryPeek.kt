@@ -595,7 +595,7 @@ internal fun EntryPeekContent(
         }
         post.note?.let {
             Text(
-                highlighted(it, highlight),
+                formattedNote(it, highlight),
                 style = MaterialTheme.typography.bodyLarge.scaled(textScale),
                 color = colors.onSurfaceVariant,
             )
