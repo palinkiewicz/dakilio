@@ -2,6 +2,9 @@ package pl.dakil.dakilio.feature.export.impl
 
 import java.time.LocalDate
 import java.time.LocalTime
+import pl.dakil.dakilio.core.model.NoteMarkup
+import pl.dakil.dakilio.core.model.NoteSpan
+import pl.dakil.dakilio.core.model.NoteStyle
 import pl.dakil.dakilio.core.model.Post
 
 enum class ExportFormat { Pdf, Markdown, Csv }
@@ -101,13 +104,45 @@ fun renderMarkdown(entries: List<Post>, labels: ExportLabels, withPhotos: Boolea
 }
 
 /**
- * A plain-text note as Markdown that reads the same: paragraphs stay, single line breaks become hard
- * breaks (two trailing spaces), and anything Markdown would take as formatting is escaped.
+ * A note as Markdown that reads the same: its bold and italic stay, a heading becomes a `####` one
+ * (below the entry's own `###`), paragraphs stay, single line breaks become hard breaks (two
+ * trailing spaces), and anything else Markdown would take as formatting is escaped.
  */
-internal fun noteToMarkdown(note: String): String =
-    note.replace("\r\n", "\n").split("\n\n").joinToString("\n\n") { paragraph ->
-        paragraph.split('\n').joinToString("  \n") { line -> escapeLineStart(escapeInline(line.trimEnd())) }
+internal fun noteToMarkdown(note: String): String {
+    val formatted = NoteMarkup.parse(note.replace("\r\n", "\n"))
+    val text = formatted.text
+    // What opens and closes at each position. Spans nest, so the longest opens first and closes last.
+    val opening = formatted.spans.filter { it.style != NoteStyle.Heading && it.end > it.start }
+        .sortedByDescending { it.end - it.start }.groupBy { it.start }
+    val closing = formatted.spans.filter { it.style != NoteStyle.Heading && it.end > it.start }
+        .sortedBy { it.end - it.start }.groupBy { it.end }
+    val headings = formatted.spans.filter { it.style == NoteStyle.Heading }.map { it.start }.toSet()
+    fun marker(span: NoteSpan) = if (span.style == NoteStyle.Bold) NoteMarkup.BOLD else NoteMarkup.ITALIC
+
+    val out = StringBuilder()
+    var lineStart = 0
+    val lines = text.split('\n')
+    lines.forEachIndexed { index, line ->
+        val body = StringBuilder()
+        // A pair never crosses a line, so everything opened on a line closes on it.
+        for (i in line.indices) {
+            val at = lineStart + i
+            closing[at]?.forEach { if (it.start >= lineStart) body.append(marker(it)) }
+            opening[at]?.forEach { body.append(marker(it)) }
+            body.append(escapeInline(line[i].toString()))
+        }
+        closing[lineStart + line.length]?.forEach { if (it.start >= lineStart && it.start < lineStart + line.length) body.append(marker(it)) }
+        val rendered = body.toString().trimEnd()
+        out.append(if (lineStart in headings && rendered.isNotEmpty()) "#### $rendered" else escapeLineStart(rendered))
+        if (index < lines.lastIndex) {
+            // An empty line (before or after) is a paragraph break; otherwise a hard break.
+            val paragraphBreak = line.isBlank() || lines[index + 1].isBlank()
+            out.append(if (paragraphBreak) "\n" else "  \n")
+        }
+        lineStart += line.length + 1
     }
+    return out.toString()
+}
 
 private val INLINE_SPECIAL = setOf('\\', '`', '*', '_', '[', ']', '<', '>', '#', '|', '~')
 

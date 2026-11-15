@@ -114,10 +114,20 @@ class MarkdownExportTest {
     }
 
     @Test
-    fun `notes keep their line breaks and lose their formatting`() {
+    fun `notes keep their formatting`() {
+        assertEquals("A **bold** and *italic* day", noteToMarkdown("A **bold** and *italic* day"))
+        assertEquals("#### Morning  \nCoffee \\#1", noteToMarkdown("# Morning\nCoffee #1"))
+        assertEquals("*a **b** c*", noteToMarkdown("*a **b** c*"))
+        assertEquals("***both***", noteToMarkdown("***both***"))
+        // What wasn't formatting stays text.
+        assertEquals("2\\*3\\*4 and \\*\\* loose", noteToMarkdown("2*3*4 and ** loose"))
+    }
+
+    @Test
+    fun `notes keep their line breaks and other markers are escaped`() {
         assertEquals("first  \nsecond\n\nthird", noteToMarkdown("first\nsecond\n\nthird"))
-        assertEquals("\\# not a heading  \n\\- not a list  \n1\\. not ordered", noteToMarkdown("# not a heading\n- not a list\n1. not ordered"))
-        assertEquals("a \\*b\\* \\_c\\_ \\[d\\](e) \\<f\\>", noteToMarkdown("a *b* _c_ [d](e) <f>"))
+        assertEquals("\\#not a heading  \n\\- not a list  \n1\\. not ordered", noteToMarkdown("#not a heading\n- not a list\n1. not ordered"))
+        assertEquals("a \\* b \\_c\\_ \\[d\\](e) \\<f\\>", noteToMarkdown("a * b _c_ [d](e) <f>"))
         assertEquals("2026 was good. -5 degrees", noteToMarkdown("2026 was good. -5 degrees"))
     }
 }

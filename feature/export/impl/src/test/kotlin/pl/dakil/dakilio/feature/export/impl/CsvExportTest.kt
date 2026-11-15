@@ -54,6 +54,12 @@ class CsvExportTest {
     }
 
     @Test
+    fun `a note's formatting markers are left out`() {
+        val csv = renderCsv(listOf(post(1, LocalDateTime.of(2026, 11, 1, 9, 0), note = "# Day\nA **good** one")), labels)
+        assertEquals("2026-11-01,1 November,Sunday,09:00,Good,,,Day<br>A good one", csv.lines()[1])
+    }
+
+    @Test
     fun `a diary column appears only with more than one diary`() {
         val one = renderCsv(listOf(post(1, LocalDateTime.of(2026, 11, 1, 9, 0))), labels)
         assertEquals(CSV_COLUMNS.joinToString(","), one.lines().first())

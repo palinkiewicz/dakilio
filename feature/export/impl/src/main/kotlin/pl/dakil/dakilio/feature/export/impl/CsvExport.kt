@@ -2,6 +2,7 @@ package pl.dakil.dakilio.feature.export.impl
 
 import java.time.LocalDate
 import java.time.LocalTime
+import pl.dakil.dakilio.core.model.NoteMarkup
 import pl.dakil.dakilio.core.model.Post
 
 /** The columns of Daylio's own CSV export, in its order; tools written for those files read ours. */
@@ -23,6 +24,7 @@ class CsvLabels(
  * The journal as a table in the shape of Daylio's CSV export: one row per entry, **newest first**
  * like Daylio's, with the same eight columns. `full_date` is ISO (`2026-11-01`), tags go into
  * `activities` separated by ` | `, and line breaks in a note become `<br>`, as Daylio writes them.
+ * A note's formatting markers are left out: the table holds plain text.
  * Entries without a mood leave `mood` empty. Photos aren't part of a CSV.
  */
 fun renderCsv(entries: List<Post>, labels: CsvLabels): String = buildString {
@@ -37,7 +39,7 @@ fun renderCsv(entries: List<Post>, labels: CsvLabels): String = buildString {
             post.mood?.label.orEmpty(),
             post.tags.joinToString(" | ") { it.label },
             post.title?.trim().orEmpty(),
-            post.note?.trim().orEmpty().replace("\r\n", "\n").replace("\n", "<br>"),
+            NoteMarkup.plain(post.note?.trim().orEmpty()).replace("\r\n", "\n").replace("\n", "<br>"),
         )
         appendRow(if (showDiary) row + labels.diaryName(post.diaryId).orEmpty() else row)
     }

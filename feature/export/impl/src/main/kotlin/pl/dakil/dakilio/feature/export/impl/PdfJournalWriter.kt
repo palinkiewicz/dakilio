@@ -12,6 +12,12 @@ import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
 import android.text.Layout
 import android.text.StaticLayout
+import pl.dakil.dakilio.core.model.NoteStyle
+import pl.dakil.dakilio.core.model.NoteMarkup
+import android.text.style.StyleSpan
+import android.text.style.RelativeSizeSpan
+import android.text.Spanned
+import android.text.SpannableString
 import android.text.TextPaint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -177,7 +183,7 @@ class PdfJournalWriter @Inject constructor(
                 y += 3f
             }
             post.note?.takeIf { it.isNotBlank() }?.let {
-                flow(layout(it.trim(), notePaint, spacing = 1.3f))
+                flow(layout(noteSpanned(it.trim()), notePaint, spacing = 1.3f))
                 y += 4f
             }
             if (post.tags.isNotEmpty()) tags(post.tags)
@@ -249,6 +255,25 @@ class PdfJournalWriter @Inject constructor(
             face.strokeWidth = BADGE * 0.068f
             face.strokeCap = Paint.Cap.ROUND
             canvas.drawPath(mouth, face)
+        }
+
+        /** A note with its formatting as spans the layout draws: bold, italic and larger bold headings. */
+        private fun noteSpanned(note: String): CharSequence {
+            val formatted = NoteMarkup.parse(note)
+            if (formatted.isPlain) return formatted.text
+            return SpannableString(formatted.text).apply {
+                formatted.spans.forEach { span ->
+                    val flags = Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    when (span.style) {
+                        NoteStyle.Bold -> setSpan(StyleSpan(Typeface.BOLD), span.start, span.end, flags)
+                        NoteStyle.Italic -> setSpan(StyleSpan(Typeface.ITALIC), span.start, span.end, flags)
+                        NoteStyle.Heading -> {
+                            setSpan(StyleSpan(Typeface.BOLD), span.start, span.end, flags)
+                            setSpan(RelativeSizeSpan(1.25f), span.start, span.end, flags)
+                        }
+                    }
+                }
+            }
         }
 
         private fun layout(text: CharSequence, paint: TextPaint, width: Float = CONTENT_WIDTH, spacing: Float = 1.15f): StaticLayout =
