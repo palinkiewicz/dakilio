@@ -87,6 +87,26 @@ object DakilioSymbols {
     val PictureAsPdf = VectorSymbol("picture_as_pdf", R.drawable.sym_picture_as_pdf, R.drawable.sym_picture_as_pdf_fill, SymbolCategory.Ui)
     val Description = VectorSymbol("description", R.drawable.sym_description, R.drawable.sym_description_fill, SymbolCategory.Ui)
     val Folder = VectorSymbol("folder", R.drawable.sym_folder, R.drawable.sym_folder_fill, SymbolCategory.Ui)
+    val ChevronLeft = VectorSymbol("chevron_left", R.drawable.sym_chevron_left, R.drawable.sym_chevron_left_fill, SymbolCategory.Ui)
+    val TrendingUp = VectorSymbol("trending_up", R.drawable.sym_trending_up, R.drawable.sym_trending_up_fill, SymbolCategory.Ui)
+    val TrendingDown = VectorSymbol("trending_down", R.drawable.sym_trending_down, R.drawable.sym_trending_down_fill, SymbolCategory.Ui)
+    val WbTwilight = VectorSymbol("wb_twilight", R.drawable.sym_wb_twilight, R.drawable.sym_wb_twilight_fill, SymbolCategory.Ui)
+    val Approval = VectorSymbol("approval", R.drawable.sym_approval, R.drawable.sym_approval_fill, SymbolCategory.Ui)
+    val MilitaryTech = VectorSymbol("military_tech", R.drawable.sym_military_tech, R.drawable.sym_military_tech_fill, SymbolCategory.Ui)
+    val Footprint = VectorSymbol("footprint", R.drawable.sym_footprint, R.drawable.sym_footprint_fill, SymbolCategory.Ui)
+    val Vibration = VectorSymbol("vibration", R.drawable.sym_vibration, R.drawable.sym_vibration_fill, SymbolCategory.Ui)
+    val Wallpaper = VectorSymbol("wallpaper", R.drawable.sym_wallpaper, R.drawable.sym_wallpaper_fill, SymbolCategory.Ui)
+    val FormatBold = VectorSymbol("format_bold", R.drawable.sym_format_bold, R.drawable.sym_format_bold_fill, SymbolCategory.Ui)
+    val FormatItalic = VectorSymbol("format_italic", R.drawable.sym_format_italic, R.drawable.sym_format_italic_fill, SymbolCategory.Ui)
+    val FormatH1 = VectorSymbol("format_h1", R.drawable.sym_format_h1, R.drawable.sym_format_h1_fill, SymbolCategory.Ui)
+    val FormatListBulleted = VectorSymbol("format_list_bulleted", R.drawable.sym_format_list_bulleted, R.drawable.sym_format_list_bulleted_fill, SymbolCategory.Ui)
+    val FormatStrikethrough = VectorSymbol("format_strikethrough", R.drawable.sym_format_strikethrough, R.drawable.sym_format_strikethrough_fill, SymbolCategory.Ui)
+    val TableView = VectorSymbol("table_view", R.drawable.sym_table_view, R.drawable.sym_table_view_fill, SymbolCategory.Ui)
+    val Widgets = VectorSymbol("widgets", R.drawable.sym_widgets, R.drawable.sym_widgets_fill, SymbolCategory.Ui)
+    val TipsAndUpdates = VectorSymbol("tips_and_updates", R.drawable.sym_tips_and_updates, R.drawable.sym_tips_and_updates_fill, SymbolCategory.Ui)
+    val BarChart = VectorSymbol("bar_chart", R.drawable.sym_bar_chart, R.drawable.sym_bar_chart_fill, SymbolCategory.Ui)
+    val CalendarViewMonth = VectorSymbol("calendar_view_month", R.drawable.sym_calendar_view_month, R.drawable.sym_calendar_view_month_fill, SymbolCategory.Ui)
+    val Title = VectorSymbol("title", R.drawable.sym_title, R.drawable.sym_title_fill, SymbolCategory.Ui)
     val SentimentVerySatisfied = VectorSymbol("sentiment_very_satisfied", R.drawable.sym_sentiment_very_satisfied, R.drawable.sym_sentiment_very_satisfied_fill, SymbolCategory.Emotions)
     val SentimentSatisfied = VectorSymbol("sentiment_satisfied", R.drawable.sym_sentiment_satisfied, R.drawable.sym_sentiment_satisfied_fill, SymbolCategory.Emotions)
     val SentimentNeutral = VectorSymbol("sentiment_neutral", R.drawable.sym_sentiment_neutral, R.drawable.sym_sentiment_neutral_fill, SymbolCategory.Emotions)
@@ -293,6 +313,26 @@ object DakilioSymbols {
         PictureAsPdf,
         Description,
         Folder,
+        ChevronLeft,
+        TrendingUp,
+        TrendingDown,
+        WbTwilight,
+        Approval,
+        MilitaryTech,
+        Footprint,
+        Vibration,
+        Wallpaper,
+        FormatBold,
+        FormatItalic,
+        FormatH1,
+        FormatListBulleted,
+        FormatStrikethrough,
+        TableView,
+        Widgets,
+        TipsAndUpdates,
+        BarChart,
+        CalendarViewMonth,
+        Title,
         SentimentVerySatisfied,
         SentimentSatisfied,
         SentimentNeutral,
