@@ -379,11 +379,20 @@ internal fun TimelineScreen(
                         when (item) {
                             is TimelineItem.MonthDivider -> MonthDivider(item, formats, itemModifier)
                             is TimelineItem.DayHeader -> DayHeader(item, state.today, formats, itemModifier)
-                            is TimelineItem.TodayPrompt -> CheckInCard(
-                                moods = state.moods,
-                                onMood = { onOpenEntry(EntryEditorKey(presetDiaryId = selectedDiary, presetMoodId = it.id)) },
-                                modifier = itemModifier,
-                            )
+                            is TimelineItem.TodayPrompt -> {
+                                // The shown diary (or, for "All", any diary) asks for a mood: offer the faces.
+                                val asksMood = state.diaries.firstOrNull { it.id == selectedDiary }?.moodTracking
+                                    ?: state.diaries.any { it.moodTracking }
+                                if (asksMood) {
+                                    CheckInCard(
+                                        moods = state.moods,
+                                        onMood = { onOpenEntry(EntryEditorKey(presetDiaryId = selectedDiary, presetMoodId = it.id)) },
+                                        modifier = itemModifier,
+                                    )
+                                } else {
+                                    WriteCard(onWrite = { onOpenEntry(EntryEditorKey(presetDiaryId = selectedDiary)) }, modifier = itemModifier)
+                                }
+                            }
                             is TimelineItem.PostItem -> PostCard(
                                 post = item.post,
                                 formats = formats,
@@ -651,6 +660,32 @@ private fun DayHeader(item: TimelineItem.DayHeader, today: LocalDate, formats: D
         // The day at a glance: its moods as a little overlapping stack.
         Row(horizontalArrangement = Arrangement.spacedBy((-6).dp)) {
             item.moods.take(5).forEach { MoodBadge(it, size = 22.dp) }
+        }
+    }
+}
+
+/** Today's prompt in a diary that doesn't track moods: the check-in card without the faces. */
+@Composable
+private fun WriteCard(onWrite: () -> Unit, modifier: Modifier) {
+    val haptics = rememberHaptics()
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(SegmentedShapes.outer),
+        color = MaterialTheme.colorScheme.primaryContainer,
+        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+    ) {
+        Column(Modifier.padding(Spacing.xl)) {
+            Text(stringResource(R.string.timeline_write_title), style = MaterialTheme.typography.headlineSmallEmphasized)
+            Button(
+                onClick = {
+                    haptics.confirm()
+                    onWrite()
+                },
+                modifier = Modifier.padding(top = Spacing.l),
+            ) {
+                DakilioIcon(DakilioSymbols.EditNote, contentDescription = null, modifier = Modifier.padding(end = Spacing.s))
+                Text(stringResource(R.string.timeline_write_button))
+            }
         }
     }
 }

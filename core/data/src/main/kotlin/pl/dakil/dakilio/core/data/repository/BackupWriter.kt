@@ -124,6 +124,7 @@ internal class BackupWriter @Inject constructor(
                     position = it.position,
                     createdAt = BackupTime.formatInstant(it.createdAt),
                     suggestedGroups = suggestions[it.id].orEmpty().sorted(),
+                    noMoods = !it.moodTracking,
                     reminders = remindersByDiary[it.id].orEmpty(),
                 )
             },

@@ -196,13 +196,14 @@ internal fun EntryEditorScreen(
                         EditorStep.Note -> true
                     },
                     canSave = canSave,
+                    isFirst = current.step == current.steps.first(),
                     onBack = {
                         haptics.tick()
-                        viewModel.goTo(EditorStep.entries[current.step.ordinal - 1])
+                        current.steps.getOrNull(current.steps.indexOf(current.step) - 1)?.let(viewModel::goTo)
                     },
                     onNext = {
                         haptics.tick()
-                        viewModel.goTo(EditorStep.entries[current.step.ordinal + 1])
+                        current.steps.getOrNull(current.steps.indexOf(current.step) + 1)?.let(viewModel::goTo)
                     },
                     onSave = save,
                 )
@@ -476,7 +477,8 @@ private fun InfoItem(symbol: DakilioSymbol, text: String, modifier: Modifier = M
 @Composable
 private fun Stepper(state: EditorUiState, bodyFilled: Boolean, onStep: (EditorStep) -> Unit, modifier: Modifier = Modifier) {
     Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)) {
-        EditorStep.entries.forEach { step ->
+        val steps = state.steps
+        steps.forEachIndexed { index, step ->
             val done = when (step) {
                 EditorStep.Mood -> state.moodId != null
                 EditorStep.Tags -> state.tagIds.isNotEmpty()
@@ -488,9 +490,9 @@ private fun Stepper(state: EditorUiState, bodyFilled: Boolean, onStep: (EditorSt
                 checked = current,
                 onCheckedChange = { if (!current) onStep(step) },
                 modifier = Modifier.weight(weight).semantics { role = Role.Tab },
-                shapes = when (step.ordinal) {
+                shapes = when (index) {
                     0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
-                    EditorStep.entries.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                    steps.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
                     else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
                 },
                 colors = ToggleButtonDefaults.colors(),
@@ -532,6 +534,7 @@ private fun BottomActions(
     step: EditorStep,
     canAdvance: Boolean,
     canSave: Boolean,
+    isFirst: Boolean,
     onBack: () -> Unit,
     onNext: () -> Unit,
     onSave: () -> Unit,
@@ -551,7 +554,7 @@ private fun BottomActions(
                 .padding(horizontal = Spacing.gutter, vertical = Spacing.m),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            AnimatedVisibility(step != EditorStep.Mood) {
+            AnimatedVisibility(!isFirst) {
                 OutlinedButton(
                     onClick = onBack,
                     modifier = Modifier.heightIn(min = height),

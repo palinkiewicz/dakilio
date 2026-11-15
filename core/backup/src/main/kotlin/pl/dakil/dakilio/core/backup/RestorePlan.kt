@@ -46,6 +46,7 @@ data class RestoreDiary(
     /** Indices into [RestorePlan.groups]. */
     val suggestedGroups: List<Int>,
     val reminders: List<RestoreReminder> = emptyList(),
+    val moodTracking: Boolean = true,
 )
 
 /** A reminder of a diary or habit. */
@@ -210,6 +211,7 @@ fun planRestore(backup: DakilioBackup, defaultDiaryName: String, now: Long): Res
             createdAt = BackupTime.parseMillis(diary.createdAt) ?: now,
             suggestedGroups = diary.suggestedGroups.distinct().mapNotNull { id -> groupIndexById[id].also { if (it == null) missing++ } },
             reminders = restoreReminders(diary.reminders, diary.reminder),
+            moodTracking = !diary.noMoods,
         )
     }.ifEmpty { listOf(RestoreDiary(defaultDiaryName, "", 0, now, emptyList())) }
 

@@ -43,6 +43,7 @@ internal fun PopulatedDiary.asModel() = Diary(
     iconKey = diary.iconKey,
     position = diary.position,
     suggestedGroupIds = suggestedGroupIds.toSet(),
+    moodTracking = diary.moodTracking,
 )
 
 /** [keep] picks which tags to include; by default only active ones. */

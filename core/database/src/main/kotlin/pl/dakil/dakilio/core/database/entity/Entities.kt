@@ -42,6 +42,8 @@ data class DiaryEntity(
     @ColumnInfo(name = "reminder_on", defaultValue = "0") val legacyReminderOn: Boolean = false,
     /** Legacy, unused since version 3 (see [legacyReminderOn]). */
     @ColumnInfo(name = "reminder_minute", defaultValue = "1200") val legacyReminderMinute: Int = 1200,
+    /** Whether entries in this diary are asked for a mood; off for diaries like a dream or project log. */
+    @ColumnInfo(name = "mood_tracking", defaultValue = "1") val moodTracking: Boolean = true,
 )
 
 @Entity(tableName = "tag_group")

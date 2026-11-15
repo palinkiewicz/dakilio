@@ -115,6 +115,8 @@ data class BackupDiary(
     val createdAt: String? = null,
     /** Ids of the tag groups the editor expands for this diary. */
     val suggestedGroups: List<Long> = emptyList(),
+    /** Writing in this diary doesn't ask for a mood. */
+    val noMoods: Boolean = false,
     /** Reminders to write in this diary (the Reminders extra). */
     val reminders: List<BackupReminder> = emptyList(),
     /** The single daily reminder of 1.2.0, only read; newer backups use [reminders]. */

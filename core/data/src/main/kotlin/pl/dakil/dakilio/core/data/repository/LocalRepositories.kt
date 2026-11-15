@@ -93,10 +93,10 @@ internal class LocalDiaryRepository @Inject constructor(
 
     override suspend fun getDiary(id: Long): Diary? = diaryDao.getDiary(id)?.asModel()
 
-    override suspend fun saveDiary(id: Long?, name: String, iconKey: String, suggestedGroupIds: Set<Long>): Long {
+    override suspend fun saveDiary(id: Long?, name: String, iconKey: String, suggestedGroupIds: Set<Long>, moodTracking: Boolean): Long {
         val existing = id?.let { diaryDao.getDiary(it)?.diary }
-        val entity = existing?.copy(name = name, iconKey = iconKey)
-            ?: DiaryEntity(name = name, iconKey = iconKey, position = diaryDao.nextPosition(), createdAt = clock.millis())
+        val entity = existing?.copy(name = name, iconKey = iconKey, moodTracking = moodTracking)
+            ?: DiaryEntity(name = name, iconKey = iconKey, position = diaryDao.nextPosition(), createdAt = clock.millis(), moodTracking = moodTracking)
         return diaryDao.save(entity, suggestedGroupIds)
     }
 

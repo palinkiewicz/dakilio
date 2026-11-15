@@ -26,6 +26,7 @@ internal data class DiaryForm(
     val loaded: Boolean = false,
     val iconKey: String = DEFAULT_DIARY_ICON,
     val suggestedGroupIds: Set<Long> = emptySet(),
+    val moodTracking: Boolean = true,
     val finished: Boolean = false,
 )
 
@@ -34,6 +35,8 @@ data class DiaryEditorUiState(
     val iconKey: String,
     val groups: List<TagGroup>,
     val suggestedGroupIds: Set<Long>,
+    /** Whether writing in this diary asks for a mood. */
+    val moodTracking: Boolean,
     /** Diaries entries could be moved to when this one is deleted. */
     val otherDiaries: List<Diary>,
     val finished: Boolean,
@@ -64,6 +67,7 @@ class DiaryEditorViewModel @AssistedInject constructor(
                 iconKey = form.iconKey,
                 groups = groups,
                 suggestedGroupIds = form.suggestedGroupIds,
+                moodTracking = form.moodTracking,
                 otherDiaries = diaries.filter { it.id != key.diaryId },
                 finished = form.finished,
             )
@@ -78,6 +82,7 @@ class DiaryEditorViewModel @AssistedInject constructor(
                     loaded = true,
                     iconKey = existing.iconKey,
                     suggestedGroupIds = existing.suggestedGroupIds,
+                    moodTracking = existing.moodTracking,
                 )
             } else {
                 // A new diary suggests nothing by default: every group stays collapsed until chosen.
@@ -88,6 +93,8 @@ class DiaryEditorViewModel @AssistedInject constructor(
 
     fun setIcon(iconKey: String) = form.update { it.copy(iconKey = iconKey) }
 
+    fun setMoodTracking(track: Boolean) = form.update { it.copy(moodTracking = track) }
+
     fun toggleGroup(id: Long) = form.update {
         it.copy(suggestedGroupIds = if (id in it.suggestedGroupIds) it.suggestedGroupIds - id else it.suggestedGroupIds + id)
     }
@@ -97,7 +104,7 @@ class DiaryEditorViewModel @AssistedInject constructor(
         val title = name.text.toString().trim()
         if (title.isEmpty() || current.finished) return
         viewModelScope.launch {
-            diaryRepository.saveDiary(key.diaryId, title, current.iconKey, current.suggestedGroupIds)
+            diaryRepository.saveDiary(key.diaryId, title, current.iconKey, current.suggestedGroupIds, current.moodTracking)
             form.update { it.copy(finished = true) }
         }
     }

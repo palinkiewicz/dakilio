@@ -122,7 +122,15 @@ data class EditorUiState(
     val dirty: Boolean,
     val editing: Boolean,
     val finished: Boolean,
-)
+    /**
+     * Whether the editor offers a mood: the entry's diary tracks moods, or the entry already has one
+     * (so moving an entry into a diary without moods keeps its mood changeable).
+     */
+    val askMood: Boolean = true,
+) {
+    /** The wizard's steps for a new entry: without the mood step in a diary that doesn't track moods. */
+    val steps: List<EditorStep> get() = if (askMood) EditorStep.entries else EditorStep.entries - EditorStep.Mood
+}
 
 @HiltViewModel(assistedFactory = EntryEditorViewModel.Factory::class)
 class EntryEditorViewModel @AssistedInject constructor(
@@ -189,6 +197,7 @@ class EntryEditorViewModel @AssistedInject constructor(
                 dirty = form.dirty,
                 editing = form.editing,
                 finished = form.finished,
+                askMood = form.moodId != null || diaries.firstOrNull { it.id == form.diaryId }?.moodTracking != false,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
@@ -349,7 +358,8 @@ class EntryEditorViewModel @AssistedInject constructor(
         form.value = EditorForm(
             loaded = true,
             dateTime = key.presetEpochDay?.let { LocalDate.ofEpochDay(it).atTime(now.toLocalTime()) } ?: now,
-            step = if (key.presetMoodId != null) EditorStep.Tags else EditorStep.Mood,
+            // A preset mood, or a diary that doesn't ask for one, starts at the tags.
+            step = if (key.presetMoodId != null || diaries.firstOrNull { it.id == diaryId }?.moodTracking == false) EditorStep.Tags else EditorStep.Mood,
             moodId = key.presetMoodId,
             diaryId = diaryId,
             tagIds = presetTags,
@@ -378,7 +388,15 @@ class EntryEditorViewModel @AssistedInject constructor(
 
     fun clearMood() = form.update { it.copy(moodId = null, dirty = true) }
 
-    fun selectDiary(id: Long) = form.update { if (it.diaryId == id) it else it.copy(diaryId = id, dirty = true) }
+    fun selectDiary(id: Long) {
+        // Moving to a diary that doesn't ask for a mood while still on the (empty) mood step moves on.
+        val asksMood = uiState.value?.diaries?.firstOrNull { it.id == id }?.moodTracking != false
+        form.update {
+            if (it.diaryId == id) return@update it
+            val step = if (!asksMood && it.moodId == null && it.step == EditorStep.Mood) EditorStep.Tags else it.step
+            it.copy(diaryId = id, step = step, dirty = true)
+        }
+    }
 
     fun toggleTag(id: Long) = form.update {
         if (id in it.tagIds) {

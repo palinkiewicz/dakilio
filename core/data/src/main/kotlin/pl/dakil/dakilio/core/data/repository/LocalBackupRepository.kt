@@ -218,6 +218,7 @@ internal class LocalBackupRepository @Inject constructor(
                                 iconKey = it.iconKey.ifBlank { defaultDiary.iconKey },
                                 position = it.position,
                                 createdAt = it.createdAt,
+                                moodTracking = it.moodTracking,
                             ),
                             it.suggestedGroups,
                         )

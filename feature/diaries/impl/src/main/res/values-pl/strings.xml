@@ -25,6 +25,9 @@
     <string name="diaries_name_hint">np. Praca, Sny, Podróże</string>
     <string name="diaries_change_icon">Zmień ikonę</string>
     <string name="diaries_icon">Wybierz ikonę</string>
+    <string name="diaries_writing_title">Pisanie w tym dzienniku</string>
+    <string name="diaries_mood_tracking">Pytaj o nastrój</string>
+    <string name="diaries_mood_tracking_body">Wyłącz w dzienniku takim jak dziennik snów albo projektu: nowe wpisy zaczynają się od tagów i notatki</string>
     <string name="diaries_suggested_title">Sugerowane grupy tagów</string>
     <string name="diaries_suggested_body">Te grupy są rozwinięte, gdy piszesz w tym dzienniku. Pozostałe są zwinięte, ale wystarczy jedno dotknięcie.</string>
     <string name="diaries_delete">Usuń dziennik</string>

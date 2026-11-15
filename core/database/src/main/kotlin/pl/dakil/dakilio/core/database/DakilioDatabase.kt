@@ -1,6 +1,7 @@
 package pl.dakil.dakilio.core.database
 
 import android.content.Context
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import pl.dakil.dakilio.core.database.dao.DiaryDao
@@ -39,8 +40,10 @@ import pl.dakil.dakilio.core.database.entity.TagKeywordEntity
     ],
     // Every schema change bumps the version and adds a migration (`autoMigrations` or a Migration in
     // Migrations.kt), so installs keep their data. Never edit an exported schema once committed.
-    // 1 = the released 1.0.0; 2 = diary and habit reminder columns (1.2.0); 3 = the reminder table.
-    version = 3,
+    // 1 = the released 1.0.0; 2 = diary and habit reminder columns (1.2.0); 3 = the reminder table;
+    // 4 = diary.mood_tracking.
+    version = 4,
+    autoMigrations = [AutoMigration(from = 3, to = 4)],
     exportSchema = true,
 )
 abstract class DakilioDatabase : RoomDatabase() {

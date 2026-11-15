@@ -74,6 +74,7 @@ import pl.dakil.dakilio.core.designsystem.icon.symbolForKey
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.ui.Hint
+import pl.dakil.dakilio.core.ui.component.SwitchListItem
 import pl.dakil.dakilio.core.ui.component.IconPicker
 
 @Composable
@@ -158,7 +159,17 @@ internal fun DiaryEditorScreen(viewModel: DiaryEditorViewModel, onClose: () -> U
                     modifier = Modifier.fillMaxWidth().padding(top = Spacing.xl),
                 )
 
-                SectionHeader(stringResource(R.string.diaries_suggested_title), Modifier.padding(top = Spacing.m))
+                SectionHeader(stringResource(R.string.diaries_writing_title), Modifier.padding(top = Spacing.m))
+                SwitchListItem(
+                    title = stringResource(R.string.diaries_mood_tracking),
+                    body = stringResource(R.string.diaries_mood_tracking_body),
+                    symbol = DakilioSymbols.Mood,
+                    polygon = MaterialShapes.Cookie9Sided,
+                    checked = current.moodTracking,
+                    onCheckedChange = viewModel::setMoodTracking,
+                )
+
+                SectionHeader(stringResource(R.string.diaries_suggested_title))
                 Hint {
                     Text(
                         stringResource(R.string.diaries_suggested_body),

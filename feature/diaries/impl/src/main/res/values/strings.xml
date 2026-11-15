@@ -21,6 +21,9 @@
     <string name="diaries_name_hint">e.g. Work, Dreams, Travels</string>
     <string name="diaries_change_icon">Change icon</string>
     <string name="diaries_icon">Choose an icon</string>
+    <string name="diaries_writing_title">Writing here</string>
+    <string name="diaries_mood_tracking">Ask for a mood</string>
+    <string name="diaries_mood_tracking_body">Off for a diary like a dream journal or a project log: new entries go straight to tags and the note</string>
     <string name="diaries_suggested_title">Suggested tag groups</string>
     <string name="diaries_suggested_body">These groups open up when you write in this diary. The others stay tucked away (but one tap away).</string>
     <string name="diaries_delete">Delete diary</string>

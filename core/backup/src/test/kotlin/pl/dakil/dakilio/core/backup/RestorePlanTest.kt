@@ -5,6 +5,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import pl.dakil.dakilio.core.model.KeywordDraft
 import pl.dakil.dakilio.core.model.PhotoSize
@@ -100,6 +101,18 @@ class RestorePlanTest {
         val plan = planRestore(backup(settings = BackupSettings(timelineDiary = 404)), "Journey", now)
         assertNull(plan.settings.timelineDiaryIndex)
         assertNull(planRestore(backup(settings = BackupSettings()), "Journey", now).settings.timelineDiaryIndex)
+    }
+
+    @Test
+    fun diariesWithoutMoodsStayThatWay() {
+        val plan = planRestore(
+            backup(diaries = listOf(BackupDiary(id = 1, name = "Life"), BackupDiary(id = 2, name = "Dreams", position = 1, noMoods = true))),
+            "Journey",
+            now,
+        )
+        assertEquals(listOf(true, false), plan.diaries.map { it.moodTracking })
+        // A backup with no diary at all gets the default one, which tracks moods.
+        assertTrue(planRestore(backup(diaries = emptyList()), "Journey", now).diaries.single().moodTracking)
     }
 
     @Test

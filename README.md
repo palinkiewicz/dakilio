@@ -20,7 +20,7 @@ Jetpack Compose and Material 3 Expressive. Requires Android 10 or newer.
 - **Tags:** tag groups with icons and colors, shown as a Daylio-style icon grid or as chips. Tags
   and groups you no longer use can be archived instead of deleted.
 - **Diaries:** each entry lives in one diary. A diary suggests the tag groups that open first; the
-  rest stay collapsed.
+  rest stay collapsed. A diary can leave moods out, for a dream journal or a project log.
 - **Extras:** habits (a tag and a target of days per week) and keywords (words in a note that
   suggest a tag).
 - **Search:** filter by text, mood, tags, diary, date and more, with quick presets such as

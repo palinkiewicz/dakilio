@@ -97,10 +97,12 @@ internal fun EntryOverview(
         contentPadding = PaddingValues(top = Spacing.s, bottom = Spacing.xl),
         verticalArrangement = Arrangement.spacedBy(Spacing.s),
     ) {
-        if (editing || mood != null) {
+        // A diary that doesn't track moods offers none, unless the entry came with one.
+        val editMood = editing && state.askMood
+        if (editMood || mood != null) {
             item(key = "mood-label") { SectionLabel(R.string.entry_step_mood, Modifier.animateItem()) }
         }
-        if (editing) {
+        if (editMood) {
             item(key = "mood-row") {
                 MoodRow(
                     moods = state.moods,

@@ -72,7 +72,7 @@ interface DiaryRepository {
 
     suspend fun getDiary(id: Long): Diary?
 
-    suspend fun saveDiary(id: Long?, name: String, iconKey: String, suggestedGroupIds: Set<Long>): Long
+    suspend fun saveDiary(id: Long?, name: String, iconKey: String, suggestedGroupIds: Set<Long>, moodTracking: Boolean = true): Long
 
     /** How many entries are in this diary. */
     suspend fun postCount(diaryId: Long): Int
