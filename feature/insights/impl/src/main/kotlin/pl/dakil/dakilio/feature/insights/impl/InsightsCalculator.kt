@@ -90,5 +90,3 @@ fun calculateInsights(
         heatmap = heatmap,
     )
 }
-
-private fun List<Float>.averageOrNull(): Float? = if (isEmpty()) null else average().toFloat()
