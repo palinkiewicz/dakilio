@@ -19,5 +19,6 @@ dependencies {
     implementation(projects.feature.habits.api)
     implementation(projects.feature.keywords.api)
     implementation(projects.feature.reminders.api)
+    implementation(projects.feature.prompts.api)
     implementation(projects.feature.lock.api)
 }

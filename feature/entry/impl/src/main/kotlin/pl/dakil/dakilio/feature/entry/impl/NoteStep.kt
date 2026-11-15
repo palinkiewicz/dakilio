@@ -67,6 +67,7 @@ internal fun NoteStep(
     onAddPhotos: (List<android.net.Uri>) -> Unit,
     onRemovePhoto: (String) -> Unit,
     modifier: Modifier = Modifier,
+    aboveTitle: @Composable () -> Unit = {},
     belowNote: @Composable () -> Unit = {},
 ) {
     Column(modifier.verticalScroll(rememberScrollState()).padding(vertical = Spacing.s)) {
@@ -75,7 +76,7 @@ internal fun NoteStep(
             hintOrNull(stringResource(R.string.entry_note_body)),
             Modifier.padding(horizontal = Spacing.gutter),
         )
-        NoteFields(title, note, photos, importing, bodyRequired, onAddPhotos, onRemovePhoto, belowNote = belowNote)
+        NoteFields(title, note, photos, importing, bodyRequired, onAddPhotos, onRemovePhoto, aboveTitle = aboveTitle, belowNote = belowNote)
     }
 }
 
@@ -90,6 +91,7 @@ internal fun NoteFields(
     onAddPhotos: (List<android.net.Uri>) -> Unit,
     onRemovePhoto: (String) -> Unit,
     modifier: Modifier = Modifier,
+    aboveTitle: @Composable () -> Unit = {},
     belowNote: @Composable () -> Unit = {},
 ) {
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(MAX_PICK), onAddPhotos)
@@ -125,6 +127,7 @@ internal fun NoteFields(
                 )
             }
         }
+        aboveTitle()
         TextField(
             state = title,
             placeholder = { Text(stringResource(R.string.entry_title_hint), style = titleStyle) },

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="prompts_title">Pytania</string>
+    <string name="prompts_subtitle">Na pustą notatkę</string>
+    <string name="prompts_back">Wstecz</string>
+    <string name="prompts_new">Nowe pytanie</string>
+    <string name="prompts_hint">Dopóki notatka jest pusta, edytor podsuwa jedno z tych pytań. Dotknij go tam, żeby od niego zacząć, albo wylosuj inne.</string>
+    <string name="prompts_empty_title">Nie wiesz, od czego zacząć?</string>
+    <string name="prompts_empty_body">Dodaj kilka pytań, a edytor podsunie takie, które pasuje do twojego nastroju, gdy notatka jest jeszcze pusta.</string>
+    <string name="prompts_any_mood">Każdy nastrój</string>
+    <string name="prompts_deleted">Usunięto pytanie</string>
+    <string name="prompts_undo">Cofnij</string>
+
+    <string name="prompts_sheet_new">Nowe pytanie</string>
+    <string name="prompts_sheet_edit">Edytuj pytanie</string>
+    <string name="prompts_sheet_question">Pytanie</string>
+    <string name="prompts_sheet_question_hint">O co chcesz siebie zapytać?</string>
+    <string name="prompts_sheet_moods">Podsuwaj przy nastroju</string>
+    <string name="prompts_sheet_any_mood">Przy każdym nastroju, także we wpisach bez niego.</string>
+    <string name="prompts_sheet_some_moods">Tylko we wpisach z jednym z tych nastrojów.</string>
+    <string name="prompts_sheet_add">Dodaj</string>
+    <string name="prompts_sheet_save">Zapisz</string>
+    <string name="prompts_sheet_delete">Usuń</string>
+
+    <string name="prompts_starters">Gotowe pytania</string>
+    <string name="prompts_starters_hint">Zaznacz te, które ci odpowiadają. Później możesz je zmienić albo usunąć.</string>
+    <string name="prompts_starter_added">Już masz to pytanie</string>
+    <string name="prompts_starters_add_none">Dodaj</string>
+    <plurals name="prompts_starters_add">
+        <item quantity="one">Dodaj %d pytanie</item>
+        <item quantity="few">Dodaj %d pytania</item>
+        <item quantity="many">Dodaj %d pytań</item>
+        <item quantity="other">Dodaj %d pytania</item>
+    </plurals>
+    <string name="prompts_starter_any_title">Na każdy dzień</string>
+    <string name="prompts_starter_heavy_title">Na cięższe dni</string>
+    <string name="prompts_starter_bright_title">Na lepsze dni</string>
+
+    <string-array name="prompts_starter_any" tools:ignore="InconsistentArrays">
+        <item>Co chcesz zapamiętać z dzisiejszego dnia?</item>
+        <item>Co dziś najbardziej zajmowało twoją uwagę?</item>
+        <item>Co cię dziś zaskoczyło?</item>
+        <item>Na co czekasz?</item>
+    </string-array>
+    <string-array name="prompts_starter_heavy" tools:ignore="InconsistentArrays">
+        <item>Co było dziś najcięższe?</item>
+        <item>Co sprawiłoby, że jutro będzie trochę łatwiej?</item>
+        <item>Czy jest coś, co chcesz tu zapisać i zostawić za sobą?</item>
+        <item>Co pomogło, choćby odrobinę?</item>
+    </string-array>
+    <string-array name="prompts_starter_bright" tools:ignore="InconsistentArrays">
+        <item>Co sprawiło, że to był dobry dzień?</item>
+        <item>Za kogo albo za co czujesz dziś wdzięczność?</item>
+        <item>Czego chcesz więcej?</item>
+        <item>Co dziś napawa cię dumą?</item>
+    </string-array>
+</resources>

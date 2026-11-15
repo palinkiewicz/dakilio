@@ -20,6 +20,14 @@
         <item quantity="many">Ustawione dla %d tagów</item>
         <item quantity="other">Ustawione dla %d tagu</item>
     </plurals>
+    <string name="more_prompts">Pytania</string>
+    <string name="more_prompts_body">Pytania dopasowane do nastroju, gdy notatka jest jeszcze pusta</string>
+    <plurals name="more_prompts_status">
+        <item quantity="one">%d pytanie</item>
+        <item quantity="few">%d pytania</item>
+        <item quantity="many">%d pytań</item>
+        <item quantity="other">%d pytania</item>
+    </plurals>
     <string name="more_reminders">Przypomnienia</string>
     <string name="more_reminders_body">Szturchnięcie, żeby coś zapisać albo pilnować nawyku</string>
     <plurals name="more_reminders_status">

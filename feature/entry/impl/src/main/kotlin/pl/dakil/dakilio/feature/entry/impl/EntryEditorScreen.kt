@@ -105,6 +105,10 @@ internal fun EntryEditorScreen(
             onUndo = viewModel::undoKeywordTag,
         )
     }
+    val promptOffer by viewModel.prompt.collectAsStateWithLifecycle()
+    val promptCard: @Composable () -> Unit = {
+        PromptCard(offer = promptOffer, onUse = viewModel::usePrompt, onAnother = viewModel::anotherPrompt)
+    }
     val haptics = rememberHaptics()
     var confirmDiscard by rememberSaveable { mutableStateOf(false) }
     var confirmDelete by rememberSaveable { mutableStateOf(false) }
@@ -239,6 +243,7 @@ internal fun EntryEditorScreen(
                                 onRemovePhoto = viewModel::removePhoto,
                                 modifier = Modifier.weight(1f).padding(top = Spacing.s),
                                 keywordChips = keywordRow,
+                                promptCard = promptCard,
                             )
                         } else {
                             Stepper(
@@ -289,6 +294,7 @@ internal fun EntryEditorScreen(
                                         onAddPhotos = viewModel::addPhotos,
                                         onRemovePhoto = viewModel::removePhoto,
                                         modifier = Modifier.fillMaxSize(),
+                                        aboveTitle = promptCard,
                                         belowNote = keywordRow,
                                     )
                                 }

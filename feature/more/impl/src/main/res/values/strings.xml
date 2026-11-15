@@ -16,6 +16,12 @@
         <item quantity="one">Set for %d tag</item>
         <item quantity="other">Set for %d tags</item>
     </plurals>
+    <string name="more_prompts">Prompts</string>
+    <string name="more_prompts_body">Questions that fit your mood, for when a note is still blank</string>
+    <plurals name="more_prompts_status">
+        <item quantity="one">%d prompt</item>
+        <item quantity="other">%d prompts</item>
+    </plurals>
     <string name="more_reminders">Reminders</string>
     <string name="more_reminders_body">A nudge to write, or to keep up a habit</string>
     <plurals name="more_reminders_status">

@@ -73,6 +73,7 @@ internal fun MoreScreen(
     onOpenHabits: () -> Unit,
     onOpenKeywords: () -> Unit,
     onOpenReminders: () -> Unit,
+    onOpenPrompts: () -> Unit,
     onOpenAppLock: () -> Unit,
 ) {
     val showSampleHint by viewModel.showSampleHint.collectAsStateWithLifecycle()
@@ -80,6 +81,7 @@ internal fun MoreScreen(
     val lock by viewModel.lock.collectAsStateWithLifecycle()
     val keywordTags by viewModel.keywordTagCount.collectAsStateWithLifecycle()
     val reminders by viewModel.reminderCount.collectAsStateWithLifecycle()
+    val prompts by viewModel.promptCount.collectAsStateWithLifecycle()
     val autoBackup by viewModel.autoBackup.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val version = remember {
@@ -135,6 +137,18 @@ internal fun MoreScreen(
                             stringResource(R.string.more_extras_not_used)
                         },
                         inUse = reminders > 0,
+                    ),
+                    MoreItem(
+                        DakilioSymbols.Lightbulb,
+                        stringResource(R.string.more_prompts),
+                        stringResource(R.string.more_prompts_body),
+                        onOpenPrompts,
+                        status = if (prompts > 0) {
+                            pluralStringResource(R.plurals.more_prompts_status, prompts, prompts)
+                        } else {
+                            stringResource(R.string.more_extras_not_used)
+                        },
+                        inUse = prompts > 0,
                     ),
                 ),
             )

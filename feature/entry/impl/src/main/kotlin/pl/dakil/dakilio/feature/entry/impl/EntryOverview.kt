@@ -88,6 +88,7 @@ internal fun EntryOverview(
     onRemovePhoto: (String) -> Unit,
     modifier: Modifier = Modifier,
     keywordChips: @Composable () -> Unit = {},
+    promptCard: @Composable () -> Unit = {},
 ) {
     val mood = state.moods.firstOrNull { it.id == state.moodId }
     // Each time edit mode starts, the tags are folded into chips so the note is a short scroll away.
@@ -174,6 +175,7 @@ internal fun EntryOverview(
                     onAddPhotos = onAddPhotos,
                     onRemovePhoto = onRemovePhoto,
                     modifier = Modifier.animateItem(),
+                    aboveTitle = promptCard,
                     belowNote = keywordChips,
                 )
             }

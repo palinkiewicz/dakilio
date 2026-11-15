@@ -21,8 +21,8 @@ Jetpack Compose and Material 3 Expressive. Requires Android 10 or newer.
   and groups you no longer use can be archived instead of deleted.
 - **Diaries:** each entry lives in one diary. A diary suggests the tag groups that open first; the
   rest stay collapsed. A diary can leave moods out, for a dream journal or a project log.
-- **Extras:** habits (a tag and a target of days per week) and keywords (words in a note that
-  suggest a tag).
+- **Extras:** habits (a tag and a target of days per week), keywords (words in a note that
+  suggest a tag), reminders and prompts (questions that fit your mood, for a blank note).
 - **Search:** filter by text, mood, tags, diary, date and more, with quick presets such as
   *On this day*.
 - **Insights:** streaks, average mood and its trend, mood distribution, a week rhythm, time of day,
@@ -86,7 +86,8 @@ core:designsystem     theme, typography, shapes, Material Symbols, expressive pr
 core:ui               mood badges, post card, selectors, icon picker, transitions
 core:navigation       per-tab back stacks and the Navigator
 feature:*:api / impl  timeline, entry, search, insights, more, moods, tags, diaries, settings,
-                      importer, backup, archive, intro, habits, keywords, lock
+                      importer, backup, export, archive, intro, habits, keywords, reminders,
+                      prompts, lock
 baselineprofile       profile generator
 ```
 

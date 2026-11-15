@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="prompts_title">Prompts</string>
+    <string name="prompts_subtitle">Questions for a blank note</string>
+    <string name="prompts_back">Back</string>
+    <string name="prompts_new">New prompt</string>
+    <string name="prompts_hint">While a note is still empty, the editor offers one of these. Tap it there to start with it, or shuffle for another.</string>
+    <string name="prompts_empty_title">Stuck on a blank page?</string>
+    <string name="prompts_empty_body">Add a few questions, and the editor will offer one that fits your mood whenever a note is still empty.</string>
+    <string name="prompts_any_mood">Any mood</string>
+    <string name="prompts_deleted">Prompt deleted</string>
+    <string name="prompts_undo">Undo</string>
+
+    <string name="prompts_sheet_new">New prompt</string>
+    <string name="prompts_sheet_edit">Edit prompt</string>
+    <string name="prompts_sheet_question">Question</string>
+    <string name="prompts_sheet_question_hint">What do you want to ask yourself?</string>
+    <string name="prompts_sheet_moods">Offered for</string>
+    <string name="prompts_sheet_any_mood">Any mood, and entries without one.</string>
+    <string name="prompts_sheet_some_moods">Only entries with one of these moods.</string>
+    <string name="prompts_sheet_add">Add</string>
+    <string name="prompts_sheet_save">Save</string>
+    <string name="prompts_sheet_delete">Delete</string>
+
+    <string name="prompts_starters">Starter prompts</string>
+    <string name="prompts_starters_hint">Tick the ones you like. You can reword or remove them later.</string>
+    <string name="prompts_starter_added">Already in your prompts</string>
+    <string name="prompts_starters_add_none">Add</string>
+    <plurals name="prompts_starters_add">
+        <item quantity="one">Add %d prompt</item>
+        <item quantity="other">Add %d prompts</item>
+    </plurals>
+    <string name="prompts_starter_any_title">For any day</string>
+    <string name="prompts_starter_heavy_title">For heavier days</string>
+    <string name="prompts_starter_bright_title">For brighter days</string>
+
+    <!-- Each language writes its own questions in its own voice; the counts may differ. -->
+    <string-array name="prompts_starter_any" tools:ignore="InconsistentArrays">
+        <item>What do you want to remember about today?</item>
+        <item>What took most of your attention today?</item>
+        <item>What surprised you today?</item>
+        <item>What are you looking forward to?</item>
+    </string-array>
+    <string-array name="prompts_starter_heavy" tools:ignore="InconsistentArrays">
+        <item>What felt heaviest today?</item>
+        <item>What would make tomorrow a little easier?</item>
+        <item>Is there something you\'d like to put down here and leave behind?</item>
+        <item>What helped, even a little?</item>
+    </string-array>
+    <string-array name="prompts_starter_bright" tools:ignore="InconsistentArrays">
+        <item>What made today good?</item>
+        <item>Who or what are you grateful for today?</item>
+        <item>What would you like more of?</item>
+        <item>What are you proud of today?</item>
+    </string-array>
+</resources>

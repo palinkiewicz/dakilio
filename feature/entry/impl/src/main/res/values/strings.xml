@@ -56,4 +56,6 @@
     <string name="entry_delete_title">Delete this entry?</string>
     <string name="entry_delete_body">It will be gone for good, photos included.</string>
     <string name="entry_delete_confirm">Delete</string>
+    <string name="entry_prompt_hint">Tap to start with this question</string>
+    <string name="entry_prompt_another">Another prompt</string>
 </resources>

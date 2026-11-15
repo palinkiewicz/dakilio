@@ -14,6 +14,7 @@ import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
+import kotlin.random.Random
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -41,6 +42,7 @@ import pl.dakil.dakilio.core.data.repository.KeywordRepository
 import pl.dakil.dakilio.core.data.repository.MoodRepository
 import pl.dakil.dakilio.core.data.repository.PhotoRepository
 import pl.dakil.dakilio.core.data.repository.PostRepository
+import pl.dakil.dakilio.core.data.repository.PromptRepository
 import pl.dakil.dakilio.core.data.repository.SettingsRepository
 import pl.dakil.dakilio.core.data.repository.TagRepository
 import pl.dakil.dakilio.core.model.Diary
@@ -50,6 +52,8 @@ import pl.dakil.dakilio.core.model.Keywords
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.MoodDisplayOrder
 import pl.dakil.dakilio.core.model.PostDraft
+import pl.dakil.dakilio.core.model.Prompt
+import pl.dakil.dakilio.core.model.Prompts
 import pl.dakil.dakilio.core.model.Tag
 import pl.dakil.dakilio.core.model.TagGroup
 import pl.dakil.dakilio.core.model.TagStyle
@@ -100,6 +104,9 @@ data class KeywordToast(val id: Long, val tags: List<KeywordChip>) {
     val anyAdded: Boolean get() = tags.any { it.added }
 }
 
+/** A prompt on offer in the note step; [hasMore] when "another one" would bring a different one. */
+data class PromptOffer(val prompt: Prompt, val hasMore: Boolean)
+
 data class EditorUiState(
     val loaded: Boolean,
     val isNew: Boolean,
@@ -144,6 +151,7 @@ class EntryEditorViewModel @AssistedInject constructor(
     private val habitRepository: HabitRepository,
     private val habitProgressEvents: HabitProgressEvents,
     keywordRepository: KeywordRepository,
+    promptRepository: PromptRepository,
     private val clock: Clock,
     @ApplicationScope private val applicationScope: CoroutineScope,
     @Dispatcher(DakilioDispatchers.Default) default: CoroutineDispatcher,
@@ -236,6 +244,35 @@ class EntryEditorViewModel @AssistedInject constructor(
             val suggested = matched.filter { it.id !in form.tagIds && it.id !in form.dismissedKeywordTags }
             added.map { KeywordChip(it, added = true) } + suggested.map { KeywordChip(it, added = false) }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    /** How many times "another one" was asked for; the session's order of prompts is fixed by [promptSeed]. */
+    private val promptTurn = MutableStateFlow(0)
+    private val promptSeed = Random.nextInt()
+
+    /**
+     * The writing prompt to offer (the Prompts extra): one that suits the entry's mood, only while
+     * the title and note are both empty and the entry can be edited. Typing anything sends it away.
+     */
+    val prompt: StateFlow<PromptOffer?> =
+        combine(
+            uiState,
+            promptRepository.prompts,
+            snapshotFlow { title.text.isBlank() && note.text.isBlank() },
+            promptTurn,
+        ) { state, prompts, blank, turn ->
+            if (state == null || !blank || prompts.isEmpty() || (!state.isNew && !state.editing)) return@combine null
+            val level = state.moods.firstOrNull { it.id == state.moodId }?.level
+            Prompts.pick(prompts, level, promptSeed, turn)?.let { PromptOffer(it, hasMore = Prompts.matching(prompts, level).size > 1) }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    /** Offers the next prompt instead. */
+    fun anotherPrompt() = promptTurn.update { it + 1 }
+
+    /** Starts the entry with the offered question as its title; the answer goes in the note. */
+    fun usePrompt() {
+        val offer = prompt.value ?: return
+        if (title.text.isBlank()) title.setTextAndPlaceCursorAtEnd(offer.prompt.text)
+    }
 
     private val _keywordToast = MutableStateFlow<KeywordToast?>(null)
     val keywordToast: StateFlow<KeywordToast?> = _keywordToast
