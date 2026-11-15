@@ -25,7 +25,11 @@ Jetpack Compose and Material 3 Expressive. Requires Android 10 or newer.
   suggest a tag).
 - **Search:** filter by text, mood, tags, diary, date and more, with quick presets such as
   *On this day*.
-- **Insights:** streaks, average mood, mood distribution, a 12-week journey map and top tags.
+- **Insights:** streaks, average mood and its trend, mood distribution, a week rhythm, time of day,
+  the tags that come with brighter or heavier entries, a 12-week journey map, a year in pixels and
+  top tags. *Echoes* put the clearest patterns into words.
+- **Milestones:** stamps for streaks, entries, days journaled, photos and words written. They're
+  worked out from the entries, so nothing extra is stored.
 - **App lock:** a PIN or password, optional fingerprint or face unlock, auto-lock and a choice of
   recovery. It guards the app's screens; it doesn't encrypt the data.
 - **Backups:** save everything to a `.dakilio` file, optionally password-protected, or import a
