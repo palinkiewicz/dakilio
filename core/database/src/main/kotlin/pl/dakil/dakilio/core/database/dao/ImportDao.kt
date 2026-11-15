@@ -11,6 +11,7 @@ import pl.dakil.dakilio.core.database.entity.MoodEntity
 import pl.dakil.dakilio.core.database.entity.PostEntity
 import pl.dakil.dakilio.core.database.entity.PostPhotoEntity
 import pl.dakil.dakilio.core.database.entity.PostTagCrossRef
+import pl.dakil.dakilio.core.database.entity.PromptEntity
 import pl.dakil.dakilio.core.database.entity.ReminderEntity
 import pl.dakil.dakilio.core.database.entity.TagEntity
 import pl.dakil.dakilio.core.database.entity.TagGroupEntity
@@ -31,6 +32,11 @@ class ReplaceData(
     val habits: List<ReplaceHabit> = emptyList(),
     val keywords: List<ReplaceKeyword> = emptyList(),
     val reminders: List<ReplaceReminder> = emptyList(),
+    /**
+     * The writing prompts to have afterwards (ids ignored), or null to keep the current ones: they
+     * stand apart from the content, so a Daylio import leaves them alone and only a restore replaces them.
+     */
+    val prompts: List<PromptEntity>? = null,
 )
 
 /** The diary's id is ignored; [suggestedGroups] are indices into [ReplaceData.groups]. */
@@ -81,6 +87,7 @@ class ContentSnapshot(
     val habits: List<HabitEntity>,
     val keywords: List<TagKeywordEntity>,
     val reminders: List<ReminderEntity>,
+    val prompts: List<PromptEntity>,
 )
 
 /** What the user would lose by replacing their content. */
@@ -131,6 +138,15 @@ abstract class ImportDao {
     @Query("SELECT * FROM reminder ORDER BY minute, id")
     protected abstract suspend fun allReminders(): List<ReminderEntity>
 
+    @Query("SELECT * FROM prompt ORDER BY position, id")
+    protected abstract suspend fun allPrompts(): List<PromptEntity>
+
+    @Query("DELETE FROM prompt")
+    protected abstract suspend fun deletePrompts()
+
+    @Insert
+    protected abstract suspend fun insertPrompts(prompts: List<PromptEntity>)
+
     @Transaction
     open suspend fun snapshot(): ContentSnapshot = ContentSnapshot(
         moods = allMoods(),
@@ -144,6 +160,7 @@ abstract class ImportDao {
         habits = allHabits(),
         keywords = allKeywords(),
         reminders = allReminders(),
+        prompts = allPrompts(),
     )
 
     @Query("DELETE FROM post")
@@ -261,6 +278,10 @@ abstract class ImportDao {
             val postId = insertPost(item.post.copy(id = 0, moodId = moodId, diaryId = diaryIds[item.diaryIndex]))
             insertPostTags(item.tags.map { (group, tag) -> tagIds[group][tag] }.distinct().map { PostTagCrossRef(postId, it) })
             insertPhotos(item.photoFileNames.mapIndexed { index, name -> PostPhotoEntity(postId = postId, fileName = name, position = index) })
+        }
+        data.prompts?.let { prompts ->
+            deletePrompts()
+            insertPrompts(prompts.mapIndexed { index, prompt -> prompt.copy(id = 0, position = index) })
         }
         return diaryIds
     }

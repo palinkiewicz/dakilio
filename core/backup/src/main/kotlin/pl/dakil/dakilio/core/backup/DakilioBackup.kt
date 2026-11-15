@@ -29,6 +29,8 @@ data class DakilioBackup(
     val diaries: List<BackupDiary> = emptyList(),
     val tagGroups: List<BackupTagGroup> = emptyList(),
     val habits: List<BackupHabit> = emptyList(),
+    /** Writing prompts (the Prompts extra), in display order. */
+    val prompts: List<BackupPrompt> = emptyList(),
     val entries: List<BackupEntry> = emptyList(),
 ) {
     companion object {
@@ -90,6 +92,14 @@ data class BackupSettings(
     val haptics: Boolean? = null,
     /** A banner marks a newly collected milestone stamp. */
     val celebrateMilestones: Boolean? = null,
+)
+
+/** A writing prompt (the Prompts extra). */
+@Serializable
+data class BackupPrompt(
+    val text: String,
+    /** The mood levels it suits (1 = worst … 5 = best); none means any mood. */
+    val levels: List<Int> = emptyList(),
 )
 
 /** A mood: one primary per level (1 = worst … 5 = best), plus aliases. */

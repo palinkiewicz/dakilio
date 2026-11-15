@@ -50,6 +50,8 @@ Pretty-printed JSON. Fields that are null or at their default (`false`, `0`, `[]
       "tags": [ { "id": 5, "name": "Family", "icon": "family_restroom",
                   "keywords": [ { "word": "mum" }, { "word": "famil", "approximate": true } ] } ] }
   ],
+  "prompts": [ { "text": "What felt heaviest today?", "levels": [1, 2] },
+               { "text": "What do you want to remember about today?" } ],
   "habits": [ { "tag": 5, "daysPerWeek": 3, "createdAt": "2026-02-01T10:00:00Z",
                 "reminders": [ { "enabled": true, "time": "08:00", "days": ["sat", "sun"] } ] } ],
   "entries": [
@@ -69,6 +71,7 @@ Pretty-printed JSON. Fields that are null or at their default (`false`, `0`, `[]
 | `diaries` | `suggestedGroups`: ids of the tag groups the editor expands for that diary. `noMoods: true` marks a diary that doesn't ask for a mood (entries in it can still carry one). `reminders` are its reminders (the Reminders extra): `time` is the local `HH:mm`, `days` the weekdays (`mon` … `sun`; missing means every day, unknown names are dropped), `enabled` whether it's switched on. A restore keeps them, but a new phone still has to allow notifications. Backups from 1.2.0 have a single `reminder` instead, which is read as one every-day reminder when it's enabled and ignored otherwise. |
 | `tagGroups` | Tags are nested in their group. A tag's `color` overrides its group's. `icon` (a diary has one too) is a symbol key: a Material Symbol name (`family_restroom`), or `glyph:` followed by one or two characters for a letter icon (`glyph:A`, `glyph:ł`). An app that doesn't know a key shows its default icon. A tag's optional `keywords` (the Keywords extra) are words that suggest it; `approximate` makes the word's end also match longer words. Blank and duplicate words are dropped on restore. |
 | `habits` | One per tag. `daysPerWeek` is 1–7. `reminders` work like a diary's. |
+| `prompts` | Writing prompts (the Prompts extra), in display order. `levels` are the mood levels a prompt is offered for; without it, it's for any mood. A restore replaces the device's prompts with these. |
 | `entries.time` | An ISO-8601 date-time **with the offset it was written in**. That's both the timestamp and `utc_offset_min`; the entry's day is the date part. |
 | `entries.mood` | Optional (an entry may have no mood). |
 | `entries.photos` | Archive paths, in display order. |

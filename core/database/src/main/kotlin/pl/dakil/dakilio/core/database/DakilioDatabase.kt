@@ -10,6 +10,7 @@ import pl.dakil.dakilio.core.database.dao.ImportDao
 import pl.dakil.dakilio.core.database.dao.KeywordDao
 import pl.dakil.dakilio.core.database.dao.MoodDao
 import pl.dakil.dakilio.core.database.dao.PostDao
+import pl.dakil.dakilio.core.database.dao.PromptDao
 import pl.dakil.dakilio.core.database.dao.ReminderDao
 import pl.dakil.dakilio.core.database.dao.TagDao
 import pl.dakil.dakilio.core.database.entity.DiaryEntity
@@ -17,6 +18,7 @@ import pl.dakil.dakilio.core.database.entity.DiarySuggestedGroupCrossRef
 import pl.dakil.dakilio.core.database.entity.HabitEntity
 import pl.dakil.dakilio.core.database.entity.MoodEntity
 import pl.dakil.dakilio.core.database.entity.PostEntity
+import pl.dakil.dakilio.core.database.entity.PromptEntity
 import pl.dakil.dakilio.core.database.entity.PostPhotoEntity
 import pl.dakil.dakilio.core.database.entity.PostTagCrossRef
 import pl.dakil.dakilio.core.database.entity.ReminderEntity
@@ -37,13 +39,14 @@ import pl.dakil.dakilio.core.database.entity.TagKeywordEntity
         HabitEntity::class,
         TagKeywordEntity::class,
         ReminderEntity::class,
+        PromptEntity::class,
     ],
     // Every schema change bumps the version and adds a migration (`autoMigrations` or a Migration in
     // Migrations.kt), so installs keep their data. Never edit an exported schema once committed.
     // 1 = the released 1.0.0; 2 = diary and habit reminder columns (1.2.0); 3 = the reminder table;
-    // 4 = diary.mood_tracking.
-    version = 4,
-    autoMigrations = [AutoMigration(from = 3, to = 4)],
+    // 4 = diary.mood_tracking; 5 = the prompt table.
+    version = 5,
+    autoMigrations = [AutoMigration(from = 3, to = 4), AutoMigration(from = 4, to = 5)],
     exportSchema = true,
 )
 abstract class DakilioDatabase : RoomDatabase() {
@@ -55,6 +58,7 @@ abstract class DakilioDatabase : RoomDatabase() {
     abstract fun habitDao(): HabitDao
     abstract fun keywordDao(): KeywordDao
     abstract fun reminderDao(): ReminderDao
+    abstract fun promptDao(): PromptDao
 
     companion object {
         const val NAME = "dakilio.db"

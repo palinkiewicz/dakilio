@@ -15,6 +15,7 @@ import pl.dakil.dakilio.core.backup.BackupDiary
 import pl.dakil.dakilio.core.backup.BackupEntry
 import pl.dakil.dakilio.core.backup.BackupHabit
 import pl.dakil.dakilio.core.backup.BackupKeyword
+import pl.dakil.dakilio.core.backup.BackupPrompt
 import pl.dakil.dakilio.core.backup.BackupMood
 import pl.dakil.dakilio.core.backup.BackupSettings
 import pl.dakil.dakilio.core.backup.BackupTag
@@ -26,6 +27,8 @@ import pl.dakil.dakilio.core.backup.toBackup
 import pl.dakil.dakilio.core.backup.writeBackup
 import pl.dakil.dakilio.core.database.dao.ContentSnapshot
 import pl.dakil.dakilio.core.database.dao.ImportDao
+import pl.dakil.dakilio.core.model.MOOD_LEVELS
+import pl.dakil.dakilio.core.model.Prompts
 import pl.dakil.dakilio.core.model.UserSettings
 
 /**
@@ -151,6 +154,10 @@ internal class BackupWriter @Inject constructor(
                     createdAt = BackupTime.formatInstant(it.createdAt),
                     reminders = remindersByHabit[it.id].orEmpty(),
                 )
+            },
+            prompts = snapshot.prompts.map { prompt ->
+                // No levels in the file means any mood.
+                BackupPrompt(prompt.text, Prompts.fromMask(prompt.levels).takeIf { it.size < MOOD_LEVELS }.orEmpty().sorted())
             },
             entries = snapshot.posts.map { post ->
                 BackupEntry(

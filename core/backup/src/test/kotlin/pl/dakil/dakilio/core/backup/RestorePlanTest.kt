@@ -10,6 +10,8 @@ import org.junit.Test
 import pl.dakil.dakilio.core.model.KeywordDraft
 import pl.dakil.dakilio.core.model.PhotoSize
 import pl.dakil.dakilio.core.model.PreviewLength
+import pl.dakil.dakilio.core.model.PromptDraft
+import pl.dakil.dakilio.core.model.Prompts
 import pl.dakil.dakilio.core.model.Reminder
 import pl.dakil.dakilio.core.model.ReminderTarget
 import pl.dakil.dakilio.core.model.TagLimit
@@ -113,6 +115,26 @@ class RestorePlanTest {
         assertEquals(listOf(true, false), plan.diaries.map { it.moodTracking })
         // A backup with no diary at all gets the default one, which tracks moods.
         assertTrue(planRestore(backup(diaries = emptyList()), "Journey", now).diaries.single().moodTracking)
+    }
+
+    @Test
+    fun promptsAreTidiedAndKeptOnce() {
+        val plan = planRestore(
+            backup().copy(
+                prompts = listOf(
+                    BackupPrompt("  What felt\nheaviest? ", levels = listOf(1, 2, 9)),
+                    BackupPrompt("what felt heaviest?"),
+                    BackupPrompt("   "),
+                    BackupPrompt("What went well?"),
+                ),
+            ),
+            "Journey",
+            now,
+        )
+        assertEquals(
+            listOf(PromptDraft("What felt heaviest?", setOf(1, 2)), PromptDraft("What went well?", Prompts.ALL_LEVELS)),
+            plan.prompts,
+        )
     }
 
     @Test

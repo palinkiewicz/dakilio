@@ -5,6 +5,8 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.util.Locale
 import pl.dakil.dakilio.core.model.KeywordDraft
+import pl.dakil.dakilio.core.model.PromptDraft
+import pl.dakil.dakilio.core.model.Prompts
 import pl.dakil.dakilio.core.model.Keywords
 import pl.dakil.dakilio.core.model.MOOD_LEVELS
 import pl.dakil.dakilio.core.model.PhotoSize
@@ -29,6 +31,8 @@ data class RestorePlan(
     val diaries: List<RestoreDiary>,
     val groups: List<RestoreGroup>,
     val habits: List<RestoreHabit>,
+    /** Writing prompts, in display order; a restore replaces the device's own. */
+    val prompts: List<PromptDraft> = emptyList(),
     val entries: List<RestoreEntry>,
     val settings: RestoreSettings,
     val stats: RestoreStats,
@@ -280,6 +284,12 @@ fun planRestore(backup: DakilioBackup, defaultDiaryName: String, now: Long): Res
         )
     } ?: RestoreSettings()
 
+    // Prompts: one tidy line each, a question only once, levels outside the scale dropped.
+    val prompts = backup.prompts
+        .map { PromptDraft(Prompts.clean(it.text), it.levels.filter(Prompts.ALL_LEVELS::contains).toSet().ifEmpty { Prompts.ALL_LEVELS }) }
+        .filter { it.text.isNotEmpty() }
+        .distinctBy { Prompts.key(it.text) }
+
     val dates = entries.map { it.localDate }
     return RestorePlan(
         primaries = primaries,
@@ -287,6 +297,7 @@ fun planRestore(backup: DakilioBackup, defaultDiaryName: String, now: Long): Res
         diaries = diaries,
         groups = groups,
         habits = habits,
+        prompts = prompts,
         entries = entries,
         settings = settings,
         stats = RestoreStats(

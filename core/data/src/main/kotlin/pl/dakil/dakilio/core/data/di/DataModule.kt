@@ -12,6 +12,8 @@ import pl.dakil.dakilio.core.data.repository.DiaryRepository
 import pl.dakil.dakilio.core.data.repository.HabitRepository
 import pl.dakil.dakilio.core.data.repository.KeywordRepository
 import pl.dakil.dakilio.core.data.repository.LocalKeywordRepository
+import pl.dakil.dakilio.core.data.repository.LocalPromptRepository
+import pl.dakil.dakilio.core.data.repository.PromptRepository
 import pl.dakil.dakilio.core.data.repository.LocalLockRepository
 import pl.dakil.dakilio.core.data.repository.LockRepository
 import pl.dakil.dakilio.core.data.repository.LocalHabitRepository
@@ -58,6 +60,8 @@ internal interface DataModule {
     @Binds @Singleton fun reminders(impl: LocalReminderRepository): ReminderRepository
 
     @Binds @Singleton fun keywords(impl: LocalKeywordRepository): KeywordRepository
+
+    @Binds @Singleton fun prompts(impl: LocalPromptRepository): PromptRepository
 
     @Binds @Singleton fun lock(impl: LocalLockRepository): LockRepository
 

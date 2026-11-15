@@ -210,3 +210,17 @@ data class ReminderEntity(
     @ColumnInfo(defaultValue = "1") val enabled: Boolean = true,
     @ColumnInfo(name = "created_at") val createdAt: Long,
 )
+
+/**
+ * A writing prompt (the Prompts extra): a question offered in the note step while the note is empty.
+ * It stands alone: no entry or tag refers to it.
+ */
+@Entity(tableName = "prompt")
+data class PromptEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val text: String,
+    /** A bit per mood level it suits, level 1 lowest (`Prompts.toMask`); 31 is any mood. */
+    @ColumnInfo(defaultValue = "31") val levels: Int = 31,
+    val position: Int,
+    @ColumnInfo(name = "created_at") val createdAt: Long,
+)

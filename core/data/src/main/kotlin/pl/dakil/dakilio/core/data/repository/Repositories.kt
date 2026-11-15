@@ -25,6 +25,8 @@ import pl.dakil.dakilio.core.model.PhotoSize
 import pl.dakil.dakilio.core.model.Post
 import pl.dakil.dakilio.core.model.PostDraft
 import pl.dakil.dakilio.core.model.PreviewLength
+import pl.dakil.dakilio.core.model.Prompt
+import pl.dakil.dakilio.core.model.PromptDraft
 import pl.dakil.dakilio.core.model.Reminder
 import pl.dakil.dakilio.core.model.ReminderSnapshot
 import pl.dakil.dakilio.core.model.SuggestedGroup
@@ -168,6 +170,22 @@ interface KeywordRepository {
 
     /** Adds [tagId] to every entry in [postIds] that doesn't carry it yet. */
     suspend fun addTagToPosts(tagId: Long, postIds: List<Long>)
+}
+
+/** The Prompts extra: questions the note step offers while the note is still empty. */
+interface PromptRepository {
+    /** Every prompt, in display order. */
+    val prompts: Flow<List<Prompt>>
+
+    /** How many prompts there are; 0 means the extra isn't used yet. */
+    val count: Flow<Int>
+
+    /** Adds [prompts] at the end, skipping blank ones and questions that are already there. Returns how many went in. */
+    suspend fun add(prompts: List<PromptDraft>): Int
+
+    suspend fun update(id: Long, draft: PromptDraft)
+
+    suspend fun delete(id: Long)
 }
 
 interface PhotoRepository {

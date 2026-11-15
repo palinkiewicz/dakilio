@@ -50,7 +50,9 @@ import pl.dakil.dakilio.core.database.entity.ReminderEntity
 import pl.dakil.dakilio.core.database.entity.TagEntity
 import pl.dakil.dakilio.core.database.entity.TagGroupEntity
 import pl.dakil.dakilio.core.database.entity.TagKeywordEntity
+import pl.dakil.dakilio.core.database.entity.PromptEntity
 import pl.dakil.dakilio.core.model.MOOD_LEVELS
+import pl.dakil.dakilio.core.model.Prompts
 import pl.dakil.dakilio.core.model.ReminderDays
 import pl.dakil.dakilio.core.model.minuteOfDay
 
@@ -255,6 +257,9 @@ internal class LocalBackupRepository @Inject constructor(
                                 ReplaceKeyword(TagKeywordEntity(tagId = 0, word = keyword.word, approximate = keyword.approximate, position = position), groupIndex, tagIndex)
                             }
                         }
+                    },
+                    prompts = plan.prompts.mapIndexed { position, prompt ->
+                        PromptEntity(text = prompt.text, levels = Prompts.toMask(prompt.levels), position = position, createdAt = clock.millis())
                     },
                 ),
             )
