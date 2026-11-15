@@ -24,7 +24,7 @@ import pl.dakil.dakilio.core.model.Post
 /** How a finished export went. */
 data class ExportResult(val entries: Int, val photos: Int)
 
-/** Writes the journal to a file the user picked: Markdown (a ZIP with photos) or a PDF. */
+/** Writes the journal to a file the user picked: a PDF, Markdown (a ZIP with photos) or a CSV table. */
 class JournalExporter @Inject constructor(
     @ApplicationContext private val context: Context,
     private val pdf: PdfJournalWriter,
@@ -36,10 +36,12 @@ class JournalExporter @Inject constructor(
         entries: List<Post>,
         options: ExportOptions,
         labels: ExportLabels,
+        csvLabels: CsvLabels,
         onProgress: (done: Int, total: Int) -> Unit,
     ): ExportResult = withContext(io) {
         val job = currentCoroutineContext().job
-        val photos = if (options.photos) entries.flatMap { it.photos }.filter { File(it.path).isFile } else emptyList()
+        // A CSV is text only.
+        val photos = if (options.photos && options.format != ExportFormat.Csv) entries.flatMap { it.photos }.filter { File(it.path).isFile } else emptyList()
         onProgress(0, photos.size)
         try {
             val out = context.contentResolver.openOutputStream(uri, "wt") ?: throw IOException("Can't write $uri")
@@ -48,6 +50,7 @@ class JournalExporter @Inject constructor(
                     job.ensureActive()
                     onProgress(done, photos.size)
                 }
+                ExportFormat.Csv -> out.buffered().use { it.write(renderCsv(entries, csvLabels).toByteArray(Charsets.UTF_8)) }
                 ExportFormat.Pdf -> pdf.write(out, entries, labels, options.photos) { done, total ->
                     job.ensureActive()
                     onProgress(done, total)

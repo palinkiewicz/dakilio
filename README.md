@@ -34,6 +34,7 @@ Jetpack Compose and Material 3 Expressive. Requires Android 10 or newer.
   recovery. It guards the app's screens; it doesn't encrypt the data.
 - **Backups:** save everything to a `.dakilio` file, optionally password-protected, or import a
   Daylio backup.
+- **Export:** the journal as a PDF, Markdown or a CSV table with the columns of Daylio's CSV export.
 - **Languages:** English and Polish.
 
 ## Building

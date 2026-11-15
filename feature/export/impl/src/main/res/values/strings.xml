@@ -7,8 +7,10 @@
     <string name="export_format">Format</string>
     <string name="export_format_pdf">PDF</string>
     <string name="export_format_markdown">Markdown</string>
+    <string name="export_format_csv">CSV</string>
     <string name="export_format_pdf_body">A document like a book: each day with its entries, moods, tags and photos. Opens anywhere and prints well.</string>
     <string name="export_format_markdown_body">Plain text that any notes app or text editor opens, like Obsidian. With photos, it\'s a ZIP with the photos next to the text.</string>
+    <string name="export_format_csv_body">A table for spreadsheets, one row per entry, with the same columns as Daylio\'s CSV export. Text only, without photos.</string>
 
     <string name="export_period">Entries</string>
     <string name="export_period_all">All</string>
@@ -37,6 +39,7 @@
     <string name="export_not_encrypted">An export isn\'t encrypted: anyone with the file can read it. It can\'t be restored either; for that, make a backup.</string>
     <string name="export_button_pdf">Export PDF</string>
     <string name="export_button_markdown">Export Markdown</string>
+    <string name="export_button_csv">Export CSV</string>
 
     <string name="export_exporting">Exporting…</string>
     <string name="export_exporting_photos">Adding photos: %1$d of %2$d</string>

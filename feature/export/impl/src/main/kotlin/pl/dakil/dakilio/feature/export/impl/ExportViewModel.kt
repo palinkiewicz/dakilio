@@ -89,14 +89,14 @@ internal class ExportViewModel @Inject constructor(
     /** Whether the Markdown export of the current options is a ZIP (it carries photos). */
     fun markdownIsZip(): Boolean = _options.value.photos && (selection.value?.photos ?: 0) > 0
 
-    fun export(uri: Uri, labels: ExportLabels) {
+    fun export(uri: Uri, labels: ExportLabels, csvLabels: CsvLabels) {
         if (_state.value is ExportState.Exporting) return
         val entries = selection.value?.entries ?: return
         val options = _options.value
         _state.value = ExportState.Exporting(0, 0)
         job = viewModelScope.launch {
             _state.value = try {
-                val result = exporter.export(uri, entries, options, labels) { done, total -> _state.update { ExportState.Exporting(done, total) } }
+                val result = exporter.export(uri, entries, options, labels, csvLabels) { done, total -> _state.update { ExportState.Exporting(done, total) } }
                 ExportState.Done(result, options.format)
             } catch (e: CancellationException) {
                 _state.value = ExportState.Idle

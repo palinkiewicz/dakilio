@@ -4,7 +4,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import pl.dakil.dakilio.core.model.Post
 
-enum class ExportFormat { Pdf, Markdown }
+enum class ExportFormat { Pdf, Markdown, Csv }
 
 /** Which entries go in. Relative periods keep counting from today. */
 sealed interface ExportPeriod {

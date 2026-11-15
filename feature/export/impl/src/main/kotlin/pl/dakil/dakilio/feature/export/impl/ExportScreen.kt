@@ -119,14 +119,23 @@ internal fun ExportScreen(viewModel: ExportViewModel, onBack: () -> Unit) {
         footer = footer,
     )
 
-    val onPicked: (android.net.Uri?) -> Unit = { uri -> uri?.let { viewModel.export(it, labels) } }
+    val csvLabels = CsvLabels(
+        date = { formats.dayMonth(it) },
+        weekday = { formats.weekday(it) },
+        time = { formats.time(it) },
+        diaryName = { id -> diaries.firstOrNull { it.id == id }?.name },
+    )
+
+    val onPicked: (android.net.Uri?) -> Unit = { uri -> uri?.let { viewModel.export(it, labels, csvLabels) } }
     val pdfLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/pdf"), onPicked)
     val markdownLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/markdown"), onPicked)
     val zipLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip"), onPicked)
+    val csvLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv"), onPicked)
     val startExport = {
         val base = "dakilio-journal-${viewModel.today()}"
         when {
             options.format == ExportFormat.Pdf -> pdfLauncher.launch("$base.pdf")
+            options.format == ExportFormat.Csv -> csvLauncher.launch("$base.csv")
             viewModel.markdownIsZip() -> zipLauncher.launch("$base.zip")
             else -> markdownLauncher.launch("$base.md")
         }
@@ -263,12 +272,19 @@ private fun ColumnScope.OptionsStep(
                 options = listOf(
                     ToggleOption(ExportFormat.Pdf, stringResource(R.string.export_format_pdf), DakilioSymbols.PictureAsPdf),
                     ToggleOption(ExportFormat.Markdown, stringResource(R.string.export_format_markdown), DakilioSymbols.Description),
+                    ToggleOption(ExportFormat.Csv, stringResource(R.string.export_format_csv), DakilioSymbols.TableView),
                 ),
                 selected = options.format,
                 onSelect = onFormat,
             )
             Text(
-                stringResource(if (options.format == ExportFormat.Pdf) R.string.export_format_pdf_body else R.string.export_format_markdown_body),
+                stringResource(
+                    when (options.format) {
+                        ExportFormat.Pdf -> R.string.export_format_pdf_body
+                        ExportFormat.Markdown -> R.string.export_format_markdown_body
+                        ExportFormat.Csv -> R.string.export_format_csv_body
+                    },
+                ),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -326,19 +342,23 @@ private fun ColumnScope.OptionsStep(
         }
     }
 
-    SectionHeader(stringResource(R.string.export_content))
-    SwitchListItem(
-        title = stringResource(R.string.export_photos),
-        body = stringResource(if (options.format == ExportFormat.Pdf) R.string.export_photos_pdf_body else R.string.export_photos_markdown_body),
-        symbol = DakilioSymbols.PhotoLibrary,
-        polygon = MaterialShapes.Cookie7Sided,
-        checked = options.photos,
-        onCheckedChange = onPhotos,
-    )
+    // A CSV is text only, so there's nothing to choose.
+    val canHavePhotos = options.format != ExportFormat.Csv
+    if (canHavePhotos) {
+        SectionHeader(stringResource(R.string.export_content))
+        SwitchListItem(
+            title = stringResource(R.string.export_photos),
+            body = stringResource(if (options.format == ExportFormat.Pdf) R.string.export_photos_pdf_body else R.string.export_photos_markdown_body),
+            symbol = DakilioSymbols.PhotoLibrary,
+            polygon = MaterialShapes.Cookie7Sided,
+            checked = options.photos,
+            onCheckedChange = onPhotos,
+        )
+    }
 
     // What will be exported, then the button.
     val count = selection?.entries?.size ?: 0
-    val photos = if (options.photos) selection?.photos ?: 0 else 0
+    val photos = if (options.photos && canHavePhotos) selection?.photos ?: 0 else 0
     SegmentedListItem(
         shapes = ListItemDefaults.segmentedShapes(0, 1),
         colors = segmentedItemColors(),
@@ -361,11 +381,23 @@ private fun ColumnScope.OptionsStep(
         modifier = Modifier.align(Alignment.End).padding(top = Spacing.s),
     ) {
         DakilioIcon(
-            if (options.format == ExportFormat.Pdf) DakilioSymbols.PictureAsPdf else DakilioSymbols.Description,
+            when (options.format) {
+                ExportFormat.Pdf -> DakilioSymbols.PictureAsPdf
+                ExportFormat.Markdown -> DakilioSymbols.Description
+                ExportFormat.Csv -> DakilioSymbols.TableView
+            },
             contentDescription = null,
             modifier = Modifier.padding(end = Spacing.s),
         )
-        Text(stringResource(if (options.format == ExportFormat.Pdf) R.string.export_button_pdf else R.string.export_button_markdown))
+        Text(
+            stringResource(
+                when (options.format) {
+                    ExportFormat.Pdf -> R.string.export_button_pdf
+                    ExportFormat.Markdown -> R.string.export_button_markdown
+                    ExportFormat.Csv -> R.string.export_button_csv
+                },
+            ),
+        )
     }
 }
 
