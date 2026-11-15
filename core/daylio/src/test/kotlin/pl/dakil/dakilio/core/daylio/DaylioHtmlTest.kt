@@ -15,9 +15,9 @@ class DaylioHtmlTest {
         val expected = """
             This one will be very formatted...
 
-            Bold
+            **Bold**
 
-            Some italic and bold
+            *Some italic **and bold***
 
             1. list item
             2. List item another
@@ -28,6 +28,19 @@ class DaylioHtmlTest {
             Strike through
         """.trimIndent()
         assertEquals(expected, daylioHtmlToText(note))
+    }
+
+    @Test
+    fun boldAndItalicBecomeMarkers() {
+        assertEquals("A **bold** and *italic* day", daylioHtmlToText("A <b>bold</b> and <i>italic</i> day"))
+        assertEquals("**strong** *em*", daylioHtmlToText("<strong>strong</strong> <em>em</em>"))
+        // Markers hug the text, and each line gets its own pair.
+        assertEquals("a **b** c", daylioHtmlToText("a<b> b </b>c"))
+        assertEquals("**one**\n**two**", daylioHtmlToText("<b>one<br>two</b>"))
+        // Nothing to format, a stray closing tag, and tags Dakilio has no marker for.
+        assertEquals("a b", daylioHtmlToText("a<b> </b>b"))
+        assertEquals("plain", daylioHtmlToText("plain</b>"))
+        assertEquals("under strike", daylioHtmlToText("<u>under</u> <strike>strike</strike>"))
     }
 
     @Test
