@@ -84,6 +84,10 @@ data class BackupSettings(
     val weekStart: String? = null,
     /** A `PhotoSize` name: the long edge photos are scaled down to (`Px1280`, …) or `Original`. */
     val photoSize: String? = null,
+    /** Colors follow the wallpaper (Android 12+) instead of Dakilio's own palette. */
+    val dynamicColor: Boolean? = null,
+    /** Haptic feedback (small vibrations on picks, toggles and saves). */
+    val haptics: Boolean? = null,
     /** A banner marks a newly collected milestone stamp. */
     val celebrateMilestones: Boolean? = null,
 )

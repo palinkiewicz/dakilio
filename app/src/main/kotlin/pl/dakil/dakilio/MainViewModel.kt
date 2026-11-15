@@ -42,6 +42,15 @@ class MainViewModel @Inject constructor(
         .map<_, ThemeMode?> { it.themeMode }
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
+    /** Wallpaper colors or Dakilio's own; `null` until settings are read, like [themeMode]. */
+    val dynamicColor: StateFlow<Boolean?> = settingsRepository.settings
+        .map<_, Boolean?> { it.dynamicColor }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    val haptics: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.haptics }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
     val showHints: StateFlow<Boolean> = settingsRepository.settings
         .map { it.showHints }
         .stateIn(viewModelScope, SharingStarted.Eagerly, true)

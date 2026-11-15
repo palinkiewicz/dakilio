@@ -4,7 +4,12 @@
     <string name="settings_back">Wstecz</string>
     <string name="settings_appearance">Wygląd</string>
     <string name="settings_theme">Motyw</string>
-    <string name="settings_theme_body">Na Androidzie 12 i nowszych kolory dopasowują się do tapety.</string>
+    <string name="settings_theme_body">Jak w systemie albo zawsze jasny lub ciemny.</string>
+    <string name="settings_dynamic_color">Kolory tapety</string>
+    <string name="settings_dynamic_color_body">Aplikacja bierze kolory z tapety. Po wyłączeniu używa własnej palety Dakilio.</string>
+    <string name="settings_touch">Dotyk</string>
+    <string name="settings_haptics">Wibracje przy dotyku</string>
+    <string name="settings_haptics_body">Delikatne wibracje, gdy wybierasz nastrój, zaznaczasz tag albo zapisujesz</string>
     <string name="settings_theme_system">System</string>
     <string name="settings_theme_light">Dzień</string>
     <string name="settings_theme_dark">Noc</string>

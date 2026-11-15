@@ -51,6 +51,8 @@ class SettingsDataSource @Inject constructor(
                     ?: WeekStart.Region,
                 photoSize = prefs[PHOTO_SIZE]?.let { name -> PhotoSize.entries.firstOrNull { it.name == name } }
                     ?: PhotoSize.Px1280,
+                dynamicColor = prefs[DYNAMIC_COLOR] ?: true,
+                haptics = prefs[HAPTICS] ?: true,
                 celebrateMilestones = prefs[CELEBRATE_MILESTONES] ?: true,
             )
         }
@@ -145,6 +147,14 @@ class SettingsDataSource @Inject constructor(
         dataStore.edit { it[CELEBRATE_MILESTONES] = celebrate }
     }
 
+    suspend fun setHaptics(enabled: Boolean) {
+        dataStore.edit { it[HAPTICS] = enabled }
+    }
+
+    suspend fun setDynamicColor(dynamic: Boolean) {
+        dataStore.edit { it[DYNAMIC_COLOR] = dynamic }
+    }
+
     private companion object {
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val LAST_ENTRY_DIARY = longPreferencesKey("last_entry_diary_id")
@@ -164,6 +174,8 @@ class SettingsDataSource @Inject constructor(
         val WEEK_START = stringPreferencesKey("week_start")
         val PHOTO_SIZE = stringPreferencesKey("photo_size")
         val CELEBRATE_MILESTONES = booleanPreferencesKey("celebrate_milestones")
+        val HAPTICS = booleanPreferencesKey("haptics")
+        val DYNAMIC_COLOR = booleanPreferencesKey("dynamic_color")
         val INTRO_STARTED = booleanPreferencesKey("intro_started")
         val INTRO_DONE = booleanPreferencesKey("intro_done")
     }

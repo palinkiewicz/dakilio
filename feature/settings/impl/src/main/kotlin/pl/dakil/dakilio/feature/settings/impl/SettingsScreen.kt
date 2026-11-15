@@ -1,5 +1,6 @@
 package pl.dakil.dakilio.feature.settings.impl
 
+import android.os.Build
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -141,6 +142,18 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
                         )
                     }
                 }
+                // Wallpaper colors exist from Android 12; older versions always wear Dakilio's palette.
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    SwitchListItem(
+                        title = stringResource(R.string.settings_dynamic_color),
+                        body = stringResource(R.string.settings_dynamic_color_body),
+                        symbol = DakilioSymbols.Wallpaper,
+                        polygon = MaterialShapes.Cookie6Sided,
+                        checked = state.dynamicColor,
+                        onCheckedChange = viewModel::setDynamicColor,
+                        modifier = Modifier.padding(top = Spacing.s),
+                    )
+                }
 
                 // Older Androids have no per-app language, so the app just follows the device there.
                 if (canChooseAppLanguage) {
@@ -268,6 +281,16 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
                         }
                     }
                 }
+
+                SectionHeader(stringResource(R.string.settings_touch))
+                SwitchListItem(
+                    title = stringResource(R.string.settings_haptics),
+                    body = stringResource(R.string.settings_haptics_body),
+                    symbol = DakilioSymbols.Vibration,
+                    polygon = MaterialShapes.Cookie4Sided,
+                    checked = state.haptics,
+                    onCheckedChange = viewModel::setHaptics,
+                )
 
                 SectionHeader(stringResource(R.string.settings_guidance))
                 Column(verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)) {

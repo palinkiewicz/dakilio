@@ -16,6 +16,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
+import pl.dakil.dakilio.core.designsystem.component.LocalHapticsEnabled
 import pl.dakil.dakilio.core.designsystem.theme.DakilioTheme
 import pl.dakil.dakilio.core.model.ThemeMode
 import pl.dakil.dakilio.core.ui.LocalEntryDisplay
@@ -57,6 +58,8 @@ class MainActivity : ComponentActivity() {
             val incomingBackup by incomingBackups.pending.collectAsStateWithLifecycle()
             val reminderLaunch by reminderLaunches.pending.collectAsStateWithLifecycle()
             val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
+            val dynamicColor by viewModel.dynamicColor.collectAsStateWithLifecycle()
+            val haptics by viewModel.haptics.collectAsStateWithLifecycle()
             val showHints by viewModel.showHints.collectAsStateWithLifecycle()
             val entryDisplay by viewModel.entryDisplay.collectAsStateWithLifecycle()
             val firstDayOfWeek by viewModel.firstDayOfWeek.collectAsStateWithLifecycle()
@@ -65,6 +68,7 @@ class MainActivity : ComponentActivity() {
             val recovered by viewModel.recovered.collectAsStateWithLifecycle()
             val secureScreen by viewModel.secureScreen.collectAsStateWithLifecycle()
             val mode = themeMode ?: return@setContent
+            val dynamic = dynamicColor ?: return@setContent
             val intro = showIntro ?: return@setContent
             val isLocked = locked ?: return@setContent
             DisposableEffect(secureScreen) {
@@ -81,8 +85,9 @@ class MainActivity : ComponentActivity() {
                 enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
                 onDispose { }
             }
-            DakilioTheme(darkTheme = dark) {
+            DakilioTheme(darkTheme = dark, dynamicColor = dynamic) {
                 CompositionLocalProvider(
+                    LocalHapticsEnabled provides haptics,
                     LocalShowHints provides showHints,
                     LocalEntryDisplay provides entryDisplay,
                     LocalFirstDayOfWeek provides firstDayOfWeek,

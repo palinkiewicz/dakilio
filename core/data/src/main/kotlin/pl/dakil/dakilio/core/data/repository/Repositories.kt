@@ -243,6 +243,10 @@ interface SettingsRepository {
 
     suspend fun setPhotoSize(size: PhotoSize)
 
+    suspend fun setDynamicColor(dynamic: Boolean)
+
+    suspend fun setHaptics(enabled: Boolean)
+
     suspend fun setCelebrateMilestones(celebrate: Boolean)
 
     /** The first day of the week the user's [UserSettings.weekStart] means here (the region default resolved). */

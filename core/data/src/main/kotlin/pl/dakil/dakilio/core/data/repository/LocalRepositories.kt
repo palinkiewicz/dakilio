@@ -275,6 +275,10 @@ internal class LocalSettingsRepository @Inject constructor(
 
     override suspend fun setPhotoSize(size: PhotoSize) = dataSource.setPhotoSize(size)
 
+    override suspend fun setDynamicColor(dynamic: Boolean) = dataSource.setDynamicColor(dynamic)
+
+    override suspend fun setHaptics(enabled: Boolean) = dataSource.setHaptics(enabled)
+
     override suspend fun setCelebrateMilestones(celebrate: Boolean) = dataSource.setCelebrateMilestones(celebrate)
 
     override val firstDayOfWeek: Flow<DayOfWeek> =

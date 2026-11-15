@@ -4,7 +4,8 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 
-// Brand fallback for devices without dynamic color (API < 31). Tonal-spot scheme generated with
+// Dakilio's own palette: for devices without dynamic color (API < 31) and for users who turn
+// wallpaper colors off. Tonal-spot scheme generated with
 // material-color-utilities (spec 2021) from the "journey" seed #2F7F6E.
 
 internal val BrandLightColorScheme = lightColorScheme(

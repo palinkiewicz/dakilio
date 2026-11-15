@@ -117,6 +117,8 @@ data class RestoreSettings(
     val keywordAutoAdd: Boolean? = null,
     val weekStart: WeekStart? = null,
     val photoSize: PhotoSize? = null,
+    val dynamicColor: Boolean? = null,
+    val haptics: Boolean? = null,
     val celebrateMilestones: Boolean? = null,
     /** An index into [RestorePlan.diaries]. */
     val lastDiaryIndex: Int? = null,
@@ -268,6 +270,8 @@ fun planRestore(backup: DakilioBackup, defaultDiaryName: String, now: Long): Res
             keywordAutoAdd = s.keywordAutoAdd,
             weekStart = WeekStart.entries.firstOrNull { it.name == s.weekStart },
             photoSize = PhotoSize.entries.firstOrNull { it.name == s.photoSize },
+            dynamicColor = s.dynamicColor,
+            haptics = s.haptics,
             celebrateMilestones = s.celebrateMilestones,
             lastDiaryIndex = s.lastDiary?.let(diaryIndexById::get),
             timelineDiaryIndex = s.timelineDiary?.let(diaryIndexById::get),

@@ -98,6 +98,10 @@ data class UserSettings(
     val weekStart: WeekStart = WeekStart.Region,
     /** How far new photos are scaled down when they're stored. */
     val photoSize: PhotoSize = PhotoSize.Px1280,
+    /** The app takes its colors from the wallpaper (Android 12+); otherwise it wears Dakilio's own palette. */
+    val dynamicColor: Boolean = true,
+    /** Small vibrations answer picks, toggles and saves. */
+    val haptics: Boolean = true,
     /** A banner marks a milestone stamp the moment an entry collects it. */
     val celebrateMilestones: Boolean = true,
 )

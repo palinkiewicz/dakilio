@@ -38,6 +38,8 @@ data class SettingsUiState(
     val oversizedPhotos: Int = 0,
     val shrinkingPhotos: Boolean = false,
     val celebrateMilestones: Boolean = true,
+    val haptics: Boolean = true,
+    val dynamicColor: Boolean = true,
 )
 
 @HiltViewModel
@@ -73,6 +75,8 @@ class SettingsViewModel @Inject constructor(
                 oversizedPhotos = oversized,
                 shrinkingPhotos = shrinking,
                 celebrateMilestones = settings.celebrateMilestones,
+                haptics = settings.haptics,
+                dynamicColor = settings.dynamicColor,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
@@ -102,6 +106,14 @@ class SettingsViewModel @Inject constructor(
 
     fun setCelebrateMilestones(celebrate: Boolean) {
         viewModelScope.launch { settingsRepository.setCelebrateMilestones(celebrate) }
+    }
+
+    fun setHaptics(enabled: Boolean) {
+        viewModelScope.launch { settingsRepository.setHaptics(enabled) }
+    }
+
+    fun setDynamicColor(dynamic: Boolean) {
+        viewModelScope.launch { settingsRepository.setDynamicColor(dynamic) }
     }
 
     fun setWeekStart(start: WeekStart) {

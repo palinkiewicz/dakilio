@@ -4,7 +4,12 @@
     <string name="settings_back">Back</string>
     <string name="settings_appearance">Appearance</string>
     <string name="settings_theme">Theme</string>
-    <string name="settings_theme_body">Colors follow your wallpaper on Android 12 and newer.</string>
+    <string name="settings_theme_body">Follow the system, or stay light or dark.</string>
+    <string name="settings_dynamic_color">Wallpaper colors</string>
+    <string name="settings_dynamic_color_body">Take the app’s colors from your wallpaper. Off wears Dakilio’s own palette.</string>
+    <string name="settings_touch">Touch</string>
+    <string name="settings_haptics">Haptic feedback</string>
+    <string name="settings_haptics_body">Small vibrations when you pick a mood, tick a tag or save</string>
     <string name="settings_theme_system">System</string>
     <string name="settings_theme_light">Light</string>
     <string name="settings_theme_dark">Dark</string>
