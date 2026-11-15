@@ -288,6 +288,7 @@ internal class LocalBackupRepository @Inject constructor(
         s.keywordAutoAdd?.let { settings.setKeywordAutoAdd(it) }
         s.weekStart?.let { settings.setWeekStart(it) }
         s.photoSize?.let { settings.setPhotoSize(it) }
+        s.celebrateMilestones?.let { settings.setCelebrateMilestones(it) }
         settings.setLastEntryDiaryId(diaryIds[s.lastDiaryIndex ?: 0])
         settings.setTimelineDiaryId(s.timelineDiaryIndex?.let(diaryIds::getOrNull))
         settings.setSampleHintDismissed(true)

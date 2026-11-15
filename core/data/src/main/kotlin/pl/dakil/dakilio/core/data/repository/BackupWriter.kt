@@ -111,6 +111,7 @@ internal class BackupWriter @Inject constructor(
                 timelineDiary = userSettings.timelineDiaryId,
                 weekStart = userSettings.weekStart.name,
                 photoSize = userSettings.photoSize.name,
+                celebrateMilestones = userSettings.celebrateMilestones,
             ),
             moods = snapshot.moods.map { BackupMood(it.id, it.level, it.label, it.isPrimary, it.position, it.isArchived, it.colorKey) },
             diaries = snapshot.diaries.map {

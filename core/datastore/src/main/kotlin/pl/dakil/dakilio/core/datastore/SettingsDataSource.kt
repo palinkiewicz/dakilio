@@ -51,6 +51,7 @@ class SettingsDataSource @Inject constructor(
                     ?: WeekStart.Region,
                 photoSize = prefs[PHOTO_SIZE]?.let { name -> PhotoSize.entries.firstOrNull { it.name == name } }
                     ?: PhotoSize.Px1280,
+                celebrateMilestones = prefs[CELEBRATE_MILESTONES] ?: true,
             )
         }
         .distinctUntilChanged()
@@ -140,6 +141,10 @@ class SettingsDataSource @Inject constructor(
         dataStore.edit { it[PHOTO_SIZE] = size.name }
     }
 
+    suspend fun setCelebrateMilestones(celebrate: Boolean) {
+        dataStore.edit { it[CELEBRATE_MILESTONES] = celebrate }
+    }
+
     private companion object {
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val LAST_ENTRY_DIARY = longPreferencesKey("last_entry_diary_id")
@@ -158,6 +163,7 @@ class SettingsDataSource @Inject constructor(
         val KEYWORD_AUTO_ADD = booleanPreferencesKey("keyword_auto_add")
         val WEEK_START = stringPreferencesKey("week_start")
         val PHOTO_SIZE = stringPreferencesKey("photo_size")
+        val CELEBRATE_MILESTONES = booleanPreferencesKey("celebrate_milestones")
         val INTRO_STARTED = booleanPreferencesKey("intro_started")
         val INTRO_DONE = booleanPreferencesKey("intro_done")
     }

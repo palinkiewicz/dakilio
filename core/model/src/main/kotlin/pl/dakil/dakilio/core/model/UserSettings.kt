@@ -98,6 +98,8 @@ data class UserSettings(
     val weekStart: WeekStart = WeekStart.Region,
     /** How far new photos are scaled down when they're stored. */
     val photoSize: PhotoSize = PhotoSize.Px1280,
+    /** A banner marks a milestone stamp the moment an entry collects it. */
+    val celebrateMilestones: Boolean = true,
 )
 
 /** The range of the entry text size settings. Only entry titles and notes scale, never the rest of the UI. */

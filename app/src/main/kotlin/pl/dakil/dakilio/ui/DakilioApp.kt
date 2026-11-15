@@ -46,6 +46,8 @@ import pl.dakil.dakilio.feature.archive.impl.archiveEntry
 import pl.dakil.dakilio.feature.diaries.impl.diariesEntries
 import pl.dakil.dakilio.feature.entry.impl.entryEditorEntry
 import pl.dakil.dakilio.feature.insights.api.InsightsKey
+import pl.dakil.dakilio.feature.insights.api.MilestonesKey
+import pl.dakil.dakilio.feature.insights.impl.MilestoneCelebrationHost
 import pl.dakil.dakilio.feature.insights.impl.insightsEntry
 import pl.dakil.dakilio.feature.more.api.MoreKey
 import pl.dakil.dakilio.feature.moods.impl.moodsEntry
@@ -121,7 +123,7 @@ fun DakilioApp(
 
     val provider = entryProvider<NavKey> {
         timelineEntry(navigator)
-        insightsEntry()
+        insightsEntry(navigator)
         moreEntry(navigator)
         searchEntry(navigator)
         entryEditorEntry(navigator)
@@ -191,6 +193,14 @@ fun DakilioApp(
                             }
                         }
                     }
+                    // A newly collected milestone stamp, dropping in from the top.
+                    MilestoneCelebrationHost(
+                        modifier = Modifier.align(Alignment.TopCenter),
+                        onOpen = {
+                            navigator.navigate(InsightsKey)
+                            if (navigationState.currentKey != MilestonesKey) navigator.navigate(MilestonesKey)
+                        },
+                    )
                     // Habit progress after saving an entry, over whatever screen comes next.
                     HabitProgressHost(
                         bottomPadding = if (navigationState.isAtTopLevel) barHeight else 0.dp,

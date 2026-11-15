@@ -37,6 +37,7 @@ data class SettingsUiState(
     /** Photos larger than [photoSize] allows, which "Scale down" would shrink. */
     val oversizedPhotos: Int = 0,
     val shrinkingPhotos: Boolean = false,
+    val celebrateMilestones: Boolean = true,
 )
 
 @HiltViewModel
@@ -71,6 +72,7 @@ class SettingsViewModel @Inject constructor(
                 photoSize = settings.photoSize,
                 oversizedPhotos = oversized,
                 shrinkingPhotos = shrinking,
+                celebrateMilestones = settings.celebrateMilestones,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
@@ -96,6 +98,10 @@ class SettingsViewModel @Inject constructor(
 
     fun setCloseAfterSave(close: Boolean) {
         viewModelScope.launch { settingsRepository.setCloseAfterSave(close) }
+    }
+
+    fun setCelebrateMilestones(celebrate: Boolean) {
+        viewModelScope.launch { settingsRepository.setCelebrateMilestones(celebrate) }
     }
 
     fun setWeekStart(start: WeekStart) {

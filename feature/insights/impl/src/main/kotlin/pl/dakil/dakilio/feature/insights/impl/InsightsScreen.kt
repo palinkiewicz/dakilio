@@ -77,7 +77,7 @@ import pl.dakil.dakilio.core.ui.weekdaysFrom
 private val CardShape = RoundedCornerShape(28.dp)
 
 @Composable
-internal fun InsightsScreen(viewModel: InsightsViewModel) {
+internal fun InsightsScreen(viewModel: InsightsViewModel, onOpenMilestones: () -> Unit) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
@@ -102,7 +102,7 @@ internal fun InsightsScreen(viewModel: InsightsViewModel) {
                         modifier = Modifier.padding(padding).align(Alignment.Center),
                     )
                 } else {
-                    InsightsContent(current, padding, viewModel::selectRange, viewModel::selectDiary, viewModel::selectYear)
+                    InsightsContent(current, padding, viewModel::selectRange, viewModel::selectDiary, viewModel::selectYear, onOpenMilestones)
                 }
             }
         }
@@ -116,6 +116,7 @@ private fun InsightsContent(
     onRange: (InsightsRange) -> Unit,
     onDiary: (Long?) -> Unit,
     onYear: (Int) -> Unit,
+    onOpenMilestones: () -> Unit,
 ) {
     val formats = rememberFormats()
     val insights = state.insights
@@ -151,7 +152,7 @@ private fun InsightsContent(
             }
         }
         item(key = "streak") { StreakCard(insights) }
-        item(key = "milestones") { MilestonesCard(state.milestones) }
+        item(key = "milestones") { MilestonesCard(state.milestones, onOpenMilestones) }
         item(key = "echoes") { EchoesCard(state.echoes) }
         item(key = "average") { AverageMoodCard(insights, state.moods, rangeLabel, state.range != InsightsRange.All) }
         item(key = "trend") { TrendCard(state.trend, state.moods, state.today, formats) }

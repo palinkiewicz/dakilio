@@ -60,6 +60,8 @@
     <string name="settings_guidance">Podpowiedzi</string>
     <string name="settings_hints">Pokazuj wskazówki dla początkujących</string>
     <string name="settings_hints_body">Krótkie objaśnienia pod tytułami, np. „Wybierz najbliższy nastrój”</string>
+    <string name="settings_celebrate_milestones">Świętuj kamienie milowe</string>
+    <string name="settings_celebrate_milestones_body">Baner, gdy wpis zdobywa nową pieczątkę</string>
     <string name="settings_starter">Przykładowe treści</string>
     <string name="settings_remove_samples">Usuń przykładowe wpisy</string>
     <plurals name="settings_remove_samples_body">

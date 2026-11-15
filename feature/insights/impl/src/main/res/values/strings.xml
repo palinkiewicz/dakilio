@@ -94,4 +94,39 @@
     <string name="insights_year_previous">Previous year</string>
     <string name="insights_year_next">Next year</string>
     <string name="insights_year_hint">Tap a day for details.</string>
+    <string name="milestones_title">Milestones</string>
+    <string name="milestones_back">Back</string>
+    <string name="milestones_collected">%1$d of %2$d stamps collected</string>
+    <string name="milestones_count">%1$d / %2$d</string>
+    <string name="milestones_next">Next: %1$s</string>
+    <string name="milestones_all_collected">Every stamp collected</string>
+    <string name="milestones_reached_on">%1$s, reached on %2$s</string>
+    <string name="milestones_ahead">%1$s, still ahead</string>
+    <string name="milestones_new_stamp">New stamp</string>
+    <string name="milestones_kind_streak">Streaks</string>
+    <string name="milestones_kind_entries">Entries</string>
+    <string name="milestones_kind_days">Days journaled</string>
+    <string name="milestones_kind_photos">Photos</string>
+    <string name="milestones_kind_words">Words written</string>
+    <!-- %s is the number, already formatted (1,000). -->
+    <plurals name="milestones_streak">
+        <item quantity="one">%s day in a row</item>
+        <item quantity="other">%s days in a row</item>
+    </plurals>
+    <plurals name="milestones_entries">
+        <item quantity="one">%s entry</item>
+        <item quantity="other">%s entries</item>
+    </plurals>
+    <plurals name="milestones_days">
+        <item quantity="one">%s day journaled</item>
+        <item quantity="other">%s days journaled</item>
+    </plurals>
+    <plurals name="milestones_photos">
+        <item quantity="one">%s photo</item>
+        <item quantity="other">%s photos</item>
+    </plurals>
+    <plurals name="milestones_words">
+        <item quantity="one">%s word</item>
+        <item quantity="other">%s words</item>
+    </plurals>
 </resources>

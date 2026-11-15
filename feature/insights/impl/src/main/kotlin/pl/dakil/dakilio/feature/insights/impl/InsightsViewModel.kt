@@ -20,6 +20,8 @@ import pl.dakil.dakilio.core.data.repository.MoodRepository
 import pl.dakil.dakilio.core.data.repository.PostRepository
 import pl.dakil.dakilio.core.data.repository.SettingsRepository
 import pl.dakil.dakilio.core.model.Diary
+import pl.dakil.dakilio.core.model.MilestoneProgress
+import pl.dakil.dakilio.core.model.Milestones
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.primaries
 
@@ -43,6 +45,8 @@ sealed interface InsightsUiState {
         /** The year view's year, which ignores the selected period. */
         val year: YearPixels,
         val years: IntRange,
+        /** Every kind's stamps, counted over the entries of every diary. */
+        val milestones: List<MilestoneProgress>,
     ) : InsightsUiState
 }
 
@@ -92,6 +96,7 @@ class InsightsViewModel @Inject constructor(
                 influences = tagInfluences(inRange),
                 year = yearPixels(filtered, (selectedYear ?: today.year).coerceIn(years.first, years.last)),
                 years = years,
+                milestones = Milestones.progress(posts, today),
             )
         }
             .flowOn(default)

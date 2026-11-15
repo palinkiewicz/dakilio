@@ -275,6 +275,8 @@ internal class LocalSettingsRepository @Inject constructor(
 
     override suspend fun setPhotoSize(size: PhotoSize) = dataSource.setPhotoSize(size)
 
+    override suspend fun setCelebrateMilestones(celebrate: Boolean) = dataSource.setCelebrateMilestones(celebrate)
+
     override val firstDayOfWeek: Flow<DayOfWeek> =
         dataSource.settings.map { it.weekStart.resolve(deviceLocale()) }.distinctUntilChanged()
 

@@ -270,14 +270,28 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
                 }
 
                 SectionHeader(stringResource(R.string.settings_guidance))
-                SwitchListItem(
-                    title = stringResource(R.string.settings_hints),
-                    body = stringResource(R.string.settings_hints_body),
-                    symbol = DakilioSymbols.Lightbulb,
-                    polygon = MaterialShapes.Sunny,
-                    checked = state.showHints,
-                    onCheckedChange = viewModel::setShowHints,
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)) {
+                    SwitchListItem(
+                        title = stringResource(R.string.settings_hints),
+                        body = stringResource(R.string.settings_hints_body),
+                        symbol = DakilioSymbols.Lightbulb,
+                        polygon = MaterialShapes.Sunny,
+                        checked = state.showHints,
+                        onCheckedChange = viewModel::setShowHints,
+                        index = 0,
+                        count = 2,
+                    )
+                    SwitchListItem(
+                        title = stringResource(R.string.settings_celebrate_milestones),
+                        body = stringResource(R.string.settings_celebrate_milestones_body),
+                        symbol = DakilioSymbols.Approval,
+                        polygon = MaterialShapes.Cookie12Sided,
+                        checked = state.celebrateMilestones,
+                        onCheckedChange = viewModel::setCelebrateMilestones,
+                        index = 1,
+                        count = 2,
+                    )
+                }
 
                 // Only debug and preview builds seed samples, and the section goes once they're removed.
                 if (state.samplePostCount > 0) {

@@ -100,4 +100,48 @@
     <string name="insights_year_previous">Poprzedni rok</string>
     <string name="insights_year_next">Następny rok</string>
     <string name="insights_year_hint">Dotknij dnia, żeby zobaczyć szczegóły.</string>
+    <string name="milestones_title">Kamienie milowe</string>
+    <string name="milestones_back">Wstecz</string>
+    <string name="milestones_collected">Zebrane pieczątki: %1$d z %2$d</string>
+    <string name="milestones_count">%1$d / %2$d</string>
+    <string name="milestones_next">Następna: %1$s</string>
+    <string name="milestones_all_collected">Wszystkie pieczątki zebrane</string>
+    <string name="milestones_reached_on">%1$s, zdobyta %2$s</string>
+    <string name="milestones_ahead">%1$s, jeszcze przed tobą</string>
+    <string name="milestones_new_stamp">Nowa pieczątka</string>
+    <string name="milestones_kind_streak">Serie</string>
+    <string name="milestones_kind_entries">Wpisy</string>
+    <string name="milestones_kind_days">Dni z wpisami</string>
+    <string name="milestones_kind_photos">Zdjęcia</string>
+    <string name="milestones_kind_words">Napisane słowa</string>
+    <plurals name="milestones_streak">
+        <item quantity="one">%s dzień z rzędu</item>
+        <item quantity="few">%s dni z rzędu</item>
+        <item quantity="many">%s dni z rzędu</item>
+        <item quantity="other">%s dnia z rzędu</item>
+    </plurals>
+    <plurals name="milestones_entries">
+        <item quantity="one">%s wpis</item>
+        <item quantity="few">%s wpisy</item>
+        <item quantity="many">%s wpisów</item>
+        <item quantity="other">%s wpisu</item>
+    </plurals>
+    <plurals name="milestones_days">
+        <item quantity="one">%s dzień z wpisami</item>
+        <item quantity="few">%s dni z wpisami</item>
+        <item quantity="many">%s dni z wpisami</item>
+        <item quantity="other">%s dnia z wpisami</item>
+    </plurals>
+    <plurals name="milestones_photos">
+        <item quantity="one">%s zdjęcie</item>
+        <item quantity="few">%s zdjęcia</item>
+        <item quantity="many">%s zdjęć</item>
+        <item quantity="other">%s zdjęcia</item>
+    </plurals>
+    <plurals name="milestones_words">
+        <item quantity="one">%s słowo</item>
+        <item quantity="few">%s słowa</item>
+        <item quantity="many">%s słów</item>
+        <item quantity="other">%s słowa</item>
+    </plurals>
 </resources>
