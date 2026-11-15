@@ -15,6 +15,7 @@ Jetpack Compose and Material 3 Expressive. Requires Android 10 or newer.
 - **Quick check-in:** a three-step wizard (mood → tags → note and photos). Every step can be
   skipped, but an entry needs at least something. Existing entries open read-only until you tap
   Edit.
+- **Notes:** plain text with light formatting: `**bold**`, `*italic*` and `# ` headings.
 - **Moods:** a fixed five-level scale. Each level has one main mood plus any number of extra names
   (say, "Sad" next to "Bad"), and moods can have their own colors.
 - **Tags:** tag groups with icons and colors, shown as a Daylio-style icon grid or as chips. Tags
