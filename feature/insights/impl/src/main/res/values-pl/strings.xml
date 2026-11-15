@@ -45,5 +45,59 @@
     <string name="insights_no_tags">Tu pojawią się tagi, które dodajesz do wpisów.</string>
     <string name="insights_empty_title">Statystyki rosną z każdym wpisem</string>
     <string name="insights_empty_body">Napisz kilka wpisów, a zaczną się tu pojawiać twoje wzorce.</string>
-    <string name="insights_coming">Głębsze, interaktywne analizy są w drodze.</string>
+    <string name="insights_echoes">Echa</string>
+    <string name="insights_echoes_empty">W tym okresie nie widać jeszcze wyraźnych wzorców. Pojawią się, gdy przybędzie wpisów.</string>
+    <string name="insights_echo_tag_lift">Wpisy z tagiem „%1$s” bywają pogodniejsze</string>
+    <string name="insights_echo_tag_dip">Wpisy z tagiem „%1$s” bywają cięższe</string>
+    <!-- %1$s to fraza z insights_on_weekdays albo insights_in_day_part. -->
+    <string name="insights_echo_bright">%1$s zwykle czujesz się najlepiej</string>
+    <string name="insights_echo_heavy">%1$s bywa ciężej</string>
+    <string name="insights_echo_busy">%1$s piszesz najwięcej</string>
+    <string name="insights_echo_rising">W tym okresie twój nastrój się poprawia</string>
+    <string name="insights_echo_falling">W tym okresie twój nastrój się obniża</string>
+    <string-array name="insights_on_weekdays">
+        <item>W poniedziałki</item>
+        <item>We wtorki</item>
+        <item>W środy</item>
+        <item>W czwartki</item>
+        <item>W piątki</item>
+        <item>W soboty</item>
+        <item>W niedziele</item>
+    </string-array>
+    <string-array name="insights_in_day_part">
+        <item>Rano</item>
+        <item>Po południu</item>
+        <item>Wieczorem</item>
+        <item>W nocy</item>
+    </string-array>
+    <string name="insights_trend">Nastrój w czasie</string>
+    <string name="insights_trend_days">Dzień po dniu</string>
+    <string name="insights_trend_weeks">Tydzień po tygodniu</string>
+    <string name="insights_trend_months">Miesiąc po miesiącu</string>
+    <string name="insights_trend_span">%1$s – %2$s</string>
+    <string name="insights_trend_hint">Dotknij wykresu albo przesuń po nim palcem, żeby odczytać pojedynczy punkt.</string>
+    <string name="insights_weekdays">Rytm tygodnia</string>
+    <string name="insights_weekdays_body">Średni nastrój w kolejne dni tygodnia. Dotknij dnia, żeby zobaczyć szczegóły.</string>
+    <string name="insights_day_parts">Pora dnia</string>
+    <string name="insights_day_part_morning">Poranek</string>
+    <string name="insights_day_part_afternoon">Popołudnie</string>
+    <string name="insights_day_part_evening">Wieczór</string>
+    <string name="insights_day_part_night">Noc</string>
+    <string name="insights_day_part_from">od %1$s</string>
+    <string name="insights_no_entries_period">W tym okresie nie ma jeszcze wpisów.</string>
+    <string name="insights_influence">Tagi a nastrój</string>
+    <string name="insights_influence_body">Jak wpisy z tagiem wypadają na tle pozostałych, w punktach na twojej skali nastroju.</string>
+    <string name="insights_influence_empty">Żeby porównać tag, potrzeba kilku wpisów z nastrojem, które go mają, i kilku bez niego.</string>
+    <string name="insights_influence_brighter">Pogodniej</string>
+    <string name="insights_influence_heavier">Ciężej</string>
+    <string name="insights_year">Rok w pikselach</string>
+    <plurals name="insights_year_days">
+        <item quantity="one">%d dzień z wpisami</item>
+        <item quantity="few">%d dni z wpisami</item>
+        <item quantity="many">%d dni z wpisami</item>
+        <item quantity="other">%d dnia z wpisami</item>
+    </plurals>
+    <string name="insights_year_previous">Poprzedni rok</string>
+    <string name="insights_year_next">Następny rok</string>
+    <string name="insights_year_hint">Dotknij dnia, żeby zobaczyć szczegóły.</string>
 </resources>

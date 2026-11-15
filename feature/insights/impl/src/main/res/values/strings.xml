@@ -39,5 +39,59 @@
     <string name="insights_no_tags">Tags you add to entries will show up here.</string>
     <string name="insights_empty_title">Insights grow with every entry</string>
     <string name="insights_empty_body">Write a few entries and your patterns will start to show here.</string>
-    <string name="insights_coming">Deeper, interactive analytics are on the way.</string>
+    <string name="insights_echoes">Echoes</string>
+    <string name="insights_echoes_empty">No clear patterns in this period yet. They show up as your entries add up.</string>
+    <string name="insights_echo_tag_lift">Entries with “%1$s” tend to feel brighter</string>
+    <string name="insights_echo_tag_dip">Entries with “%1$s” tend to feel heavier</string>
+    <!-- %1$s is a phrase from insights_on_weekdays or insights_in_day_part. -->
+    <string name="insights_echo_bright">%1$s you tend to feel your best</string>
+    <string name="insights_echo_heavy">%1$s things tend to feel heavier</string>
+    <string name="insights_echo_busy">%1$s you write the most</string>
+    <string name="insights_echo_rising">Your mood has been lifting over this period</string>
+    <string name="insights_echo_falling">Your mood has been dipping over this period</string>
+    <!-- Monday first. Whole phrases, because weekday names decline in some languages. -->
+    <string-array name="insights_on_weekdays">
+        <item>On Mondays</item>
+        <item>On Tuesdays</item>
+        <item>On Wednesdays</item>
+        <item>On Thursdays</item>
+        <item>On Fridays</item>
+        <item>On Saturdays</item>
+        <item>On Sundays</item>
+    </string-array>
+    <!-- Morning, afternoon, evening, night. -->
+    <string-array name="insights_in_day_part">
+        <item>In the morning</item>
+        <item>In the afternoon</item>
+        <item>In the evening</item>
+        <item>At night</item>
+    </string-array>
+    <string name="insights_trend">Mood over time</string>
+    <string name="insights_trend_days">Day by day</string>
+    <string name="insights_trend_weeks">Week by week</string>
+    <string name="insights_trend_months">Month by month</string>
+    <string name="insights_trend_span">%1$s – %2$s</string>
+    <string name="insights_trend_hint">Tap or slide along the line to read a single point.</string>
+    <string name="insights_weekdays">Week rhythm</string>
+    <string name="insights_weekdays_body">Average mood by weekday. Tap a day for details.</string>
+    <string name="insights_day_parts">Time of day</string>
+    <string name="insights_day_part_morning">Morning</string>
+    <string name="insights_day_part_afternoon">Afternoon</string>
+    <string name="insights_day_part_evening">Evening</string>
+    <string name="insights_day_part_night">Night</string>
+    <string name="insights_day_part_from">from %1$s</string>
+    <string name="insights_no_entries_period">No entries in this period yet.</string>
+    <string name="insights_influence">Tags and mood</string>
+    <string name="insights_influence_body">How entries with a tag compare with the rest, in points on your mood scale.</string>
+    <string name="insights_influence_empty">A tag needs a few entries with a mood, and a few without the tag, before it can be compared.</string>
+    <string name="insights_influence_brighter">Brighter</string>
+    <string name="insights_influence_heavier">Heavier</string>
+    <string name="insights_year">Year in pixels</string>
+    <plurals name="insights_year_days">
+        <item quantity="one">%d day with entries</item>
+        <item quantity="other">%d days with entries</item>
+    </plurals>
+    <string name="insights_year_previous">Previous year</string>
+    <string name="insights_year_next">Next year</string>
+    <string name="insights_year_hint">Tap a day for details.</string>
 </resources>

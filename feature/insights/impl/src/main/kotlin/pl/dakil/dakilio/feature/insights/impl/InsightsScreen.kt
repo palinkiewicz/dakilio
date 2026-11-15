@@ -102,7 +102,7 @@ internal fun InsightsScreen(viewModel: InsightsViewModel) {
                         modifier = Modifier.padding(padding).align(Alignment.Center),
                     )
                 } else {
-                    InsightsContent(current, padding, viewModel::selectRange, viewModel::selectDiary)
+                    InsightsContent(current, padding, viewModel::selectRange, viewModel::selectDiary, viewModel::selectYear)
                 }
             }
         }
@@ -115,6 +115,7 @@ private fun InsightsContent(
     padding: PaddingValues,
     onRange: (InsightsRange) -> Unit,
     onDiary: (Long?) -> Unit,
+    onYear: (Int) -> Unit,
 ) {
     val formats = rememberFormats()
     val insights = state.insights
@@ -150,30 +151,29 @@ private fun InsightsContent(
             }
         }
         item(key = "streak") { StreakCard(insights) }
+        item(key = "milestones") { MilestonesCard(state.milestones) }
+        item(key = "echoes") { EchoesCard(state.echoes) }
         item(key = "average") { AverageMoodCard(insights, state.moods, rangeLabel, state.range != InsightsRange.All) }
+        item(key = "trend") { TrendCard(state.trend, state.moods, state.today, formats) }
         item(key = "distribution") { DistributionCard(insights) }
+        item(key = "weekdays") { WeekdayCard(state.weekdays, state.moods, formats) }
+        item(key = "dayParts") { DayPartCard(state.dayParts, state.moods, formats) }
+        item(key = "influences") { TagInfluenceCard(state.influences, state.moods) }
         item(key = "map") { JourneyMapCard(insights, state.moods, state.today, formats) }
+        item(key = "year") { YearCard(state.year, state.years, state.moods, state.today, formats, onYear) }
         item(key = "tags") { TopTagsCard(insights) }
-        item(key = "coming") {
-            Text(
-                stringResource(R.string.insights_coming),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.fillMaxWidth().padding(vertical = Spacing.s),
-            )
-        }
     }
 }
 
 @Composable
-private fun InsightCard(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+internal fun InsightCard(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     Surface(shape = CardShape, color = MaterialTheme.colorScheme.surfaceContainer, modifier = modifier.fillMaxWidth()) {
         Column(Modifier.padding(Spacing.xl)) { content() }
     }
 }
 
 @Composable
-private fun CardTitle(title: String, subtitle: String? = null) {
+internal fun CardTitle(title: String, subtitle: String? = null) {
     Text(title, style = MaterialTheme.typography.titleMediumEmphasized)
     subtitle?.let {
         Text(
@@ -237,12 +237,7 @@ private fun AverageMoodCard(insights: Insights, moods: List<Mood>, rangeLabel: S
         val average = insights.averageMood
         val mood = average?.let { nearestMood(moods, it) }
         if (average == null || mood == null) {
-            Text(
-                stringResource(R.string.insights_no_mood),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = Spacing.s),
-            )
+            CardEmptyText(stringResource(R.string.insights_no_mood))
             return@InsightCard
         }
         val percent = (average * 100).roundToInt()
@@ -277,7 +272,7 @@ private fun AverageMoodCard(insights: Insights, moods: List<Mood>, rangeLabel: S
 
 /** Same-ramp meter: primary fill on a primary-container track. */
 @Composable
-private fun Meter(fraction: Float, modifier: Modifier = Modifier) {
+internal fun Meter(fraction: Float, modifier: Modifier = Modifier) {
     val animated by animateFloatAsState(fraction.coerceIn(0f, 1f), MaterialTheme.motionScheme.slowSpatialSpec(), label = "meter")
     val track = MaterialTheme.colorScheme.primaryContainer
     val fill = MaterialTheme.colorScheme.primary
@@ -297,12 +292,7 @@ private fun DistributionCard(insights: Insights) {
         )
         val total = insights.moodEntryCount
         if (total == 0) {
-            Text(
-                stringResource(R.string.insights_no_mood),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = Spacing.s),
-            )
+            CardEmptyText(stringResource(R.string.insights_no_mood))
             return@InsightCard
         }
         val segments = insights.distribution.filter { it.count > 0 }
@@ -413,31 +403,53 @@ private fun JourneyMapCard(insights: Insights, moods: List<Mood>, today: LocalDa
             )
         }
         // Legend: mood faces carry identity alongside color.
-        FlowRow(
-            Modifier.padding(top = Spacing.m),
-            horizontalArrangement = Arrangement.spacedBy(Spacing.m),
-            verticalArrangement = Arrangement.spacedBy(Spacing.xs),
-        ) {
-            moods.sortedBy { it.level }.forEach { mood ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    MoodBadge(mood, size = 16.dp)
-                    Text(mood.label, style = MaterialTheme.typography.labelSmall, color = colors.onSurfaceVariant, modifier = Modifier.padding(start = Spacing.xs))
-                }
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(14.dp).background(emptyFill, RoundedCornerShape(4.dp)))
-                Text(stringResource(R.string.insights_no_entries_day), style = MaterialTheme.typography.labelSmall, color = colors.onSurfaceVariant, modifier = Modifier.padding(start = Spacing.xs))
-            }
-        }
+        MoodLegend(moods, Modifier.padding(top = Spacing.m))
     }
 }
 
 @Composable
-private fun heatCaption(day: HeatDay, mood: Mood?, formats: DakilioFormats, today: LocalDate): String {
-    val date = formats.fullDate(day.date, today)
-    if (day.entries == 0) return stringResource(R.string.insights_heat_empty, date)
-    val entries = pluralStringResource(R.plurals.insights_heat_entries, day.entries, day.entries)
-    return stringResource(R.string.insights_heat_day, date, "${mood?.label ?: stringResource(R.string.insights_heat_no_mood)} · $entries")
+internal fun heatCaption(day: HeatDay, mood: Mood?, formats: DakilioFormats, today: LocalDate): String =
+    periodCaption(formats.fullDate(day.date, today), day.entries, mood)
+
+/** "[period] · Good · 3 entries": what a tapped day, week or weekday of a chart holds. */
+@Composable
+internal fun periodCaption(period: String, entries: Int, mood: Mood?): String {
+    if (entries == 0) return stringResource(R.string.insights_heat_empty, period)
+    val count = pluralStringResource(R.plurals.insights_heat_entries, entries, entries)
+    return stringResource(R.string.insights_heat_day, period, "${mood?.label ?: stringResource(R.string.insights_heat_no_mood)} · $count")
+}
+
+/** A muted line for a card that has nothing to chart yet. */
+@Composable
+internal fun CardEmptyText(text: String) {
+    Text(
+        text,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(top = Spacing.s),
+    )
+}
+
+/** The mood scale as faces with names, plus the "no entries" swatch: the legend of the day grids. */
+@Composable
+internal fun MoodLegend(moods: List<Mood>, modifier: Modifier = Modifier) {
+    val colors = MaterialTheme.colorScheme
+    FlowRow(
+        modifier,
+        horizontalArrangement = Arrangement.spacedBy(Spacing.m),
+        verticalArrangement = Arrangement.spacedBy(Spacing.xs),
+    ) {
+        moods.sortedBy { it.level }.forEach { mood ->
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                MoodBadge(mood, size = 16.dp)
+                Text(mood.label, style = MaterialTheme.typography.labelSmall, color = colors.onSurfaceVariant, modifier = Modifier.padding(start = Spacing.xs))
+            }
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(14.dp).background(colors.surfaceContainerHighest, RoundedCornerShape(4.dp)))
+            Text(stringResource(R.string.insights_no_entries_day), style = MaterialTheme.typography.labelSmall, color = colors.onSurfaceVariant, modifier = Modifier.padding(start = Spacing.xs))
+        }
+    }
 }
 
 private fun heatDescription(day: HeatDay, mood: Mood?, formats: DakilioFormats): String =
@@ -448,12 +460,7 @@ private fun TopTagsCard(insights: Insights) {
     InsightCard {
         CardTitle(stringResource(R.string.insights_top_tags))
         if (insights.topTags.isEmpty()) {
-            Text(
-                stringResource(R.string.insights_no_tags),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = Spacing.s),
-            )
+            CardEmptyText(stringResource(R.string.insights_no_tags))
             return@InsightCard
         }
         val max = insights.topTags.maxOf { it.count }.toFloat()

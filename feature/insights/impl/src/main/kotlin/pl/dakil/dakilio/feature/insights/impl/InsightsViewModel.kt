@@ -34,6 +34,15 @@ sealed interface InsightsUiState {
         val selectedDiaryId: Long?,
         val today: LocalDate,
         val hasAnyEntries: Boolean,
+        /** Patterns of the selected period worth a sentence; empty until there's enough to go on. */
+        val echoes: List<Echo>,
+        val trend: MoodTrend,
+        val weekdays: List<WeekdayMood>,
+        val dayParts: List<DayPartMood>,
+        val influences: TagInfluences,
+        /** The year view's year, which ignores the selected period. */
+        val year: YearPixels,
+        val years: IntRange,
     ) : InsightsUiState
 }
 
@@ -50,19 +59,24 @@ class InsightsViewModel @Inject constructor(
     private val range = savedStateHandle.getStateFlow(KEY_RANGE, InsightsRange.Month)
     private val selectedDiaryId = savedStateHandle.getStateFlow<Long?>(KEY_DIARY, null)
 
+    /** The year view's year; `null` is the current one. */
+    private val selectedYear = savedStateHandle.getStateFlow<Int?>(KEY_YEAR, null)
+
     val uiState: StateFlow<InsightsUiState> =
         combine(
             combine(postRepository.posts, settingsRepository.firstDayOfWeek, ::Pair),
             diaryRepository.diaries,
             moodRepository.moods,
             range,
-            selectedDiaryId,
-        ) { (posts, firstDay), diaries, moods, range, selected ->
+            combine(selectedDiaryId, selectedYear, ::Pair),
+        ) { (posts, firstDay), diaries, moods, range, (selected, selectedYear) ->
             // Charts work per level: aliases fold into their level's primary.
             val primaries = moods.primaries()
             val filter = selected?.takeIf { id -> diaries.any { it.id == id } }
             val filtered = if (filter == null) posts else posts.filter { it.diaryId == filter }
             val today = LocalDate.now(clock)
+            val inRange = filtered.inRange(range, today)
+            val years = pixelYears(filtered, today)
             InsightsUiState.Ready(
                 insights = calculateInsights(filtered, primaries, range, today, firstDay),
                 moods = primaries,
@@ -71,6 +85,13 @@ class InsightsViewModel @Inject constructor(
                 selectedDiaryId = filter,
                 today = today,
                 hasAnyEntries = posts.isNotEmpty(),
+                echoes = echoes(filtered, range, today),
+                trend = moodTrend(filtered, range, today, firstDay),
+                weekdays = weekdayMoods(inRange, firstDay),
+                dayParts = dayPartMoods(inRange),
+                influences = tagInfluences(inRange),
+                year = yearPixels(filtered, (selectedYear ?: today.year).coerceIn(years.first, years.last)),
+                years = years,
             )
         }
             .flowOn(default)
@@ -84,8 +105,13 @@ class InsightsViewModel @Inject constructor(
         savedStateHandle[KEY_DIARY] = id
     }
 
+    fun selectYear(year: Int) {
+        savedStateHandle[KEY_YEAR] = year
+    }
+
     private companion object {
         const val KEY_RANGE = "range"
         const val KEY_DIARY = "diary"
+        const val KEY_YEAR = "year"
     }
 }
