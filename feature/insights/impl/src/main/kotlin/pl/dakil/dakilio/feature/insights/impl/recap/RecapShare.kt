@@ -50,6 +50,7 @@ import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.ui.DakilioFormats
 import pl.dakil.dakilio.core.ui.component.OffscreenCapture
+import pl.dakil.dakilio.core.ui.color.tagColors
 import pl.dakil.dakilio.core.ui.component.TagPill
 import pl.dakil.dakilio.core.ui.component.shareImageIntent
 import pl.dakil.dakilio.core.ui.component.writeSharedImage
@@ -216,7 +217,15 @@ internal fun RecapShareCard(state: InsightsRecapUiState.Ready, includeTags: Bool
                 }
                 if (includeTags && overview.tags.isNotEmpty()) {
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        overview.tags.take(5).forEach { TagPill(it.tag) }
+                        overview.tags.take(5).forEach { stat ->
+                            val tones = tagColors(stat.tag.color)
+                            TagPill(
+                                label = "${stat.tag.label} \u00D7${stat.days}",
+                                iconKey = stat.tag.iconKey,
+                                containerColor = tones?.soft ?: MaterialTheme.colorScheme.surfaceContainerHighest,
+                                contentColor = tones?.accent ?: MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
                     }
                 }
             }
