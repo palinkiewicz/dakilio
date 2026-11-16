@@ -1,6 +1,7 @@
 package pl.dakil.dakilio.feature.backup.impl
 
 import pl.dakil.dakilio.core.model.AutoBackupFrequency
+import pl.dakil.dakilio.core.designsystem.component.DakilioLinearProgress
 import pl.dakil.dakilio.core.designsystem.component.SectionHeader
 import android.net.Uri
 import androidx.activity.compose.BackHandler
@@ -35,7 +36,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
@@ -613,10 +613,10 @@ private fun ColumnScope.ProgressStep(symbol: DakilioSymbol, title: String, done:
     Text(title, style = MaterialTheme.typography.headlineSmallEmphasized, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
     val copyingPhotos = total > 0 && done < total
     if (copyingPhotos) {
-        LinearWavyProgressIndicator(progress = { done.toFloat() / total }, modifier = Modifier.fillMaxWidth().padding(top = Spacing.l))
+        DakilioLinearProgress(Modifier.fillMaxWidth().padding(top = Spacing.l), progress = { done.toFloat() / total })
     } else {
         // The key derivation and the database swap have no measurable progress; this goes once they're done.
-        LinearWavyProgressIndicator(Modifier.fillMaxWidth().padding(top = Spacing.l))
+        DakilioLinearProgress(Modifier.fillMaxWidth().padding(top = Spacing.l))
     }
     Text(
         if (copyingPhotos) stringResource(photosLabel, done, total) else otherLabel,

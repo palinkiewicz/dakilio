@@ -75,6 +75,7 @@ import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.ui.Hint
 import pl.dakil.dakilio.core.ui.component.IconPicker
+import pl.dakil.dakilio.core.designsystem.theme.decorativeTurn
 
 @Composable
 internal fun DiaryEditorScreen(viewModel: DiaryEditorViewModel, onClose: () -> Unit) {
@@ -84,7 +85,7 @@ internal fun DiaryEditorScreen(viewModel: DiaryEditorViewModel, onClose: () -> U
     var pickingIcon by rememberSaveable { mutableStateOf(false) }
     var deleteCount by rememberSaveable { mutableStateOf<Int?>(null) }
     var spins by rememberSaveable { mutableIntStateOf(0) }
-    val rotation by animateFloatAsState(spins * 60f, MaterialTheme.motionScheme.slowSpatialSpec(), label = "diarySpin")
+    val rotation by animateFloatAsState(spins * decorativeTurn(60f), MaterialTheme.motionScheme.slowSpatialSpec(), label = "diarySpin")
 
     LaunchedEffect(state?.finished) { if (state?.finished == true) onClose() }
 

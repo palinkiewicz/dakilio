@@ -87,6 +87,10 @@ object DakilioSymbols {
     val PictureAsPdf = VectorSymbol("picture_as_pdf", R.drawable.sym_picture_as_pdf, R.drawable.sym_picture_as_pdf_fill, SymbolCategory.Ui)
     val Description = VectorSymbol("description", R.drawable.sym_description, R.drawable.sym_description_fill, SymbolCategory.Ui)
     val Folder = VectorSymbol("folder", R.drawable.sym_folder, R.drawable.sym_folder_fill, SymbolCategory.Ui)
+    val Vibration = VectorSymbol("vibration", R.drawable.sym_vibration, R.drawable.sym_vibration_fill, SymbolCategory.Ui)
+    val Animation = VectorSymbol("animation", R.drawable.sym_animation, R.drawable.sym_animation_fill, SymbolCategory.Ui)
+    val Numbers = VectorSymbol("numbers", R.drawable.sym_numbers, R.drawable.sym_numbers_fill, SymbolCategory.Ui)
+    val Waves = VectorSymbol("waves", R.drawable.sym_waves, R.drawable.sym_waves_fill, SymbolCategory.Ui)
     val SentimentVerySatisfied = VectorSymbol("sentiment_very_satisfied", R.drawable.sym_sentiment_very_satisfied, R.drawable.sym_sentiment_very_satisfied_fill, SymbolCategory.Emotions)
     val SentimentSatisfied = VectorSymbol("sentiment_satisfied", R.drawable.sym_sentiment_satisfied, R.drawable.sym_sentiment_satisfied_fill, SymbolCategory.Emotions)
     val SentimentNeutral = VectorSymbol("sentiment_neutral", R.drawable.sym_sentiment_neutral, R.drawable.sym_sentiment_neutral_fill, SymbolCategory.Emotions)
@@ -293,6 +297,10 @@ object DakilioSymbols {
         PictureAsPdf,
         Description,
         Folder,
+        Vibration,
+        Animation,
+        Numbers,
+        Waves,
         SentimentVerySatisfied,
         SentimentSatisfied,
         SentimentNeutral,

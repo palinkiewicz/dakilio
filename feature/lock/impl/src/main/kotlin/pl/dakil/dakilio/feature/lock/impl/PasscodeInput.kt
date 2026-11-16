@@ -53,6 +53,8 @@ import pl.dakil.dakilio.core.designsystem.component.rememberHaptics
 import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
+import pl.dakil.dakilio.core.designsystem.theme.decorativeTurn
+import pl.dakil.dakilio.core.designsystem.theme.decorativeSpec
 
 private val dotMorph by lazy { Morph(MaterialShapes.Circle, MaterialShapes.Cookie6Sided) }
 
@@ -71,12 +73,13 @@ internal fun PinDots(filled: Int, slots: Int, modifier: Modifier = Modifier) {
         repeat(maxOf(slots, filled)) { index ->
             val on = index < filled
             val motion = MaterialTheme.motionScheme
-            val progress by animateFloatAsState(if (on) 1f else 0f, motion.fastSpatialSpec(), label = "pinDot")
+            val progress by animateFloatAsState(if (on) 1f else 0f, decorativeSpec(motion.fastSpatialSpec()), label = "pinDot")
+            val turn = decorativeTurn(60f)
             val color = if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
             Box(
                 Modifier
                     .size(12.dp + 8.dp * progress)
-                    .graphicsLayer { rotationZ = 60f * progress }
+                    .graphicsLayer { rotationZ = turn * progress }
                     .background(color, MorphShape(dotMorph, progress)),
             )
         }

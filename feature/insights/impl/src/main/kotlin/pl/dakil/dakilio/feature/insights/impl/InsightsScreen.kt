@@ -1,10 +1,6 @@
 package pl.dakil.dakilio.feature.insights.impl
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -58,6 +54,8 @@ import kotlin.math.roundToInt
 import java.time.LocalDate
 import pl.dakil.dakilio.core.designsystem.component.ConnectedToggleRow
 import pl.dakil.dakilio.core.designsystem.component.PolygonShape
+import pl.dakil.dakilio.core.designsystem.component.RollingNumber
+import pl.dakil.dakilio.core.designsystem.component.entrance
 import pl.dakil.dakilio.core.designsystem.component.ToggleOption
 import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
@@ -149,9 +147,10 @@ private fun InsightsContent(
                 }
             }
         }
-        item(key = "streak") { StreakCard(insights) }
-        item(key = "average") { AverageMoodCard(insights, state.moods, rangeLabel, state.range != InsightsRange.All) }
-        item(key = "distribution") { DistributionCard(insights) }
+        // The first cards cascade in as the tab opens (decorative).
+        item(key = "streak") { Box(Modifier.entrance(0)) { StreakCard(insights) } }
+        item(key = "average") { Box(Modifier.entrance(1)) { AverageMoodCard(insights, state.moods, rangeLabel, state.range != InsightsRange.All) } }
+        item(key = "distribution") { Box(Modifier.entrance(2)) { DistributionCard(insights) } }
         item(key = "map") { JourneyMapCard(insights, state.moods, state.today, formats) }
         item(key = "tags") { TopTagsCard(insights) }
         item(key = "coming") {
@@ -199,9 +198,7 @@ private fun StreakCard(insights: Insights) {
             Row(Modifier.padding(Spacing.xl), verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.size(112.dp), contentAlignment = Alignment.Center) {
                     Box(Modifier.size(112.dp).background(colors.primary, sun))
-                    AnimatedContent(insights.currentStreak, transitionSpec = { fadeIn() togetherWith fadeOut() }, label = "streak") {
-                        Text(it.toString(), style = MaterialTheme.typography.displayMediumEmphasized, color = colors.onPrimary)
-                    }
+                    RollingNumber(insights.currentStreak.toString(), style = MaterialTheme.typography.displayMediumEmphasized, color = colors.onPrimary)
                 }
                 Column(Modifier.padding(start = Spacing.xl)) {
                     Text(stringResource(R.string.insights_current_streak), style = MaterialTheme.typography.titleMedium)
@@ -224,7 +221,7 @@ private fun StreakCard(insights: Insights) {
 private fun StatTile(label: String, value: Int, shape: RoundedCornerShape, modifier: Modifier) {
     Surface(shape = shape, color = MaterialTheme.colorScheme.surfaceContainer, modifier = modifier.fillMaxHeight()) {
         Column(Modifier.padding(horizontal = Spacing.l, vertical = Spacing.l)) {
-            Text(value.toString(), style = MaterialTheme.typography.headlineMediumEmphasized)
+            RollingNumber(value.toString(), style = MaterialTheme.typography.headlineMediumEmphasized)
             Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2)
         }
     }

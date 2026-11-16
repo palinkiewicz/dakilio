@@ -84,6 +84,10 @@ ui warning
 ui picture_as_pdf
 ui description
 ui folder
+ui vibration
+ui animation
+ui numbers
+ui waves
 emotions sentiment_very_satisfied
 emotions sentiment_satisfied
 emotions sentiment_neutral

@@ -1,6 +1,7 @@
 package pl.dakil.dakilio.feature.more.impl
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +26,7 @@ import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -36,6 +38,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pl.dakil.dakilio.core.designsystem.component.SectionHeader
+import pl.dakil.dakilio.core.designsystem.component.entrance
+import pl.dakil.dakilio.core.designsystem.theme.decorativeMotion
 import pl.dakil.dakilio.core.designsystem.component.ShapedIcon
 import pl.dakil.dakilio.core.designsystem.component.segmentedItemColors
 import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
@@ -105,7 +109,7 @@ internal fun MoreScreen(
                 .padding(bottom = bottomBarPadding(extra = Spacing.xl)),
         ) {
             Header()
-            AnimatedVisibility(showSampleHint, exit = shrinkVertically() + fadeOut()) {
+            AnimatedVisibility(showSampleHint, exit = shrinkVertically() + fadeOut(), modifier = Modifier.entrance(1)) {
                 SampleHint(onManage = onOpenSettings, onDismiss = viewModel::dismissSampleHint)
             }
             // Extras: optional tools that build on moods and tags. They have no on/off switch; one that
@@ -146,6 +150,7 @@ internal fun MoreScreen(
                         inUse = reminders > 0,
                     ),
                 ),
+                modifier = Modifier.entrance(2),
             )
             Group(
                 stringResource(R.string.more_section_customize),
@@ -155,6 +160,7 @@ internal fun MoreScreen(
                     MoreItem(DakilioSymbols.Book2, stringResource(R.string.more_diaries), stringResource(R.string.more_diaries_body), onOpenDiaries),
                     MoreItem(DakilioSymbols.Inventory2, stringResource(R.string.more_archive), stringResource(R.string.more_archive_body), onOpenArchive),
                 ),
+                modifier = Modifier.entrance(3),
             )
             Group(
                 stringResource(R.string.more_section_data),
@@ -177,6 +183,7 @@ internal fun MoreScreen(
                     ),
                     MoreItem(DakilioSymbols.DriveFileMove, stringResource(R.string.more_import_daylio), stringResource(R.string.more_import_daylio_body), onOpenImport),
                 ),
+                modifier = Modifier.entrance(4),
             )
             Group(
                 stringResource(R.string.more_section_app),
@@ -199,6 +206,7 @@ internal fun MoreScreen(
                         inUse = lock.enabled,
                     ),
                 ),
+                modifier = Modifier.entrance(5),
             )
             Group(
                 stringResource(R.string.more_section_about),
@@ -219,6 +227,7 @@ internal fun MoreScreen(
                         external = true,
                     )
                 } + MoreItem(DakilioSymbols.Info, stringResource(R.string.more_version), version),
+                modifier = Modifier.entrance(6),
             )
         }
     }
@@ -226,6 +235,12 @@ internal fun MoreScreen(
 
 @Composable
 private fun Header() {
+    // The badge turns into place once as the screen comes in, then rests. Decorative, so without it
+    // the badge simply sits still.
+    val decorative = decorativeMotion
+    val turn = remember { Animatable(if (decorative) -120f else 0f) }
+    val turnSpec = MaterialTheme.motionScheme.slowSpatialSpec<Float>()
+    LaunchedEffect(Unit) { turn.animateTo(0f, turnSpec) }
     Column(
         Modifier.fillMaxWidth().padding(top = Spacing.xxl, bottom = Spacing.l),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -237,6 +252,8 @@ private fun Header() {
             iconSize = 48.dp,
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            containerRotation = turn.value,
+            modifier = Modifier.entrance(0),
         )
         Text(
             stringResource(R.string.more_app_name),
@@ -293,50 +310,52 @@ private fun SampleHint(onManage: () -> Unit, onDismiss: () -> Unit) {
 }
 
 @Composable
-private fun Group(title: String, items: List<MoreItem>) {
-    SectionHeader(title)
-    Column(verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)) {
-        items.forEachIndexed { index, item ->
-            val shapes = ListItemDefaults.segmentedShapes(index, items.size)
-            val leading: @Composable () -> Unit = {
-                ShapedIcon(
-                    item.symbol,
-                    polygon = MaterialShapes.Cookie9Sided,
-                    size = 40.dp,
-                    containerColor = if (item.inUse) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = if (item.inUse) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
-                )
-            }
-            val supporting: @Composable () -> Unit = {
-                Column {
-                    Text(item.body)
-                    if (item.status != null) {
-                        Text(
-                            item.status,
-                            style = MaterialTheme.typography.labelMedium,
-                            color = when {
-                                item.warning -> MaterialTheme.colorScheme.error
-                                item.inUse -> MaterialTheme.colorScheme.primary
-                                else -> MaterialTheme.colorScheme.onSurfaceVariant
-                            },
-                            modifier = Modifier.padding(top = Spacing.xs),
-                        )
+private fun Group(title: String, items: List<MoreItem>, modifier: Modifier = Modifier) {
+    Column(modifier) {
+        SectionHeader(title)
+        Column(verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)) {
+            items.forEachIndexed { index, item ->
+                val shapes = ListItemDefaults.segmentedShapes(index, items.size)
+                val leading: @Composable () -> Unit = {
+                    ShapedIcon(
+                        item.symbol,
+                        polygon = MaterialShapes.Cookie9Sided,
+                        size = 40.dp,
+                        containerColor = if (item.inUse) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = if (item.inUse) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+                    )
+                }
+                val supporting: @Composable () -> Unit = {
+                    Column {
+                        Text(item.body)
+                        if (item.status != null) {
+                            Text(
+                                item.status,
+                                style = MaterialTheme.typography.labelMedium,
+                                color = when {
+                                    item.warning -> MaterialTheme.colorScheme.error
+                                    item.inUse -> MaterialTheme.colorScheme.primary
+                                    else -> MaterialTheme.colorScheme.onSurfaceVariant
+                                },
+                                modifier = Modifier.padding(top = Spacing.xs),
+                            )
+                        }
                     }
                 }
-            }
-            if (item.onClick != null) {
-                SegmentedListItem(
-                    onClick = item.onClick,
-                    shapes = shapes,
-                    colors = segmentedItemColors(),
-                    leadingContent = leading,
-                    supportingContent = supporting,
-                    trailingContent = {
-                        DakilioIcon(if (item.external) DakilioSymbols.OpenInNew else DakilioSymbols.ChevronRight, contentDescription = null)
-                    },
-                ) { Text(item.title) }
-            } else {
-                SegmentedListItem(shapes = shapes, colors = segmentedItemColors(), leadingContent = leading, supportingContent = supporting) { Text(item.title) }
+                if (item.onClick != null) {
+                    SegmentedListItem(
+                        onClick = item.onClick,
+                        shapes = shapes,
+                        colors = segmentedItemColors(),
+                        leadingContent = leading,
+                        supportingContent = supporting,
+                        trailingContent = {
+                            DakilioIcon(if (item.external) DakilioSymbols.OpenInNew else DakilioSymbols.ChevronRight, contentDescription = null)
+                        },
+                    ) { Text(item.title) }
+                } else {
+                    SegmentedListItem(shapes = shapes, colors = segmentedItemColors(), leadingContent = leading, supportingContent = supporting) { Text(item.title) }
+                }
             }
         }
     }

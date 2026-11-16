@@ -24,6 +24,7 @@ import pl.dakil.dakilio.core.designsystem.component.rememberHaptics
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbol
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
+import pl.dakil.dakilio.core.designsystem.theme.decorativeMotion
 
 /** The big shaped icon that heads a step of a multi-step flow (the Daylio import, backups). */
 @Composable
@@ -55,7 +56,9 @@ fun StatTile(label: String, value: Int, shape: RoundedCornerShape, modifier: Mod
 @Composable
 fun StepDoneStamp() {
     val haptics = rememberHaptics()
-    val stamp = remember { Animatable(0f) }
+    // Decorative: without it the badge is simply there.
+    val decorative = decorativeMotion
+    val stamp = remember { Animatable(if (decorative) 0f else 1f) }
     val spec = MaterialTheme.motionScheme.slowSpatialSpec<Float>()
     LaunchedEffect(Unit) {
         haptics.confirm()

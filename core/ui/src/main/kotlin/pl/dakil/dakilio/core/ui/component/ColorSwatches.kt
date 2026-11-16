@@ -43,6 +43,8 @@ import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.ui.color.TagColor
 import pl.dakil.dakilio.core.ui.color.tagColors
+import pl.dakil.dakilio.core.designsystem.theme.decorativeTurn
+import pl.dakil.dakilio.core.designsystem.theme.decorativeSpec
 
 private val swatchMorph by lazy { Morph(MaterialShapes.Circle, MaterialShapes.Cookie9Sided) }
 
@@ -92,13 +94,14 @@ fun ColorRow(
 fun ColorSwatch(color: TagColor, selected: Boolean, size: Dp, onClick: () -> Unit) {
     val tones = tagColors(color)
     val interaction = remember { MutableInteractionSource() }
-    val progress by animateFloatAsState(if (selected) 1f else 0f, MaterialTheme.motionScheme.fastSpatialSpec(), label = "swatchMorph")
+    val progress by animateFloatAsState(if (selected) 1f else 0f, decorativeSpec(MaterialTheme.motionScheme.fastSpatialSpec()), label = "swatchMorph")
+    val turn = decorativeTurn(20f)
     val label = stringResource(color.label)
     Box(
         Modifier
             .size(size)
             .pressScale(interaction, 0.88f)
-            .graphicsLayer { rotationZ = progress * 20f }
+            .graphicsLayer { rotationZ = progress * turn }
             .clip(MorphShape(swatchMorph, progress))
             .background(tones.container)
             .clickable(interactionSource = interaction, indication = null, onClick = onClick)
@@ -115,7 +118,7 @@ fun ColorSwatch(color: TagColor, selected: Boolean, size: Dp, onClick: () -> Uni
                 contentDescription = null,
                 tint = tones.onContainer,
                 modifier = Modifier.size(size / 2).graphicsLayer {
-                    rotationZ = -progress * 20f
+                    rotationZ = -progress * turn
                     alpha = progress
                     scaleX = progress
                     scaleY = progress

@@ -17,6 +17,7 @@ import pl.dakil.dakilio.core.data.repository.PhotoRepository
 import pl.dakil.dakilio.core.data.repository.PostRepository
 import pl.dakil.dakilio.core.data.repository.SettingsRepository
 import pl.dakil.dakilio.core.model.PhotoSize
+import pl.dakil.dakilio.core.model.ProgressStyle
 import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TextScale
 import pl.dakil.dakilio.core.model.ThemeMode
@@ -37,6 +38,10 @@ data class SettingsUiState(
     /** Photos larger than [photoSize] allows, which "Scale down" would shrink. */
     val oversizedPhotos: Int = 0,
     val shrinkingPhotos: Boolean = false,
+    val haptics: Boolean = true,
+    val animatedNumbers: Boolean = true,
+    val decorativeAnimations: Boolean = true,
+    val progressStyle: ProgressStyle = ProgressStyle.Wavy,
 )
 
 @HiltViewModel
@@ -71,6 +76,10 @@ class SettingsViewModel @Inject constructor(
                 photoSize = settings.photoSize,
                 oversizedPhotos = oversized,
                 shrinkingPhotos = shrinking,
+                haptics = settings.haptics,
+                animatedNumbers = settings.animatedNumbers,
+                decorativeAnimations = settings.decorativeAnimations,
+                progressStyle = settings.progressStyle,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
@@ -104,6 +113,22 @@ class SettingsViewModel @Inject constructor(
 
     fun setPhotoSize(size: PhotoSize) {
         viewModelScope.launch { settingsRepository.setPhotoSize(size) }
+    }
+
+    fun setHaptics(enabled: Boolean) {
+        viewModelScope.launch { settingsRepository.setHaptics(enabled) }
+    }
+
+    fun setAnimatedNumbers(enabled: Boolean) {
+        viewModelScope.launch { settingsRepository.setAnimatedNumbers(enabled) }
+    }
+
+    fun setDecorativeAnimations(enabled: Boolean) {
+        viewModelScope.launch { settingsRepository.setDecorativeAnimations(enabled) }
+    }
+
+    fun setProgressStyle(style: ProgressStyle) {
+        viewModelScope.launch { settingsRepository.setProgressStyle(style) }
     }
 
     /** Scales the photos larger than the current setting down to it, for good. */

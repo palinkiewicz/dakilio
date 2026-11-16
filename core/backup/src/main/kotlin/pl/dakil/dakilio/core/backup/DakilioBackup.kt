@@ -84,6 +84,14 @@ data class BackupSettings(
     val weekStart: String? = null,
     /** A `PhotoSize` name: the long edge photos are scaled down to (`Px1280`, …) or `Original`. */
     val photoSize: String? = null,
+    /** Settings → Feel: haptic feedback. */
+    val haptics: Boolean? = null,
+    /** Changing numbers roll into place. */
+    val animatedNumbers: Boolean? = null,
+    /** Spins, shape morphs and content cascading in. */
+    val decorativeAnimations: Boolean? = null,
+    /** A `ProgressStyle` name: `Wavy` or `Straight`. */
+    val progressStyle: String? = null,
 )
 
 /** A mood: one primary per level (1 = worst … 5 = best), plus aliases. */

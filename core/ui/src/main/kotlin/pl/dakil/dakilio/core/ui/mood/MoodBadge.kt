@@ -28,6 +28,8 @@ import pl.dakil.dakilio.core.designsystem.component.PolygonShape
 import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.model.Mood
+import pl.dakil.dakilio.core.designsystem.theme.decorativeTurn
+import pl.dakil.dakilio.core.designsystem.theme.decorativeSpec
 
 /**
  * A mood's face: its expressive shape filled with the mood color and a simple drawn face. When
@@ -47,8 +49,8 @@ fun MoodBadge(
     val glyph = remember(mood.level) { moodGlyph(mood) }
     val colors = moodColors(mood)
     val motion = MaterialTheme.motionScheme
-    val progress by animateFloatAsState(if (active) 1f else 0f, motion.slowSpatialSpec(), label = "moodMorph")
-    val rotation by animateFloatAsState(if (active) 30f else 0f, motion.slowSpatialSpec(), label = "moodSpin")
+    val progress by animateFloatAsState(if (active) 1f else 0f, decorativeSpec(motion.slowSpatialSpec()), label = "moodMorph")
+    val rotation by animateFloatAsState(if (active) decorativeTurn(30f) else 0f, decorativeSpec(motion.slowSpatialSpec()), label = "moodSpin")
     val dim by animateFloatAsState(dimmed, motion.defaultEffectsSpec(), label = "moodDim")
     val container = lerpColor(colors.container, MaterialTheme.colorScheme.surfaceContainerHighest, dim * 0.7f)
     val face = lerpColor(colors.onContainer, MaterialTheme.colorScheme.onSurfaceVariant, dim * 0.7f)

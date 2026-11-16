@@ -50,6 +50,7 @@ import pl.dakil.dakilio.core.model.TagGroup
 import pl.dakil.dakilio.core.ui.color.tagColors
 import pl.dakil.dakilio.core.ui.component.ColorRow
 import pl.dakil.dakilio.core.ui.component.IconPicker
+import pl.dakil.dakilio.core.designsystem.theme.decorativeTurn
 
 private const val DEFAULT_TAG_ICON = "label"
 
@@ -70,7 +71,7 @@ internal fun TagEditorSheet(
     val groupColorKey = groups.firstOrNull { it.id == groupId }?.colorKey
     // Every icon or color change gives the preview a little spin.
     var spins by rememberSaveable { mutableStateOf(0) }
-    val rotation by animateFloatAsState(spins * 80f, MaterialTheme.motionScheme.slowSpatialSpec(), label = "previewSpin")
+    val rotation by animateFloatAsState(spins * decorativeTurn(80f), MaterialTheme.motionScheme.slowSpatialSpec(), label = "previewSpin")
     val tones = tagColors(colorKey ?: groupColorKey)
     val previewContainer by animateColorAsState(
         tones?.container ?: MaterialTheme.colorScheme.primaryContainer,

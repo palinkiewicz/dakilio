@@ -31,6 +31,7 @@ import pl.dakil.dakilio.core.model.GroupUsage
 import pl.dakil.dakilio.core.model.MOOD_LEVELS
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.PhotoSize
+import pl.dakil.dakilio.core.model.ProgressStyle
 import pl.dakil.dakilio.core.model.Post
 import pl.dakil.dakilio.core.model.PostDraft
 import pl.dakil.dakilio.core.model.PreviewLength
@@ -274,6 +275,14 @@ internal class LocalSettingsRepository @Inject constructor(
     override suspend fun setWeekStart(start: WeekStart) = dataSource.setWeekStart(start)
 
     override suspend fun setPhotoSize(size: PhotoSize) = dataSource.setPhotoSize(size)
+
+    override suspend fun setHaptics(enabled: Boolean) = dataSource.setHaptics(enabled)
+
+    override suspend fun setAnimatedNumbers(enabled: Boolean) = dataSource.setAnimatedNumbers(enabled)
+
+    override suspend fun setDecorativeAnimations(enabled: Boolean) = dataSource.setDecorativeAnimations(enabled)
+
+    override suspend fun setProgressStyle(style: ProgressStyle) = dataSource.setProgressStyle(style)
 
     override val firstDayOfWeek: Flow<DayOfWeek> =
         dataSource.settings.map { it.weekStart.resolve(deviceLocale()) }.distinctUntilChanged()

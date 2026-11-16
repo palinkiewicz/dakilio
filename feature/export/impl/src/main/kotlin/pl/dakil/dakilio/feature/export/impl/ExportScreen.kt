@@ -29,7 +29,6 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
@@ -60,6 +59,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
+import pl.dakil.dakilio.core.designsystem.component.DakilioLinearProgress
 import pl.dakil.dakilio.core.designsystem.component.ConnectedToggleRow
 import pl.dakil.dakilio.core.designsystem.component.SectionHeader
 import pl.dakil.dakilio.core.designsystem.component.ShapedIcon
@@ -379,7 +379,7 @@ private fun ColumnScope.ExportingStep(state: ExportState.Exporting, onCancel: ()
         modifier = Modifier.fillMaxWidth(),
     )
     if (state.total > 0) {
-        LinearProgressIndicator(progress = { state.done.toFloat() / state.total }, modifier = Modifier.fillMaxWidth().padding(top = Spacing.m))
+        DakilioLinearProgress(Modifier.fillMaxWidth().padding(top = Spacing.m), progress = { state.done.toFloat() / state.total })
         Text(
             stringResource(R.string.export_exporting_photos, state.done, state.total),
             style = MaterialTheme.typography.bodyMedium,
@@ -388,7 +388,7 @@ private fun ColumnScope.ExportingStep(state: ExportState.Exporting, onCancel: ()
             modifier = Modifier.fillMaxWidth(),
         )
     } else {
-        LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = Spacing.m))
+        DakilioLinearProgress(Modifier.fillMaxWidth().padding(top = Spacing.m))
     }
     TextButton(onClick = onCancel, modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = Spacing.m)) {
         Text(stringResource(R.string.export_cancel))

@@ -60,6 +60,8 @@ class MainActivity : ComponentActivity() {
             val showHints by viewModel.showHints.collectAsStateWithLifecycle()
             val entryDisplay by viewModel.entryDisplay.collectAsStateWithLifecycle()
             val firstDayOfWeek by viewModel.firstDayOfWeek.collectAsStateWithLifecycle()
+            val haptics by viewModel.haptics.collectAsStateWithLifecycle()
+            val motion by viewModel.motion.collectAsStateWithLifecycle()
             val showIntro by viewModel.showIntro.collectAsStateWithLifecycle()
             val locked by viewModel.locked.collectAsStateWithLifecycle()
             val recovered by viewModel.recovered.collectAsStateWithLifecycle()
@@ -81,7 +83,7 @@ class MainActivity : ComponentActivity() {
                 enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
                 onDispose { }
             }
-            DakilioTheme(darkTheme = dark) {
+            DakilioTheme(darkTheme = dark, haptics = haptics, motion = motion) {
                 CompositionLocalProvider(
                     LocalShowHints provides showHints,
                     LocalEntryDisplay provides entryDisplay,

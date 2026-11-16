@@ -22,6 +22,7 @@ import pl.dakil.dakilio.core.model.Keyword
 import pl.dakil.dakilio.core.model.KeywordDraft
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.PhotoSize
+import pl.dakil.dakilio.core.model.ProgressStyle
 import pl.dakil.dakilio.core.model.Post
 import pl.dakil.dakilio.core.model.PostDraft
 import pl.dakil.dakilio.core.model.PreviewLength
@@ -242,6 +243,14 @@ interface SettingsRepository {
     suspend fun setWeekStart(start: WeekStart)
 
     suspend fun setPhotoSize(size: PhotoSize)
+
+    suspend fun setHaptics(enabled: Boolean)
+
+    suspend fun setAnimatedNumbers(enabled: Boolean)
+
+    suspend fun setDecorativeAnimations(enabled: Boolean)
+
+    suspend fun setProgressStyle(style: ProgressStyle)
 
     /** The first day of the week the user's [UserSettings.weekStart] means here (the region default resolved). */
     val firstDayOfWeek: Flow<DayOfWeek>

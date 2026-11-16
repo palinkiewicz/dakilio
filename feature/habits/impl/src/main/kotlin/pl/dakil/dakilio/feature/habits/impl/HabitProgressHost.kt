@@ -71,6 +71,9 @@ import pl.dakil.dakilio.core.model.Tag
 import pl.dakil.dakilio.core.ui.color.tagColors
 import pl.dakil.dakilio.core.ui.LocalFirstDayOfWeek
 import pl.dakil.dakilio.core.ui.rememberFormats
+import pl.dakil.dakilio.core.designsystem.theme.decorativeTurn
+import pl.dakil.dakilio.core.designsystem.theme.LocalMotionPreferences
+import pl.dakil.dakilio.core.designsystem.theme.decorativeSpec
 
 /** Lets the editor's container transform settle before the popup rises. */
 private const val ENTER_DELAY_MS = 380L
@@ -222,15 +225,16 @@ private fun BumpRow(bump: HabitBump, index: Int) {
 @Composable
 private fun BumpIcon(tag: Tag, goal: Boolean) {
     val colors = tagColors(tag.color)
-    val progress by animateFloatAsState(if (goal) 1f else 0f, MaterialTheme.motionScheme.defaultSpatialSpec(), label = "habitIcon")
+    val progress by animateFloatAsState(if (goal) 1f else 0f, decorativeSpec(MaterialTheme.motionScheme.defaultSpatialSpec()), label = "habitIcon")
+    val turn = decorativeTurn(30f)
     Box(
         modifier = Modifier
             .size(44.dp)
-            .graphicsLayer { rotationZ = progress * 30f }
+            .graphicsLayer { rotationZ = progress * turn }
             .background(colors?.container ?: MaterialTheme.colorScheme.primary, MorphShape(iconMorph, progress)),
         contentAlignment = Alignment.Center,
     ) {
-        Crossfade(goal, label = "habitGlyph", modifier = Modifier.graphicsLayer { rotationZ = -progress * 30f }) { reached ->
+        Crossfade(goal, label = "habitGlyph", modifier = Modifier.graphicsLayer { rotationZ = -progress * turn }) { reached ->
             DakilioIcon(
                 if (reached) DakilioSymbols.Check else symbolForKey(tag.iconKey),
                 contentDescription = null,
@@ -277,16 +281,21 @@ private fun Counter(count: Int, target: Int, bumped: Boolean) {
             )
         }
         Row(verticalAlignment = Alignment.Bottom) {
-            AnimatedContent(
-                targetState = count,
-                transitionSpec = {
-                    (slideInVertically(motion.defaultSpatialSpec()) { it } + fadeIn(motion.defaultEffectsSpec())) togetherWith
-                        (slideOutVertically(motion.defaultSpatialSpec()) { -it } + fadeOut(motion.fastEffectsSpec())) using
-                        SizeTransform(clip = false)
-                },
-                label = "habitCount",
-            ) { value ->
-                Text(value.toString(), style = MaterialTheme.typography.headlineSmallEmphasized)
+            // With animated numbers off (Settings → Feel) the count simply changes.
+            if (LocalMotionPreferences.current.animatedNumbers) {
+                AnimatedContent(
+                    targetState = count,
+                    transitionSpec = {
+                        (slideInVertically(motion.defaultSpatialSpec()) { it } + fadeIn(motion.defaultEffectsSpec())) togetherWith
+                            (slideOutVertically(motion.defaultSpatialSpec()) { -it } + fadeOut(motion.fastEffectsSpec())) using
+                            SizeTransform(clip = false)
+                    },
+                    label = "habitCount",
+                ) { value ->
+                    Text(value.toString(), style = MaterialTheme.typography.headlineSmallEmphasized)
+                }
+            } else {
+                Text(count.toString(), style = MaterialTheme.typography.headlineSmallEmphasized)
             }
             Text(
                 "/$target",

@@ -9,6 +9,7 @@ import org.junit.Test
 import pl.dakil.dakilio.core.model.KeywordDraft
 import pl.dakil.dakilio.core.model.PhotoSize
 import pl.dakil.dakilio.core.model.PreviewLength
+import pl.dakil.dakilio.core.model.ProgressStyle
 import pl.dakil.dakilio.core.model.Reminder
 import pl.dakil.dakilio.core.model.ReminderTarget
 import pl.dakil.dakilio.core.model.TagLimit
@@ -49,7 +50,7 @@ class RestorePlanTest {
                     BackupEntry(time = "2026-11-01T08:00Z", diary = 99, mood = 1),
                     BackupEntry(time = "yesterday", diary = 10),
                 ),
-                settings = BackupSettings(theme = "Dark", tagStyle = "Sparkles", timelineTextScale = 9f, previewLength = "Full", tagLimit = "Twelve", lastDiary = 20, timelineDiary = 10, weekStart = "Sunday", photoSize = "Px960"),
+                settings = BackupSettings(theme = "Dark", tagStyle = "Sparkles", timelineTextScale = 9f, previewLength = "Full", tagLimit = "Twelve", lastDiary = 20, timelineDiary = 10, weekStart = "Sunday", photoSize = "Px960", haptics = false, decorativeAnimations = false, progressStyle = "Straight"),
             ),
             defaultDiaryName = "Journey",
             now = now,
@@ -93,6 +94,10 @@ class RestorePlanTest {
         assertEquals(0, plan.settings.timelineDiaryIndex)
         assertEquals(WeekStart.Sunday, plan.settings.weekStart)
         assertEquals(PhotoSize.Px960, plan.settings.photoSize)
+        assertEquals(false, plan.settings.haptics)
+        assertNull(plan.settings.animatedNumbers)
+        assertEquals(false, plan.settings.decorativeAnimations)
+        assertEquals(ProgressStyle.Straight, plan.settings.progressStyle)
     }
 
     @Test

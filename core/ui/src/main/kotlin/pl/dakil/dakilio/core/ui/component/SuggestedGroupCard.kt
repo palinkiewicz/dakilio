@@ -32,6 +32,8 @@ import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.model.SuggestedGroup
 import pl.dakil.dakilio.core.ui.color.tagColors
+import pl.dakil.dakilio.core.designsystem.theme.decorativeTurn
+import pl.dakil.dakilio.core.designsystem.theme.decorativeSpec
 
 private val checkMorph by lazy { Morph(MaterialShapes.Circle, MaterialShapes.Cookie9Sided) }
 
@@ -46,9 +48,10 @@ fun SuggestedGroupCard(
 ) {
     val progress by animateFloatAsState(
         if (selected) 1f else 0f,
-        MaterialTheme.motionScheme.defaultSpatialSpec(),
+        decorativeSpec(MaterialTheme.motionScheme.defaultSpatialSpec()),
         label = "suggestedGroup",
     )
+    val turn = decorativeTurn(20f)
     val colors = MaterialTheme.colorScheme
     val interaction = remember { MutableInteractionSource() }
     Surface(
@@ -64,14 +67,14 @@ fun SuggestedGroupCard(
             Surface(
                 shape = MorphShape(checkMorph, progress),
                 color = lerp(colors.surfaceContainerHighest, colors.primary, progress),
-                modifier = Modifier.size(32.dp).graphicsLayer { rotationZ = progress * 20f },
+                modifier = Modifier.size(32.dp).graphicsLayer { rotationZ = progress * turn },
             ) {
                 Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
                     DakilioIcon(
                         DakilioSymbols.Check,
                         contentDescription = null,
                         tint = colors.onPrimary,
-                        modifier = Modifier.size(20.dp).graphicsLayer { alpha = progress; rotationZ = -progress * 20f },
+                        modifier = Modifier.size(20.dp).graphicsLayer { alpha = progress; rotationZ = -progress * turn },
                     )
                 }
             }

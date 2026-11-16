@@ -59,6 +59,8 @@ import pl.dakil.dakilio.core.model.TagGroup
 import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.ui.color.tagColors
 import pl.dakil.dakilio.core.ui.component.TagIconGridLayout
+import pl.dakil.dakilio.core.designsystem.theme.decorativeTurn
+import pl.dakil.dakilio.core.designsystem.theme.decorativeSpec
 
 /**
  * The tag groups as lazy items, each a collapsible panel: groups suggested by the selected diaries
@@ -203,7 +205,8 @@ private fun TagIconButton(tag: Tag, selected: Boolean, onToggle: () -> Unit, mod
     val fill = tagColors?.container ?: colors.primary
     val onFill = tagColors?.onContainer ?: colors.onPrimary
     val interaction = remember { MutableInteractionSource() }
-    val progress by animateFloatAsState(if (selected) 1f else 0f, MaterialTheme.motionScheme.fastSpatialSpec(), label = "tagMorph")
+    val progress by animateFloatAsState(if (selected) 1f else 0f, decorativeSpec(MaterialTheme.motionScheme.fastSpatialSpec()), label = "tagMorph")
+    val turn = decorativeTurn(20f)
     val label by animateColorAsState(
         if (selected) tagColors?.accent ?: colors.primary else colors.onSurfaceVariant,
         MaterialTheme.motionScheme.fastEffectsSpec(),
@@ -226,7 +229,7 @@ private fun TagIconButton(tag: Tag, selected: Boolean, onToggle: () -> Unit, mod
         Box(
             Modifier
                 .size(IconSize)
-                .graphicsLayer { rotationZ = progress * 20f }
+                .graphicsLayer { rotationZ = progress * turn }
                 .background(lerp(colors.surfaceContainerHigh, fill, progress), MorphShape(tagMorph, progress)),
             contentAlignment = Alignment.Center,
         ) {
@@ -235,7 +238,7 @@ private fun TagIconButton(tag: Tag, selected: Boolean, onToggle: () -> Unit, mod
                 contentDescription = null,
                 filled = selected,
                 tint = lerp(colors.onSurfaceVariant, onFill, progress),
-                modifier = Modifier.size(24.dp).graphicsLayer { rotationZ = -progress * 20f },
+                modifier = Modifier.size(24.dp).graphicsLayer { rotationZ = -progress * turn },
             )
         }
         Text(

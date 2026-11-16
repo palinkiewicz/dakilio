@@ -9,6 +9,7 @@ import pl.dakil.dakilio.core.model.Keywords
 import pl.dakil.dakilio.core.model.MOOD_LEVELS
 import pl.dakil.dakilio.core.model.PhotoSize
 import pl.dakil.dakilio.core.model.PreviewLength
+import pl.dakil.dakilio.core.model.ProgressStyle
 import pl.dakil.dakilio.core.model.Reminder
 import pl.dakil.dakilio.core.model.ReminderDays
 import pl.dakil.dakilio.core.model.TagLimit
@@ -117,6 +118,10 @@ data class RestoreSettings(
     val keywordAutoAdd: Boolean? = null,
     val weekStart: WeekStart? = null,
     val photoSize: PhotoSize? = null,
+    val haptics: Boolean? = null,
+    val animatedNumbers: Boolean? = null,
+    val decorativeAnimations: Boolean? = null,
+    val progressStyle: ProgressStyle? = null,
     /** An index into [RestorePlan.diaries]. */
     val lastDiaryIndex: Int? = null,
     /** An index into [RestorePlan.diaries]; `null` (also for an unknown diary) is "All diaries". */
@@ -267,6 +272,10 @@ fun planRestore(backup: DakilioBackup, defaultDiaryName: String, now: Long): Res
             keywordAutoAdd = s.keywordAutoAdd,
             weekStart = WeekStart.entries.firstOrNull { it.name == s.weekStart },
             photoSize = PhotoSize.entries.firstOrNull { it.name == s.photoSize },
+            haptics = s.haptics,
+            animatedNumbers = s.animatedNumbers,
+            decorativeAnimations = s.decorativeAnimations,
+            progressStyle = ProgressStyle.entries.firstOrNull { it.name == s.progressStyle },
             lastDiaryIndex = s.lastDiary?.let(diaryIndexById::get),
             timelineDiaryIndex = s.timelineDiary?.let(diaryIndexById::get),
         )

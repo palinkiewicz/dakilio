@@ -15,7 +15,10 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 
 /** Whether the resolved theme is dark; mood colors and other non-scheme tones key off it. */
 val LocalDarkTheme = staticCompositionLocalOf { false }
@@ -24,6 +27,8 @@ val LocalDarkTheme = staticCompositionLocalOf { false }
 fun DakilioTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = true,
+    haptics: Boolean = true,
+    motion: MotionPreferences = MotionPreferences(),
     content: @Composable () -> Unit,
 ) {
     val context = LocalContext.current
@@ -33,7 +38,14 @@ fun DakilioTheme(
         darkTheme -> BrandDarkColorScheme
         else -> BrandLightColorScheme
     }
-    CompositionLocalProvider(LocalDarkTheme provides darkTheme) {
+    // Every haptic in the app goes through LocalHapticFeedback, so swapping it here is the one switch
+    // that silences the app's own calls and the Material components' alike.
+    val hapticFeedback = if (haptics) LocalHapticFeedback.current else NoHapticFeedback
+    CompositionLocalProvider(
+        LocalDarkTheme provides darkTheme,
+        LocalHapticFeedback provides hapticFeedback,
+        LocalMotionPreferences provides motion,
+    ) {
         MaterialExpressiveTheme(
             colorScheme = animateColorScheme(target),
             motionScheme = MotionScheme.expressive(),
@@ -42,6 +54,10 @@ fun DakilioTheme(
             content = content,
         )
     }
+}
+
+private object NoHapticFeedback : HapticFeedback {
+    override fun performHapticFeedback(hapticFeedbackType: HapticFeedbackType) = Unit
 }
 
 /** Cross-fades every role so switching light/dark (or wallpaper colors) glides instead of snapping. */

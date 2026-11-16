@@ -67,6 +67,9 @@ enum class PhotoSize(val maxEdge: Int?) {
     Original(null),
 }
 
+/** How progress bars are drawn (Settings → Feel). */
+enum class ProgressStyle { Wavy, Straight }
+
 data class UserSettings(
     val themeMode: ThemeMode = ThemeMode.System,
     /** Diary of the last saved entry; the editor's default when the timeline shows "All". */
@@ -98,6 +101,13 @@ data class UserSettings(
     val weekStart: WeekStart = WeekStart.Region,
     /** How far new photos are scaled down when they're stored. */
     val photoSize: PhotoSize = PhotoSize.Px1280,
+    /** Haptic feedback across the app (Settings → Feel). */
+    val haptics: Boolean = true,
+    /** Changing numbers roll into place, odometer-style. */
+    val animatedNumbers: Boolean = true,
+    /** Spins, shape morphs on selection and content cascading in. Screen transitions don't depend on it. */
+    val decorativeAnimations: Boolean = true,
+    val progressStyle: ProgressStyle = ProgressStyle.Wavy,
 )
 
 /** The range of the entry text size settings. Only entry titles and notes scale, never the rest of the UI. */

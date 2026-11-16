@@ -32,7 +32,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -60,6 +60,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.animateFloatingActionButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -90,7 +91,9 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneOffset
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import pl.dakil.dakilio.core.designsystem.component.entrance
 import pl.dakil.dakilio.core.designsystem.component.pressScale
 import pl.dakil.dakilio.core.designsystem.component.rememberHaptics
 import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
@@ -361,6 +364,16 @@ internal fun TimelineScreen(
         when (state) {
             TimelineUiState.Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { LoadingIndicator() }
             is TimelineUiState.Ready -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+                // The first screenful cascades in once (decorative); scrolling back up, coming back
+                // from an entry or from another tab doesn't replay it.
+                var cascadeDone by rememberSaveable { mutableStateOf(false) }
+                LaunchedEffect(Unit) {
+                    delay(CASCADE_WINDOW_MS)
+                    cascadeDone = true
+                }
+                @Composable
+                fun Modifier.cascade(index: Int): Modifier =
+                    if (!cascadeDone && index < CASCADE_ITEMS) entrance(index) else this
                 LazyColumn(
                     state = listState,
                     modifier = Modifier.widthIn(max = Spacing.maxContentWidth).fillMaxSize(),
@@ -372,10 +385,10 @@ internal fun TimelineScreen(
                     ),
                 ) {
                     if (headerCount > 0) {
-                        item(key = "greeting", contentType = "greeting") { Greeting(state, formats) }
+                        item(key = "greeting", contentType = "greeting") { Box(Modifier.cascade(0)) { Greeting(state, formats) } }
                     }
-                    items(state.items, key = { it.key }, contentType = { it::class }) { item ->
-                        val itemModifier = Modifier.animateItem()
+                    itemsIndexed(state.items, key = { _, item -> item.key }, contentType = { _, item -> item::class }) { index, item ->
+                        val itemModifier = Modifier.animateItem().cascade(headerCount + index)
                         when (item) {
                             is TimelineItem.MonthDivider -> MonthDivider(item, formats, itemModifier)
                             is TimelineItem.DayHeader -> DayHeader(item, state.today, formats, itemModifier)
@@ -506,6 +519,12 @@ internal fun TimelineScreen(
 }
 
 /** Rows scrolled past before the "scroll to top" button shows up. */
+/** Rows further down than this don't cascade in (they'd wait too long, and are off screen anyway). */
+private const val CASCADE_ITEMS = 12
+
+/** How long after the list first shows its first screenful may still cascade in. */
+private const val CASCADE_WINDOW_MS = 1_200L
+
 private const val SCROLL_TO_TOP_THRESHOLD = 4
 
 /** Beyond this many rows, the list first jumps close to the top so the animated part stays short. */

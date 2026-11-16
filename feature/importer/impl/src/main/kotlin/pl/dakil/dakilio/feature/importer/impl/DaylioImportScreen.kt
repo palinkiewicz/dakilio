@@ -25,7 +25,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
@@ -55,6 +54,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pl.dakil.dakilio.core.data.repository.DaylioImportResult
 import pl.dakil.dakilio.core.data.repository.DaylioPreview
 import pl.dakil.dakilio.core.daylio.DaylioError
+import pl.dakil.dakilio.core.designsystem.component.DakilioLinearProgress
 import pl.dakil.dakilio.core.designsystem.component.rememberHaptics
 import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
@@ -302,10 +302,10 @@ private fun ColumnScope.ImportingStep(done: Int, total: Int) {
     )
     val copyingPhotos = total > 0 && done < total
     if (copyingPhotos) {
-        LinearWavyProgressIndicator(progress = { done.toFloat() / total }, modifier = Modifier.fillMaxWidth().padding(top = Spacing.l))
+        DakilioLinearProgress(Modifier.fillMaxWidth().padding(top = Spacing.l), progress = { done.toFloat() / total })
     } else {
         // The database swap has no measurable progress; this disappears as soon as it's done.
-        LinearWavyProgressIndicator(Modifier.fillMaxWidth().padding(top = Spacing.l))
+        DakilioLinearProgress(Modifier.fillMaxWidth().padding(top = Spacing.l))
     }
     Text(
         if (copyingPhotos) stringResource(R.string.import_progress_photos, done, total) else stringResource(R.string.import_progress_saving),

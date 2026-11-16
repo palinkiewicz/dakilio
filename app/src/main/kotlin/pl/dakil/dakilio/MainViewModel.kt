@@ -16,6 +16,8 @@ import pl.dakil.dakilio.core.data.repository.AppLock
 import pl.dakil.dakilio.core.data.repository.LockRepository
 import pl.dakil.dakilio.core.data.repository.OnboardingRepository
 import pl.dakil.dakilio.core.data.repository.SettingsRepository
+import pl.dakil.dakilio.core.designsystem.theme.MotionPreferences
+import pl.dakil.dakilio.core.model.ProgressStyle
 import pl.dakil.dakilio.core.model.ThemeMode
 import pl.dakil.dakilio.core.ui.EntryDisplay
 
@@ -57,6 +59,22 @@ class MainViewModel @Inject constructor(
             )
         }
         .stateIn(viewModelScope, SharingStarted.Eagerly, EntryDisplay())
+
+    /** Settings → Feel: haptics. */
+    val haptics: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.haptics }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
+    /** Settings → Feel: rolling numbers, decorative motion and the progress bar style. */
+    val motion: StateFlow<MotionPreferences> = settingsRepository.settings
+        .map {
+            MotionPreferences(
+                animatedNumbers = it.animatedNumbers,
+                decorative = it.decorativeAnimations,
+                wavyProgress = it.progressStyle == ProgressStyle.Wavy,
+            )
+        }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, MotionPreferences())
 
     /** The first day of the week, for rows of weekdays and week views across the UI. */
     val firstDayOfWeek: StateFlow<DayOfWeek> = settingsRepository.firstDayOfWeek

@@ -41,6 +41,8 @@ import pl.dakil.dakilio.core.designsystem.icon.SymbolSection
 import pl.dakil.dakilio.core.designsystem.icon.VectorSymbol
 import pl.dakil.dakilio.core.designsystem.icon.iconSections
 import pl.dakil.dakilio.core.designsystem.icon.letterSections
+import pl.dakil.dakilio.core.designsystem.theme.decorativeTurn
+import pl.dakil.dakilio.core.designsystem.theme.decorativeSpec
 
 private val pickerMorph by lazy { Morph(MaterialShapes.Circle, MaterialShapes.Cookie9Sided) }
 
@@ -134,9 +136,10 @@ private val CellPadding = 4.dp
 private fun IconCell(symbol: DakilioSymbol, selected: Boolean, onClick: () -> Unit) {
     val progress by animateFloatAsState(
         if (selected) 1f else 0f,
-        MaterialTheme.motionScheme.defaultSpatialSpec(),
+        decorativeSpec(MaterialTheme.motionScheme.defaultSpatialSpec()),
         label = "iconCell",
     )
+    val turn = decorativeTurn(20f)
     val interaction = remember { MutableInteractionSource() }
     val colors = MaterialTheme.colorScheme
     Box(
@@ -144,7 +147,7 @@ private fun IconCell(symbol: DakilioSymbol, selected: Boolean, onClick: () -> Un
             .padding(CellPadding)
             .aspectRatio(1f)
             .pressScale(interaction, 0.9f)
-            .graphicsLayer { rotationZ = progress * 20f }
+            .graphicsLayer { rotationZ = progress * turn }
             .background(lerp(colors.surfaceContainerHigh, colors.primaryContainer, progress), MorphShape(pickerMorph, progress))
             .clickable(interactionSource = interaction, indication = null, role = Role.RadioButton, onClick = onClick)
             .semantics { this.selected = selected },
@@ -155,7 +158,7 @@ private fun IconCell(symbol: DakilioSymbol, selected: Boolean, onClick: () -> Un
             contentDescription = symbol.spokenName,
             filled = selected,
             tint = lerp(colors.onSurfaceVariant, colors.onPrimaryContainer, progress),
-            modifier = Modifier.size(24.dp).graphicsLayer { rotationZ = -progress * 20f },
+            modifier = Modifier.size(24.dp).graphicsLayer { rotationZ = -progress * turn },
         )
     }
 }

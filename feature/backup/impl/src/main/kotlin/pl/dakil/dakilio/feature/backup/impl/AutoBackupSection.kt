@@ -20,7 +20,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
@@ -45,6 +44,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
+import pl.dakil.dakilio.core.designsystem.component.DakilioLinearProgress
 import pl.dakil.dakilio.core.designsystem.component.ConnectedToggleRow
 import pl.dakil.dakilio.core.designsystem.component.ShapedIcon
 import pl.dakil.dakilio.core.designsystem.component.ToggleOption
@@ -283,12 +283,12 @@ private fun AutoBackupStatusBlock(auto: AutoBackupUi) {
                 AnimatedVisibility(auto.running != null, enter = expandVertically(expand) + fadeIn(), exit = shrinkVertically(expand) + fadeOut()) {
                     val running = auto.running
                     if (running != null && running.total > 0) {
-                        LinearProgressIndicator(
-                            progress = { running.done.toFloat() / running.total },
+                        DakilioLinearProgress(
                             modifier = Modifier.fillMaxWidth().padding(top = Spacing.s),
+                            progress = { running.done.toFloat() / running.total },
                         )
                     } else {
-                        LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = Spacing.s))
+                        DakilioLinearProgress(Modifier.fillMaxWidth().padding(top = Spacing.s))
                     }
                 }
             }

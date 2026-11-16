@@ -4,10 +4,6 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -24,7 +20,6 @@ import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumFlexibleTopAppBar
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.SnackbarHost
@@ -35,7 +30,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -43,13 +37,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.TextStyle
 import androidx.graphics.shapes.RoundedPolygon
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -66,6 +57,7 @@ import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbol
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.model.PhotoSize
+import pl.dakil.dakilio.core.model.ProgressStyle
 import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TextScale
 import pl.dakil.dakilio.core.model.ThemeMode
@@ -73,13 +65,13 @@ import pl.dakil.dakilio.core.model.UserSettings
 import pl.dakil.dakilio.core.model.WeekStart
 import java.time.DayOfWeek
 import pl.dakil.dakilio.core.ui.canChooseAppLanguage
+import pl.dakil.dakilio.core.ui.component.SelectListItem
+import pl.dakil.dakilio.core.ui.component.SelectOption
 import pl.dakil.dakilio.core.ui.component.SwitchListItem
-import pl.dakil.dakilio.core.ui.component.TextScaleSlider
 import pl.dakil.dakilio.core.ui.currentAppLanguage
 import pl.dakil.dakilio.core.ui.languageName
 import pl.dakil.dakilio.core.ui.openAppLanguageSettings
 import pl.dakil.dakilio.core.ui.rememberFormats
-import pl.dakil.dakilio.core.ui.scaled
 
 @Composable
 internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
@@ -91,8 +83,6 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
     val context = LocalContext.current
     val formats = rememberFormats()
     var confirmRemove by rememberSaveable { mutableStateOf(false) }
-    var textSizeDialog by rememberSaveable { mutableStateOf<TextSizeTarget?>(null) }
-    var photoSizeDialog by rememberSaveable { mutableStateOf(false) }
     var confirmShrink by rememberSaveable { mutableStateOf(false) }
     val removedMessage = stringResource(R.string.settings_samples_removed)
 
@@ -142,6 +132,54 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
                     }
                 }
 
+                SectionHeader(stringResource(R.string.settings_feel))
+                Column(verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)) {
+                    SwitchListItem(
+                        title = stringResource(R.string.settings_haptics),
+                        body = stringResource(R.string.settings_haptics_body),
+                        symbol = DakilioSymbols.Vibration,
+                        polygon = MaterialShapes.Cookie4Sided,
+                        checked = state.haptics,
+                        onCheckedChange = viewModel::setHaptics,
+                        index = 0,
+                        count = 4,
+                    )
+                    SwitchListItem(
+                        title = stringResource(R.string.settings_animated_numbers),
+                        body = stringResource(R.string.settings_animated_numbers_body),
+                        symbol = DakilioSymbols.Numbers,
+                        polygon = MaterialShapes.Slanted,
+                        checked = state.animatedNumbers,
+                        onCheckedChange = viewModel::setAnimatedNumbers,
+                        index = 1,
+                        count = 4,
+                    )
+                    SwitchListItem(
+                        title = stringResource(R.string.settings_decorative_animations),
+                        body = stringResource(R.string.settings_decorative_animations_body),
+                        symbol = DakilioSymbols.Animation,
+                        polygon = MaterialShapes.Flower,
+                        checked = state.decorativeAnimations,
+                        onCheckedChange = viewModel::setDecorativeAnimations,
+                        index = 2,
+                        count = 4,
+                    )
+                    SelectListItem(
+                        title = stringResource(R.string.settings_progress_style),
+                        body = stringResource(R.string.settings_progress_style_body),
+                        symbol = DakilioSymbols.Waves,
+                        polygon = MaterialShapes.Cookie6Sided,
+                        selected = state.progressStyle,
+                        options = listOf(
+                            SelectOption(ProgressStyle.Wavy, stringResource(R.string.settings_progress_style_wavy)),
+                            SelectOption(ProgressStyle.Straight, stringResource(R.string.settings_progress_style_straight)),
+                        ),
+                        onSelect = viewModel::setProgressStyle,
+                        index = 3,
+                        count = 4,
+                    )
+                }
+
                 // Older Androids have no per-app language, so the app just follows the device there.
                 if (canChooseAppLanguage) {
                     SectionHeader(stringResource(R.string.settings_language))
@@ -179,20 +217,25 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
 
                 SectionHeader(stringResource(R.string.settings_text_size))
                 Column(verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)) {
+                    val scaleOptions = textScaleOptions()
                     TextSizeTarget.entries.forEachIndexed { index, target ->
-                        SegmentedListItem(
-                            onClick = { textSizeDialog = target },
-                            shapes = ListItemDefaults.segmentedShapes(index, TextSizeTarget.entries.size),
-                            colors = segmentedItemColors(),
-                            leadingContent = { ShapedIcon(target.symbol, polygon = target.polygon) },
-                            supportingContent = { Text(stringResource(target.body)) },
-                            trailingContent = {
-                                Text(
-                                    stringResource(R.string.settings_text_size_percent, (target.scaleOf(state) * 100).roundToInt()),
-                                    style = MaterialTheme.typography.labelLarge,
-                                )
+                        SelectListItem(
+                            title = stringResource(target.title),
+                            body = stringResource(target.body),
+                            symbol = target.symbol,
+                            polygon = target.polygon,
+                            selected = percentOf(target.scaleOf(state)),
+                            options = scaleOptions,
+                            onSelect = { percent ->
+                                val scale = percent / 100f
+                                when (target) {
+                                    TextSizeTarget.Timeline -> viewModel.setTimelineTextScale(scale)
+                                    TextSizeTarget.Editor -> viewModel.setEditorTextScale(scale)
+                                }
                             },
-                        ) { Text(stringResource(target.title)) }
+                            index = index,
+                            count = TextSizeTarget.entries.size,
+                        )
                     }
                 }
 
@@ -231,14 +274,20 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
                 val showShrink = state.oversizedPhotos > 0 || state.shrinkingPhotos
                 val photoRows = if (showShrink) 2 else 1
                 Column(verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)) {
-                    SegmentedListItem(
-                        onClick = { photoSizeDialog = true },
-                        shapes = ListItemDefaults.segmentedShapes(0, photoRows),
-                        colors = segmentedItemColors(),
-                        leadingContent = { ShapedIcon(DakilioSymbols.PhotoSizeSelectLarge, polygon = MaterialShapes.Square) },
-                        supportingContent = { Text(stringResource(R.string.settings_photo_size_body)) },
-                        trailingContent = { Text(photoSizeLabel(state.photoSize), style = MaterialTheme.typography.labelLarge) },
-                    ) { Text(stringResource(R.string.settings_photo_size)) }
+                    val defaultNote = stringResource(R.string.settings_photo_size_default)
+                    SelectListItem(
+                        title = stringResource(R.string.settings_photo_size),
+                        body = stringResource(R.string.settings_photo_size_body),
+                        symbol = DakilioSymbols.PhotoSizeSelectLarge,
+                        polygon = MaterialShapes.Square,
+                        selected = state.photoSize,
+                        options = PhotoSize.entries.map { size ->
+                            SelectOption(size, photoSizeLabel(size), note = defaultNote.takeIf { size == UserSettings().photoSize })
+                        },
+                        onSelect = viewModel::setPhotoSize,
+                        index = 0,
+                        count = photoRows,
+                    )
                     if (showShrink) {
                         SegmentedListItem(
                             onClick = { confirmShrink = true },
@@ -309,32 +358,6 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
         }
     }
 
-    textSizeDialog?.let { target ->
-        TextSizeDialog(
-            target = target,
-            scale = target.scaleOf(state),
-            onConfirm = { scale ->
-                textSizeDialog = null
-                when (target) {
-                    TextSizeTarget.Timeline -> viewModel.setTimelineTextScale(scale)
-                    TextSizeTarget.Editor -> viewModel.setEditorTextScale(scale)
-                }
-            },
-            onDismiss = { textSizeDialog = null },
-        )
-    }
-
-    if (photoSizeDialog) {
-        PhotoSizeDialog(
-            selected = state.photoSize,
-            onSelect = { size ->
-                photoSizeDialog = false
-                viewModel.setPhotoSize(size)
-            },
-            onDismiss = { photoSizeDialog = false },
-        )
-    }
-
     if (confirmShrink) {
         AlertDialog(
             onDismissRequest = { confirmShrink = false },
@@ -383,65 +406,7 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
 private fun photoSizeLabel(size: PhotoSize): String =
     size.maxEdge?.let { stringResource(R.string.settings_photo_size_px, it) } ?: stringResource(R.string.settings_photo_size_original)
 
-/** Picks the photo size: one tap on an option applies it. */
-@Composable
-private fun PhotoSizeDialog(
-    selected: PhotoSize,
-    onSelect: (PhotoSize) -> Unit,
-    onDismiss: () -> Unit,
-) {
-    val haptics = rememberHaptics()
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        icon = { DakilioIcon(DakilioSymbols.PhotoSizeSelectLarge, contentDescription = null) },
-        title = { Text(stringResource(R.string.settings_photo_size)) },
-        text = {
-            Column(Modifier.selectableGroup()) {
-                Text(
-                    stringResource(R.string.settings_photo_size_dialog_body),
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(bottom = Spacing.m),
-                )
-                PhotoSize.entries.forEach { size ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(16.dp))
-                            .selectable(
-                                selected = size == selected,
-                                role = Role.RadioButton,
-                                onClick = {
-                                    haptics.tick()
-                                    onSelect(size)
-                                },
-                            )
-                            .heightIn(min = 48.dp)
-                            .padding(horizontal = Spacing.xs),
-                    ) {
-                        RadioButton(selected = size == selected, onClick = null)
-                        Text(
-                            photoSizeLabel(size),
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(start = Spacing.l).weight(1f),
-                        )
-                        if (size == UserSettings().photoSize) {
-                            Text(
-                                stringResource(R.string.settings_photo_size_default),
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {},
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.settings_cancel)) } },
-    )
-}
-
-/** The two entry text sizes, each a row in Settings that opens [TextSizeDialog]. */
+/** The two entry text sizes, each a row in Settings with a menu of sizes. */
 private enum class TextSizeTarget(
     @StringRes val title: Int,
     @StringRes val body: Int,
@@ -457,67 +422,26 @@ private enum class TextSizeTarget(
             Editor -> MaterialShapes.Pill
         }
 
-    /** The body style the entry note uses on that screen, for the dialog's sample. */
-    val sampleStyle: TextStyle
-        @Composable get() = when (this) {
-            Timeline -> MaterialTheme.typography.bodyMedium
-            Editor -> MaterialTheme.typography.bodyLarge
-        }
-
     fun scaleOf(state: SettingsUiState): Float = when (this) {
         Timeline -> state.timelineTextScale
         Editor -> state.editorTextScale
     }
 }
 
-/**
- * Picks one entry text size: a sample line drawn at the chosen size above a stepped slider.
- * Nothing is saved until the user confirms.
- */
+/** A text scale as a whole percentage, the key of its menu option (floats don't compare reliably). */
+private fun percentOf(scale: Float): Int = (TextScale.coerce(scale) * 100).roundToInt()
+
+/** Every step of the entry text size, from [TextScale.MIN] to [TextScale.MAX], as menu options. */
 @Composable
-private fun TextSizeDialog(
-    target: TextSizeTarget,
-    scale: Float,
-    onConfirm: (Float) -> Unit,
-    onDismiss: () -> Unit,
-) {
-    val haptics = rememberHaptics()
-    var value by rememberSaveable { mutableFloatStateOf(scale) }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        icon = { DakilioIcon(target.symbol, contentDescription = null) },
-        title = { Text(stringResource(target.title)) },
-        text = {
-            Column {
-                Surface(
-                    shape = RoundedCornerShape(20.dp),
-                    color = MaterialTheme.colorScheme.surfaceContainerHighest,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(
-                        stringResource(R.string.settings_text_size_sample),
-                        style = target.sampleStyle.scaled(value),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(Spacing.l),
-                    )
-                }
-                TextScaleSlider(value = value, onValueChange = { value = it }, modifier = Modifier.padding(top = Spacing.l))
-                TextButton(
-                    onClick = {
-                        haptics.tick()
-                        value = TextScale.DEFAULT
-                    },
-                    enabled = value != TextScale.DEFAULT,
-                    modifier = Modifier.align(Alignment.Start),
-                ) { Text(stringResource(R.string.settings_text_size_reset)) }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = {
-                haptics.confirm()
-                onConfirm(value)
-            }) { Text(stringResource(R.string.settings_text_size_done)) }
-        },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.settings_cancel)) } },
-    )
+private fun textScaleOptions(): List<SelectOption<Int>> {
+    val defaultNote = stringResource(R.string.settings_photo_size_default)
+    val steps = ((TextScale.MAX - TextScale.MIN) / TextScale.STEP).roundToInt()
+    return (0..steps).map { step ->
+        val percent = percentOf(TextScale.MIN + step * TextScale.STEP)
+        SelectOption(
+            value = percent,
+            label = stringResource(R.string.settings_text_size_percent, percent),
+            note = defaultNote.takeIf { percent == percentOf(TextScale.DEFAULT) },
+        )
+    }
 }

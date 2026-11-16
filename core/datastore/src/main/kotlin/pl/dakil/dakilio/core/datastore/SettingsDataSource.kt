@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import pl.dakil.dakilio.core.model.PhotoSize
 import pl.dakil.dakilio.core.model.PreviewLength
+import pl.dakil.dakilio.core.model.ProgressStyle
 import pl.dakil.dakilio.core.model.TagLimit
 import pl.dakil.dakilio.core.model.TagStyle
 import pl.dakil.dakilio.core.model.TextScale
@@ -51,6 +52,11 @@ class SettingsDataSource @Inject constructor(
                     ?: WeekStart.Region,
                 photoSize = prefs[PHOTO_SIZE]?.let { name -> PhotoSize.entries.firstOrNull { it.name == name } }
                     ?: PhotoSize.Px1280,
+                haptics = prefs[HAPTICS] ?: true,
+                animatedNumbers = prefs[ANIMATED_NUMBERS] ?: true,
+                decorativeAnimations = prefs[DECORATIVE_ANIMATIONS] ?: true,
+                progressStyle = prefs[PROGRESS_STYLE]?.let { name -> ProgressStyle.entries.firstOrNull { it.name == name } }
+                    ?: ProgressStyle.Wavy,
             )
         }
         .distinctUntilChanged()
@@ -140,6 +146,22 @@ class SettingsDataSource @Inject constructor(
         dataStore.edit { it[PHOTO_SIZE] = size.name }
     }
 
+    suspend fun setHaptics(enabled: Boolean) {
+        dataStore.edit { it[HAPTICS] = enabled }
+    }
+
+    suspend fun setAnimatedNumbers(enabled: Boolean) {
+        dataStore.edit { it[ANIMATED_NUMBERS] = enabled }
+    }
+
+    suspend fun setDecorativeAnimations(enabled: Boolean) {
+        dataStore.edit { it[DECORATIVE_ANIMATIONS] = enabled }
+    }
+
+    suspend fun setProgressStyle(style: ProgressStyle) {
+        dataStore.edit { it[PROGRESS_STYLE] = style.name }
+    }
+
     private companion object {
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val LAST_ENTRY_DIARY = longPreferencesKey("last_entry_diary_id")
@@ -158,6 +180,10 @@ class SettingsDataSource @Inject constructor(
         val KEYWORD_AUTO_ADD = booleanPreferencesKey("keyword_auto_add")
         val WEEK_START = stringPreferencesKey("week_start")
         val PHOTO_SIZE = stringPreferencesKey("photo_size")
+        val HAPTICS = booleanPreferencesKey("haptics_enabled")
+        val ANIMATED_NUMBERS = booleanPreferencesKey("animated_numbers")
+        val DECORATIVE_ANIMATIONS = booleanPreferencesKey("decorative_animations")
+        val PROGRESS_STYLE = stringPreferencesKey("progress_style")
         val INTRO_STARTED = booleanPreferencesKey("intro_started")
         val INTRO_DONE = booleanPreferencesKey("intro_done")
     }
