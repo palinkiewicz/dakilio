@@ -27,6 +27,8 @@ import pl.dakil.dakilio.core.data.repository.PostRepository
 import pl.dakil.dakilio.core.data.repository.SettingsRepository
 import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.model.Mood
+import pl.dakil.dakilio.core.model.MonthSummary
+import pl.dakil.dakilio.core.model.monthSummaries
 import pl.dakil.dakilio.core.model.PreviewLength
 import pl.dakil.dakilio.core.model.Streaks
 import pl.dakil.dakilio.core.model.TagLimit

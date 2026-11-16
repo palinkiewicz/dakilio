@@ -51,7 +51,4 @@
     <string name="timeline_month_newer">Nowszy miesiąc</string>
     <string name="timeline_month_older">Starszy miesiąc</string>
     <string name="timeline_month_choose">Wybierz miesiąc, teraz %1$s</string>
-    <string name="timeline_month_prev_year">Poprzedni rok</string>
-    <string name="timeline_month_next_year">Następny rok</string>
-    <string name="timeline_month_no_entries">%1$s, brak wpisów</string>
 </resources>

@@ -188,20 +188,4 @@ class TimelineBuilderTest {
         assertEquals(stretch, items.monthTopIndex(sep))
         assertEquals(listOf(oct, aug), items.sectionMonths())
     }
-
-    @Test
-    fun `month summaries count entries and average the mood level in the filter`() {
-        val posts = listOf(
-            post(1, mood = mood(5)),
-            post(2, mood = mood(4)),
-            post(3),
-            post(4, diary = 2, mood = mood(1)),
-            post(40),
-        )
-        val all = monthSummaries(posts, null)
-        assertEquals(MonthSummary(4, 3), all[oct]) // (5 + 4 + 1) / 3 = 3.3
-        assertEquals(MonthSummary(1, null), all[sep])
-        assertEquals(MonthSummary(3, 5), monthSummaries(posts, 1)[oct]) // 4.5 rounds up
-        assertNull(monthSummaries(posts, 2)[sep])
-    }
 }

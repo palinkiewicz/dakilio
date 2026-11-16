@@ -90,4 +90,7 @@
     <string name="ui_tag_color_brown">Brązowy</string>
     <string name="ui_tag_color_slate">Grafitowy</string>
     <string name="ui_percent">%d%%</string>
+    <string name="ui_month_prev_year">Poprzedni rok</string>
+    <string name="ui_month_next_year">Następny rok</string>
+    <string name="ui_month_no_entries">%1$s, brak wpisów</string>
 </resources>

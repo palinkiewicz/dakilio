@@ -76,4 +76,7 @@
     <string name="ui_tag_color_brown">Brown</string>
     <string name="ui_tag_color_slate">Slate</string>
     <string name="ui_percent">%d%%</string>
+    <string name="ui_month_prev_year">Previous year</string>
+    <string name="ui_month_next_year">Next year</string>
+    <string name="ui_month_no_entries">%1$s, no entries</string>
 </resources>
