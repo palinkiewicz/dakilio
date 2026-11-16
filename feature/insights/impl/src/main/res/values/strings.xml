@@ -213,4 +213,32 @@
         <item quantity="one">week</item>
         <item quantity="other">weeks</item>
     </plurals>
+    <!-- Highlights -->
+    <string name="insights_highlights">Highlights</string>
+    <string name="insights_hl_tag_brighter">Brighter on days with “%1$s”</string>
+    <string name="insights_hl_tag_heavier">Heavier on days with “%1$s”</string>
+    <string name="insights_hl_best_weekday">Your brightest day of the week</string>
+    <string name="insights_hl_brighter_than">Brighter than %1$s</string>
+    <string name="insights_hl_heavier_than">Heavier than %1$s</string>
+    <string name="insights_hl_best_month">Your brightest month since you started</string>
+    <plurals name="insights_hl_streak">
+        <item quantity="one">day in a row, your longest streak yet</item>
+        <item quantity="other">days in a row, your longest streak yet</item>
+    </plurals>
+    <plurals name="insights_hl_bright_run">
+        <item quantity="one">good day in a row, %1$s</item>
+        <item quantity="other">good days in a row, %1$s</item>
+    </plurals>
+    <plurals name="insights_hl_habit_run">
+        <item quantity="one">week in a row with “%1$s” on target</item>
+        <item quantity="other">weeks in a row with “%1$s” on target</item>
+    </plurals>
+    <plurals name="insights_hl_words">
+        <item quantity="one">word written</item>
+        <item quantity="other">words written</item>
+    </plurals>
+    <plurals name="insights_first_days">
+        <item quantity="one">%1$s, first day</item>
+        <item quantity="other">%1$s, first %2$d days</item>
+    </plurals>
 </resources>

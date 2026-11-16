@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -37,6 +38,7 @@ import pl.dakil.dakilio.feature.insights.impl.habits.HabitsCard
 import pl.dakil.dakilio.feature.insights.api.InsightsRhythmKey
 import pl.dakil.dakilio.feature.insights.api.InsightsTagKey
 import pl.dakil.dakilio.feature.insights.api.InsightsTagsKey
+import pl.dakil.dakilio.feature.insights.impl.logic.Highlight
 import pl.dakil.dakilio.feature.insights.impl.logic.TagSort
 import pl.dakil.dakilio.feature.insights.impl.DaySheet
 import pl.dakil.dakilio.core.designsystem.component.entrance
@@ -97,15 +99,20 @@ internal fun InsightsScreen(viewModel: InsightsViewModel, onOpenPost: (Long) -> 
     }
 }
 
-/** What a period is compared with, by name: a whole period's own name, otherwise the days. */
+/**
+ * What a period is compared with, by name: "October 2026", or "October 2026, first 16 days" while
+ * the period is still running; otherwise just the days.
+ */
 @Composable
 internal fun comparisonLabel(header: PeriodHeaderState, range: DateRange?, formats: DakilioFormats): String? {
     range ?: return null
-    val other = comparisonPeriod(header.period, header.comparison)
-    return if (other != null && other.calendarRange(header.bounds) == range) {
-        periodLabel(other, header.bounds, formats)
-    } else {
-        rangeLabel(range, header.bounds.today, formats)
+    val other = comparisonPeriod(header.period, header.comparison) ?: return rangeLabel(range, header.bounds.today, formats)
+    val full = other.calendarRange(header.bounds)
+    val name = periodLabel(other, header.bounds, formats)
+    return when {
+        full == range -> name
+        full.from == range.from -> pluralStringResource(R.plurals.insights_first_days, range.days, name, range.days)
+        else -> rangeLabel(range, header.bounds.today, formats)
     }
 }
 
@@ -147,6 +154,27 @@ private fun InsightsContent(
         // The first cards cascade in as the tab opens (decorative).
         item(key = "summary") {
             Box(Modifier.entrance(0)) { SummaryCard(overview, state.moods, formats, comparisonLabel(header, overview.comparison?.range, formats)) }
+        }
+        if (state.highlights.isNotEmpty()) {
+            item(key = "highlights") {
+                HighlightsRow(
+                    highlights = state.highlights,
+                    moods = state.moods,
+                    today = state.today,
+                    formats = formats,
+                    comparisonLabel = comparisonLabel(header, overview.comparison?.range, formats),
+                    onOpen = { highlight ->
+                        when (highlight) {
+                            is Highlight.TagBrighter -> ({ onOpen(InsightsTagKey(viewModel.scope, highlight.tag.id)) })
+                            is Highlight.TagHeavier -> ({ onOpen(InsightsTagKey(viewModel.scope, highlight.tag.id)) })
+                            is Highlight.HabitRun -> ({ onOpen(InsightsTagKey(viewModel.scope, highlight.habit.tag.id)) })
+                            is Highlight.BestWeekday -> ({ onOpen(InsightsRhythmKey(viewModel.scope)) })
+                            is Highlight.MoodChange, is Highlight.BestMonthYet, is Highlight.BrightRun -> ({ onOpen(InsightsMoodKey(viewModel.scope)) })
+                            is Highlight.StreakRecord, is Highlight.WordsWritten -> null
+                        }
+                    },
+                )
+            }
         }
         if (overview.flow.points >= 2) {
             item(key = "flow") { Box(Modifier.entrance(1)) { MoodFlowCard(overview.flow, state.moods, state.today, formats, header.key, onMore = { onOpen(InsightsMoodKey(viewModel.scope)) }) } }

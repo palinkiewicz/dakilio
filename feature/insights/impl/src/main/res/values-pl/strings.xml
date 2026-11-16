@@ -233,4 +233,42 @@
         <item quantity="many">tygodni</item>
         <item quantity="other">tygodnia</item>
     </plurals>
+    <!-- Highlights -->
+    <string name="insights_highlights">Warto wiedzieć</string>
+    <string name="insights_hl_tag_brighter">Jaśniej w dni z tagiem „%1$s”</string>
+    <string name="insights_hl_tag_heavier">Ciężej w dni z tagiem „%1$s”</string>
+    <string name="insights_hl_best_weekday">Twój najjaśniejszy dzień tygodnia</string>
+    <string name="insights_hl_brighter_than">Jaśniej w porównaniu z: %1$s</string>
+    <string name="insights_hl_heavier_than">Ciężej w porównaniu z: %1$s</string>
+    <string name="insights_hl_best_month">Twój najjaśniejszy miesiąc od początku</string>
+    <plurals name="insights_hl_streak">
+        <item quantity="one">dzień z rzędu – najdłuższa seria do tej pory</item>
+        <item quantity="few">dni z rzędu – najdłuższa seria do tej pory</item>
+        <item quantity="many">dni z rzędu – najdłuższa seria do tej pory</item>
+        <item quantity="other">dnia z rzędu – najdłuższa seria do tej pory</item>
+    </plurals>
+    <plurals name="insights_hl_bright_run">
+        <item quantity="one">dobry dzień z rzędu, %1$s</item>
+        <item quantity="few">dobre dni z rzędu, %1$s</item>
+        <item quantity="many">dobrych dni z rzędu, %1$s</item>
+        <item quantity="other">dobrego dnia z rzędu, %1$s</item>
+    </plurals>
+    <plurals name="insights_hl_habit_run">
+        <item quantity="one">tydzień z rzędu z celem „%1$s”</item>
+        <item quantity="few">tygodnie z rzędu z celem „%1$s”</item>
+        <item quantity="many">tygodni z rzędu z celem „%1$s”</item>
+        <item quantity="other">tygodnia z rzędu z celem „%1$s”</item>
+    </plurals>
+    <plurals name="insights_hl_words">
+        <item quantity="one">napisane słowo</item>
+        <item quantity="few">napisane słowa</item>
+        <item quantity="many">napisanych słów</item>
+        <item quantity="other">napisanego słowa</item>
+    </plurals>
+    <plurals name="insights_first_days">
+        <item quantity="one">%1$s, pierwszy dzień</item>
+        <item quantity="few">%1$s, pierwsze %2$d dni</item>
+        <item quantity="many">%1$s, pierwsze %2$d dni</item>
+        <item quantity="other">%1$s, pierwsze %2$d dnia</item>
+    </plurals>
 </resources>

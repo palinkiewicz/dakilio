@@ -14,7 +14,9 @@ import kotlinx.coroutines.flow.stateIn
 import pl.dakil.dakilio.core.model.Diary
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.feature.insights.impl.logic.Overview
+import pl.dakil.dakilio.feature.insights.impl.logic.Highlight
 import pl.dakil.dakilio.feature.insights.impl.logic.buildOverview
+import pl.dakil.dakilio.feature.insights.impl.logic.highlights
 
 sealed interface InsightsUiState {
     data object Loading : InsightsUiState
@@ -26,6 +28,7 @@ sealed interface InsightsUiState {
     data class Ready(
         val header: PeriodHeaderState,
         val overview: Overview,
+        val highlights: List<Highlight>,
         val moods: List<Mood>,
         val diaries: List<Diary>,
         val selectedDiaryId: Long?,
@@ -44,19 +47,21 @@ class InsightsViewModel @Inject constructor(
     val uiState: StateFlow<InsightsUiState> = frames
         .map<InsightsFrame, InsightsUiState> { frame ->
             val data = frame.data
+            val overview = buildOverview(
+                index = data.index,
+                period = frame.period,
+                bounds = frame.bounds,
+                comparison = frame.comparison,
+                primaries = data.primaries,
+                firstDay = data.firstDay,
+                diaries = data.diaries.takeIf { data.diaryId == null },
+                habits = data.habits,
+                allPosts = data.allPosts,
+            )
             InsightsUiState.Ready(
                 header = frame.header,
-                overview = buildOverview(
-                    index = data.index,
-                    period = frame.period,
-                    bounds = frame.bounds,
-                    comparison = frame.comparison,
-                    primaries = data.primaries,
-                    firstDay = data.firstDay,
-                    diaries = data.diaries.takeIf { data.diaryId == null },
-                    habits = data.habits,
-                    allPosts = data.allPosts,
-                ),
+                overview = overview,
+                highlights = highlights(overview, data.index, frame.period, frame.bounds),
                 moods = data.primaries,
                 diaries = data.diaries,
                 selectedDiaryId = data.diaryId,
