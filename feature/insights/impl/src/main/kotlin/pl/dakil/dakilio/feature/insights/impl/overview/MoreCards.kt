@@ -45,7 +45,7 @@ import pl.dakil.dakilio.feature.insights.impl.logic.WritingStats
 import pl.dakil.dakilio.feature.insights.impl.logic.nearestMood
 import pl.dakil.dakilio.feature.insights.impl.rangeLabel
 
-/** What was written: words, words per entry, photos, and the longest entry (a tap opens it). */
+/** How entries are written: words per entry, how many have a note, photos, and the longest entry (a tap opens it). */
 @Composable
 internal fun WritingCard(writing: WritingStats, today: LocalDate, formats: DakilioFormats, onOpenPost: (Long) -> Unit) {
     InsightCard {
@@ -53,8 +53,15 @@ internal fun WritingCard(writing: WritingStats, today: LocalDate, formats: Dakil
         val tile = RoundedCornerShape(16.dp)
         val tileColor = MaterialTheme.colorScheme.surfaceContainerHigh
         Row(Modifier.padding(top = Spacing.l).height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-            StatTile(stringResource(R.string.insights_words), formats.count(writing.words), tile, Modifier.weight(1.2f), color = tileColor)
             StatTile(stringResource(R.string.insights_words_per_entry), formats.count(writing.averageWords), tile, Modifier.weight(1f), color = tileColor)
+            StatTile(
+                stringResource(R.string.insights_with_note),
+                formats.count(Math.round(writing.entriesWithText * 100f / writing.entries.coerceAtLeast(1))),
+                tile,
+                Modifier.weight(1f),
+                detail = "%",
+                color = tileColor,
+            )
             StatTile(stringResource(R.string.insights_photos), formats.count(writing.photos), tile, Modifier.weight(1f), color = tileColor)
         }
         writing.longest?.let { post ->

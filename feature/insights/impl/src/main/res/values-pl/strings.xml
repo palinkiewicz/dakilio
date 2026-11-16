@@ -197,4 +197,40 @@
     <string name="insights_when_brightest">Najjaśniej: %1$s · %2$s</string>
     <string name="insights_when_heaviest">Najciężej: %1$s · %2$s</string>
     <string name="insights_when_busiest">Najwięcej wpisów: %1$s · %2$s</string>
+    <!-- Habits -->
+    <string name="insights_habits">Nawyki</string>
+    <string name="insights_habits_all_diaries">Liczą się wpisy ze wszystkich dzienników</string>
+    <string name="insights_habits_empty_title">Brak nawyków w tym okresie</string>
+    <string name="insights_habits_not_begun">Twoje nawyki zaczynają się później niż ten okres.</string>
+    <string name="insights_habits_none">Nawyk zamienia tag w cotygodniowy cel.</string>
+    <string name="insights_habits_manage">Zarządzaj nawykami</string>
+    <string name="insights_habit_weeks_on_target">Tygodnie z celem</string>
+    <string name="insights_habit_best_run">Najdłuższa seria</string>
+    <string name="insights_habit_mood">Tygodnie z celem: %1$s · pozostałe: %2$s</string>
+    <string name="insights_habit_section">Jako nawyk</string>
+    <plurals name="insights_habit_on_target">
+        <item quantity="one">%1$d z %2$d tygodnia z osiągniętym celem</item>
+        <item quantity="few">%1$d z %2$d tygodni z osiągniętym celem</item>
+        <item quantity="many">%1$d z %2$d tygodni z osiągniętym celem</item>
+        <item quantity="other">%1$d z %2$d tygodnia z osiągniętym celem</item>
+    </plurals>
+    <plurals name="insights_habit_target">
+        <item quantity="one">%d dzień w tygodniu</item>
+        <item quantity="few">%d dni w tygodniu</item>
+        <item quantity="many">%d dni w tygodniu</item>
+        <item quantity="other">%d dnia w tygodniu</item>
+    </plurals>
+    <plurals name="insights_habit_before">
+        <item quantity="one">Poprzedni okres: %d tydzień z celem</item>
+        <item quantity="few">Poprzedni okres: %d tygodnie z celem</item>
+        <item quantity="many">Poprzedni okres: %d tygodni z celem</item>
+        <item quantity="other">Poprzedni okres: %d tygodnia z celem</item>
+    </plurals>
+    <string name="insights_with_note">Z notatką</string>
+    <plurals name="insights_weeks_unit">
+        <item quantity="one">tydzień</item>
+        <item quantity="few">tygodnie</item>
+        <item quantity="many">tygodni</item>
+        <item quantity="other">tygodnia</item>
+    </plurals>
 </resources>

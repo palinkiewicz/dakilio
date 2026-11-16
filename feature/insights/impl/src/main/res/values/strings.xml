@@ -185,4 +185,32 @@
     <string name="insights_when_brightest">Brightest: %1$s · %2$s</string>
     <string name="insights_when_heaviest">Heaviest: %1$s · %2$s</string>
     <string name="insights_when_busiest">Most entries: %1$s · %2$s</string>
+    <!-- Habits -->
+    <string name="insights_habits">Habits</string>
+    <string name="insights_habits_all_diaries">Entries of every diary count</string>
+    <string name="insights_habits_empty_title">No habits here yet</string>
+    <string name="insights_habits_not_begun">Your habits begin later than this period.</string>
+    <string name="insights_habits_none">Habits turn a tag into a weekly goal.</string>
+    <string name="insights_habits_manage">Manage habits</string>
+    <string name="insights_habit_weeks_on_target">Weeks on target</string>
+    <string name="insights_habit_best_run">Best run</string>
+    <string name="insights_habit_mood">Weeks on target: %1$s · other weeks: %2$s</string>
+    <string name="insights_habit_section">As a habit</string>
+    <plurals name="insights_habit_on_target">
+        <item quantity="one">%1$d of %2$d week on target</item>
+        <item quantity="other">%1$d of %2$d weeks on target</item>
+    </plurals>
+    <plurals name="insights_habit_target">
+        <item quantity="one">%d day a week</item>
+        <item quantity="other">%d days a week</item>
+    </plurals>
+    <plurals name="insights_habit_before">
+        <item quantity="one">The period before: %d week on target</item>
+        <item quantity="other">The period before: %d weeks on target</item>
+    </plurals>
+    <string name="insights_with_note">With a note</string>
+    <plurals name="insights_weeks_unit">
+        <item quantity="one">week</item>
+        <item quantity="other">weeks</item>
+    </plurals>
 </resources>

@@ -5,6 +5,7 @@ import java.time.LocalDate
 import java.time.YearMonth
 import pl.dakil.dakilio.core.model.DateRange
 import pl.dakil.dakilio.core.model.Diary
+import pl.dakil.dakilio.core.model.Habit
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.MonthSummary
 import pl.dakil.dakilio.core.model.Post
@@ -39,6 +40,7 @@ data class Gathering(val kind: Kind, val progress: Float) {
  * @property comparison `null` without a comparison period, or when that period has no entries.
  * @property diaries `null` unless all diaries are shown and there's more than one.
  * @property records only for a year or longer.
+ * @property habits the habits that had begun by the end of the period (entries of every diary count).
  */
 data class Overview(
     val range: DateRange,
@@ -57,6 +59,7 @@ data class Overview(
     val diaries: List<DiaryStat>?,
     val records: Records?,
     val gathering: List<Gathering>,
+    val habits: List<HabitStat> = emptyList(),
 ) {
     val isEmpty: Boolean get() = entries == 0
 
@@ -84,6 +87,8 @@ fun buildOverview(
     primaries: List<Mood>,
     firstDay: DayOfWeek,
     diaries: List<Diary>? = null,
+    habits: List<Habit> = emptyList(),
+    allPosts: List<Post> = emptyList(),
 ): Overview {
     val range = period.range(bounds)
     val days = index.days(range)
@@ -123,8 +128,10 @@ fun buildOverview(
         rhythm = rhythm,
         writing = writingStats(posts),
         diaries = diaries?.takeIf { it.size > 1 }?.let { diaryStats(posts, it) },
-        records = if (range.days >= RECORDS_FROM_DAYS) records(days) else null,
+        // The first entry of a year is just its first day; only all time makes it worth telling.
+        records = if (range.days >= RECORDS_FROM_DAYS) records(days).let { if (period == InsightsPeriod.AllTime) it else it.copy(firstEntry = null) } else null,
         gathering = gathering(days, flow, tags, rhythm),
+        habits = habitStats(habits, allPosts, range, compared, firstDay, bounds.today).filter { it.weeks.isNotEmpty() },
     )
 }
 

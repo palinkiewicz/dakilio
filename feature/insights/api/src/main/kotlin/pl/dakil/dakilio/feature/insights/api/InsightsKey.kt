@@ -52,3 +52,7 @@ data class InsightsTagKey(val scope: InsightsScope = InsightsScope(), val tagId:
 /** When entries are written and how they feel: weekdays against parts of the day, and the hours. */
 @Serializable
 data class InsightsRhythmKey(val scope: InsightsScope = InsightsScope()) : NavKey
+
+/** The habits (the Habits extra) in a period: week by week, and each habit's numbers. */
+@Serializable
+data class InsightsHabitsKey(val scope: InsightsScope = InsightsScope()) : NavKey

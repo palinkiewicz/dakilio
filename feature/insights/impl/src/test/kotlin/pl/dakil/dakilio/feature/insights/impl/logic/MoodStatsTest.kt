@@ -23,6 +23,10 @@ class MoodStatsTest {
         assertEquals(5, nearestMood(MOODS, 4.6f)!!.level)
         assertEquals(5, nearestMood(MOODS, 4.5f)!!.level) // halfway goes up, as on the calendars
         assertEquals(2, nearestMood(MOODS, 1.5f)!!.level)
+        // The face follows the figure as written: 3.46 and 3.54 are both written 3.5.
+        assertEquals(4, nearestMood(MOODS, 3.46f)!!.level)
+        assertEquals(4, nearestMood(MOODS, 3.54f)!!.level)
+        assertEquals(3, nearestMood(MOODS, 3.44f)!!.level)
         assertNull(nearestMood(emptyList(), 3f))
     }
 

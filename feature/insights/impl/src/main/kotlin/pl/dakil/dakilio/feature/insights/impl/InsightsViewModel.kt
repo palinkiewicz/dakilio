@@ -54,6 +54,8 @@ class InsightsViewModel @Inject constructor(
                     primaries = data.primaries,
                     firstDay = data.firstDay,
                     diaries = data.diaries.takeIf { data.diaryId == null },
+                    habits = data.habits,
+                    allPosts = data.allPosts,
                 ),
                 moods = data.primaries,
                 diaries = data.diaries,

@@ -31,7 +31,9 @@ import androidx.navigation3.runtime.NavKey
 import java.time.LocalDate
 import pl.dakil.dakilio.feature.entry.api.EntryEditorKey
 import pl.dakil.dakilio.feature.insights.api.InsightsEntriesKey
+import pl.dakil.dakilio.feature.insights.api.InsightsHabitsKey
 import pl.dakil.dakilio.feature.insights.api.InsightsMoodKey
+import pl.dakil.dakilio.feature.insights.impl.habits.HabitsCard
 import pl.dakil.dakilio.feature.insights.api.InsightsRhythmKey
 import pl.dakil.dakilio.feature.insights.api.InsightsTagKey
 import pl.dakil.dakilio.feature.insights.api.InsightsTagsKey
@@ -183,6 +185,18 @@ private fun InsightsContent(
         }
         item(key = "rhythm") {
             RhythmCard(overview.rhythm, state.moods, state.firstDay, formats, header.key, onMore = { onOpen(InsightsRhythmKey(viewModel.scope)) })
+        }
+        if (overview.habits.isNotEmpty()) {
+            item(key = "habits") {
+                HabitsCard(
+                    stats = overview.habits,
+                    range = overview.range,
+                    firstDay = state.firstDay,
+                    onMore = { onOpen(InsightsHabitsKey(viewModel.scope)) },
+                    onHabit = { onOpen(InsightsTagKey(viewModel.scope, it)) },
+                    allDiaries = state.selectedDiaryId == null,
+                )
+            }
         }
         if (overview.writing.words > 0 || overview.writing.photos > 0) {
             item(key = "writing") { WritingCard(overview.writing, state.today, formats, onOpenPost) }

@@ -35,8 +35,11 @@ data class DayCell(val date: LocalDate, val entries: Int, val level: Int?)
 fun dayCells(index: InsightsIndex, range: DateRange): Map<LocalDate, DayCell> =
     index.days(range).associate { day -> day.date to DayCell(day.date, day.entries, day.mood?.let(::nearestLevel)) }
 
-/** The level an average is shown as. */
-fun nearestLevel(level: Float): Int = level.roundToInt().coerceIn(1, MOOD_LEVELS)
+/**
+ * The level an average is shown as. It's read from the average as written (one decimal), so a face
+ * never disagrees with the figure next to it: 3.46 is written 3.5 and shown as level 4, like 3.54.
+ */
+fun nearestLevel(level: Float): Int = (Math.round(level * 10) / 10f).roundToInt().coerceIn(1, MOOD_LEVELS)
 
 /** The months [range] touches, oldest first. */
 fun monthsOf(range: DateRange): List<YearMonth> =

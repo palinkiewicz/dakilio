@@ -55,9 +55,12 @@ internal fun ColumnChart(
     target: Float? = null,
     height: Dp = 104.dp,
     color: Color = MaterialTheme.colorScheme.primary,
+    /** Several columns that are the point (weeks on target); like [emphasized], the rest step back. */
+    strong: Set<Int>? = null,
 ) {
     val colors = MaterialTheme.colorScheme
-    val rest = if (emphasized == null) color else colors.secondaryContainer
+    val rest = if (emphasized == null && strong == null) color else colors.secondaryContainer
+    fun isStrong(i: Int) = (emphasized == null && strong == null) || i == emphasized || (strong != null && i in strong)
     val slotFill = colors.surfaceContainerHighest
     val baseline = colors.outlineVariant
     val targetLine = colors.outline
@@ -95,7 +98,7 @@ internal fun ColumnChart(
                         ),
                     )
                 }
-                drawPath(path, if (emphasized == null || i == emphasized) color else rest)
+                drawPath(path, if (isStrong(i)) color else rest)
             }
             drawLine(baseline, Offset(0f, plot), Offset(size.width, plot), 1.dp.toPx())
             target?.let {

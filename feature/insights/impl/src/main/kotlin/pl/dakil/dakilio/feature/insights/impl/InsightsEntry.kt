@@ -8,7 +8,10 @@ import pl.dakil.dakilio.core.ui.NavTransitions
 import pl.dakil.dakilio.feature.entry.api.EntryEditorKey
 import pl.dakil.dakilio.feature.insights.api.InsightsEntriesKey
 import pl.dakil.dakilio.feature.insights.api.InsightsKey
+import pl.dakil.dakilio.feature.insights.api.InsightsHabitsKey
 import pl.dakil.dakilio.feature.insights.api.InsightsMoodKey
+import pl.dakil.dakilio.feature.insights.impl.habits.InsightsHabitsScreen
+import pl.dakil.dakilio.feature.insights.impl.habits.InsightsHabitsViewModel
 import pl.dakil.dakilio.feature.insights.api.InsightsRhythmKey
 import pl.dakil.dakilio.feature.insights.impl.rhythm.InsightsRhythmScreen
 import pl.dakil.dakilio.feature.insights.impl.rhythm.InsightsRhythmViewModel
@@ -59,6 +62,13 @@ fun EntryProviderScope<NavKey>.insightsEntries(navigator: Navigator) {
     entry<InsightsRhythmKey> { key ->
         InsightsRhythmScreen(
             viewModel = hiltViewModel<InsightsRhythmViewModel, InsightsRhythmViewModel.Factory>(creationCallback = { it.create(key) }),
+            onBack = navigator::goBack,
+            onOpen = navigator::navigate,
+        )
+    }
+    entry<InsightsHabitsKey> { key ->
+        InsightsHabitsScreen(
+            viewModel = hiltViewModel<InsightsHabitsViewModel, InsightsHabitsViewModel.Factory>(creationCallback = { it.create(key) }),
             onBack = navigator::goBack,
             onOpen = navigator::navigate,
         )

@@ -49,6 +49,14 @@ import pl.dakil.dakilio.feature.insights.api.InsightsEntriesKey
 import pl.dakil.dakilio.feature.insights.api.InsightsTagKey
 import pl.dakil.dakilio.feature.insights.impl.InsightsDetailScaffold
 import pl.dakil.dakilio.feature.insights.impl.R
+import pl.dakil.dakilio.feature.insights.impl.overview.moodValueLabel
+import pl.dakil.dakilio.core.model.DateRange
+import pl.dakil.dakilio.feature.insights.impl.rangeLabel
+import pl.dakil.dakilio.feature.insights.impl.habits.onTargetLabel
+import pl.dakil.dakilio.feature.insights.impl.habits.habitColor
+import pl.dakil.dakilio.feature.insights.impl.habits.RunBadge
+import pl.dakil.dakilio.feature.insights.impl.habits.HabitTiles
+import pl.dakil.dakilio.feature.insights.impl.logic.HabitStat
 import pl.dakil.dakilio.feature.insights.impl.chart.ChartColumn
 import pl.dakil.dakilio.feature.insights.impl.chart.ColumnChart
 import pl.dakil.dakilio.feature.insights.impl.chart.SingleBar
@@ -93,6 +101,7 @@ internal fun InsightsTagScreen(viewModel: InsightsTagViewModel, onBack: () -> Un
             return@InsightsDetailScaffold
         }
         item(key = "summary") { TagSummaryCard(tag, stat, detail.journaledDays, current.today, formats) }
+        current.habit?.let { habit -> item(key = "habit") { HabitSectionCard(habit, current.hasComparison, current.moods, formats, current.header.key) } }
         item(key = "link") { TagMoodCard(tag, stat.link, current.moods, formats) }
         if (detail.use.size > 1) {
             item(key = "use") { TagUseCard(detail, current.today, formats, current.header.key) }
@@ -292,6 +301,64 @@ private fun TogetherCard(together: List<TagCount>, onTag: (Long) -> Unit) {
                     )
                 }
             }
+        }
+    }
+}
+
+/** The tag as a habit: days per week against the target line, the runs, and how its weeks felt. */
+@Composable
+private fun HabitSectionCard(stat: HabitStat, hasComparison: Boolean, moods: List<Mood>, formats: DakilioFormats, periodKey: String) {
+    val haptics = rememberHaptics()
+    var selected by rememberSaveable(periodKey) { mutableStateOf<Int?>(null) }
+    val weeks = stat.weeks
+    InsightCard {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                CardTitle(
+                    stringResource(R.string.insights_habit_section),
+                    pluralStringResource(R.plurals.insights_habit_target, stat.habit.daysPerWeek, stat.habit.daysPerWeek),
+                )
+            }
+            RunBadge(stat.currentRun)
+        }
+        if (weeks.size > 1) {
+            ColumnChart(
+                columns = weeks.map { ChartColumn(it.days / 7f) },
+                description = onTargetLabel(stat),
+                strong = weeks.indices.filterTo(HashSet()) { weeks[it].met },
+                target = stat.habit.daysPerWeek / 7f,
+                color = habitColor(stat.habit.tag),
+                selected = selected,
+                onSelect = { index ->
+                    if (index != selected) {
+                        haptics.tick()
+                        selected = index
+                    }
+                },
+                modifier = Modifier.padding(top = Spacing.l),
+            )
+            selected?.let(weeks::getOrNull)?.let { week ->
+                ChartCaption(
+                    stringResource(
+                        R.string.insights_point,
+                        rangeLabel(DateRange(week.start, week.start.plusDays(6)), LocalDate.now(), formats),
+                        pluralStringResource(R.plurals.insights_days_count, week.days, week.days),
+                    ),
+                    Modifier.padding(top = Spacing.m),
+                )
+            }
+        }
+        HabitTiles(stat, formats, Modifier.padding(top = Spacing.m))
+        val notes = listOfNotNull(
+            stat.metBefore?.takeIf { hasComparison }?.let { pluralStringResource(R.plurals.insights_habit_before, it, it) },
+            if (stat.moodOnTarget != null && stat.moodOffTarget != null) {
+                stringResource(R.string.insights_habit_mood, moodValueLabel(stat.moodOnTarget, moods, formats), moodValueLabel(stat.moodOffTarget, moods, formats))
+            } else {
+                null
+            },
+        )
+        if (notes.isNotEmpty()) {
+            Column(Modifier.padding(top = Spacing.m), verticalArrangement = Arrangement.spacedBy(Spacing.xxs)) { notes.forEach { CardNote(it) } }
         }
     }
 }

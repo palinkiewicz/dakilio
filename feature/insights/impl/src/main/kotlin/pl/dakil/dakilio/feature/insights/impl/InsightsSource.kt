@@ -12,15 +12,18 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import pl.dakil.dakilio.core.common.DakilioDispatchers
 import pl.dakil.dakilio.core.common.Dispatcher
 import pl.dakil.dakilio.core.data.repository.DiaryRepository
+import pl.dakil.dakilio.core.data.repository.HabitRepository
 import pl.dakil.dakilio.core.data.repository.MoodRepository
 import pl.dakil.dakilio.core.data.repository.PostRepository
 import pl.dakil.dakilio.core.data.repository.SettingsRepository
 import pl.dakil.dakilio.core.model.DateRange
 import pl.dakil.dakilio.core.model.Diary
+import pl.dakil.dakilio.core.model.Habit
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.model.MonthSummary
 import pl.dakil.dakilio.core.model.Post
@@ -52,6 +55,7 @@ import pl.dakil.dakilio.feature.insights.impl.logic.switchTo
  * @property primaries one mood per level; charts work per level.
  * @property diaryId the diary filter, already checked against [diaries].
  * @property months per-month summaries of [index], for the pickers and the years grid.
+ * @property habits every habit (the Habits extra), in the user's order.
  */
 class InsightsData(
     val index: InsightsIndex,
@@ -62,6 +66,7 @@ class InsightsData(
     val firstDay: DayOfWeek,
     val today: LocalDate,
     val months: Map<YearMonth, MonthSummary>,
+    val habits: List<Habit>,
 ) {
     val hasAnyEntries: Boolean get() = allPosts.isNotEmpty()
 
@@ -93,11 +98,18 @@ class InsightsSource @Inject constructor(
     private val diaryRepository: DiaryRepository,
     private val moodRepository: MoodRepository,
     private val settingsRepository: SettingsRepository,
+    private val habitRepository: HabitRepository,
     private val clock: Clock,
     @Dispatcher(DakilioDispatchers.Default) val default: CoroutineDispatcher,
 ) {
     fun data(diaryId: Flow<Long?>): Flow<InsightsData> =
-        combine(postRepository.posts, diaryRepository.diaries, moodRepository.moods, settingsRepository.firstDayOfWeek, diaryId) { posts, diaries, moods, firstDay, selected ->
+        combine(
+            combine(postRepository.posts, habitRepository.habits.map { list -> list.map { it.habit } }, ::Pair),
+            diaryRepository.diaries,
+            moodRepository.moods,
+            settingsRepository.firstDayOfWeek,
+            diaryId,
+        ) { (posts, habits), diaries, moods, firstDay, selected ->
             val filter = selected?.takeIf { id -> diaries.any { it.id == id } }
             val filtered = if (filter == null) posts else posts.filter { it.diaryId == filter }
             InsightsData(
@@ -109,6 +121,7 @@ class InsightsSource @Inject constructor(
                 firstDay = firstDay,
                 today = LocalDate.now(clock),
                 months = monthSummaries(filtered, null),
+                habits = habits,
             )
         }.flowOn(default)
 }
