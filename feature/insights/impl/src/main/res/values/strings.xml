@@ -47,6 +47,8 @@
     <string name="insights_mood_flow">Mood flow</string>
     <string name="insights_mood_flow_hint">Drag across the chart to read each point.</string>
     <string name="insights_mood_flow_cd">Mood over time, from %1$s to %2$s</string>
+    <string name="insights_flow_trend">7-day average</string>
+    <string name="insights_flow_trend_value">7-day average %1$s</string>
     <string name="insights_point">%1$s · %2$s</string>
     <string name="insights_point_mood">%1$s %2$s</string>
     <string name="insights_point_no_mood">no mood</string>

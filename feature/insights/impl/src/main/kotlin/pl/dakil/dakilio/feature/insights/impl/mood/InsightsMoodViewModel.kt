@@ -30,6 +30,7 @@ import pl.dakil.dakilio.feature.insights.impl.logic.brightestDays
 import pl.dakil.dakilio.feature.insights.impl.logic.defaultGranularity
 import pl.dakil.dakilio.feature.insights.impl.logic.granularities
 import pl.dakil.dakilio.feature.insights.impl.logic.moodFlow
+import pl.dakil.dakilio.feature.insights.impl.logic.rollingAverage
 import pl.dakil.dakilio.feature.insights.impl.logic.moodNames
 import pl.dakil.dakilio.feature.insights.impl.logic.moodSummary
 import pl.dakil.dakilio.feature.insights.impl.logic.steadiness
@@ -98,7 +99,11 @@ class InsightsMoodViewModel @AssistedInject constructor(
                 header = frame.header,
                 flow = flow,
                 comparisonFlow = compared?.takeIf { comparedDays!!.any { it.mood != null } }
-                    ?.let { moodFlow(data.index, it, slice, data.firstDay).buckets.map { bucket -> bucket.average } },
+                    ?.let { other ->
+                        val points = moodFlow(data.index, other, slice, data.firstDay).buckets.map { bucket -> bucket.average }
+                        // Like for like: when this period's line is the 7-day average, so is the other's.
+                        if (flow.trend != null) rollingAverage(points) else points
+                    },
                 now = PeriodNumbers(days.flatMap { it.levels }.averageOrNull(), posts.size, days.size),
                 then = comparedDays?.let { other -> PeriodNumbers(other.flatMap { it.levels }.averageOrNull(), other.sumOf { it.entries }, other.size) },
                 granularities = allowed,
