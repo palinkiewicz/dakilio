@@ -59,12 +59,16 @@ fun rememberNavigationState(topLevelKeys: List<NavKey>): NavigationState {
 @Composable
 fun NavigationState.rememberEntries(entryProvider: (NavKey) -> NavEntry<NavKey>): List<NavEntry<NavKey>> {
     val decorated = backStacks.mapValues { (_, stack) ->
+        val saveableState = rememberSaveableStateHolderNavEntryDecorator<NavKey>()
+        val viewModelStore = rememberViewModelStoreNavEntryDecorator<NavKey>()
+        // The list must be the same instance across recompositions: each decorated entry's content
+        // captures it, so a fresh list makes every entry (and so the scene) unequal to the last one.
+        // NavDisplay then restarts the running transition on each recomposition, which cuts
+        // screen transitions down to a few frames.
+        val decorators = remember(saveableState, viewModelStore) { listOf(saveableState, viewModelStore) }
         rememberDecoratedNavEntries(
             backStack = stack,
-            entryDecorators = listOf(
-                rememberSaveableStateHolderNavEntryDecorator(),
-                rememberViewModelStoreNavEntryDecorator(),
-            ),
+            entryDecorators = decorators,
             entryProvider = entryProvider,
         )
     }

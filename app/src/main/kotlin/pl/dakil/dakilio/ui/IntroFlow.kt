@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavKey
@@ -39,14 +40,17 @@ fun IntroFlow(incomingBackup: IncomingBackup?, onFinished: () -> Unit) {
         if (backStack.lastOrNull() != key) backStack.add(key)
     }
 
+    // Kept as one instance: a fresh list each recomposition restarts running screen transitions
+    // (see NavigationState.rememberEntries).
+    val saveableState = rememberSaveableStateHolderNavEntryDecorator<NavKey>()
+    val viewModelStore = rememberViewModelStoreNavEntryDecorator<NavKey>()
+    val decorators = remember(saveableState, viewModelStore) { listOf(saveableState, viewModelStore) }
+
     NavDisplay(
         backStack = backStack,
         onBack = goBack,
         modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface),
-        entryDecorators = listOf(
-            rememberSaveableStateHolderNavEntryDecorator(),
-            rememberViewModelStoreNavEntryDecorator(),
-        ),
+        entryDecorators = decorators,
         transitionSpec = { NavTransitions.forward() },
         popTransitionSpec = { NavTransitions.backward() },
         predictivePopTransitionSpec = { NavTransitions.backward() },
