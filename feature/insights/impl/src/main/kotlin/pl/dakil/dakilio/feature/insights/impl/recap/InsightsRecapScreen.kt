@@ -86,6 +86,7 @@ import pl.dakil.dakilio.core.ui.mood.NoMoodBadge
 import pl.dakil.dakilio.core.ui.mood.moodColors
 import pl.dakil.dakilio.core.ui.rememberFormats
 import pl.dakil.dakilio.feature.insights.impl.R
+import pl.dakil.dakilio.feature.insights.impl.overview.TagIcon
 import pl.dakil.dakilio.feature.insights.impl.chart.BarSegment
 import pl.dakil.dakilio.feature.insights.impl.chart.MoodLineChart
 import pl.dakil.dakilio.feature.insights.impl.chart.SegmentedBar
@@ -331,8 +332,9 @@ private fun RecapPageContent(
             Kicker(stringResource(R.string.insights_recap_tags))
             overview.tags.take(3).forEachIndexed { i, stat ->
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.entrance(i + 1)) {
-                    Text("${i + 1}", style = MaterialTheme.typography.displaySmallEmphasized, modifier = Modifier.widthIn(min = 48.dp))
-                    Column {
+                    Text("#${i + 1}", style = MaterialTheme.typography.headlineMediumEmphasized, modifier = Modifier.widthIn(min = 56.dp))
+                    TagIcon(stat.tag, size = 48.dp)
+                    Column(Modifier.padding(start = Spacing.m)) {
                         Text(stat.tag.label, style = MaterialTheme.typography.headlineSmallEmphasized, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         Text(pluralStringResource(R.plurals.insights_days_count, stat.days, stat.days), style = MaterialTheme.typography.bodyMedium)
                     }
@@ -366,10 +368,15 @@ private fun RecapPageContent(
             Kicker(stringResource(R.string.insights_habits))
             val starts = weekStarts(overview.range, state.firstDay)
             overview.habits.forEachIndexed { i, stat ->
-                Column(Modifier.entrance(i + 1)) {
-                    Text(stat.habit.tag.label, style = MaterialTheme.typography.titleLargeEmphasized)
-                    Text(onTargetLabel(stat), style = MaterialTheme.typography.bodyMedium)
-                    WeekPills(alignedWeeks(stat, starts), habitColor(stat.habit.tag), Modifier.padding(top = Spacing.s))
+                Row(Modifier.entrance(i + 1)) {
+                    TagIcon(stat.habit.tag, size = 48.dp)
+                    Column(Modifier.padding(start = Spacing.m)) {
+                        Text(stat.habit.tag.label, style = MaterialTheme.typography.titleLargeEmphasized)
+                        Text(onTargetLabel(stat), style = MaterialTheme.typography.bodyMedium)
+                        if (starts.size > 1) {
+                            WeekPills(alignedWeeks(stat, starts), habitColor(stat.habit.tag), Modifier.padding(top = Spacing.s))
+                        }
+                    }
                 }
             }
         }
