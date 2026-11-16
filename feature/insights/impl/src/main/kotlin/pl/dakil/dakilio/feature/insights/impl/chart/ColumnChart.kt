@@ -62,7 +62,7 @@ internal fun ColumnChart(
     val rest = if (emphasized == null && strong == null) color else colors.secondaryContainer
     fun isStrong(i: Int) = (emphasized == null && strong == null) || i == emphasized || (strong != null && i in strong)
     val slotFill = colors.surfaceContainerHighest
-    val baseline = colors.outlineVariant
+    val baseline = chartGridColor()
     val targetLine = colors.outline
 
     val grow = remember { Animatable(1f) }

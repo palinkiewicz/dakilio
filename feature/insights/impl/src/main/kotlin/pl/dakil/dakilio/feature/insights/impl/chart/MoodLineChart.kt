@@ -69,7 +69,7 @@ internal fun MoodLineChart(
     val levelColors = byLevel.map { moodColors(it).container }
     val line = colors.primary
     val faint = colors.primary.copy(alpha = 0.32f)
-    val grid = colors.outlineVariant
+    val grid = chartGridColor()
     val ring = colors.surfaceContainer
     val cursor = colors.outline
     val showDots = values.size <= 62

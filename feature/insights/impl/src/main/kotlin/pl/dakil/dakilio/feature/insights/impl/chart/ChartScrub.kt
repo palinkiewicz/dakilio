@@ -3,11 +3,14 @@ package pl.dakil.dakilio.feature.insights.impl.chart
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntSize
 import kotlin.math.roundToInt
@@ -63,4 +66,15 @@ internal fun Modifier.chartScrub(anyDirection: Boolean = false, onPosition: (pos
             }
         }
     }
+}
+
+/**
+ * Gridlines and baselines. `outlineVariant` sits too close to a card's container in the dark theme
+ * to read, so there a softened `outline` takes its place.
+ */
+@Composable
+internal fun chartGridColor(): Color {
+    val colors = MaterialTheme.colorScheme
+    val dark = colors.surface.luminance() < 0.5f
+    return if (dark) colors.outline.copy(alpha = 0.6f) else colors.outlineVariant
 }
