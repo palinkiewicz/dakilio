@@ -8,6 +8,9 @@ import pl.dakil.dakilio.core.ui.NavTransitions
 import pl.dakil.dakilio.feature.entry.api.EntryEditorKey
 import pl.dakil.dakilio.feature.insights.api.InsightsEntriesKey
 import pl.dakil.dakilio.feature.insights.api.InsightsKey
+import pl.dakil.dakilio.feature.insights.api.InsightsMoodKey
+import pl.dakil.dakilio.feature.insights.impl.mood.InsightsMoodScreen
+import pl.dakil.dakilio.feature.insights.impl.mood.InsightsMoodViewModel
 import pl.dakil.dakilio.feature.insights.impl.entries.InsightsEntriesScreen
 import pl.dakil.dakilio.feature.insights.impl.entries.InsightsEntriesViewModel
 import pl.dakil.dakilio.feature.insights.impl.overview.InsightsScreen
@@ -18,6 +21,14 @@ fun EntryProviderScope<NavKey>.insightsEntries(navigator: Navigator) {
     entry<InsightsKey>(metadata = NavTransitions.topLevel) {
         InsightsScreen(
             viewModel = hiltViewModel(),
+            onOpenPost = openPost,
+            onOpen = navigator::navigate,
+        )
+    }
+    entry<InsightsMoodKey> { key ->
+        InsightsMoodScreen(
+            viewModel = hiltViewModel<InsightsMoodViewModel, InsightsMoodViewModel.Factory>(creationCallback = { it.create(key) }),
+            onBack = navigator::goBack,
             onOpenPost = openPost,
             onOpen = navigator::navigate,
         )

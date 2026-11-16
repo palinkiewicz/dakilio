@@ -20,8 +20,14 @@ data class MoodSummary(val average: Float?, val distribution: List<MoodCount>) {
     val moodEntries: Int get() = distribution.sumOf { it.count }
 }
 
-/** The level (as its primary mood) closest to [level]: how an average is shown as a face. */
-fun nearestMood(primaries: List<Mood>, level: Float): Mood? = primaries.minByOrNull { abs(it.level - level) }
+/**
+ * The level (as its primary mood) closest to [level]: how an average is shown as a face. A value
+ * halfway between two levels goes up, the same as [nearestLevel] on the calendars.
+ */
+fun nearestMood(primaries: List<Mood>, level: Float): Mood? {
+    val nearest = nearestLevel(level)
+    return primaries.firstOrNull { it.level == nearest } ?: primaries.minByOrNull { abs(it.level - level) }
+}
 
 fun moodSummary(posts: List<Post>, primaries: List<Mood>): MoodSummary {
     val levels = posts.mapNotNull { it.mood?.level }

@@ -21,6 +21,8 @@ class MoodStatsTest {
     fun `an average is shown as the nearest level's face`() {
         assertEquals(4, nearestMood(MOODS, 4.4f)!!.level)
         assertEquals(5, nearestMood(MOODS, 4.6f)!!.level)
+        assertEquals(5, nearestMood(MOODS, 4.5f)!!.level) // halfway goes up, as on the calendars
+        assertEquals(2, nearestMood(MOODS, 1.5f)!!.level)
         assertNull(nearestMood(emptyList(), 3f))
     }
 

@@ -130,4 +130,19 @@
     <string name="insights_entries_none">No entries match in this period.</string>
     <string name="insights_day_empty">No entries on this day.</string>
     <string name="insights_day_add">Add an entry</string>
+    <!-- Mood screen -->
+    <string name="insights_mood_title">Mood</string>
+    <string name="insights_by_days">Days</string>
+    <string name="insights_by_weeks">Weeks</string>
+    <string name="insights_by_months">Months</string>
+    <string name="insights_by_years">Years</string>
+    <string name="insights_mix_over_time">Mood mix over time</string>
+    <string name="insights_mix_cd">The share of each mood level over time</string>
+    <string name="insights_steadiness">Steadiness</string>
+    <string name="insights_steady_body">Your mood moved little from one day to the next.</string>
+    <string name="insights_varied_body">Your mood shifted a bit between days.</string>
+    <string name="insights_up_and_down_body">Your mood often swung by a level or more between days.</string>
+    <string name="insights_mood_names">Names you picked</string>
+    <string name="insights_brightest">Brightest days</string>
+    <string name="insights_toughest">Toughest days</string>
 </resources>

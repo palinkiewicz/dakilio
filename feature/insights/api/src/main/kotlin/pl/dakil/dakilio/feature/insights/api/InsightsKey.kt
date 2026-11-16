@@ -32,3 +32,7 @@ data class InsightsEntriesKey(
     val weekday: Int? = null,
     val dayPart: String? = null,
 ) : NavKey
+
+/** Mood in depth: its flow in finer or coarser slices, the mix over time, steadiness and standout days. */
+@Serializable
+data class InsightsMoodKey(val scope: InsightsScope = InsightsScope()) : NavKey

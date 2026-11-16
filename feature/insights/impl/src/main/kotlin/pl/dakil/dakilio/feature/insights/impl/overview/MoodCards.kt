@@ -284,10 +284,10 @@ internal fun monthCaption(month: YearMonth, summary: MonthSummary?, moods: List<
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-internal fun MoodMixCard(mood: MoodSummary, onLevel: ((Int) -> Unit)? = null) {
+internal fun MoodMixCard(mood: MoodSummary, onMore: (() -> Unit)? = null, onLevel: ((Int) -> Unit)? = null) {
     val total = mood.moodEntries
     InsightCard {
-        CardTitle(stringResource(R.string.insights_distribution), pluralStringResource(R.plurals.insights_moods_logged, total, total))
+        CardTitle(stringResource(R.string.insights_distribution), pluralStringResource(R.plurals.insights_moods_logged, total, total), onMore = onMore)
         if (total == 0) {
             CardNote(stringResource(R.string.insights_no_mood), Modifier.padding(top = Spacing.s))
             return@InsightCard

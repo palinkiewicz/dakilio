@@ -31,6 +31,7 @@ import androidx.navigation3.runtime.NavKey
 import java.time.LocalDate
 import pl.dakil.dakilio.feature.entry.api.EntryEditorKey
 import pl.dakil.dakilio.feature.insights.api.InsightsEntriesKey
+import pl.dakil.dakilio.feature.insights.api.InsightsMoodKey
 import pl.dakil.dakilio.feature.insights.impl.DaySheet
 import pl.dakil.dakilio.core.designsystem.component.entrance
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
@@ -142,7 +143,7 @@ private fun InsightsContent(
             Box(Modifier.entrance(0)) { SummaryCard(overview, state.moods, formats, comparisonLabel(header, overview.comparison?.range, formats)) }
         }
         if (overview.flow.points >= 2) {
-            item(key = "flow") { Box(Modifier.entrance(1)) { MoodFlowCard(overview.flow, state.moods, state.today, formats, header.key) } }
+            item(key = "flow") { Box(Modifier.entrance(1)) { MoodFlowCard(overview.flow, state.moods, state.today, formats, header.key, onMore = { onOpen(InsightsMoodKey(viewModel.scope)) }) } }
         }
         item(key = "calendar") {
             Box(Modifier.entrance(2)) {
@@ -160,7 +161,7 @@ private fun InsightsContent(
             }
         }
         if (overview.mood.moodEntries > 0) {
-            item(key = "mix") { MoodMixCard(overview.mood, onLevel = { onOpen(InsightsEntriesKey(viewModel.scope, moodLevel = it)) }) }
+            item(key = "mix") { MoodMixCard(overview.mood, onMore = { onOpen(InsightsMoodKey(viewModel.scope)) }, onLevel = { onOpen(InsightsEntriesKey(viewModel.scope, moodLevel = it)) }) }
         }
         if (overview.tags.any { it.link != null }) {
             item(key = "links") { TagLinksCard(overview.tags, state.moods, formats) }

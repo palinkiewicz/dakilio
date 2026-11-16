@@ -138,4 +138,19 @@
     <string name="insights_entries_none">W tym okresie nie ma pasujących wpisów.</string>
     <string name="insights_day_empty">Tego dnia nie ma wpisów.</string>
     <string name="insights_day_add">Dodaj wpis</string>
+    <!-- Mood screen -->
+    <string name="insights_mood_title">Nastrój</string>
+    <string name="insights_by_days">Dni</string>
+    <string name="insights_by_weeks">Tygodnie</string>
+    <string name="insights_by_months">Miesiące</string>
+    <string name="insights_by_years">Lata</string>
+    <string name="insights_mix_over_time">Rozkład nastrojów w czasie</string>
+    <string name="insights_mix_cd">Udział każdego poziomu nastroju w czasie</string>
+    <string name="insights_steadiness">Stabilność</string>
+    <string name="insights_steady_body">Nastrój mało się zmieniał z dnia na dzień.</string>
+    <string name="insights_varied_body">Nastrój trochę się zmieniał między dniami.</string>
+    <string name="insights_up_and_down_body">Nastrój często zmieniał się między dniami o poziom albo więcej.</string>
+    <string name="insights_mood_names">Wybierane nazwy</string>
+    <string name="insights_brightest">Najjaśniejsze dni</string>
+    <string name="insights_toughest">Najtrudniejsze dni</string>
 </resources>
