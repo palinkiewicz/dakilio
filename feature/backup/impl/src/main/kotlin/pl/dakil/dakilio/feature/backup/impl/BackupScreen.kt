@@ -286,12 +286,14 @@ private fun ColumnScope.HomeStep(
     autoActions: AutoBackupActions,
 ) {
     val haptics = rememberHaptics()
-    Text(
-        stringResource(R.string.backup_home_body),
-        style = MaterialTheme.typography.bodyLarge,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.xs),
-    )
+    Hint {
+        Text(
+            stringResource(R.string.backup_home_body),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.xs),
+        )
+    }
 
     if (!restoreOnly && auto != null) {
         SectionHeader(stringResource(R.string.backup_auto_title))
