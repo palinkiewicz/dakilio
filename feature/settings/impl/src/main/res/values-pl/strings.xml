@@ -11,7 +11,7 @@
     <string name="settings_language">Język</string>
     <string name="settings_calendar">Kalendarz</string>
     <string name="settings_week_start">Pierwszy dzień tygodnia</string>
-    <string name="settings_week_start_body">Od tego dnia zaczynają się tygodnie w nawykach, statystykach i rzędach dni tygodnia. „Auto” bierze go z regionu (%1$s).</string>
+    <string name="settings_week_start_body">Od tego dnia zaczynają się tygodnie w nawykach, statystykach i rzędach dni</string>
     <string name="settings_week_start_region">Auto</string>
     <string name="settings_feel">Wrażenia</string>
     <string name="settings_haptics">Reakcje haptyczne</string>
@@ -32,7 +32,7 @@
     <string name="settings_text_size_percent">%d%%</string>
     <string name="settings_editor">Edytor wpisów</string>
     <string name="settings_tag_style">Wygląd tagów</string>
-    <string name="settings_tag_style_body">Jak wyglądają tagi, gdy dodajesz lub edytujesz wpis.</string>
+    <string name="settings_tag_style_body">Jak wyglądają tagi, gdy dodajesz lub edytujesz wpis</string>
     <string name="settings_tag_style_icons">Ikony</string>
     <string name="settings_tag_style_chips">Etykiety</string>
     <string name="settings_close_after_save">Zamykaj po zapisaniu</string>

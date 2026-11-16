@@ -193,27 +193,21 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
                 }
 
                 SectionHeader(stringResource(R.string.settings_calendar))
-                Surface(shape = RoundedCornerShape(28.dp), color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.fillMaxWidth()) {
-                    Column(Modifier.padding(Spacing.xl)) {
-                        Text(stringResource(R.string.settings_week_start), style = MaterialTheme.typography.titleMediumEmphasized)
-                        Text(
-                            stringResource(R.string.settings_week_start_body, formats.weekday(state.regionFirstDay)),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(top = Spacing.xxs, bottom = Spacing.l),
-                        )
-                        ConnectedToggleRow(
-                            options = listOf(
-                                ToggleOption(WeekStart.Region, stringResource(R.string.settings_week_start_region)),
-                                ToggleOption(WeekStart.Monday, formats.weekdayShort(DayOfWeek.MONDAY)),
-                                ToggleOption(WeekStart.Saturday, formats.weekdayShort(DayOfWeek.SATURDAY)),
-                                ToggleOption(WeekStart.Sunday, formats.weekdayShort(DayOfWeek.SUNDAY)),
-                            ),
-                            selected = state.weekStart,
-                            onSelect = viewModel::setWeekStart,
-                        )
-                    }
-                }
+                SelectListItem(
+                    title = stringResource(R.string.settings_week_start),
+                    body = stringResource(R.string.settings_week_start_body),
+                    symbol = DakilioSymbols.CalendarMonth,
+                    polygon = MaterialShapes.Cookie12Sided,
+                    selected = state.weekStart,
+                    options = listOf(
+                        // "Auto" names the day the region means, so the choice is never a guess.
+                        SelectOption(WeekStart.Region, stringResource(R.string.settings_week_start_region), note = formats.weekday(state.regionFirstDay)),
+                        SelectOption(WeekStart.Monday, formats.weekday(DayOfWeek.MONDAY)),
+                        SelectOption(WeekStart.Saturday, formats.weekday(DayOfWeek.SATURDAY)),
+                        SelectOption(WeekStart.Sunday, formats.weekday(DayOfWeek.SUNDAY)),
+                    ),
+                    onSelect = viewModel::setWeekStart,
+                )
 
                 SectionHeader(stringResource(R.string.settings_text_size))
                 Column(verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)) {
@@ -240,34 +234,32 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
                 }
 
                 SectionHeader(stringResource(R.string.settings_editor))
-                Surface(shape = RoundedCornerShape(28.dp), color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.fillMaxWidth()) {
-                    Column(Modifier.padding(Spacing.xl)) {
-                        Text(stringResource(R.string.settings_tag_style), style = MaterialTheme.typography.titleMediumEmphasized)
-                        Text(
-                            stringResource(R.string.settings_tag_style_body),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(top = Spacing.xxs, bottom = Spacing.l),
-                        )
-                        ConnectedToggleRow(
-                            options = listOf(
-                                ToggleOption(TagStyle.Icons, stringResource(R.string.settings_tag_style_icons), DakilioSymbols.AutoAwesome),
-                                ToggleOption(TagStyle.Chips, stringResource(R.string.settings_tag_style_chips), DakilioSymbols.Sell),
-                            ),
-                            selected = state.tagStyle,
-                            onSelect = viewModel::setTagStyle,
-                        )
-                    }
+                Column(verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)) {
+                    SelectListItem(
+                        title = stringResource(R.string.settings_tag_style),
+                        body = stringResource(R.string.settings_tag_style_body),
+                        symbol = DakilioSymbols.Sell,
+                        polygon = MaterialShapes.Cookie6Sided,
+                        selected = state.tagStyle,
+                        options = listOf(
+                            SelectOption(TagStyle.Icons, stringResource(R.string.settings_tag_style_icons)),
+                            SelectOption(TagStyle.Chips, stringResource(R.string.settings_tag_style_chips)),
+                        ),
+                        onSelect = viewModel::setTagStyle,
+                        index = 0,
+                        count = 2,
+                    )
+                    SwitchListItem(
+                        title = stringResource(R.string.settings_close_after_save),
+                        body = stringResource(R.string.settings_close_after_save_body),
+                        symbol = DakilioSymbols.Check,
+                        polygon = MaterialShapes.Cookie7Sided,
+                        checked = state.closeAfterSave,
+                        onCheckedChange = viewModel::setCloseAfterSave,
+                        index = 1,
+                        count = 2,
+                    )
                 }
-                SwitchListItem(
-                    title = stringResource(R.string.settings_close_after_save),
-                    body = stringResource(R.string.settings_close_after_save_body),
-                    symbol = DakilioSymbols.Check,
-                    polygon = MaterialShapes.Cookie7Sided,
-                    checked = state.closeAfterSave,
-                    onCheckedChange = viewModel::setCloseAfterSave,
-                    modifier = Modifier.padding(top = Spacing.s),
-                )
 
                 SectionHeader(stringResource(R.string.settings_photos))
                 // The shrink row shows only while there's something to shrink (or it's running).

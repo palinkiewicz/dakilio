@@ -11,7 +11,7 @@
     <string name="settings_language">Language</string>
     <string name="settings_calendar">Calendar</string>
     <string name="settings_week_start">First day of the week</string>
-    <string name="settings_week_start_body">Where weeks start for habits, Insights and weekday rows. Auto follows your region (%1$s).</string>
+    <string name="settings_week_start_body">Where weeks start in habits, Insights and weekday rows</string>
     <string name="settings_week_start_region">Auto</string>
     <string name="settings_feel">Feel</string>
     <string name="settings_haptics">Haptic feedback</string>
@@ -32,7 +32,7 @@
     <string name="settings_text_size_percent">%d%%</string>
     <string name="settings_editor">Entry editor</string>
     <string name="settings_tag_style">Tag style</string>
-    <string name="settings_tag_style_body">How tags look when you add or edit an entry.</string>
+    <string name="settings_tag_style_body">How tags look when you add or edit an entry</string>
     <string name="settings_tag_style_icons">Icons</string>
     <string name="settings_tag_style_chips">Chips</string>
     <string name="settings_close_after_save">Close after saving</string>
