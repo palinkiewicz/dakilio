@@ -1,5 +1,7 @@
 package pl.dakil.dakilio.feature.insights.impl.overview
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +17,8 @@ import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
@@ -33,6 +37,7 @@ import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbol
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.icon.symbolForKey
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
+import pl.dakil.dakilio.core.designsystem.theme.decorativeSpec
 import pl.dakil.dakilio.core.model.DateRange
 import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.ui.DakilioFormats
@@ -198,11 +203,20 @@ internal fun GatheringCard(items: List<Gathering>) {
                         ),
                         style = MaterialTheme.typography.labelLarge,
                     )
-                    DakilioLinearProgress(Modifier.fillMaxWidth().padding(top = Spacing.s), progress = { item.progress })
+                    GatheringProgress(item.progress, Modifier.fillMaxWidth().padding(top = Spacing.s))
                 }
             }
         }
     }
+}
+
+/** How far along: fills in over half a second (decorative), then stays still, wave included. */
+@Composable
+private fun GatheringProgress(progress: Float, modifier: Modifier = Modifier) {
+    val shown = remember { Animatable(0f) }
+    val spec = decorativeSpec(tween<Float>(durationMillis = 500))
+    LaunchedEffect(progress) { shown.animateTo(progress, spec) }
+    DakilioLinearProgress(modifier, progress = { shown.value }, still = true)
 }
 
 /**
