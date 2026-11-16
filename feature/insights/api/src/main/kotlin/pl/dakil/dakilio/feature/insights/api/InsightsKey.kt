@@ -36,3 +36,15 @@ data class InsightsEntriesKey(
 /** Mood in depth: its flow in finer or coarser slices, the mix over time, steadiness and standout days. */
 @Serializable
 data class InsightsMoodKey(val scope: InsightsScope = InsightsScope()) : NavKey
+
+/**
+ * Every tag used in the period, to sort and filter.
+ *
+ * @property sort the name of the order to open with, as the feature writes it; `null` is most used.
+ */
+@Serializable
+data class InsightsTagsKey(val scope: InsightsScope = InsightsScope(), val sort: String? = null) : NavKey
+
+/** One tag in depth: how often, when, with what, and how its days felt. */
+@Serializable
+data class InsightsTagKey(val scope: InsightsScope = InsightsScope(), val tagId: Long) : NavKey

@@ -145,4 +145,35 @@
     <string name="insights_mood_names">Names you picked</string>
     <string name="insights_brightest">Brightest days</string>
     <string name="insights_toughest">Toughest days</string>
+    <!-- Tags screens -->
+    <string name="insights_tags_title">Tags</string>
+    <string name="insights_sort">Sort by</string>
+    <string name="insights_sort_most_used">Most used</string>
+    <string name="insights_sort_brightest">Brightest days</string>
+    <string name="insights_sort_heaviest">Heaviest days</string>
+    <string name="insights_sort_change">Biggest change</string>
+    <string name="insights_sort_last_used">Not used lately</string>
+    <string name="insights_tags_all_groups">All groups</string>
+    <string name="insights_tags_none">No tags here</string>
+    <string name="insights_links_need">A mood link needs at least 5 days with a mood, both with the tag and without it.</string>
+    <string name="insights_last_used">Last on %1$s</string>
+    <string name="insights_tag_title">Tag</string>
+    <string name="insights_tag_unused_title">Not used in this period</string>
+    <string name="insights_tag_unused">This tag isn’t on any entry here.</string>
+    <string name="insights_tag_days">Days</string>
+    <string name="insights_tag_mood">Mood on its days</string>
+    <string name="insights_tag_with">Days with “%1$s”</string>
+    <string name="insights_tag_without">Other days</string>
+    <string name="insights_tag_difference">Difference: %1$s</string>
+    <string name="insights_tag_use">Days over time</string>
+    <string name="insights_tag_weekdays">By weekday</string>
+    <string name="insights_tag_together">Often together with</string>
+    <plurals name="insights_tags_without_link">
+        <item quantity="one">%d more tag doesn’t have enough days with a mood yet.</item>
+        <item quantity="other">%d more tags don’t have enough days with a mood yet.</item>
+    </plurals>
+    <plurals name="insights_see_entries">
+        <item quantity="one">See %d entry</item>
+        <item quantity="other">See %d entries</item>
+    </plurals>
 </resources>

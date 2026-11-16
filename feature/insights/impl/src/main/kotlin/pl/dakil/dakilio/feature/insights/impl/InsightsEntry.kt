@@ -9,6 +9,12 @@ import pl.dakil.dakilio.feature.entry.api.EntryEditorKey
 import pl.dakil.dakilio.feature.insights.api.InsightsEntriesKey
 import pl.dakil.dakilio.feature.insights.api.InsightsKey
 import pl.dakil.dakilio.feature.insights.api.InsightsMoodKey
+import pl.dakil.dakilio.feature.insights.api.InsightsTagKey
+import pl.dakil.dakilio.feature.insights.api.InsightsTagsKey
+import pl.dakil.dakilio.feature.insights.impl.tags.InsightsTagScreen
+import pl.dakil.dakilio.feature.insights.impl.tags.InsightsTagViewModel
+import pl.dakil.dakilio.feature.insights.impl.tags.InsightsTagsScreen
+import pl.dakil.dakilio.feature.insights.impl.tags.InsightsTagsViewModel
 import pl.dakil.dakilio.feature.insights.impl.mood.InsightsMoodScreen
 import pl.dakil.dakilio.feature.insights.impl.mood.InsightsMoodViewModel
 import pl.dakil.dakilio.feature.insights.impl.entries.InsightsEntriesScreen
@@ -30,6 +36,20 @@ fun EntryProviderScope<NavKey>.insightsEntries(navigator: Navigator) {
             viewModel = hiltViewModel<InsightsMoodViewModel, InsightsMoodViewModel.Factory>(creationCallback = { it.create(key) }),
             onBack = navigator::goBack,
             onOpenPost = openPost,
+            onOpen = navigator::navigate,
+        )
+    }
+    entry<InsightsTagsKey> { key ->
+        InsightsTagsScreen(
+            viewModel = hiltViewModel<InsightsTagsViewModel, InsightsTagsViewModel.Factory>(creationCallback = { it.create(key) }),
+            onBack = navigator::goBack,
+            onOpen = navigator::navigate,
+        )
+    }
+    entry<InsightsTagKey> { key ->
+        InsightsTagScreen(
+            viewModel = hiltViewModel<InsightsTagViewModel, InsightsTagViewModel.Factory>(creationCallback = { it.create(key) }),
+            onBack = navigator::goBack,
             onOpen = navigator::navigate,
         )
     }

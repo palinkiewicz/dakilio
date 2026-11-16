@@ -197,14 +197,17 @@ internal fun GatheringCard(items: List<Gathering>) {
     }
 }
 
-/** A period with no entries, inside a journal that has some. */
+/**
+ * Nothing to show for this period: by default a period with no entries, inside a journal that has
+ * some. [hint] says what to do, or why.
+ */
 @Composable
-internal fun EmptyPeriodCard(hint: String?) {
+internal fun EmptyPeriodCard(hint: String?, title: String = stringResource(R.string.insights_period_empty_title)) {
     InsightCard {
         Row(verticalAlignment = Alignment.CenterVertically) {
             ShapedIcon(DakilioSymbols.CalendarToday, polygon = MaterialShapes.Cookie9Sided, size = 48.dp)
             Column(Modifier.padding(start = Spacing.l)) {
-                Text(stringResource(R.string.insights_period_empty_title), style = MaterialTheme.typography.titleMediumEmphasized)
+                Text(title, style = MaterialTheme.typography.titleMediumEmphasized)
                 hint?.let { CardNote(it, Modifier.padding(top = Spacing.xxs)) }
             }
         }

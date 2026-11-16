@@ -153,4 +153,39 @@
     <string name="insights_mood_names">Wybierane nazwy</string>
     <string name="insights_brightest">Najjaśniejsze dni</string>
     <string name="insights_toughest">Najtrudniejsze dni</string>
+    <!-- Tags screens -->
+    <string name="insights_tags_title">Tagi</string>
+    <string name="insights_sort">Sortowanie</string>
+    <string name="insights_sort_most_used">Najczęstsze</string>
+    <string name="insights_sort_brightest">Najjaśniejsze dni</string>
+    <string name="insights_sort_heaviest">Najcięższe dni</string>
+    <string name="insights_sort_change">Największa zmiana</string>
+    <string name="insights_sort_last_used">Dawno nieużywane</string>
+    <string name="insights_tags_all_groups">Wszystkie grupy</string>
+    <string name="insights_tags_none">Brak tagów</string>
+    <string name="insights_links_need">Powiązanie z nastrojem wymaga co najmniej 5 dni z nastrojem: zarówno z tagiem, jak i bez niego.</string>
+    <string name="insights_last_used">Ostatnio: %1$s</string>
+    <string name="insights_tag_title">Tag</string>
+    <string name="insights_tag_unused_title">Nieużywany w tym okresie</string>
+    <string name="insights_tag_unused">Tego tagu nie ma tu na żadnym wpisie.</string>
+    <string name="insights_tag_days">Dni</string>
+    <string name="insights_tag_mood">Nastrój w dni z tym tagiem</string>
+    <string name="insights_tag_with">Dni z tagiem „%1$s”</string>
+    <string name="insights_tag_without">Pozostałe dni</string>
+    <string name="insights_tag_difference">Różnica: %1$s</string>
+    <string name="insights_tag_use">Dni w czasie</string>
+    <string name="insights_tag_weekdays">Według dnia tygodnia</string>
+    <string name="insights_tag_together">Często razem z</string>
+    <plurals name="insights_tags_without_link">
+        <item quantity="one">Jeszcze %d tag ma za mało dni z nastrojem.</item>
+        <item quantity="few">Jeszcze %d tagi mają za mało dni z nastrojem.</item>
+        <item quantity="many">Jeszcze %d tagów ma za mało dni z nastrojem.</item>
+        <item quantity="other">Jeszcze %d tagu ma za mało dni z nastrojem.</item>
+    </plurals>
+    <plurals name="insights_see_entries">
+        <item quantity="one">Zobacz %d wpis</item>
+        <item quantity="few">Zobacz %d wpisy</item>
+        <item quantity="many">Zobacz %d wpisów</item>
+        <item quantity="other">Zobacz %d wpisu</item>
+    </plurals>
 </resources>

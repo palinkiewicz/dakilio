@@ -32,6 +32,9 @@ import java.time.LocalDate
 import pl.dakil.dakilio.feature.entry.api.EntryEditorKey
 import pl.dakil.dakilio.feature.insights.api.InsightsEntriesKey
 import pl.dakil.dakilio.feature.insights.api.InsightsMoodKey
+import pl.dakil.dakilio.feature.insights.api.InsightsTagKey
+import pl.dakil.dakilio.feature.insights.api.InsightsTagsKey
+import pl.dakil.dakilio.feature.insights.impl.logic.TagSort
 import pl.dakil.dakilio.feature.insights.impl.DaySheet
 import pl.dakil.dakilio.core.designsystem.component.entrance
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
@@ -164,9 +167,19 @@ private fun InsightsContent(
             item(key = "mix") { MoodMixCard(overview.mood, onMore = { onOpen(InsightsMoodKey(viewModel.scope)) }, onLevel = { onOpen(InsightsEntriesKey(viewModel.scope, moodLevel = it)) }) }
         }
         if (overview.tags.any { it.link != null }) {
-            item(key = "links") { TagLinksCard(overview.tags, state.moods, formats) }
+            item(key = "links") {
+                TagLinksCard(
+                    tags = overview.tags,
+                    moods = state.moods,
+                    formats = formats,
+                    onMore = { onOpen(InsightsTagsKey(viewModel.scope, sort = TagSort.Brightest.name)) },
+                    onTag = { onOpen(InsightsTagKey(viewModel.scope, it)) },
+                )
+            }
         }
-        item(key = "tags") { TopTagsCard(overview.tags) }
+        item(key = "tags") {
+            TopTagsCard(overview.tags, onMore = { onOpen(InsightsTagsKey(viewModel.scope)) }, onTag = { onOpen(InsightsTagKey(viewModel.scope, it)) })
+        }
         item(key = "rhythm") { RhythmCard(overview.rhythm, state.moods, state.firstDay, formats, header.key) }
         if (overview.writing.words > 0 || overview.writing.photos > 0) {
             item(key = "writing") { WritingCard(overview.writing, state.today, formats, onOpenPost) }
