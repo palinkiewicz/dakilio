@@ -119,3 +119,52 @@ class InsightsPeriodTest {
         assertEquals(2, buckets(DateRange(d(2025, 11, 15), d(2026, 2, 10)), Granularity.Years, DayOfWeek.MONDAY).size)
     }
 }
+
+class PeriodCodecTest {
+    private val periods = listOf(
+        InsightsPeriod.Week(LocalDate.of(2026, 10, 26)),
+        InsightsPeriod.Month(YearMonth.of(2026, 2)),
+        InsightsPeriod.Year(2025),
+        InsightsPeriod.AllTime,
+        InsightsPeriod.Custom(LocalDate.of(2026, 1, 5), LocalDate.of(2026, 3, 9)),
+    )
+
+    @Test
+    fun `periods survive being written down`() {
+        periods.forEach { assertEquals(it, decodePeriod(it.encode())) }
+        assertNull(decodePeriod(null))
+        assertNull(decodePeriod("month:soon"))
+        assertNull(decodePeriod("fortnight:1"))
+    }
+
+    @Test
+    fun `comparisons survive being written down`() {
+        val all = listOf(Comparison.Previous, Comparison.YearBefore, Comparison.None) + periods.map(Comparison::Picked)
+        all.forEach { assertEquals(it, decodeComparison(it.encode())) }
+        assertEquals(Comparison.Previous, decodeComparison(null))
+        assertEquals(Comparison.Previous, decodeComparison("pick:nonsense"))
+    }
+}
+
+class CalendarStatsTest {
+    private fun d(y: Int, m: Int, day: Int) = LocalDate.of(y, m, day)
+
+    @Test
+    fun `the calendar's form follows the range`() {
+        assertEquals(CalendarForm.Strip, calendarForm(DateRange(d(2026, 10, 26), d(2026, 11, 1))))
+        assertEquals(CalendarForm.Grid, calendarForm(DateRange(d(2026, 10, 1), d(2026, 10, 31))))
+        assertEquals(CalendarForm.Pixels, calendarForm(DateRange(d(2026, 1, 1), d(2026, 12, 31))))
+        assertEquals(CalendarForm.Pixels, calendarForm(DateRange(d(2025, 11, 15), d(2026, 10, 29))))
+        assertEquals(CalendarForm.Years, calendarForm(DateRange(d(2025, 10, 15), d(2026, 10, 29))))
+    }
+
+    @Test
+    fun `a day's cell shows the level nearest to its average`() {
+        val index = InsightsIndex(listOf(post(0, 5), post(0, 4), post(1), post(2, 2)))
+        val cells = dayCells(index, DateRange(TODAY.minusDays(6), TODAY))
+        assertEquals(DayCell(TODAY, 2, 5), cells[TODAY]) // 4.5 rounds up
+        assertEquals(DayCell(TODAY.minusDays(1), 1, null), cells[TODAY.minusDays(1)])
+        assertNull(cells[TODAY.minusDays(3)])
+        assertEquals(listOf(YearMonth.of(2026, 9), YearMonth.of(2026, 10)), monthsOf(DateRange(d(2026, 9, 30), d(2026, 10, 1))))
+    }
+}

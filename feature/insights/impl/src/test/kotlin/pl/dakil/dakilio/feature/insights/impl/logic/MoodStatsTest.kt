@@ -39,7 +39,7 @@ class MoodStatsTest {
     fun `the flow has a point per slice and none where no mood was logged`() {
         val index = InsightsIndex(listOf(post(0, 5), post(0, 3), post(1), post(9, 2)))
         val range = DateRange(TODAY.minusDays(13), TODAY)
-        val flow = moodFlow(index, buckets(range, Granularity.Weeks, DayOfWeek.MONDAY))
+        val flow = moodFlow(index, range, Granularity.Weeks, DayOfWeek.MONDAY).buckets
         // 15–18 Oct, 19–25 Oct, 26–29 Oct.
         assertEquals(listOf(0, 1, 3), flow.map { it.entries })
         assertEquals(listOf(null, 2f, 4f), flow.map { it.average })

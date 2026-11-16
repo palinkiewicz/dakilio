@@ -2,31 +2,63 @@
 <resources>
     <string name="insights_title">Insights</string>
     <string name="insights_subtitle">Your journey so far</string>
-    <string name="insights_range_month">30 days</string>
-    <string name="insights_range_quarter">90 days</string>
-    <string name="insights_range_all">All time</string>
-    <string name="insights_current_streak">Current streak</string>
-    <plurals name="insights_days">
-        <item quantity="one">day in a row</item>
-        <item quantity="other">days in a row</item>
-    </plurals>
-    <string name="insights_longest_streak">Longest streak</string>
+    <string name="insights_empty_title">Insights grow with every entry</string>
+    <string name="insights_empty_body">Write a few entries and your patterns will start to show here.</string>
+
+    <!-- Period header -->
+    <string name="insights_period_week">Week</string>
+    <string name="insights_period_month">Month</string>
+    <string name="insights_period_year">Year</string>
+    <string name="insights_period_all">All</string>
+    <string name="insights_all_time">All time</string>
+    <string name="insights_so_far">so far</string>
+    <string name="insights_since">since %1$s</string>
+    <string name="insights_range">%1$s – %2$s</string>
+    <string name="insights_period_earlier">Earlier period</string>
+    <string name="insights_period_later">Later period</string>
+    <string name="insights_period_choose">Choose period, now %1$s</string>
+    <string name="insights_ok">OK</string>
+    <string name="insights_period_empty_title">Nothing in this period</string>
+    <string name="insights_period_empty_body">Use the arrows to step to another one.</string>
+
+    <!-- Summary -->
+    <string name="insights_mostly">Mostly %1$s</string>
+    <string name="insights_average_cd">Average mood %1$s</string>
+    <string name="insights_no_mood">No moods logged in this period yet.</string>
+    <string name="insights_compared_with">Compared with %1$s</string>
+    <string name="insights_change_up_cd">Up %1$s</string>
+    <string name="insights_change_down_cd">Down %1$s</string>
+    <string name="insights_change_same_cd">No change</string>
+    <string name="insights_steady">Steady</string>
+    <string name="insights_varied">Varied</string>
+    <string name="insights_up_and_down">Up and down</string>
     <string name="insights_entries">Entries</string>
     <string name="insights_days_journaled">Days journaled</string>
-    <string name="insights_average_mood">Average mood</string>
-    <string name="insights_mostly">Mostly %1$s</string>
-    <string name="insights_score">%1$d%% on your mood scale</string>
-    <string name="insights_delta_up">↑ %1$d pts vs the previous %2$s</string>
-    <string name="insights_delta_down">↓ %1$d pts vs the previous %2$s</string>
-    <string name="insights_delta_same">Same as the previous %1$s</string>
-    <string name="insights_no_mood">No moods logged in this period yet.</string>
-    <string name="insights_distribution">Mood distribution</string>
-    <plurals name="insights_moods_logged">
-        <item quantity="one">%d mood logged</item>
-        <item quantity="other">%d moods logged</item>
+    <string name="insights_of_days">of %1$d</string>
+    <string name="insights_current_streak">Current streak</string>
+    <string name="insights_best_streak">Best streak</string>
+    <string name="insights_words">Words</string>
+    <plurals name="insights_days_count">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
     </plurals>
-    <string name="insights_journey_map">Journey map</string>
-    <string name="insights_journey_map_body">The last 12 weeks, one square per day. Tap a day for details.</string>
+
+    <!-- Mood flow -->
+    <string name="insights_mood_flow">Mood flow</string>
+    <string name="insights_mood_flow_hint">Drag across the chart to read each point.</string>
+    <string name="insights_mood_flow_cd">Mood over time, from %1$s to %2$s</string>
+    <string name="insights_point">%1$s · %2$s</string>
+    <string name="insights_point_mood">%1$s %2$s</string>
+    <string name="insights_point_no_mood">no mood</string>
+
+    <!-- Calendar -->
+    <string name="insights_calendar">Calendar</string>
+    <string name="insights_calendar_hint">Tap a day for details.</string>
+    <string name="insights_pixels">Year in pixels</string>
+    <string name="insights_pixels_hint">A column per month, a square per day. Tap or slide across to read a day.</string>
+    <string name="insights_pixels_cd">Every day of the period colored by its mood</string>
+    <string name="insights_years">Month by month</string>
+    <string name="insights_years_hint">Tap a month to open it.</string>
     <string name="insights_heat_day">%1$s · %2$s</string>
     <string name="insights_heat_no_mood">no mood</string>
     <plurals name="insights_heat_entries">
@@ -35,9 +67,62 @@
     </plurals>
     <string name="insights_heat_empty">%1$s · no entries</string>
     <string name="insights_no_entries_day">No entries</string>
-    <string name="insights_top_tags">Most frequent tags</string>
+
+    <!-- Mood mix -->
+    <string name="insights_distribution">Mood mix</string>
+    <plurals name="insights_moods_logged">
+        <item quantity="one">%d mood logged</item>
+        <item quantity="other">%d moods logged</item>
+    </plurals>
+    <string name="insights_mood_share">%1$s  %2$d · %3$d%%</string>
+
+    <!-- Tags -->
+    <string name="insights_links">What goes with your mood</string>
+    <string name="insights_links_body">Days with a tag next to days without it</string>
+    <string name="insights_links_brighter">Brighter days</string>
+    <string name="insights_links_heavier">Heavier days</string>
+    <string name="insights_links_none">No tag stands out in this period.</string>
+    <string name="insights_links_cd">%1$s: %2$s on %3$s</string>
+    <string name="insights_top_tags">Most used tags</string>
     <string name="insights_no_tags">Tags you add to entries will show up here.</string>
-    <string name="insights_empty_title">Insights grow with every entry</string>
-    <string name="insights_empty_body">Write a few entries and your patterns will start to show here.</string>
-    <string name="insights_coming">Deeper, interactive analytics are on the way.</string>
+
+    <!-- Rhythm -->
+    <string name="insights_rhythm">Rhythm</string>
+    <string name="insights_rhythm_mood">Mood</string>
+    <string name="insights_rhythm_entries">Entries</string>
+    <string name="insights_rhythm_cd">By weekday: %1$s</string>
+    <string name="insights_best_day">Best day: %1$s</string>
+    <string name="insights_part_morning">Morning</string>
+    <string name="insights_part_afternoon">Afternoon</string>
+    <string name="insights_part_evening">Evening</string>
+    <string name="insights_part_night">Night</string>
+
+    <!-- Writing -->
+    <string name="insights_writing">Writing</string>
+    <string name="insights_words_per_entry">Per entry</string>
+    <string name="insights_photos">Photos</string>
+    <string name="insights_longest_entry">Longest entry</string>
+    <plurals name="insights_words_count">
+        <item quantity="one">%s word</item>
+        <item quantity="other">%s words</item>
+    </plurals>
+
+    <!-- Diaries -->
+    <string name="insights_diaries">Diaries</string>
+
+    <!-- Records -->
+    <string name="insights_records">Records</string>
+    <string name="insights_record_first">First entry</string>
+    <string name="insights_record_best_month">Best month</string>
+    <string name="insights_record_busiest_month">Busiest month</string>
+    <string name="insights_record_streak">Longest streak</string>
+    <string name="insights_record_bright">Longest bright run</string>
+    <string name="insights_record_busiest_day">Busiest day</string>
+
+    <!-- Still gathering -->
+    <string name="insights_gathering">Still gathering</string>
+    <string name="insights_gathering_body">A few more days with a mood and these fill in.</string>
+    <string name="insights_gathering_flow">Mood flow</string>
+    <string name="insights_gathering_links">What goes with your mood</string>
+    <string name="insights_gathering_best_day">Best day of the week</string>
 </resources>

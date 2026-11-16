@@ -88,6 +88,12 @@ ui vibration
 ui animation
 ui numbers
 ui waves
+ui trending_up
+ui trending_down
+ui trending_flat
+ui compare_arrows
+ui play_arrow
+ui wb_twilight
 emotions sentiment_very_satisfied
 emotions sentiment_satisfied
 emotions sentiment_neutral

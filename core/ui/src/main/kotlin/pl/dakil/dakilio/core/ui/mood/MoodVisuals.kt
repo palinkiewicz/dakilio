@@ -20,7 +20,7 @@ import pl.dakil.dakilio.core.model.Mood
  * contentment as soft petals and sun rays.
  */
 @Immutable
-class MoodGlyph(val rest: RoundedPolygon, active: RoundedPolygon, val smile: Float) {
+class MoodGlyph(val rest: RoundedPolygon, val active: RoundedPolygon, val smile: Float) {
     val morph: Morph = Morph(rest, active)
 }
 

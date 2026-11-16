@@ -47,7 +47,11 @@ data class Rhythm(
     val matrix: Map<Pair<DayOfWeek, DayPart>, SlotStat>,
     val hours: List<Int>,
 ) {
-    /** The weekday with the highest average among those with enough moods; `null` when fewer than two qualify. */
+    /**
+     * The weekday with the highest average. It's only called the best when it has enough moods, at
+     * least one other weekday has enough to compare with, and no weekday (trusted or not) is level
+     * with it or above: so it's always the tallest column of the chart, or nothing.
+     */
     val bestWeekday: DayOfWeek? get() = best(weekdays)
 
     val bestDayPart: DayPart? get() = best(dayParts)
@@ -59,8 +63,8 @@ data class Rhythm(
         val trusted = slots.filterValues { it.moodEntries >= MIN_SLOT_MOODS && it.average != null }
         if (trusted.size < 2) return null
         val top = trusted.maxByOrNull { it.value.average!! } ?: return null
-        // A tie for first place isn't a "best".
-        return top.key.takeIf { trusted.values.count { it.average == top.value.average } == 1 }
+        val rivals = slots.count { (key, slot) -> key != top.key && slot.average != null && slot.average >= top.value.average!! }
+        return top.key.takeIf { rivals == 0 }
     }
 }
 

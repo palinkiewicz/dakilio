@@ -100,7 +100,7 @@ fun NoMoodBadge(modifier: Modifier = Modifier, size: Dp = 40.dp) {
     }
 }
 
-private fun DrawScope.drawFace(color: Color, smile: Float, excitement: Float) {
+internal fun DrawScope.drawFace(color: Color, smile: Float, excitement: Float) {
     val w = size.width
     val h = size.height
     val eyeY = h * 0.42f

@@ -8,4 +8,5 @@ android {
 
 dependencies {
     api(projects.feature.insights.api)
+    implementation(projects.feature.entry.api)
 }

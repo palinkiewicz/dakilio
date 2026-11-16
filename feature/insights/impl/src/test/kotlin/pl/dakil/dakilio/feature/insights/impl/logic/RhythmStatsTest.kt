@@ -41,5 +41,9 @@ class RhythmStatsTest {
         assertNull(rhythm(thursdays + wednesdays.take(2)).bestWeekday)
         // A tie.
         assertNull(rhythm(thursdays + (0L..2).map { post(it * 7 + 1, 5) }).bestWeekday)
+        // A weekday with too few moods to trust sits higher: the chart's tallest column isn't the best, so nothing is.
+        val fridays = (0L..2).map { post(it * 7 + 6, 4) }
+        assertEquals(DayOfWeek.FRIDAY, rhythm(fridays + wednesdays).bestWeekday)
+        assertNull(rhythm(fridays + wednesdays + post(0, 5)).bestWeekday)
     }
 }

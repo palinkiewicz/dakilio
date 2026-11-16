@@ -187,3 +187,45 @@ fun buckets(range: DateRange, granularity: Granularity, firstDay: DayOfWeek): Li
     }
     return result
 }
+
+/**
+ * A period as a short string, for saved state and navigation keys: `week:<epoch day>`,
+ * `month:<epoch day of its first>`, `year:<year>`, `all`, `custom:<from>:<to>`.
+ */
+fun InsightsPeriod.encode(): String = when (this) {
+    is InsightsPeriod.Week -> "week:${start.toEpochDay()}"
+    is InsightsPeriod.Month -> "month:${month.atDay(1).toEpochDay()}"
+    is InsightsPeriod.Year -> "year:$year"
+    InsightsPeriod.AllTime -> "all"
+    is InsightsPeriod.Custom -> "custom:${from.toEpochDay()}:${to.toEpochDay()}"
+}
+
+/** Reads [encode]'s output; anything else is `null`. */
+fun decodePeriod(text: String?): InsightsPeriod? {
+    val parts = text?.split(':') ?: return null
+    fun day(i: Int) = parts.getOrNull(i)?.toLongOrNull()?.let(LocalDate::ofEpochDay)
+    return when (parts[0]) {
+        "week" -> day(1)?.let(InsightsPeriod::Week)
+        "month" -> day(1)?.let { InsightsPeriod.Month(YearMonth.from(it)) }
+        "year" -> parts.getOrNull(1)?.toIntOrNull()?.let(InsightsPeriod::Year)
+        "all" -> InsightsPeriod.AllTime
+        "custom" -> day(1)?.let { from -> day(2)?.let { to -> InsightsPeriod.Custom.of(from, to) } }
+        else -> null
+    }
+}
+
+/** A comparison as a short string: `prev`, `year`, `none` or `pick:<period>`. */
+fun Comparison.encode(): String = when (this) {
+    Comparison.Previous -> "prev"
+    Comparison.YearBefore -> "year"
+    Comparison.None -> "none"
+    is Comparison.Picked -> "pick:${period.encode()}"
+}
+
+/** Reads [encode]'s output; anything else is the default, [Comparison.Previous]. */
+fun decodeComparison(text: String?): Comparison = when {
+    text == "year" -> Comparison.YearBefore
+    text == "none" -> Comparison.None
+    text != null && text.startsWith("pick:") -> decodePeriod(text.removePrefix("pick:"))?.let(Comparison::Picked) ?: Comparison.Previous
+    else -> Comparison.Previous
+}

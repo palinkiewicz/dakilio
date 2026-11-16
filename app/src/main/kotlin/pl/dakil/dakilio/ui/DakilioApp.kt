@@ -46,7 +46,7 @@ import pl.dakil.dakilio.feature.archive.impl.archiveEntry
 import pl.dakil.dakilio.feature.diaries.impl.diariesEntries
 import pl.dakil.dakilio.feature.entry.impl.entryEditorEntry
 import pl.dakil.dakilio.feature.insights.api.InsightsKey
-import pl.dakil.dakilio.feature.insights.impl.insightsEntry
+import pl.dakil.dakilio.feature.insights.impl.insightsEntries
 import pl.dakil.dakilio.feature.more.api.MoreKey
 import pl.dakil.dakilio.feature.moods.impl.moodsEntry
 import pl.dakil.dakilio.feature.importer.api.DaylioImportKey
@@ -121,7 +121,7 @@ fun DakilioApp(
 
     val provider = entryProvider<NavKey> {
         timelineEntry(navigator)
-        insightsEntry()
+        insightsEntries(navigator)
         moreEntry(navigator)
         searchEntry(navigator)
         entryEditorEntry(navigator)
