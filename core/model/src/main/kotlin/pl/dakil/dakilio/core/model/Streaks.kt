@@ -17,18 +17,22 @@ object Streaks {
         return streak
     }
 
-    fun longest(days: Set<LocalDate>): Int {
-        var best = 0
+    fun longest(days: Set<LocalDate>): Int = longestRun(days)?.days ?: 0
+
+    /** The longest run of consecutive days, as its dates; of equally long runs, the latest. */
+    fun longestRun(days: Set<LocalDate>): DateRange? {
+        var best: DateRange? = null
         for (day in days) {
             if (day.minusDays(1) in days) continue // only count from the start of each run
-            var length = 1
-            var next = day.plusDays(1)
-            while (next in days) {
-                length++
-                next = next.plusDays(1)
-            }
-            best = maxOf(best, length)
+            var end = day
+            while (end.plusDays(1) in days) end = end.plusDays(1)
+            val run = DateRange(day, end)
+            val current = best
+            if (current == null || run.days > current.days || (run.days == current.days && run.from > current.from)) best = run
         }
         return best
     }
+
+    /** The longest run inside [range]: a run that began earlier counts only from the range's start. */
+    fun longestWithin(days: Set<LocalDate>, range: DateRange): DateRange? = longestRun(days.filterTo(HashSet()) { it in range })
 }
