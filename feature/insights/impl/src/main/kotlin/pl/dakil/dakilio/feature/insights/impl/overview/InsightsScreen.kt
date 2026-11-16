@@ -46,7 +46,6 @@ import pl.dakil.dakilio.feature.insights.api.InsightsTagKey
 import pl.dakil.dakilio.feature.insights.api.InsightsTagsKey
 import pl.dakil.dakilio.feature.insights.impl.logic.Highlight
 import pl.dakil.dakilio.feature.insights.impl.logic.InsightsPeriod
-import pl.dakil.dakilio.feature.insights.impl.logic.RECAP_MIN_ENTRIES
 import pl.dakil.dakilio.feature.insights.impl.logic.TagSort
 import pl.dakil.dakilio.feature.insights.impl.DaySheet
 import pl.dakil.dakilio.core.designsystem.component.entrance
@@ -205,11 +204,6 @@ private fun InsightsContent(
                     header = header,
                     firstDay = state.firstDay,
                     onComparison = viewModel::setComparison,
-                    onPlayRecap = if ((header.period is InsightsPeriod.Month || header.period is InsightsPeriod.Year) && overview.entries >= RECAP_MIN_ENTRIES) {
-                        { onOpen(InsightsRecapKey(viewModel.scope)) }
-                    } else {
-                        null
-                    },
                 )
             }
         }

@@ -16,10 +16,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -48,7 +44,6 @@ import pl.dakil.dakilio.feature.insights.impl.logic.nearestMood
  * against the comparison period, and the four headline numbers.
  *
  * @param onComparison changes what the period is measured against, from the chip at the card's foot.
- * @param onPlayRecap plays the period's recap; `null` when it hasn't earned one.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -59,7 +54,6 @@ internal fun SummaryCard(
     header: PeriodHeaderState,
     firstDay: DayOfWeek,
     onComparison: (Comparison) -> Unit,
-    onPlayRecap: (() -> Unit)?,
 ) {
     val colors = MaterialTheme.colorScheme
     val average = overview.mood.average
@@ -111,27 +105,16 @@ internal fun SummaryCard(
                         }
                     }
                 }
-                Row(Modifier.fillMaxWidth().padding(top = Spacing.l), verticalAlignment = Alignment.CenterVertically) {
-                    ComparisonChip(
-                        header = header,
-                        moods = moods,
-                        firstDay = firstDay,
-                        formats = formats,
-                        onComparison = onComparison,
-                        containerColor = colors.surface,
-                        contentColor = colors.onSurface,
-                        modifier = Modifier.weight(1f, fill = false),
-                    )
-                    Spacer(Modifier.weight(0.01f).widthIn(min = Spacing.s))
-                    onPlayRecap?.let { play ->
-                        FilledIconButton(
-                            onClick = play,
-                            colors = IconButtonDefaults.filledIconButtonColors(containerColor = colors.primary, contentColor = colors.onPrimary),
-                        ) {
-                            DakilioIcon(DakilioSymbols.PlayArrow, contentDescription = stringResource(R.string.insights_recap_play), filled = true)
-                        }
-                    }
-                }
+                ComparisonChip(
+                    header = header,
+                    moods = moods,
+                    firstDay = firstDay,
+                    formats = formats,
+                    onComparison = onComparison,
+                    containerColor = colors.surface,
+                    contentColor = colors.onSurface,
+                    modifier = Modifier.padding(top = Spacing.l),
+                )
             }
         }
         val square = RoundedCornerShape(6.dp)

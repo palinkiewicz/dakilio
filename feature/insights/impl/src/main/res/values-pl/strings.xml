@@ -286,7 +286,6 @@
     <string name="insights_average_mood">Średni nastrój</string>
     <!-- Recap -->
     <string name="insights_recap">Podsumowanie</string>
-    <string name="insights_recap_play">Odtwórz podsumowanie</string>
     <string name="insights_recap_close">Zamknij podsumowanie</string>
     <string name="insights_recap_page">Strona %1$d z %2$d</string>
     <string name="insights_recap_title_kicker">Twoje podsumowanie</string>

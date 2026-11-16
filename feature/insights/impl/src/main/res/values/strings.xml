@@ -256,7 +256,6 @@
     <string name="insights_average_mood">Average mood</string>
     <!-- Recap -->
     <string name="insights_recap">Recap</string>
-    <string name="insights_recap_play">Play recap</string>
     <string name="insights_recap_close">Close recap</string>
     <string name="insights_recap_page">Page %1$d of %2$d</string>
     <string name="insights_recap_title_kicker">Your recap of</string>
