@@ -1,6 +1,7 @@
 package pl.dakil.dakilio.feature.insights.impl.overview
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -209,13 +210,18 @@ internal fun GatheringCard(items: List<Gathering>) {
  * some. [hint] says what to do, or why.
  */
 @Composable
-internal fun EmptyPeriodCard(hint: String?, title: String = stringResource(R.string.insights_period_empty_title)) {
+internal fun EmptyPeriodCard(
+    hint: String?,
+    title: String = stringResource(R.string.insights_period_empty_title),
+    action: (@Composable () -> Unit)? = null,
+) {
     InsightCard {
         Row(verticalAlignment = Alignment.CenterVertically) {
             ShapedIcon(DakilioSymbols.CalendarToday, polygon = MaterialShapes.Cookie9Sided, size = 48.dp)
             Column(Modifier.padding(start = Spacing.l)) {
                 Text(title, style = MaterialTheme.typography.titleMediumEmphasized)
                 hint?.let { CardNote(it, Modifier.padding(top = Spacing.xxs)) }
+                action?.let { Box(Modifier.padding(top = Spacing.s)) { it() } }
             }
         }
     }

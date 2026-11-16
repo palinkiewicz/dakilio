@@ -336,4 +336,15 @@
         <item quantity="many">dni z rzędu i seria trwa</item>
         <item quantity="other">dnia z rzędu i seria trwa</item>
     </plurals>
+    <string name="insights_offer_kicker">Twoje podsumowanie jest gotowe</string>
+    <string name="insights_offer_play">Odtwórz</string>
+    <string name="insights_offer_dismiss">Nie teraz</string>
+    <string name="insights_offer_all">Wszystkie</string>
+    <string name="insights_recaps_title">Podsumowania</string>
+    <string name="insights_recaps_subtitle">Każdy miesiąc i rok w skrócie</string>
+    <string name="insights_recaps_year_running">Wciąż trwa</string>
+    <string name="insights_recaps_play">Odtwórz podsumowanie: %1$s</string>
+    <string name="insights_recaps_empty_title">Jeszcze nie ma podsumowań</string>
+    <string name="insights_recaps_empty_body">Miesiąc z co najmniej 5 wpisami dostaje podsumowanie, gdy się skończy.</string>
+    <string name="insights_period_show">Pokaż: %1$s</string>
 </resources>

@@ -42,6 +42,8 @@ data class SettingsUiState(
     val animatedNumbers: Boolean = true,
     val decorativeAnimations: Boolean = true,
     val progressStyle: ProgressStyle = ProgressStyle.Wavy,
+    val recaps: Boolean = true,
+    val recapNotifications: Boolean = false,
 )
 
 @HiltViewModel
@@ -80,8 +82,18 @@ class SettingsViewModel @Inject constructor(
                 animatedNumbers = settings.animatedNumbers,
                 decorativeAnimations = settings.decorativeAnimations,
                 progressStyle = settings.progressStyle,
+                recaps = settings.recaps,
+                recapNotifications = settings.recapNotifications,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
+
+    fun setRecaps(enabled: Boolean) {
+        viewModelScope.launch { settingsRepository.setRecaps(enabled) }
+    }
+
+    fun setRecapNotifications(enabled: Boolean) {
+        viewModelScope.launch { settingsRepository.setRecapNotifications(enabled) }
+    }
 
     fun setThemeMode(mode: ThemeMode) {
         viewModelScope.launch { settingsRepository.setThemeMode(mode) }

@@ -55,7 +55,10 @@ import pl.dakil.dakilio.feature.backup.api.BackupKey
 import pl.dakil.dakilio.feature.backup.impl.backupEntry
 import pl.dakil.dakilio.feature.export.impl.exportEntry
 import pl.dakil.dakilio.core.data.repository.IncomingBackup
+import pl.dakil.dakilio.core.notifications.RecapLaunch
 import pl.dakil.dakilio.core.notifications.ReminderLaunch
+import pl.dakil.dakilio.feature.insights.api.InsightsRecapKey
+import pl.dakil.dakilio.feature.insights.api.InsightsScope
 import pl.dakil.dakilio.feature.more.impl.moreEntry
 import pl.dakil.dakilio.feature.search.impl.searchEntry
 import pl.dakil.dakilio.feature.settings.impl.settingsEntry
@@ -87,6 +90,8 @@ fun DakilioApp(
     openAppLock: Boolean = false,
     reminderLaunch: ReminderLaunch? = null,
     onReminderLaunched: (ReminderLaunch) -> Unit = {},
+    recapLaunch: RecapLaunch? = null,
+    onRecapLaunched: (RecapLaunch) -> Unit = {},
 ) {
     val navigationState = rememberNavigationState(topLevelKeys)
     val navigator = remember(navigationState) { Navigator(navigationState) }
@@ -108,6 +113,13 @@ fun DakilioApp(
         if (navigationState.currentKey !is EntryEditorKey) {
             navigator.navigate(EntryEditorKey(presetDiaryId = launch.diaryId, presetTagIds = listOfNotNull(launch.tagId)))
         }
+    }
+    // A tapped recap notification: that recap, played from the Insights tab.
+    LaunchedEffect(recapLaunch) {
+        val launch = recapLaunch ?: return@LaunchedEffect
+        onRecapLaunched(launch)
+        navigator.navigate(InsightsKey)
+        if (navigationState.currentKey !is InsightsRecapKey) navigator.navigate(InsightsRecapKey(InsightsScope(period = launch.period)))
     }
     // In through a forgotten PIN: More → App lock, which asks for a new one.
     LaunchedEffect(openAppLock) {

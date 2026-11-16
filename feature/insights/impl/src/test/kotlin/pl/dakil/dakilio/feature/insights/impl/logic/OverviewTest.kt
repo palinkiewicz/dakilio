@@ -72,6 +72,15 @@ class OverviewTest {
     }
 
     @Test
+    fun `an empty period points back to the latest one with entries`() {
+        val index = InsightsIndex(listOf(post(40, 3), post(70, 4)))
+        val bounds = Bounds(index.first!!, TODAY)
+        assertEquals(InsightsPeriod.Month(YearMonth.of(2026, 9)), latestWithEntries(index, october, bounds, DayOfWeek.MONDAY))
+        assertEquals(null, latestWithEntries(index, InsightsPeriod.Month(YearMonth.of(2026, 8)), bounds, DayOfWeek.MONDAY))
+        assertEquals(null, latestWithEntries(index, InsightsPeriod.AllTime, bounds, DayOfWeek.MONDAY))
+    }
+
+    @Test
     fun `long periods get records`() {
         val result = overview(listOf(post(0, 5), post(400, 3)), InsightsPeriod.AllTime)
         assertEquals(TODAY.minusDays(400), result.records!!.firstEntry)

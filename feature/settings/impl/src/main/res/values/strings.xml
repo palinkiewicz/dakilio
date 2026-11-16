@@ -73,4 +73,11 @@
     <string name="settings_cancel">Cancel</string>
     <string name="settings_samples_removed">Sample entries removed</string>
     <string name="settings_more_soon">More settings are coming in future versions.</string>
+    <string name="settings_recaps_section">Recaps</string>
+    <string name="settings_recaps">Offer recaps</string>
+    <string name="settings_recaps_body">When a month or a year ends, Insights offers a look back. Past recaps stay in Insights either way.</string>
+    <string name="settings_recap_notifications">Tell me when a recap is ready</string>
+    <string name="settings_recap_notifications_body">On the first of the month, around 9:00</string>
+    <string name="settings_recap_notifications_blocked">Notifications are off, so none will show</string>
+    <string name="settings_recap_notifications_fix">Turn on notifications</string>
 </resources>

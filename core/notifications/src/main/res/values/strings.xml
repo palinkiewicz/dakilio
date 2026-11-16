@@ -43,4 +43,10 @@
         <item>This week\'s goal is within reach. One more push?</item>
         <item>Doesn\'t have to be perfect. It just has to happen.</item>
     </string-array>
+    <string name="recap_channel">Recaps</string>
+    <string name="recap_channel_body">When the recap of a month or a year is ready</string>
+    <string name="recap_ready_title">Your %1$s recap is ready</string>
+    <string name="recap_ready_text">A few pages about how it went.</string>
+    <string name="recap_ready_both">And so is %1$s.</string>
+    <string name="recap_format_language">en</string>
 </resources>

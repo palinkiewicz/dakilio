@@ -48,4 +48,10 @@
         <item>Systematyczność to supermoc. Czas jej użyć.</item>
         <item>Nie musi być idealnie. Ważne, żeby było.</item>
     </string-array>
+    <string name="recap_channel">Podsumowania</string>
+    <string name="recap_channel_body">Gdy podsumowanie miesiąca albo roku jest gotowe</string>
+    <string name="recap_ready_title">Podsumowanie gotowe: %1$s</string>
+    <string name="recap_ready_text">Kilka stron o tym, jak było.</string>
+    <string name="recap_ready_both">Gotowe jest też: %1$s.</string>
+    <string name="recap_format_language">pl</string>
 </resources>

@@ -296,4 +296,15 @@
         <item quantity="one">day in a row, and counting</item>
         <item quantity="other">days in a row, and counting</item>
     </plurals>
+    <string name="insights_offer_kicker">Your recap is ready</string>
+    <string name="insights_offer_play">Play</string>
+    <string name="insights_offer_dismiss">Not now</string>
+    <string name="insights_offer_all">All recaps</string>
+    <string name="insights_recaps_title">Recaps</string>
+    <string name="insights_recaps_subtitle">Every month and year, looked back on</string>
+    <string name="insights_recaps_year_running">Still running</string>
+    <string name="insights_recaps_play">Play the recap of %1$s</string>
+    <string name="insights_recaps_empty_title">No recaps yet</string>
+    <string name="insights_recaps_empty_body">A month with at least 5 entries gets a recap once it ends.</string>
+    <string name="insights_period_show">Show %1$s</string>
 </resources>

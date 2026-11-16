@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.Scaffold
@@ -35,6 +37,9 @@ import pl.dakil.dakilio.feature.insights.api.InsightsEntriesKey
 import pl.dakil.dakilio.feature.insights.api.InsightsHabitsKey
 import pl.dakil.dakilio.feature.insights.api.InsightsMoodKey
 import pl.dakil.dakilio.feature.insights.api.InsightsRecapKey
+import pl.dakil.dakilio.feature.insights.api.InsightsRecapsKey
+import pl.dakil.dakilio.feature.insights.api.InsightsScope
+import pl.dakil.dakilio.feature.insights.impl.logic.encode
 import pl.dakil.dakilio.feature.insights.impl.habits.HabitsCard
 import pl.dakil.dakilio.feature.insights.api.InsightsRhythmKey
 import pl.dakil.dakilio.feature.insights.api.InsightsTagKey
@@ -45,6 +50,7 @@ import pl.dakil.dakilio.feature.insights.impl.logic.RECAP_MIN_ENTRIES
 import pl.dakil.dakilio.feature.insights.impl.logic.TagSort
 import pl.dakil.dakilio.feature.insights.impl.DaySheet
 import pl.dakil.dakilio.core.designsystem.component.entrance
+import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.ui.DakilioFormats
@@ -81,6 +87,13 @@ internal fun InsightsScreen(viewModel: InsightsViewModel, onOpenPost: (Long) -> 
             LargeFlexibleTopAppBar(
                 title = { Text(stringResource(R.string.insights_title)) },
                 subtitle = { Text(stringResource(R.string.insights_subtitle)) },
+                actions = {
+                    if ((state as? InsightsUiState.Ready)?.hasAnyEntries == true) {
+                        IconButton(onClick = { onOpen(InsightsRecapsKey) }) {
+                            DakilioIcon(DakilioSymbols.History, contentDescription = stringResource(R.string.insights_recaps_title))
+                        }
+                    }
+                },
                 scrollBehavior = scrollBehavior,
             )
         },
@@ -143,6 +156,18 @@ private fun InsightsContent(
         contentPadding = PaddingValues(bottom = bottomBarPadding(extra = Spacing.xl), start = Spacing.gutter, end = Spacing.gutter),
         verticalArrangement = Arrangement.spacedBy(Spacing.m),
     ) {
+        if (state.offers.isNotEmpty()) {
+            item(key = "offers") {
+                RecapOffersCard(
+                    offers = state.offers,
+                    moods = state.moods,
+                    formats = formats,
+                    onPlay = { onOpen(InsightsRecapKey(InsightsScope(period = it.period.encode()))) },
+                    onDismiss = { viewModel.dismiss(it.offer) },
+                    onArchive = { onOpen(InsightsRecapsKey) },
+                )
+            }
+        }
         item(key = "filters") {
             Column(verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
                 PeriodKindToggle(header.period.kind, viewModel::setKind)
@@ -155,7 +180,19 @@ private fun InsightsContent(
             PeriodStepper(header, formats, viewModel::step, onPick = if (header.period.hasPicker) ({ picking = true }) else null)
         }
         if (overview.isEmpty) {
-            item(key = "empty") { EmptyPeriodCard(hintOrNull(stringResource(R.string.insights_period_empty_body))) }
+            item(key = "empty") {
+                val back = state.latestWithEntries
+                EmptyPeriodCard(
+                    hint = if (back == null) hintOrNull(stringResource(R.string.insights_period_empty_body)) else null,
+                    action = back?.let { period ->
+                        {
+                            FilledTonalButton(onClick = { viewModel.setPeriod(period) }) {
+                                Text(stringResource(R.string.insights_period_show, periodLabel(period, header.bounds, formats)))
+                            }
+                        }
+                    },
+                )
+            }
             return@LazyColumn
         }
         // The first cards cascade in as the tab opens (decorative).

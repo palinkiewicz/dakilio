@@ -167,3 +167,14 @@ internal fun gathering(days: List<DayStat>, flow: MoodFlow, tags: List<TagStat>,
 
 /** The month summaries a years grid shows, from the entries under the diary filter. */
 fun InsightsIndex.monthSummaries(): Map<YearMonth, MonthSummary> = pl.dakil.dakilio.core.model.monthSummaries(posts, null)
+
+/**
+ * For a period with no entries: the latest period of the same kind, before it, that has some, so an
+ * empty view can offer a way back. `null` when there's none earlier (or for all time and custom ranges).
+ */
+fun latestWithEntries(index: InsightsIndex, period: InsightsPeriod, bounds: Bounds, firstDay: DayOfWeek): InsightsPeriod? {
+    if (period == InsightsPeriod.AllTime || period is InsightsPeriod.Custom) return null
+    val start = period.calendarRange(bounds).from
+    val latest = index.posts.lastOrNull { it.date < start }?.date ?: return null
+    return InsightsPeriod.of(period.kind, latest, firstDay)
+}

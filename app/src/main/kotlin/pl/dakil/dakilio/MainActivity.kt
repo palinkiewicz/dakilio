@@ -25,6 +25,8 @@ import pl.dakil.dakilio.core.data.repository.AppLock
 import pl.dakil.dakilio.core.data.repository.IncomingBackups
 import pl.dakil.dakilio.core.notifications.ReminderLaunches
 import pl.dakil.dakilio.core.notifications.ReminderSync
+import pl.dakil.dakilio.core.notifications.RecapLaunches
+import pl.dakil.dakilio.core.notifications.RecapSync
 import pl.dakil.dakilio.core.autobackup.AutoBackupSync
 import pl.dakil.dakilio.feature.lock.impl.LockGate
 import javax.inject.Inject
@@ -45,6 +47,10 @@ class MainActivity : ComponentActivity() {
 
     @Inject lateinit var autoBackupSync: AutoBackupSync
 
+    @Inject lateinit var recapLaunches: RecapLaunches
+
+    @Inject lateinit var recapSync: RecapSync
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
@@ -52,10 +58,12 @@ class MainActivity : ComponentActivity() {
         if (savedInstanceState == null) {
             incomingBackups.deliver(intent)
             reminderLaunches.deliver(intent)
+            recapLaunches.deliver(intent)
         }
         setContent {
             val incomingBackup by incomingBackups.pending.collectAsStateWithLifecycle()
             val reminderLaunch by reminderLaunches.pending.collectAsStateWithLifecycle()
+            val recapLaunch by recapLaunches.pending.collectAsStateWithLifecycle()
             val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
             val showHints by viewModel.showHints.collectAsStateWithLifecycle()
             val entryDisplay by viewModel.entryDisplay.collectAsStateWithLifecycle()
@@ -97,12 +105,15 @@ class MainActivity : ComponentActivity() {
                             LaunchedEffect(Unit) {
                                 reminderSync.start()
                                 autoBackupSync.start()
+                                recapSync.start()
                             }
                             DakilioApp(
                                 incomingBackup = incomingBackup,
                                 openAppLock = recovered,
                                 reminderLaunch = reminderLaunch,
                                 onReminderLaunched = reminderLaunches::consume,
+                                recapLaunch = recapLaunch,
+                                onRecapLaunched = recapLaunches::consume,
                             )
                         }
                     }
@@ -136,6 +147,6 @@ class MainActivity : ComponentActivity() {
     // singleTask: a backup forwarded by BackupReceiverActivity comes back to this instance, not a new one.
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        if (incomingBackups.deliver(intent) || reminderLaunches.deliver(intent)) setIntent(intent)
+        if (incomingBackups.deliver(intent) || reminderLaunches.deliver(intent) || recapLaunches.deliver(intent)) setIntent(intent)
     }
 }

@@ -252,6 +252,16 @@ interface SettingsRepository {
 
     suspend fun setProgressStyle(style: ProgressStyle)
 
+    suspend fun setRecaps(enabled: Boolean)
+
+    suspend fun setRecapNotifications(enabled: Boolean)
+
+    /** Hides the offer of [month]'s recap ("2026-10"); the next month's still comes. */
+    suspend fun dismissMonthRecap(month: String)
+
+    /** Hides the offer of [year]'s recap; the next year's still comes. */
+    suspend fun dismissYearRecap(year: Int)
+
     /** The first day of the week the user's [UserSettings.weekStart] means here (the region default resolved). */
     val firstDayOfWeek: Flow<DayOfWeek>
 

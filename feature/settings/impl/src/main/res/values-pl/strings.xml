@@ -81,4 +81,11 @@
     <string name="settings_cancel">Anuluj</string>
     <string name="settings_samples_removed">Usunięto przykładowe wpisy</string>
     <string name="settings_more_soon">Więcej ustawień pojawi się w kolejnych wersjach.</string>
+    <string name="settings_recaps_section">Podsumowania</string>
+    <string name="settings_recaps">Proponuj podsumowania</string>
+    <string name="settings_recaps_body">Gdy kończy się miesiąc albo rok, Statystyki proponują spojrzenie wstecz. Dawne podsumowania i tak zostają w Statystykach.</string>
+    <string name="settings_recap_notifications">Daj znać, gdy podsumowanie jest gotowe</string>
+    <string name="settings_recap_notifications_body">Pierwszego dnia miesiąca, około 9:00</string>
+    <string name="settings_recap_notifications_blocked">Powiadomienia są wyłączone, więc się nie pojawią</string>
+    <string name="settings_recap_notifications_fix">Włącz powiadomienia</string>
 </resources>

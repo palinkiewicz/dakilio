@@ -122,6 +122,8 @@ data class RestoreSettings(
     val animatedNumbers: Boolean? = null,
     val decorativeAnimations: Boolean? = null,
     val progressStyle: ProgressStyle? = null,
+    val recaps: Boolean? = null,
+    val recapNotifications: Boolean? = null,
     /** An index into [RestorePlan.diaries]. */
     val lastDiaryIndex: Int? = null,
     /** An index into [RestorePlan.diaries]; `null` (also for an unknown diary) is "All diaries". */
@@ -276,6 +278,8 @@ fun planRestore(backup: DakilioBackup, defaultDiaryName: String, now: Long): Res
             animatedNumbers = s.animatedNumbers,
             decorativeAnimations = s.decorativeAnimations,
             progressStyle = ProgressStyle.entries.firstOrNull { it.name == s.progressStyle },
+            recaps = s.recaps,
+            recapNotifications = s.recapNotifications,
             lastDiaryIndex = s.lastDiary?.let(diaryIndexById::get),
             timelineDiaryIndex = s.timelineDiary?.let(diaryIndexById::get),
         )

@@ -60,3 +60,7 @@ data class InsightsHabitsKey(val scope: InsightsScope = InsightsScope()) : NavKe
 /** A period's recap: a few full-screen pages to tap through. Always measured against the period before. */
 @Serializable
 data class InsightsRecapKey(val scope: InsightsScope) : NavKey
+
+/** Every finished month and year with a recap to play (every diary). */
+@Serializable
+data object InsightsRecapsKey : NavKey

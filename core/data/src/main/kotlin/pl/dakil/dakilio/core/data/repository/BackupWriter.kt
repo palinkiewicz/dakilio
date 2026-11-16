@@ -115,6 +115,8 @@ internal class BackupWriter @Inject constructor(
                 animatedNumbers = userSettings.animatedNumbers,
                 decorativeAnimations = userSettings.decorativeAnimations,
                 progressStyle = userSettings.progressStyle.name,
+                recaps = userSettings.recaps,
+                recapNotifications = userSettings.recapNotifications,
             ),
             moods = snapshot.moods.map { BackupMood(it.id, it.level, it.label, it.isPrimary, it.position, it.isArchived, it.colorKey) },
             diaries = snapshot.diaries.map {
