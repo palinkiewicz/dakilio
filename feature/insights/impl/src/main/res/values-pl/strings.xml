@@ -210,6 +210,18 @@
     <string name="insights_habit_best_run">Najdłuższa seria</string>
     <string name="insights_habit_mood">Tygodnie z celem: %1$s · pozostałe: %2$s</string>
     <string name="insights_habit_section">Jako nawyk</string>
+    <plurals name="insights_habit_days_so_far">
+        <item quantity="one">%1$d z %2$d dnia do tej pory</item>
+        <item quantity="few">%1$d z %2$d dni do tej pory</item>
+        <item quantity="many">%1$d z %2$d dni do tej pory</item>
+        <item quantity="other">%1$d z %2$d dnia do tej pory</item>
+    </plurals>
+    <plurals name="insights_habit_days_of">
+        <item quantity="one">%1$d z %2$d dnia</item>
+        <item quantity="few">%1$d z %2$d dni</item>
+        <item quantity="many">%1$d z %2$d dni</item>
+        <item quantity="other">%1$d z %2$d dnia</item>
+    </plurals>
     <plurals name="insights_habit_on_target">
         <item quantity="one">%1$d z %2$d tygodnia z osiągniętym celem</item>
         <item quantity="few">%1$d z %2$d tygodni z osiągniętym celem</item>
@@ -222,6 +234,8 @@
         <item quantity="many">%d dni w tygodniu</item>
         <item quantity="other">%d dnia w tygodniu</item>
     </plurals>
+    <string name="insights_habit_before_met">Poprzedni okres: cel osiągnięty</string>
+    <string name="insights_habit_before_missed">Poprzedni okres: cel nieosiągnięty</string>
     <plurals name="insights_habit_before">
         <item quantity="one">Poprzedni okres: %d tydzień z celem</item>
         <item quantity="few">Poprzedni okres: %d tygodnie z celem</item>

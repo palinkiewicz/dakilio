@@ -52,10 +52,33 @@ internal fun alignedWeeks(stat: HabitStat, starts: List<LocalDate>): List<HabitW
     return starts.map { byStart[it] }
 }
 
-/** "5 of 8 weeks on target". */
+/**
+ * "5 of 8 weeks on target". A period of one week counts days instead ("2 of 3 days so far").
+ */
 @Composable
-internal fun onTargetLabel(stat: HabitStat): String =
-    pluralStringResource(R.plurals.insights_habit_on_target, stat.counted, stat.met, stat.counted)
+internal fun onTargetLabel(stat: HabitStat): String {
+    val single = stat.weeks.singleOrNull()
+    return when {
+        single != null -> pluralStringResource(
+            if (single.inProgress) R.plurals.insights_habit_days_so_far else R.plurals.insights_habit_days_of,
+            single.target,
+            single.days,
+            single.target,
+        )
+        else -> pluralStringResource(R.plurals.insights_habit_on_target, stat.counted, stat.met, stat.counted)
+    }
+}
+
+/**
+ * How the comparison period went: its weeks on target, or for a period of one week, whether that week
+ * met the target.
+ */
+@Composable
+internal fun habitBeforeNote(stat: HabitStat, met: Int): String = if (stat.weeks.size <= 1) {
+    stringResource(if (met > 0) R.string.insights_habit_before_met else R.string.insights_habit_before_missed)
+} else {
+    pluralStringResource(R.plurals.insights_habit_before, met, met)
+}
 
 /** The run of weeks on target as a small flame badge; nothing under two weeks. */
 @Composable
@@ -107,6 +130,9 @@ internal fun HabitRow(stat: HabitStat, starts: List<LocalDate>, onClick: (() -> 
             }
             RunBadge(stat.currentRun, Modifier.padding(start = Spacing.s))
         }
-        WeekPills(alignedWeeks(stat, starts), habitColor(stat.habit.tag), Modifier.padding(top = Spacing.s, start = 32.dp + Spacing.m))
+        // One week is said in days already; a lone pill adds nothing.
+        if (starts.size > 1) {
+            WeekPills(alignedWeeks(stat, starts), habitColor(stat.habit.tag), Modifier.padding(top = Spacing.s, start = 32.dp + Spacing.m))
+        }
     }
 }

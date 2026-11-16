@@ -56,6 +56,7 @@ import pl.dakil.dakilio.feature.insights.impl.habits.onTargetLabel
 import pl.dakil.dakilio.feature.insights.impl.habits.habitColor
 import pl.dakil.dakilio.feature.insights.impl.habits.RunBadge
 import pl.dakil.dakilio.feature.insights.impl.habits.HabitTiles
+import pl.dakil.dakilio.feature.insights.impl.habits.habitBeforeNote
 import pl.dakil.dakilio.feature.insights.impl.logic.HabitStat
 import pl.dakil.dakilio.feature.insights.impl.chart.ChartColumn
 import pl.dakil.dakilio.feature.insights.impl.chart.ColumnChart
@@ -350,7 +351,7 @@ private fun HabitSectionCard(stat: HabitStat, hasComparison: Boolean, moods: Lis
         }
         HabitTiles(stat, formats, Modifier.padding(top = Spacing.m))
         val notes = listOfNotNull(
-            stat.metBefore?.takeIf { hasComparison }?.let { pluralStringResource(R.plurals.insights_habit_before, it, it) },
+            stat.metBefore?.takeIf { hasComparison }?.let { habitBeforeNote(stat, it) },
             if (stat.moodOnTarget != null && stat.moodOffTarget != null) {
                 stringResource(R.string.insights_habit_mood, moodValueLabel(stat.moodOnTarget, moods, formats), moodValueLabel(stat.moodOffTarget, moods, formats))
             } else {

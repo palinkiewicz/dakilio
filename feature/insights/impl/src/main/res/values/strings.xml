@@ -198,6 +198,14 @@
     <string name="insights_habit_best_run">Best run</string>
     <string name="insights_habit_mood">Weeks on target: %1$s · other weeks: %2$s</string>
     <string name="insights_habit_section">As a habit</string>
+    <plurals name="insights_habit_days_so_far">
+        <item quantity="one">%1$d of %2$d day so far</item>
+        <item quantity="other">%1$d of %2$d days so far</item>
+    </plurals>
+    <plurals name="insights_habit_days_of">
+        <item quantity="one">%1$d of %2$d day</item>
+        <item quantity="other">%1$d of %2$d days</item>
+    </plurals>
     <plurals name="insights_habit_on_target">
         <item quantity="one">%1$d of %2$d week on target</item>
         <item quantity="other">%1$d of %2$d weeks on target</item>
@@ -206,6 +214,8 @@
         <item quantity="one">%d day a week</item>
         <item quantity="other">%d days a week</item>
     </plurals>
+    <string name="insights_habit_before_met">The period before: on target</string>
+    <string name="insights_habit_before_missed">The period before: short of target</string>
     <plurals name="insights_habit_before">
         <item quantity="one">The period before: %d week on target</item>
         <item quantity="other">The period before: %d weeks on target</item>

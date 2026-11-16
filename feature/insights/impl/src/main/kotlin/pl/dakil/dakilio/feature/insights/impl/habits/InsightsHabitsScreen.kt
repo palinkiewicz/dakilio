@@ -109,8 +109,8 @@ internal fun HabitDetailCard(
             }
             RunBadge(stat.currentRun)
         }
-        WeekPills(alignedWeeks(stat, weeks), habitColor(stat.habit.tag), Modifier.padding(top = Spacing.l))
         if (weeks.size > 1) {
+            WeekPills(alignedWeeks(stat, weeks), habitColor(stat.habit.tag), Modifier.padding(top = Spacing.l))
             Row(Modifier.fillMaxWidth().padding(top = Spacing.xs), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(formats.dayMonthShort(weeks.first()), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text(onTargetLabel(stat), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -118,7 +118,7 @@ internal fun HabitDetailCard(
         }
         HabitTiles(stat, formats, Modifier.padding(top = Spacing.m))
         val notes = listOfNotNull(
-            stat.metBefore?.takeIf { hasComparison }?.let { pluralStringResource(R.plurals.insights_habit_before, it, it) },
+            stat.metBefore?.takeIf { hasComparison }?.let { habitBeforeNote(stat, it) },
             if (stat.moodOnTarget != null && stat.moodOffTarget != null) {
                 stringResource(R.string.insights_habit_mood, moodValueLabel(stat.moodOnTarget, moods, formats), moodValueLabel(stat.moodOffTarget, moods, formats))
             } else {
@@ -131,11 +131,25 @@ internal fun HabitDetailCard(
     }
 }
 
-/** Weeks on target, the longest run and the days, as tiles. */
+/**
+ * Weeks on target, the longest run and the days, as tiles. A period of one week has no weeks to count,
+ * so it shows only its days against the target.
+ */
 @Composable
 internal fun HabitTiles(stat: HabitStat, formats: DakilioFormats, modifier: Modifier = Modifier) {
     val tile = RoundedCornerShape(16.dp)
     val color = MaterialTheme.colorScheme.surfaceContainerHigh
+    stat.weeks.singleOrNull()?.let { week ->
+        StatTile(
+            stringResource(R.string.insights_tag_days),
+            formats.count(week.days),
+            tile,
+            modifier.fillMaxWidth(),
+            detail = stringResource(R.string.insights_of_days, week.target),
+            color = color,
+        )
+        return
+    }
     Row(modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
         StatTile(
             stringResource(R.string.insights_habit_weeks_on_target),
