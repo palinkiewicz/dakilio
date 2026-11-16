@@ -180,16 +180,17 @@ private fun MonthTile(month: YearMonth, summary: ArchivedPeriod, moods: List<Moo
         interactionSource = interaction,
         modifier = modifier
             .pressScale(interaction, 0.92f)
-            .alpha(if (summary.playable || !summary.finished && summary.entries > 0) 1f else 0.45f)
+            .alpha(if (summary.playable) 1f else 0.45f)
             .semantics { contentDescription = description },
     ) {
         Column(Modifier.padding(vertical = Spacing.m), horizontalAlignment = Alignment.CenterHorizontally) {
             Text(formats.monthShort(month), style = MaterialTheme.typography.labelLarge, maxLines = 1)
             Box(Modifier.padding(top = Spacing.xs).size(28.dp), contentAlignment = Alignment.Center) {
-                val mood = summary.average?.let { nearestMood(moods, it) }
+                // Only a recap that can be played shows its face; a month still running or too thin waits.
+                val mood = summary.average?.takeIf { summary.playable }?.let { nearestMood(moods, it) }
                 if (mood != null) {
                     MoodBadge(mood, size = 28.dp)
-                } else if (summary.entries > 0) {
+                } else if (summary.finished && summary.entries > 0) {
                     Box(Modifier.size(8.dp).background(colors.onSurfaceVariant.copy(alpha = 0.5f), CircleShape))
                 }
             }
