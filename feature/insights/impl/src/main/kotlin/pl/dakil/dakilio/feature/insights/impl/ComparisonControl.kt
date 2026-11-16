@@ -60,35 +60,53 @@ internal fun ComparisonChip(
     containerColor: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
 ) {
+    val label = comparisonPeriod(header.period, header.comparison)?.let { periodLabel(it, header.bounds, formats) }
+    ComparisonPicker(header, moods, firstDay, formats, onComparison) { open ->
+        Surface(
+            onClick = open,
+            shape = CircleShape,
+            color = containerColor,
+            contentColor = contentColor,
+            modifier = modifier.semantics { role = Role.DropdownList },
+        ) {
+            Row(
+                Modifier.padding(start = Spacing.m, end = Spacing.s, top = Spacing.s, bottom = Spacing.s),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                DakilioIcon(DakilioSymbols.CompareArrows, contentDescription = null, modifier = Modifier.size(18.dp))
+                Text(
+                    if (header.comparison == Comparison.None || label == null) stringResource(R.string.insights_compare) else stringResource(R.string.insights_compared_with, label),
+                    style = MaterialTheme.typography.labelLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(start = Spacing.s).weight(1f, fill = false),
+                )
+                DakilioIcon(DakilioSymbols.ArrowDropDown, contentDescription = null, modifier = Modifier.size(20.dp))
+            }
+        }
+    }
+}
+
+/**
+ * The comparison choices behind any [chip]: [chip] gets the action that opens the sheet, which in turn
+ * can open a picker of the period's own kind. All time has nothing before it, so it shows nothing.
+ */
+@Composable
+internal fun ComparisonPicker(
+    header: PeriodHeaderState,
+    moods: List<Mood>,
+    firstDay: DayOfWeek,
+    formats: DakilioFormats,
+    onComparison: (Comparison) -> Unit,
+    chip: @Composable (open: () -> Unit) -> Unit,
+) {
     if (header.period == InsightsPeriod.AllTime) return
     var choosing by rememberSaveable { mutableStateOf(false) }
     var picking by rememberSaveable { mutableStateOf(false) }
     val haptics = rememberHaptics()
-    val label = comparisonPeriod(header.period, header.comparison)?.let { periodLabel(it, header.bounds, formats) }
-    Surface(
-        onClick = {
-            haptics.tick()
-            choosing = true
-        },
-        shape = CircleShape,
-        color = containerColor,
-        contentColor = contentColor,
-        modifier = modifier.semantics { role = Role.DropdownList },
-    ) {
-        Row(
-            Modifier.padding(start = Spacing.m, end = Spacing.s, top = Spacing.s, bottom = Spacing.s),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            DakilioIcon(DakilioSymbols.CompareArrows, contentDescription = null, modifier = Modifier.size(18.dp))
-            Text(
-                if (header.comparison == Comparison.None || label == null) stringResource(R.string.insights_compare) else stringResource(R.string.insights_compared_with, label),
-                style = MaterialTheme.typography.labelLarge,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(start = Spacing.s).weight(1f, fill = false),
-            )
-            DakilioIcon(DakilioSymbols.ArrowDropDown, contentDescription = null, modifier = Modifier.size(20.dp))
-        }
+    chip {
+        haptics.tick()
+        choosing = true
     }
     if (choosing) {
         ComparisonSheet(

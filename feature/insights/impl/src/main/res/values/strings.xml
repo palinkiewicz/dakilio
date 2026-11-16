@@ -29,6 +29,9 @@
     <string name="insights_change_up_cd">Up %1$s</string>
     <string name="insights_change_down_cd">Down %1$s</string>
     <string name="insights_change_same_cd">No change</string>
+    <string name="insights_change_none_cd">No mood to compare with</string>
+    <string name="insights_change_against_cd">%1$s, compared with %2$s</string>
+    <string name="insights_compare_short">Compare</string>
     <string name="insights_steady">Steady</string>
     <string name="insights_varied">Varied</string>
     <string name="insights_up_and_down">Up and down</string>

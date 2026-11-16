@@ -29,6 +29,9 @@
     <string name="insights_change_up_cd">Wzrost o %1$s</string>
     <string name="insights_change_down_cd">Spadek o %1$s</string>
     <string name="insights_change_same_cd">Bez zmian</string>
+    <string name="insights_change_none_cd">Brak nastroju do porównania</string>
+    <string name="insights_change_against_cd">%1$s, w porównaniu z: %2$s</string>
+    <string name="insights_compare_short">Porównaj</string>
     <string name="insights_steady">Równo</string>
     <string name="insights_varied">Zmiennie</string>
     <string name="insights_up_and_down">Raz lepiej, raz gorzej</string>

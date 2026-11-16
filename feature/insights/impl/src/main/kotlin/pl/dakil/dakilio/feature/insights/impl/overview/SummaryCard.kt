@@ -20,7 +20,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.unit.dp
 import pl.dakil.dakilio.core.designsystem.component.RollingNumber
 import pl.dakil.dakilio.core.designsystem.icon.DakilioIcon
@@ -30,7 +32,7 @@ import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.ui.DakilioFormats
 import pl.dakil.dakilio.core.ui.mood.AverageMoodFace
 import pl.dakil.dakilio.core.ui.mood.NoMoodBadge
-import pl.dakil.dakilio.feature.insights.impl.ComparisonChip
+import pl.dakil.dakilio.feature.insights.impl.ComparisonPicker
 import pl.dakil.dakilio.feature.insights.impl.PeriodHeaderState
 import pl.dakil.dakilio.feature.insights.impl.R
 import pl.dakil.dakilio.feature.insights.impl.logic.Comparison
@@ -43,7 +45,7 @@ import pl.dakil.dakilio.feature.insights.impl.logic.nearestMood
  * The period at a glance: its average as a large face that morphs as the period changes, the change
  * against the comparison period, and the four headline numbers.
  *
- * @param onComparison changes what the period is measured against, from the chip at the card's foot.
+ * @param onComparison changes what the period is measured against, from the change chip.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -91,8 +93,7 @@ internal fun SummaryCard(
                                 style = MaterialTheme.typography.displaySmallEmphasized,
                                 modifier = Modifier.clearAndSetSemantics { contentDescription = averageDescription },
                             )
-                            // A change that rounds to nothing says nothing.
-                            overview.moodChange?.takeIf { Math.round(it * 10) != 0 }?.let { ChangeChip(it, formats) }
+                            ComparisonChangeChip(overview.moodChange, header, moods, firstDay, formats, onComparison)
                             overview.steadiness?.let { steadiness ->
                                 Pill(
                                     when (steadiness) {
@@ -105,16 +106,6 @@ internal fun SummaryCard(
                         }
                     }
                 }
-                ComparisonChip(
-                    header = header,
-                    moods = moods,
-                    firstDay = firstDay,
-                    formats = formats,
-                    onComparison = onComparison,
-                    containerColor = colors.surface,
-                    contentColor = colors.onSurface,
-                    modifier = Modifier.padding(top = Spacing.l),
-                )
             }
         }
         val square = RoundedCornerShape(6.dp)
@@ -145,33 +136,60 @@ internal fun SummaryCard(
     }
 }
 
-/** A change in levels against the comparison period: an arrow and the signed figure. */
+/**
+ * The change in levels against the comparison period, which is also how the comparison is changed:
+ * a tap opens its choices. "+0.3", "No change", "–" when the other period has no mood, or "Compare"
+ * without a comparison. All time has none, so it shows nothing.
+ */
 @Composable
-internal fun ChangeChip(change: Float, formats: DakilioFormats, modifier: Modifier = Modifier) {
-    val text = formats.signedDecimal(change)
-    val tenths = Math.round(change * 10)
-    val description = when {
+private fun ComparisonChangeChip(
+    change: Float?,
+    header: PeriodHeaderState,
+    moods: List<Mood>,
+    firstDay: DayOfWeek,
+    formats: DakilioFormats,
+    onComparison: (Comparison) -> Unit,
+) {
+    val tenths = change?.let { Math.round(it * 10) }
+    val compared = header.comparison != Comparison.None
+    val text = when {
+        !compared -> stringResource(R.string.insights_compare_short)
+        tenths == null -> "–"
+        tenths == 0 -> stringResource(R.string.insights_change_same_cd)
+        else -> formats.signedDecimal(change!!)
+    }
+    val spoken = when {
+        !compared -> null
+        tenths == null -> stringResource(R.string.insights_change_none_cd)
         tenths > 0 -> stringResource(R.string.insights_change_up_cd, formats.decimal(tenths / 10f))
         tenths < 0 -> stringResource(R.string.insights_change_down_cd, formats.decimal(-tenths / 10f))
         else -> stringResource(R.string.insights_change_same_cd)
     }
-    Surface(
-        shape = CircleShape,
-        color = MaterialTheme.colorScheme.surface,
-        contentColor = MaterialTheme.colorScheme.onSurface,
-        modifier = modifier.clearAndSetSemantics { contentDescription = description },
-    ) {
-        Row(Modifier.padding(start = Spacing.s, end = Spacing.m, top = Spacing.xs, bottom = Spacing.xs), verticalAlignment = Alignment.CenterVertically) {
-            DakilioIcon(
-                when {
-                    tenths > 0 -> DakilioSymbols.TrendingUp
-                    tenths < 0 -> DakilioSymbols.TrendingDown
-                    else -> DakilioSymbols.TrendingFlat
-                },
-                contentDescription = null,
-                modifier = Modifier.size(18.dp),
-            )
-            Text(text, style = MaterialTheme.typography.labelLargeEmphasized, modifier = Modifier.padding(start = Spacing.xs))
+    val against = comparisonLabel(header, comparisonRangeOf(header), formats)
+    val description = when {
+        spoken == null -> stringResource(R.string.insights_compare)
+        against == null -> spoken
+        else -> stringResource(R.string.insights_change_against_cd, spoken, against)
+    }
+    ComparisonPicker(header, moods, firstDay, formats, onComparison) { open ->
+        Surface(
+            onClick = open,
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.clearAndSetSemantics {
+                contentDescription = description
+                role = Role.Button
+            },
+        ) {
+            Row(
+                Modifier.padding(start = Spacing.s, end = Spacing.xs, top = Spacing.xs, bottom = Spacing.xs),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                DakilioIcon(DakilioSymbols.CompareArrows, contentDescription = null, modifier = Modifier.size(18.dp))
+                Text(text, style = MaterialTheme.typography.labelLargeEmphasized, modifier = Modifier.padding(start = Spacing.xs))
+                DakilioIcon(DakilioSymbols.ChevronRight, contentDescription = null, modifier = Modifier.size(18.dp))
+            }
         }
     }
 }
