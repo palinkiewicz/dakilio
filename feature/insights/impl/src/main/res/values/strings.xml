@@ -307,4 +307,7 @@
     <string name="insights_recaps_empty_title">No recaps yet</string>
     <string name="insights_recaps_empty_body">A month with at least 5 entries gets a recap once it ends.</string>
     <string name="insights_period_show">Show %1$s</string>
+    <string name="insights_share_title">Share recap</string>
+    <string name="insights_share_tags">Include tag names</string>
+    <string name="insights_share_tags_body">Off shares only moods and numbers. Notes are never included.</string>
 </resources>

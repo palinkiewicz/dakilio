@@ -82,8 +82,6 @@ internal fun shareDensity(widthPx: Int, layoutWidthDp: Float, measuredHeightPx: 
 @Composable
 internal fun EntryShareRenderer(peek: EntryPeek, onRendered: (ImageBitmap) -> Unit) {
     val context = LocalContext.current
-    val fontScale = LocalDensity.current.fontScale
-    val layer = rememberGraphicsLayer()
     val latest by rememberUpdatedState(onRendered)
     var painters by remember(peek) { mutableStateOf<List<Painter?>?>(null) }
     LaunchedEffect(peek) {
@@ -93,10 +91,24 @@ internal fun EntryShareRenderer(peek: EntryPeek, onRendered: (ImageBitmap) -> Un
         }
     }
     val loaded = painters ?: return
-    // Measured once at the full density; a too tall entry is then drawn again, smaller.
-    var baseHeight by remember(peek) { mutableIntStateOf(0) }
+    OffscreenCapture(key = peek, onCaptured = latest) { EntryShareCard(peek, loaded) }
+}
+
+/**
+ * Lays [content] out off-screen, [SHARE_LAYOUT_WIDTH_DP] wide at full height, and hands it to
+ * [onCaptured] once as a [SHARE_WIDTH_PX]-wide bitmap (smaller when it would be taller than
+ * [MAX_SHARE_HEIGHT_PX]). Nothing shows: it's recorded into a `GraphicsLayer` that's never drawn.
+ * A new [key] captures again.
+ */
+@Composable
+fun OffscreenCapture(key: Any, onCaptured: (ImageBitmap) -> Unit, content: @Composable () -> Unit) {
+    val fontScale = LocalDensity.current.fontScale
+    val layer = rememberGraphicsLayer()
+    val latest by rememberUpdatedState(onCaptured)
+    // Measured once at the full density; a too tall image is then drawn again, smaller.
+    var baseHeight by remember(key) { mutableIntStateOf(0) }
     val density = shareDensity(SHARE_WIDTH_PX, SHARE_LAYOUT_WIDTH_DP, baseHeight, MAX_SHARE_HEIGHT_PX)
-    LaunchedEffect(peek, density) {
+    LaunchedEffect(key, density) {
         snapshotFlow { baseHeight }.first { it > 0 }
         // A smaller density is on its way, and this effect restarts with it.
         if (shareDensity(SHARE_WIDTH_PX, SHARE_LAYOUT_WIDTH_DP, baseHeight, MAX_SHARE_HEIGHT_PX) != density) return@LaunchedEffect
@@ -117,7 +129,7 @@ internal fun EntryShareRenderer(peek: EntryPeek, onRendered: (ImageBitmap) -> Un
                     // Recorded, never drawn: the layer is only read back as a bitmap.
                     .drawWithContent { layer.record { this@drawWithContent.drawContent() } },
             ) {
-                EntryShareCard(peek, loaded)
+                content()
             }
         }
     }
@@ -161,12 +173,16 @@ private fun EntryShareCard(peek: EntryPeek, painters: List<Painter?>) {
     }
 }
 
+/** [writeSharedImage] for an entry: JPEG when it has photos (a PNG of them gets huge). */
+internal fun writeShareImage(context: Context, image: ImageBitmap, postId: Long, hasPhotos: Boolean): Pair<Uri, String> =
+    writeSharedImage(context, image, "entry-$postId", jpeg = hasPhotos)
+
 /**
- * Writes [image] to `cacheDir/shared/` (clearing older ones) and returns its content URI from the
- * app's `.share` FileProvider. JPEG when there are photos (a PNG of them gets huge), PNG otherwise,
- * which keeps text crisp. Call off the main thread.
+ * Writes [image] to `cacheDir/shared/` as [name] (clearing older ones) and returns its content URI
+ * from the app's `.share` FileProvider and its type: JPEG for photos, PNG (crisp text) otherwise.
+ * Call off the main thread.
  */
-internal fun writeShareImage(context: Context, image: ImageBitmap, postId: Long, hasPhotos: Boolean): Pair<Uri, String> {
+fun writeSharedImage(context: Context, image: ImageBitmap, name: String, jpeg: Boolean): Pair<Uri, String> {
     val dir = File(context.cacheDir, "shared").apply {
         deleteRecursively()
         mkdirs()
@@ -178,18 +194,18 @@ internal fun writeShareImage(context: Context, image: ImageBitmap, postId: Long,
     } else {
         source
     }
-    val (format, extension, mime) = if (hasPhotos) {
+    val (format, extension, mime) = if (jpeg) {
         Triple(Bitmap.CompressFormat.JPEG, "jpg", "image/jpeg")
     } else {
         Triple(Bitmap.CompressFormat.PNG, "png", "image/png")
     }
-    val file = File(dir, "entry-$postId.$extension")
+    val file = File(dir, "$name.$extension")
     file.outputStream().use { bitmap.compress(format, 92, it) }
     return FileProvider.getUriForFile(context, "${context.packageName}.share", file) to mime
 }
 
-/** The system share sheet for an image written by [writeShareImage]. */
-internal fun shareImageIntent(uri: Uri, mime: String): Intent {
+/** The system share sheet for an image written by [writeSharedImage]. */
+fun shareImageIntent(uri: Uri, mime: String): Intent {
     val send = Intent(Intent.ACTION_SEND).apply {
         type = mime
         putExtra(Intent.EXTRA_STREAM, uri)

@@ -41,6 +41,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
@@ -103,15 +106,12 @@ import pl.dakil.dakilio.feature.insights.impl.periodLabel
 /**
  * A period's recap: full-screen pages to tap through (right side forward, left side back) or
  * swipe. Nothing moves on a timer.
- *
- * @param onShare shares the recap as an image; `null` hides the button.
  */
 @Composable
 internal fun InsightsRecapScreen(
     viewModel: InsightsRecapViewModel,
     onClose: () -> Unit,
     onOpenPost: (Long) -> Unit,
-    onShare: ((InsightsRecapUiState.Ready) -> Unit)? = null,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val ready = state as? InsightsRecapUiState.Ready
@@ -120,6 +120,8 @@ internal fun InsightsRecapScreen(
         return
     }
     val formats = rememberFormats()
+    var sharing by rememberSaveable { mutableStateOf(false) }
+    val onShare: (InsightsRecapUiState.Ready) -> Unit = { sharing = true }
     val pages = ready.recap.pages
     val pager = rememberPagerState { pages.size }
     val scope = rememberCoroutineScope()
@@ -172,10 +174,11 @@ internal fun InsightsRecapScreen(
                     periodName = periodName,
                     formats = formats,
                     onOpenPost = onOpenPost,
-                    onShare = onShare?.let { share -> { share(ready) } },
+                    onShare = { onShare(ready) },
                     onDone = onClose,
                 )
             }
+            if (sharing) RecapShareSheet(ready, formats, onDismiss = { sharing = false })
             Column(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = Spacing.gutter, vertical = Spacing.s)) {
                 RecapProgress(pager, pages.size, foreground)
                 Row(Modifier.fillMaxWidth().padding(top = Spacing.xs), verticalAlignment = Alignment.CenterVertically) {
@@ -184,6 +187,9 @@ internal fun InsightsRecapScreen(
                         style = MaterialTheme.typography.labelLarge,
                         modifier = Modifier.weight(1f),
                     )
+                    IconButton(onClick = { sharing = true }) {
+                        DakilioIcon(DakilioSymbols.Share, contentDescription = stringResource(R.string.insights_share))
+                    }
                     IconButton(onClick = onClose) {
                         DakilioIcon(DakilioSymbols.Close, contentDescription = stringResource(R.string.insights_recap_close))
                     }
@@ -423,7 +429,7 @@ private fun RecapStat(value: String, label: String, index: Int) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun MoodShares(counts: List<Pair<Mood, Int>>, modifier: Modifier = Modifier) {
+internal fun MoodShares(counts: List<Pair<Mood, Int>>, modifier: Modifier = Modifier) {
     val total = counts.sumOf { it.second }.coerceAtLeast(1)
     FlowRow(modifier, horizontalArrangement = Arrangement.spacedBy(Spacing.l), verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
         counts.filter { it.second > 0 }.forEach { (mood, count) ->
@@ -443,7 +449,7 @@ private fun RecapTags(tags: List<pl.dakil.dakilio.core.model.Tag>) {
 
 /** A year's months as a 4×3 grid: each month's short name over its average face, or a faint ring without entries. */
 @Composable
-private fun MonthFaces(recap: Recap, moods: List<Mood>, formats: DakilioFormats, modifier: Modifier = Modifier) {
+internal fun MonthFaces(recap: Recap, moods: List<Mood>, formats: DakilioFormats, modifier: Modifier = Modifier) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(Spacing.l)) {
         recap.months.chunked(4).forEach { row ->
             Row(Modifier.fillMaxWidth()) {

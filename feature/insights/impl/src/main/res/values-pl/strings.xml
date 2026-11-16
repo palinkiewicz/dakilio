@@ -347,4 +347,7 @@
     <string name="insights_recaps_empty_title">Jeszcze nie ma podsumowań</string>
     <string name="insights_recaps_empty_body">Miesiąc z co najmniej 5 wpisami dostaje podsumowanie, gdy się skończy.</string>
     <string name="insights_period_show">Pokaż: %1$s</string>
+    <string name="insights_share_title">Udostępnij podsumowanie</string>
+    <string name="insights_share_tags">Dołącz nazwy tagów</string>
+    <string name="insights_share_tags_body">Bez nich udostępniasz tylko nastroje i liczby. Notatki nigdy nie są dołączane.</string>
 </resources>
