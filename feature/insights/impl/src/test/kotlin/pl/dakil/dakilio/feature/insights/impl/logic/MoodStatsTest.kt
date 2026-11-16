@@ -53,14 +53,6 @@ class MoodStatsTest {
     }
 
     @Test
-    fun `the rolling line breaks over gaps`() {
-        val values = listOf(4f, null, 2f, null, null, null, null, null, null, null, 5f)
-        val line = rollingAverage(values, window = 3)
-        assertEquals(listOf(null, null, 3f, null, null), line.take(5))
-        assertNull(line.last()) // one value in its window isn't a trend
-    }
-
-    @Test
     fun `steadiness is read from the day to day steps`() {
         assertNull(steadiness(listOf(3f, 4f, 3f)))
         assertEquals(Steadiness.Steady, steadiness(listOf(4f, 4f, 4f, 3.5f, 4f, 4f)))

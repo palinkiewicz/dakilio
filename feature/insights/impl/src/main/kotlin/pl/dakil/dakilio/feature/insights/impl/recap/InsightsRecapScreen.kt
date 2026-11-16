@@ -294,7 +294,6 @@ private fun RecapPageContent(
             if (overview.flow.points >= 2) {
                 MoodLineChart(
                     values = overview.flow.buckets.map { it.average },
-                    trend = overview.flow.trend,
                     moods = moods,
                     description = stringResource(R.string.insights_mood_flow),
                     height = 120.dp,

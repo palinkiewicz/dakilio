@@ -42,9 +42,8 @@ private val EdgePadding = 8.dp
 /**
  * Mood over time on the 1–5 scale, with the level faces as the y-axis.
  *
- * [values] has a point per slice (`null` = no mood there). Without a [trend] they're joined by a line
- * that breaks over gaps; with one, they're drawn as dots only and the trend is the line. Dots wear
- * their level's color; their height against the faces says the same thing without it.
+ * [values] has a point per slice (`null` = no mood there), joined by a line that breaks over gaps.
+ * Dots wear their level's color; their height against the faces says the same thing without it.
  *
  * @param comparison another period's values, drawn as a lighter line of the same hue stretched over
  *   the same width.
@@ -56,7 +55,6 @@ internal fun MoodLineChart(
     moods: List<Mood>,
     description: String,
     modifier: Modifier = Modifier,
-    trend: List<Float?>? = null,
     comparison: List<Float?>? = null,
     selected: Int? = null,
     onSelect: ((Int) -> Unit)? = null,
@@ -78,7 +76,7 @@ internal fun MoodLineChart(
     // The line draws itself in from the left when the data changes (decorative).
     val reveal = remember { Animatable(1f) }
     val revealSpec = decorativeSpec(MaterialTheme.motionScheme.slowEffectsSpec<Float>())
-    LaunchedEffect(values, trend) {
+    LaunchedEffect(values) {
         reveal.snapTo(0f)
         reveal.animateTo(1f, revealSpec)
     }
@@ -106,7 +104,7 @@ internal fun MoodLineChart(
                 }
                 clipRect(right = size.width * reveal.value) {
                     comparison?.let { drawSeries(it, faint, 2.dp.toPx()) { i -> Offset(x(i, it.size), y(it[i]!!)) } }
-                    drawSeries(trend ?: values, line, 2.dp.toPx()) { i -> Offset(x(i, values.size), y((trend ?: values)[i]!!)) }
+                    drawSeries(values, line, 2.dp.toPx()) { i -> Offset(x(i, values.size), y(values[i]!!)) }
                     if (showDots) {
                         values.forEachIndexed { i, value ->
                             if (value == null) return@forEachIndexed
@@ -119,7 +117,7 @@ internal fun MoodLineChart(
                 selected?.takeIf { it in values.indices }?.let { i ->
                     val cx = x(i, values.size)
                     drawLine(cursor, Offset(cx, 0f), Offset(cx, size.height), 1.dp.toPx())
-                    (values[i] ?: trend?.get(i))?.let { value ->
+                    values[i]?.let { value ->
                         drawCircle(ring, 8.dp.toPx(), Offset(cx, y(value)))
                         drawCircle(levelColors.forLevel(value) ?: line, 6.dp.toPx(), Offset(cx, y(value)))
                     }

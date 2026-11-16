@@ -56,35 +56,14 @@ fun moodBuckets(index: InsightsIndex, buckets: List<DateRange>): List<MoodBucket
     MoodBucket(range, days.sumOf { it.entries }, levels.averageOrNull(), counts.toList())
 }
 
-/**
- * Mood over a period, ready to draw.
- *
- * @property trend a calmer line through daily points ([rollingAverage]); only for a run of days long
- *   enough to be noisy, otherwise `null` and the points themselves are joined.
- */
-data class MoodFlow(val granularity: Granularity, val buckets: List<MoodBucket>, val trend: List<Float?>?) {
+/** Mood over a period, ready to draw: a slice per day, week, month or year. */
+data class MoodFlow(val granularity: Granularity, val buckets: List<MoodBucket>) {
     /** Slices with a mood. A line needs two. */
     val points: Int get() = buckets.count { it.average != null }
 }
 
-/** Daily points get a trend line from this many days on. */
-private const val TREND_FROM_DAYS = 14
-
-fun moodFlow(index: InsightsIndex, range: DateRange, granularity: Granularity, firstDay: java.time.DayOfWeek): MoodFlow {
-    val slices = moodBuckets(index, buckets(range, granularity, firstDay))
-    val trend = if (granularity == Granularity.Days && slices.size >= TREND_FROM_DAYS) rollingAverage(slices.map { it.average }) else null
-    return MoodFlow(granularity, slices, trend)
-}
-
-/**
- * A calmer line through daily values: each point is the average of the values in the [window] days
- * ending on it. A point stays `null` when its window holds fewer than [minValues] values, so the
- * line breaks over a gap instead of drawing through it.
- */
-fun rollingAverage(values: List<Float?>, window: Int = 7, minValues: Int = 2): List<Float?> = values.indices.map { i ->
-    val seen = values.subList(maxOf(0, i - window + 1), i + 1).filterNotNull()
-    if (seen.size < minValues) null else seen.average().toFloat()
-}
+fun moodFlow(index: InsightsIndex, range: DateRange, granularity: Granularity, firstDay: java.time.DayOfWeek): MoodFlow =
+    MoodFlow(granularity, moodBuckets(index, buckets(range, granularity, firstDay)))
 
 /** How much the mood moved from one day to the next, in words rather than a number. */
 enum class Steadiness { Steady, Varied, UpAndDown }

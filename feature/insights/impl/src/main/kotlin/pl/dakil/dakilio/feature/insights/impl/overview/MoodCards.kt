@@ -84,8 +84,7 @@ internal fun moodValueLabel(average: Float?, moods: List<Mood>, formats: Dakilio
 
 /**
  * Mood over the period. Dragging across the chart reads each point into the caption, with a tick
- * per point. When the points are days of a long period, the line is their 7-day average, which the
- * legend names and the caption reads out next to the day's own mood.
+ * per point.
  *
  * @param periodKey what the touched point is remembered under, so it resets when the period changes.
  */
@@ -108,7 +107,6 @@ internal fun MoodFlowCard(
         CardTitle(stringResource(R.string.insights_mood_flow), onMore = onMore)
         MoodLineChart(
             values = flow.buckets.map { it.average },
-            trend = flow.trend,
             comparison = comparison,
             moods = moods,
             description = stringResource(
@@ -127,23 +125,16 @@ internal fun MoodFlowCard(
             endLabel = axisLabel(last.range, flow.granularity, formats),
             modifier = Modifier.padding(top = Spacing.l),
         )
-        val compared = comparisonLabel?.takeIf { comparison != null }
-        if (flow.trend != null || compared != null) {
-            FlowLegend(trend = flow.trend != null, comparisonLabel = compared, modifier = Modifier.padding(top = Spacing.m))
+        if (comparison != null && comparisonLabel != null) {
+            FlowLegend(comparisonLabel, Modifier.padding(top = Spacing.m))
         }
         val bucket = selected?.let(flow.buckets::getOrNull)
         val caption = if (bucket != null) {
-            val point = stringResource(
+            stringResource(
                 R.string.insights_point,
                 bucketLabel(bucket.range, flow.granularity, today, formats),
                 moodValueLabel(bucket.average, moods, formats),
             )
-            val average = selected?.let { flow.trend?.getOrNull(it) }
-            if (average != null) {
-                stringResource(R.string.insights_point, point, stringResource(R.string.insights_flow_trend_value, formats.decimal(average)))
-            } else {
-                point
-            }
         } else {
             null
         }
@@ -338,14 +329,14 @@ internal fun MoodMixCard(mood: MoodSummary, onMore: (() -> Unit)? = null, onLeve
     }
 }
 
-/** Which line is which: the 7-day average when the dots are days, and the comparison as a faint line. */
+/** Which line is which when the flow chart shows a comparison: a solid swatch, then a faint one. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun FlowLegend(trend: Boolean, comparisonLabel: String?, modifier: Modifier = Modifier) {
+private fun FlowLegend(comparisonLabel: String, modifier: Modifier = Modifier) {
     val line = MaterialTheme.colorScheme.primary
     FlowRow(modifier, horizontalArrangement = Arrangement.spacedBy(Spacing.l), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-        LegendLine(line, stringResource(if (trend) R.string.insights_flow_trend else R.string.insights_this_period))
-        comparisonLabel?.let { LegendLine(line.copy(alpha = 0.32f), it) }
+        LegendLine(line, stringResource(R.string.insights_this_period))
+        LegendLine(line.copy(alpha = 0.32f), comparisonLabel)
     }
 }
 
