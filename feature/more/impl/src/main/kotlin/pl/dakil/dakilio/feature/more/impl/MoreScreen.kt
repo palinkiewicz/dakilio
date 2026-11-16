@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -57,7 +58,12 @@ private data class MoreItem(
     val inUse: Boolean = false,
     /** The status is a problem the user should look at. */
     val warning: Boolean = false,
+    /** [onClick] opens a web page in the browser rather than a screen of the app. */
+    val external: Boolean = false,
 )
+
+private const val REPO_URL = "https://github.com/palinkiewicz/dakilio"
+private val AUTHORS = listOf("palinkiewicz", "creeper82")
 
 @Composable
 internal fun MoreScreen(
@@ -82,6 +88,9 @@ internal fun MoreScreen(
     val reminders by viewModel.reminderCount.collectAsStateWithLifecycle()
     val autoBackup by viewModel.autoBackup.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val uriHandler = LocalUriHandler.current
+    // Opening a link fails only without a browser; there's nothing better to do then.
+    val open: (String) -> Unit = { url -> runCatching { uriHandler.openUri(url) } }
     val version = remember {
         runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }.getOrNull().orEmpty()
     }
@@ -194,10 +203,22 @@ internal fun MoreScreen(
             Group(
                 stringResource(R.string.more_section_about),
                 listOf(
-                    MoreItem(DakilioSymbols.Shield, stringResource(R.string.more_privacy), stringResource(R.string.more_privacy_body)),
-                    MoreItem(DakilioSymbols.Code, stringResource(R.string.more_open_source), stringResource(R.string.more_open_source_body)),
-                    MoreItem(DakilioSymbols.Info, stringResource(R.string.more_version), version),
-                ),
+                    MoreItem(
+                        DakilioSymbols.Code,
+                        stringResource(R.string.more_source),
+                        stringResource(R.string.more_source_body),
+                        onClick = { open(REPO_URL) },
+                        external = true,
+                    ),
+                ) + AUTHORS.map { login ->
+                    MoreItem(
+                        DakilioSymbols.Person,
+                        login,
+                        stringResource(R.string.more_author),
+                        onClick = { open("https://github.com/$login") },
+                        external = true,
+                    )
+                } + MoreItem(DakilioSymbols.Info, stringResource(R.string.more_version), version),
             )
         }
     }
@@ -310,7 +331,9 @@ private fun Group(title: String, items: List<MoreItem>) {
                     colors = segmentedItemColors(),
                     leadingContent = leading,
                     supportingContent = supporting,
-                    trailingContent = { DakilioIcon(DakilioSymbols.ChevronRight, contentDescription = null) },
+                    trailingContent = {
+                        DakilioIcon(if (item.external) DakilioSymbols.OpenInNew else DakilioSymbols.ChevronRight, contentDescription = null)
+                    },
                 ) { Text(item.title) }
             } else {
                 SegmentedListItem(shapes = shapes, colors = segmentedItemColors(), leadingContent = leading, supportingContent = supporting) { Text(item.title) }

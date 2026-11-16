@@ -5,7 +5,7 @@
     <string name="more_section_extras">Dodatki</string>
     <string name="more_extras_not_used">Jeszcze nieużywane</string>
     <string name="more_habits">Nawyki</string>
-    <string name="more_habits_body">Wybierz tag i ustal, w ile dni w tygodniu ma się pojawiać w twoich wpisach</string>
+    <string name="more_habits_body">Cotygodniowe cele dla tagów</string>
     <plurals name="more_habits_status">
         <item quantity="one">%d nawyk</item>
         <item quantity="few">%d nawyki</item>
@@ -13,7 +13,7 @@
         <item quantity="other">%d nawyku</item>
     </plurals>
     <string name="more_keywords">Słowa kluczowe</string>
-    <string name="more_keywords_body">Słowa w notatkach, które podpowiadają tag</string>
+    <string name="more_keywords_body">Słowa, które podpowiadają tagi</string>
     <plurals name="more_keywords_status">
         <item quantity="one">Ustawione dla %d tagu</item>
         <item quantity="few">Ustawione dla %d tagów</item>
@@ -21,7 +21,7 @@
         <item quantity="other">Ustawione dla %d tagu</item>
     </plurals>
     <string name="more_reminders">Przypomnienia</string>
-    <string name="more_reminders_body">Szturchnięcie, żeby coś zapisać albo pilnować nawyku</string>
+    <string name="more_reminders_body">Zachęta do wpisu lub nawyku</string>
     <plurals name="more_reminders_status">
         <item quantity="one">%d przypomnienie</item>
         <item quantity="few">%d przypomnienia</item>
@@ -32,16 +32,16 @@
     <string name="more_moods">Nastroje</string>
     <string name="more_moods_body">Nazwy i aliasy</string>
     <string name="more_tags">Tagi</string>
-    <string name="more_tags_body">Grupy, nazwy, ikony i kolory</string>
+    <string name="more_tags_body">Grupy, ikony i kolory</string>
     <string name="more_diaries">Dzienniki</string>
-    <string name="more_diaries_body">Nazwy, ikony i sugerowane tagi</string>
+    <string name="more_diaries_body">Ikony i sugerowane tagi</string>
     <string name="more_archive">Archiwum</string>
-    <string name="more_archive_body">Przywracaj lub usuwaj zarchiwizowane nastroje i tagi</string>
+    <string name="more_archive_body">Ukryte nastroje i tagi</string>
     <string name="more_section_data">Dane</string>
     <string name="more_export">Eksport</string>
-    <string name="more_export_body">Dziennik jako PDF albo Markdown do czytania, drukowania lub udostępniania</string>
+    <string name="more_export_body">Dziennik jako PDF lub Markdown</string>
     <string name="more_backup">Kopia zapasowa</string>
-    <string name="more_backup_body">Automatyczne kopie albo zapis i przywracanie pliku .dakilio</string>
+    <string name="more_backup_body">Automatyczne i ręczne kopie</string>
     <string name="more_backup_auto_on">Automatyczne kopie włączone</string>
     <string name="more_backup_auto_failed">Ostatnia automatyczna kopia się nie udała</string>
     <string name="more_backup_auto_none">Nie ma jeszcze automatycznej kopii</string>
@@ -52,12 +52,12 @@
         <item quantity="other">Brak kopii od %d dnia</item>
     </plurals>
     <string name="more_import_daylio">Import z Daylio</string>
-    <string name="more_import_daylio_body">Zastąp wszystko kopią zapasową .daylio</string>
+    <string name="more_import_daylio_body">Zastąp wszystko kopią .daylio</string>
     <string name="more_section_app">Aplikacja</string>
     <string name="more_settings">Ustawienia</string>
-    <string name="more_settings_body">Motyw, język i przykładowe treści</string>
+    <string name="more_settings_body">Motyw, język i inne</string>
     <string name="more_app_lock">Blokada aplikacji</string>
-    <string name="more_app_lock_body">PIN, hasło, biometria i prywatność</string>
+    <string name="more_app_lock_body">PIN, hasło lub biometria</string>
     <string name="more_app_lock_off">Wyłączona</string>
     <string name="more_app_lock_pin">Włączona · PIN</string>
     <string name="more_app_lock_password">Włączona · hasło</string>
@@ -65,10 +65,9 @@
     <string name="more_app_lock_password_biometrics">Włączona · hasło i biometria</string>
     <string name="more_section_about">O aplikacji</string>
     <string name="more_version">Wersja</string>
-    <string name="more_open_source">Otwarte oprogramowanie</string>
-    <string name="more_open_source_body">Wolne oprogramowanie na licencji GNU GPL v3</string>
-    <string name="more_privacy">Twoje dane należą do ciebie</string>
-    <string name="more_privacy_body">Przechowywane tylko na tym urządzeniu. Przy dodawaniu zdjęć usuwamy z nich lokalizację.</string>
+    <string name="more_source">Kod źródłowy</string>
+    <string name="more_source_body">GitHub · GNU GPL v3</string>
+    <string name="more_author">Autor · GitHub</string>
     <string name="more_sample_title">To są przykładowe wpisy</string>
     <string name="more_sample_body">Pokazują, co potrafi Dakilio. Usuń je, kiedy zechcesz zacząć pisać własną historię.</string>
     <string name="more_sample_manage">Usuń przykłady</string>
