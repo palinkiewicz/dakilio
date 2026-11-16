@@ -97,7 +97,8 @@ internal fun SummaryCard(
                                 style = MaterialTheme.typography.displaySmallEmphasized,
                                 modifier = Modifier.clearAndSetSemantics { contentDescription = averageDescription },
                             )
-                            overview.moodChange?.let { ChangeChip(it, formats) }
+                            // A change that rounds to nothing says nothing.
+                            overview.moodChange?.takeIf { Math.round(it * 10) != 0 }?.let { ChangeChip(it, formats) }
                             overview.steadiness?.let { steadiness ->
                                 Pill(
                                     when (steadiness) {
