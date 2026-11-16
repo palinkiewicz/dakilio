@@ -5,10 +5,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import pl.dakil.dakilio.feature.insights.impl.logic.InsightsPeriod
+import pl.dakil.dakilio.feature.insights.impl.overview.comparisonRangeOf
+import pl.dakil.dakilio.feature.insights.impl.overview.comparisonLabel
+import pl.dakil.dakilio.feature.insights.impl.ComparisonChip
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -70,6 +77,7 @@ internal fun InsightsMoodScreen(viewModel: InsightsMoodViewModel, onBack: () -> 
     val formats = rememberFormats()
     val ready = state as? InsightsMoodUiState.Ready
     var openDay by rememberSaveable { mutableStateOf<Long?>(null) }
+    val compareLabel = ready?.let { comparisonLabel(it.header, comparisonRangeOf(it.header), formats) }
     InsightsDetailScaffold(
         title = stringResource(R.string.insights_mood_title),
         header = ready?.header,
@@ -87,7 +95,24 @@ internal fun InsightsMoodScreen(viewModel: InsightsMoodViewModel, onBack: () -> 
             item(key = "slices") { GranularityToggle(current.granularities, current.flow.granularity, viewModel::setGranularity) }
         }
         if (current.flow.points >= 2) {
-            item(key = "flow") { MoodFlowCard(current.flow, current.moods, current.today, formats, current.header.key) }
+            item(key = "flow") {
+                MoodFlowCard(
+                    flow = current.flow,
+                    moods = current.moods,
+                    today = current.today,
+                    formats = formats,
+                    periodKey = current.header.key,
+                    comparison = current.comparisonFlow,
+                    comparisonLabel = compareLabel,
+                )
+            }
+        }
+        if (current.header.period != InsightsPeriod.AllTime) {
+            item(key = "compare") {
+                NowThenCard(current.now, current.then, compareLabel, current.moods, formats) {
+                    ComparisonChip(current.header, current.moods, current.firstDay, formats, viewModel::setComparison)
+                }
+            }
         }
         item(key = "mix") { MoodMixCard(current.summary, onLevel = { onOpen(InsightsEntriesKey(viewModel.scope, moodLevel = it)) }) }
         if (current.flow.buckets.size > 1) {
@@ -262,5 +287,46 @@ private fun StandoutDaysCard(title: String, days: List<MoodDay>, moods: List<Moo
                 }
             }
         }
+    }
+}
+
+/**
+ * This period's numbers next to the comparison period's, with the chip that picks the comparison
+ * on top. Without one, only the chip shows.
+ */
+@Composable
+private fun NowThenCard(now: PeriodNumbers, then: PeriodNumbers?, thenLabel: String?, moods: List<Mood>, formats: DakilioFormats, chip: @Composable () -> Unit) {
+    InsightCard {
+        chip()
+        if (then == null || thenLabel == null) return@InsightCard
+        Row(Modifier.fillMaxWidth().padding(top = Spacing.l)) {
+            Spacer(Modifier.weight(1.3f))
+            Text(stringResource(R.string.insights_now), style = MaterialTheme.typography.labelLarge, textAlign = TextAlign.End, modifier = Modifier.weight(1f))
+            Text(stringResource(R.string.insights_then), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.End, modifier = Modifier.weight(1f))
+        }
+        HorizontalDivider(Modifier.padding(vertical = Spacing.s), color = MaterialTheme.colorScheme.outlineVariant)
+        NowThenRow(stringResource(R.string.insights_average_mood), now.average?.let(formats::decimal) ?: "–", then.average?.let(formats::decimal) ?: "–") {
+            now.average?.let { nearestMood(moods, it) }?.let { MoodBadge(it, size = 20.dp) }
+        }
+        NowThenRow(stringResource(R.string.insights_entries), formats.count(now.entries), formats.count(then.entries))
+        NowThenRow(stringResource(R.string.insights_days_journaled), formats.count(now.days), formats.count(then.days))
+    }
+}
+
+@Composable
+private fun NowThenRow(label: String, now: String, then: String, badge: (@Composable () -> Unit)? = null) {
+    Row(
+        Modifier.fillMaxWidth().padding(vertical = Spacing.xs).semantics(mergeDescendants = true) { },
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(label, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1.3f))
+        Row(Modifier.weight(1f), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
+            badge?.let {
+                it()
+                Spacer(Modifier.width(Spacing.xs))
+            }
+            Text(now, style = MaterialTheme.typography.titleMedium)
+        }
+        Text(then, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.End, modifier = Modifier.weight(1f))
     }
 }

@@ -1,6 +1,8 @@
 package pl.dakil.dakilio.feature.insights.impl.overview
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -95,6 +97,7 @@ internal fun MoodFlowCard(
     periodKey: String,
     onMore: (() -> Unit)? = null,
     comparison: List<Float?>? = null,
+    comparisonLabel: String? = null,
 ) {
     val haptics = rememberHaptics()
     var selected by rememberSaveable(periodKey, flow.granularity) { mutableStateOf<Int?>(null) }
@@ -123,6 +126,9 @@ internal fun MoodFlowCard(
             endLabel = axisLabel(last.range, flow.granularity, formats),
             modifier = Modifier.padding(top = Spacing.l),
         )
+        if (comparison != null && comparisonLabel != null) {
+            FlowLegend(comparisonLabel, Modifier.padding(top = Spacing.m))
+        }
         val bucket = selected?.let(flow.buckets::getOrNull)
         val caption = if (bucket != null) {
             stringResource(
@@ -321,5 +327,24 @@ internal fun MoodMixCard(mood: MoodSummary, onMore: (() -> Unit)? = null, onLeve
                 }
             }
         }
+    }
+}
+
+/** Which line is which when the flow chart shows a comparison: a solid swatch, then a faint one. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun FlowLegend(comparisonLabel: String, modifier: Modifier = Modifier) {
+    val line = MaterialTheme.colorScheme.primary
+    FlowRow(modifier, horizontalArrangement = Arrangement.spacedBy(Spacing.l), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+        LegendLine(line, stringResource(R.string.insights_this_period))
+        LegendLine(line.copy(alpha = 0.32f), comparisonLabel)
+    }
+}
+
+@Composable
+private fun LegendLine(color: androidx.compose.ui.graphics.Color, label: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(width = 16.dp, height = 3.dp).background(color, RoundedCornerShape(2.dp)))
+        Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = Spacing.xs))
     }
 }

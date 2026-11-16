@@ -30,7 +30,11 @@ import pl.dakil.dakilio.core.model.Mood
 import pl.dakil.dakilio.core.ui.DakilioFormats
 import pl.dakil.dakilio.core.ui.mood.AverageMoodFace
 import pl.dakil.dakilio.core.ui.mood.NoMoodBadge
+import pl.dakil.dakilio.feature.insights.impl.ComparisonChip
+import pl.dakil.dakilio.feature.insights.impl.PeriodHeaderState
 import pl.dakil.dakilio.feature.insights.impl.R
+import pl.dakil.dakilio.feature.insights.impl.logic.Comparison
+import java.time.DayOfWeek
 import pl.dakil.dakilio.feature.insights.impl.logic.Overview
 import pl.dakil.dakilio.feature.insights.impl.logic.Steadiness
 import pl.dakil.dakilio.feature.insights.impl.logic.nearestMood
@@ -39,11 +43,18 @@ import pl.dakil.dakilio.feature.insights.impl.logic.nearestMood
  * The period at a glance: its average as a large face that morphs as the period changes, the change
  * against the comparison period, and the four headline numbers.
  *
- * @param comparisonLabel what the change is measured against ("September 2026"), `null` without a comparison.
+ * @param onComparison changes what the period is measured against, from the chip at the card's foot.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-internal fun SummaryCard(overview: Overview, moods: List<Mood>, formats: DakilioFormats, comparisonLabel: String?) {
+internal fun SummaryCard(
+    overview: Overview,
+    moods: List<Mood>,
+    formats: DakilioFormats,
+    header: PeriodHeaderState,
+    firstDay: DayOfWeek,
+    onComparison: (Comparison) -> Unit,
+) {
     val colors = MaterialTheme.colorScheme
     val average = overview.mood.average
     val mood = average?.let { nearestMood(moods, it) }
@@ -54,50 +65,55 @@ internal fun SummaryCard(overview: Overview, moods: List<Mood>, formats: Dakilio
             contentColor = colors.onPrimaryContainer,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Row(Modifier.padding(Spacing.xl), verticalAlignment = Alignment.CenterVertically) {
-                if (average == null || mood == null) {
-                    NoMoodBadge(size = 72.dp)
-                    Text(
-                        stringResource(R.string.insights_no_mood),
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(start = Spacing.l),
-                    )
-                    return@Row
-                }
-                AverageMoodFace(mood, size = 96.dp)
-                Column(Modifier.padding(start = Spacing.l)) {
-                    Text(stringResource(R.string.insights_mostly, mood.label), style = MaterialTheme.typography.titleMedium)
-                    val averageText = formats.decimal(average)
-                    val averageDescription = stringResource(R.string.insights_average_cd, averageText)
-                    FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(Spacing.s),
-                        verticalArrangement = Arrangement.spacedBy(Spacing.xs),
-                        itemVerticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        RollingNumber(
-                            averageText,
-                            style = MaterialTheme.typography.displaySmallEmphasized,
-                            modifier = Modifier.clearAndSetSemantics { contentDescription = averageDescription },
+            Column(Modifier.padding(Spacing.xl)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (average == null || mood == null) {
+                        NoMoodBadge(size = 72.dp)
+                        Text(
+                            stringResource(R.string.insights_no_mood),
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(start = Spacing.l),
                         )
-                        overview.moodChange?.let { ChangeChip(it, formats) }
-                        overview.steadiness?.let { steadiness ->
-                            Pill(
-                                when (steadiness) {
-                                    Steadiness.Steady -> stringResource(R.string.insights_steady)
-                                    Steadiness.Varied -> stringResource(R.string.insights_varied)
-                                    Steadiness.UpAndDown -> stringResource(R.string.insights_up_and_down)
-                                },
+                        return@Row
+                    }
+                    AverageMoodFace(mood, size = 96.dp)
+                    Column(Modifier.padding(start = Spacing.l)) {
+                        Text(stringResource(R.string.insights_mostly, mood.label), style = MaterialTheme.typography.titleMedium)
+                        val averageText = formats.decimal(average)
+                        val averageDescription = stringResource(R.string.insights_average_cd, averageText)
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(Spacing.s),
+                            verticalArrangement = Arrangement.spacedBy(Spacing.xs),
+                            itemVerticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RollingNumber(
+                                averageText,
+                                style = MaterialTheme.typography.displaySmallEmphasized,
+                                modifier = Modifier.clearAndSetSemantics { contentDescription = averageDescription },
                             )
+                            overview.moodChange?.let { ChangeChip(it, formats) }
+                            overview.steadiness?.let { steadiness ->
+                                Pill(
+                                    when (steadiness) {
+                                        Steadiness.Steady -> stringResource(R.string.insights_steady)
+                                        Steadiness.Varied -> stringResource(R.string.insights_varied)
+                                        Steadiness.UpAndDown -> stringResource(R.string.insights_up_and_down)
+                                    },
+                                )
+                            }
                         }
                     }
-                    if (comparisonLabel != null && overview.moodChange != null) {
-                        Text(
-                            stringResource(R.string.insights_compared_with, comparisonLabel),
-                            style = MaterialTheme.typography.labelMedium,
-                            modifier = Modifier.padding(top = Spacing.xs),
-                        )
-                    }
                 }
+                ComparisonChip(
+                    header = header,
+                    moods = moods,
+                    firstDay = firstDay,
+                    formats = formats,
+                    onComparison = onComparison,
+                    containerColor = colors.surface,
+                    contentColor = colors.onSurface,
+                    modifier = Modifier.padding(top = Spacing.l),
+                )
             }
         }
         val square = RoundedCornerShape(6.dp)

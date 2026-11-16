@@ -60,6 +60,7 @@ import pl.dakil.dakilio.feature.insights.impl.R
 import pl.dakil.dakilio.feature.insights.impl.hasPicker
 import pl.dakil.dakilio.feature.insights.impl.key
 import pl.dakil.dakilio.feature.insights.impl.logic.comparisonPeriod
+import pl.dakil.dakilio.feature.insights.impl.logic.comparisonRange
 import pl.dakil.dakilio.feature.insights.impl.logic.calendarRange
 import pl.dakil.dakilio.feature.insights.impl.periodLabel
 import pl.dakil.dakilio.feature.insights.impl.rangeLabel
@@ -98,6 +99,9 @@ internal fun InsightsScreen(viewModel: InsightsViewModel, onOpenPost: (Long) -> 
         }
     }
 }
+
+/** The days [header]'s period is compared with, whether or not they hold entries. */
+internal fun comparisonRangeOf(header: PeriodHeaderState): DateRange? = comparisonRange(header.period, header.comparison, header.bounds)
 
 /**
  * What a period is compared with, by name: "October 2026", or "October 2026, first 16 days" while
@@ -153,7 +157,16 @@ private fun InsightsContent(
         }
         // The first cards cascade in as the tab opens (decorative).
         item(key = "summary") {
-            Box(Modifier.entrance(0)) { SummaryCard(overview, state.moods, formats, comparisonLabel(header, overview.comparison?.range, formats)) }
+            Box(Modifier.entrance(0)) {
+                SummaryCard(
+                    overview = overview,
+                    moods = state.moods,
+                    formats = formats,
+                    header = header,
+                    firstDay = state.firstDay,
+                    onComparison = viewModel::setComparison,
+                )
+            }
         }
         if (state.highlights.isNotEmpty()) {
             item(key = "highlights") {
@@ -162,7 +175,7 @@ private fun InsightsContent(
                     moods = state.moods,
                     today = state.today,
                     formats = formats,
-                    comparisonLabel = comparisonLabel(header, overview.comparison?.range, formats),
+                    comparisonLabel = comparisonLabel(header, comparisonRangeOf(header), formats),
                     onOpen = { highlight ->
                         when (highlight) {
                             is Highlight.TagBrighter -> ({ onOpen(InsightsTagKey(viewModel.scope, highlight.tag.id)) })

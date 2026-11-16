@@ -25,6 +25,7 @@ import pl.dakil.dakilio.feature.insights.impl.logic.MoodDay
 import pl.dakil.dakilio.feature.insights.impl.logic.MoodFlow
 import pl.dakil.dakilio.feature.insights.impl.logic.MoodSummary
 import pl.dakil.dakilio.feature.insights.impl.logic.Steadiness
+import pl.dakil.dakilio.feature.insights.impl.logic.averageOrNull
 import pl.dakil.dakilio.feature.insights.impl.logic.brightestDays
 import pl.dakil.dakilio.feature.insights.impl.logic.defaultGranularity
 import pl.dakil.dakilio.feature.insights.impl.logic.granularities
@@ -38,6 +39,9 @@ import pl.dakil.dakilio.feature.insights.impl.logic.toughestDays
 private const val STANDOUT_FROM_DAYS = 6
 private const val STANDOUT_DAYS = 3
 
+/** A period's headline numbers, for Now against Then. */
+data class PeriodNumbers(val average: Float?, val entries: Int, val days: Int)
+
 sealed interface InsightsMoodUiState {
     data object Loading : InsightsMoodUiState
 
@@ -46,6 +50,8 @@ sealed interface InsightsMoodUiState {
      * @property names the exact moods picked, aliases apart, the most used first.
      * @property brightest, toughest empty while the period has too few days with a mood.
      * @property diaries by id, for the day sheet's cards; empty under a diary filter.
+     * @property comparisonFlow the comparison period's points in the same slices, `null` without one.
+     * @property then the comparison period's numbers, `null` without a comparison.
      */
     data class Ready(
         val header: PeriodHeaderState,
@@ -56,6 +62,9 @@ sealed interface InsightsMoodUiState {
         val names: List<MoodCount>,
         val brightest: List<MoodDay>,
         val toughest: List<MoodDay>,
+        val comparisonFlow: List<Float?>?,
+        val now: PeriodNumbers,
+        val then: PeriodNumbers?,
         val moods: List<Mood>,
         val diaries: Map<Long, Diary>,
         val selectedDiaryId: Long?,
@@ -82,9 +91,16 @@ class InsightsMoodViewModel @AssistedInject constructor(
             val allowed = granularities(range)
             val slice = Granularity.entries.firstOrNull { it.name == picked && it in allowed } ?: defaultGranularity(range)
             val enoughDays = days.count { it.mood != null } >= STANDOUT_FROM_DAYS
+            val compared = frame.comparisonRange
+            val comparedDays = compared?.let(data.index::days)
+            val flow = moodFlow(data.index, range, slice, data.firstDay)
             InsightsMoodUiState.Ready(
                 header = frame.header,
-                flow = moodFlow(data.index, range, slice, data.firstDay),
+                flow = flow,
+                comparisonFlow = compared?.takeIf { comparedDays!!.any { it.mood != null } }
+                    ?.let { moodFlow(data.index, it, slice, data.firstDay).buckets.map { bucket -> bucket.average } },
+                now = PeriodNumbers(days.flatMap { it.levels }.averageOrNull(), posts.size, days.size),
+                then = comparedDays?.let { other -> PeriodNumbers(other.flatMap { it.levels }.averageOrNull(), other.sumOf { it.entries }, other.size) },
                 granularities = allowed,
                 summary = moodSummary(posts, data.primaries),
                 steadiness = steadiness(days.mapNotNull { it.mood }),

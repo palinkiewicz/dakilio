@@ -29,11 +29,19 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.material3.rememberDateRangePickerState
+import androidx.compose.material3.DateRangePicker
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -172,6 +180,7 @@ internal fun PeriodStepper(
                     val sub = when {
                         shown == InsightsPeriod.AllTime -> stringResource(R.string.insights_since, formats.dayMonthYear(state.bounds.first))
                         shown == state.period && state.inProgress -> stringResource(R.string.insights_so_far)
+                        shown is InsightsPeriod.Custom -> shown.calendarRange(state.bounds).days.let { pluralStringResource(R.plurals.insights_days_count, it, it) }
                         else -> null
                     }
                     sub?.let { Text(it, style = MaterialTheme.typography.labelSmall, color = colors.onSurfaceVariant, maxLines = 1) }
@@ -195,7 +204,8 @@ private fun InsightsPeriod.order(bounds: Bounds): Long = calendarRange(bounds).f
 
 /**
  * The picker behind the stepper's label: the month grid for a month, a list of years for a year and
- * a date picker for a week (the week holding the picked day).
+ * a date picker for a week (the week holding the picked day). Each offers "Custom range…", which
+ * all time and a custom range open straight away.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -208,7 +218,24 @@ internal fun PeriodPicker(
     onDismiss: () -> Unit,
 ) {
     val bounds = state.bounds
-    when (val period = state.period) {
+    val period = state.period
+    var custom by rememberSaveable { mutableStateOf(period == InsightsPeriod.AllTime || period is InsightsPeriod.Custom) }
+    if (custom) {
+        CustomRangeDialog(
+            initial = (period as? InsightsPeriod.Custom)?.let { DateRange(it.from, it.to) },
+            bounds = bounds,
+            onPick = { onPick(InsightsPeriod.Custom(it.from, it.to)) },
+            onDismiss = onDismiss,
+        )
+        return
+    }
+    val customButton: @Composable () -> Unit = {
+        TextButton(onClick = { custom = true }, modifier = Modifier.padding(top = Spacing.m)) {
+            DakilioIcon(DakilioSymbols.CalendarToday, contentDescription = null, modifier = Modifier.size(18.dp))
+            Text(stringResource(R.string.insights_custom_range), Modifier.padding(start = Spacing.s))
+        }
+    }
+    when (period) {
         is InsightsPeriod.Month -> MonthPickerSheet(
             current = period.month,
             firstDay = bounds.first,
@@ -218,69 +245,112 @@ internal fun PeriodPicker(
             formats = formats,
             onPick = { onPick(InsightsPeriod.Month(it)) },
             onDismiss = onDismiss,
+            footer = customButton,
         )
 
         is InsightsPeriod.Year -> ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
             val haptics = rememberHaptics()
-            FlowRow(
-                Modifier.fillMaxWidth().padding(horizontal = Spacing.gutter).padding(bottom = Spacing.xl),
-                horizontalArrangement = Arrangement.spacedBy(Spacing.s),
-                verticalArrangement = Arrangement.spacedBy(Spacing.s),
-            ) {
-                (bounds.today.year downTo bounds.first.year).forEach { year ->
-                    val selected = year == period.year
-                    Surface(
-                        onClick = {
-                            haptics.confirm()
-                            onPick(InsightsPeriod.Year(year))
-                        },
-                        shape = RoundedCornerShape(16.dp),
-                        color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHigh,
-                        contentColor = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
-                    ) {
-                        Text(
-                            year.toString(),
-                            style = if (selected) MaterialTheme.typography.titleMediumEmphasized else MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.padding(horizontal = Spacing.xl, vertical = Spacing.m),
-                        )
+            Column(Modifier.fillMaxWidth().padding(horizontal = Spacing.gutter).padding(bottom = Spacing.xl)) {
+                FlowRow(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.s),
+                    verticalArrangement = Arrangement.spacedBy(Spacing.s),
+                ) {
+                    (bounds.today.year downTo bounds.first.year).forEach { year ->
+                        val selected = year == period.year
+                        Surface(
+                            onClick = {
+                                haptics.confirm()
+                                onPick(InsightsPeriod.Year(year))
+                            },
+                            shape = RoundedCornerShape(16.dp),
+                            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHigh,
+                            contentColor = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+                        ) {
+                            Text(
+                                year.toString(),
+                                style = if (selected) MaterialTheme.typography.titleMediumEmphasized else MaterialTheme.typography.titleMedium,
+                                modifier = Modifier.padding(horizontal = Spacing.xl, vertical = Spacing.m),
+                            )
+                        }
                     }
                 }
+                customButton()
             }
         }
 
         is InsightsPeriod.Week -> {
-            val first = bounds.first.atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli()
-            val last = bounds.today.atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli()
-            val selectable = remember(first, last) {
-                object : SelectableDates {
-                    override fun isSelectableDate(utcTimeMillis: Long) = utcTimeMillis in first..last
-                    override fun isSelectableYear(year: Int) = year in bounds.first.year..bounds.today.year
-                }
-            }
-            val initial = minOf(period.start.plusDays(6), bounds.today).atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli()
+            val selectable = remember(bounds) { boundedDates(bounds) }
+            val initial = minOf(period.start.plusDays(6), bounds.today).toUtcMillis()
             val pickerState = rememberDatePickerState(initialSelectedDateMillis = initial, selectableDates = selectable)
             DatePickerDialog(
                 onDismissRequest = onDismiss,
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            pickerState.selectedDateMillis?.let { millis ->
-                                val date = Instant.ofEpochMilli(millis).atZone(ZoneOffset.UTC).toLocalDate()
-                                onPick(InsightsPeriod.of(PeriodKind.Week, date, firstDay))
-                            } ?: onDismiss()
+                            pickerState.selectedDateMillis?.let { onPick(InsightsPeriod.of(PeriodKind.Week, it.toUtcDate(), firstDay)) } ?: onDismiss()
                         },
                     ) { Text(stringResource(R.string.insights_ok)) }
                 },
-                dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(pl.dakil.dakilio.core.ui.R.string.ui_cancel)) } },
+                dismissButton = {
+                    Row {
+                        TextButton(onClick = { custom = true }) { Text(stringResource(R.string.insights_custom_range)) }
+                        TextButton(onClick = onDismiss) { Text(stringResource(pl.dakil.dakilio.core.ui.R.string.ui_cancel)) }
+                    }
+                },
             ) { DatePicker(pickerState) }
         }
 
-        InsightsPeriod.AllTime, is InsightsPeriod.Custom -> onDismiss()
+        InsightsPeriod.AllTime, is InsightsPeriod.Custom -> Unit
     }
 }
 
-/** Whether tapping the stepper's label has anything to open. */
-internal val InsightsPeriod.hasPicker: Boolean get() = this is InsightsPeriod.Week || this is InsightsPeriod.Month || this is InsightsPeriod.Year
+/** Days from the journal's first entry to today, for the date pickers. */
+private fun boundedDates(bounds: Bounds): SelectableDates {
+    val first = bounds.first.toUtcMillis()
+    val last = bounds.today.toUtcMillis()
+    return object : SelectableDates {
+        override fun isSelectableDate(utcTimeMillis: Long) = utcTimeMillis in first..last
+        override fun isSelectableYear(year: Int) = year in bounds.first.year..bounds.today.year
+    }
+}
+
+private fun LocalDate.toUtcMillis(): Long = atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli()
+
+private fun Long.toUtcDate(): LocalDate = Instant.ofEpochMilli(this).atZone(ZoneOffset.UTC).toLocalDate()
+
+/** Picks any span of days inside the journal. A single tapped day is a range of one day. */
+@Composable
+internal fun CustomRangeDialog(initial: DateRange?, bounds: Bounds, onPick: (DateRange) -> Unit, onDismiss: () -> Unit) {
+    val haptics = rememberHaptics()
+    val pickerState = rememberDateRangePickerState(
+        initialSelectedStartDateMillis = initial?.from?.toUtcMillis(),
+        initialSelectedEndDateMillis = initial?.to?.toUtcMillis(),
+        initialDisplayedMonthMillis = (initial?.to ?: bounds.today).toUtcMillis(),
+        selectableDates = remember(bounds) { boundedDates(bounds) },
+    )
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(
+                enabled = pickerState.selectedStartDateMillis != null,
+                onClick = {
+                    val from = pickerState.selectedStartDateMillis?.toUtcDate() ?: return@TextButton
+                    val to = pickerState.selectedEndDateMillis?.toUtcDate() ?: from
+                    haptics.confirm()
+                    onPick(DateRange(minOf(from, to), maxOf(from, to)))
+                },
+            ) { Text(stringResource(R.string.insights_ok)) }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(pl.dakil.dakilio.core.ui.R.string.ui_cancel)) } },
+    ) {
+        DateRangePicker(state = pickerState, modifier = Modifier.weight(1f))
+    }
+}
+
+/** Whether tapping the stepper's label has anything to open: every period can be swapped for a custom range. */
+@Suppress("UnusedReceiverParameter")
+internal val InsightsPeriod.hasPicker: Boolean get() = true
 
 /** A stable key for remembering things per period. */
 internal val PeriodHeaderState.key: String get() = period.encode()

@@ -271,4 +271,15 @@
         <item quantity="many">%1$s, pierwsze %2$d dni</item>
         <item quantity="other">%1$s, pierwsze %2$d dnia</item>
     </plurals>
+    <string name="insights_custom_range">Własny zakres…</string>
+    <string name="insights_compare">Porównaj…</string>
+    <string name="insights_compare_title">Porównaj z</string>
+    <string name="insights_compare_previous">Poprzedni okres</string>
+    <string name="insights_compare_year_before">Rok wcześniej</string>
+    <string name="insights_compare_pick">Wybierz okres…</string>
+    <string name="insights_compare_none">Bez porównania</string>
+    <string name="insights_then">Wtedy</string>
+    <string name="insights_now">Teraz</string>
+    <string name="insights_this_period">Ten okres</string>
+    <string name="insights_average_mood">Średni nastrój</string>
 </resources>
