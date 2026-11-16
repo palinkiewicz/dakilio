@@ -17,3 +17,18 @@ data class InsightsScope(
     val diaryId: Long? = null,
     val comparison: String? = null,
 )
+
+/**
+ * The entries behind a number: those of [scope]'s period (and diary) that match every filter given.
+ *
+ * @property weekday ISO day of the week, Monday = 1.
+ * @property dayPart the name of a part of the day, as the feature writes it.
+ */
+@Serializable
+data class InsightsEntriesKey(
+    val scope: InsightsScope = InsightsScope(),
+    val moodLevel: Int? = null,
+    val tagId: Long? = null,
+    val weekday: Int? = null,
+    val dayPart: String? = null,
+) : NavKey

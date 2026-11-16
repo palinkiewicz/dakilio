@@ -141,6 +141,9 @@ abstract class InsightsScopedViewModel(
     val scope: InsightsScope
         get() = InsightsScope(period.value ?: last?.period?.encode(), last?.data?.diaryId ?: diaryId.value, comparison.value)
 
+    /** The entries of one day under the diary filter, earliest first: what the day sheet lists. */
+    fun postsOn(date: LocalDate): List<Post> = last?.data?.index?.day(date)?.posts.orEmpty()
+
     /** To the period after (`forward`) or before, when there is one inside the journal. */
     fun step(forward: Boolean) {
         val frame = last ?: return

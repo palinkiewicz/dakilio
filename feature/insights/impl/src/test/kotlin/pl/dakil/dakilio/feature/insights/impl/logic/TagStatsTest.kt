@@ -77,3 +77,30 @@ class TagStatsTest {
         assertEquals(listOf("Work" to 2, "Read" to 1), coOccurring(posts, WALK.id).map { it.tag.label to it.count })
     }
 }
+
+class EntryFilterTest {
+    @Test
+    fun `entries are narrowed by every part of the filter`() {
+        // Today is a Thursday.
+        val morningWalk = post(0, 5, WALK, hour = 8)
+        val eveningWalk = post(0, 3, WALK, hour = 20)
+        val wednesday = post(1, 5, WORK, hour = 8)
+        val posts = listOf(morningWalk, eveningWalk, wednesday, post(2))
+        assertEquals(listOf(morningWalk, wednesday), posts.filter(EntryFilter(moodLevel = 5)::matches))
+        assertEquals(listOf(morningWalk, eveningWalk), posts.filter(EntryFilter(tagId = WALK.id)::matches))
+        assertEquals(listOf(wednesday), posts.filter(EntryFilter(weekday = java.time.DayOfWeek.WEDNESDAY)::matches))
+        assertEquals(listOf(morningWalk), posts.filter(EntryFilter(tagId = WALK.id, dayPart = DayPart.Morning)::matches))
+        assertEquals(4, posts.count(EntryFilter()::matches))
+    }
+
+    @Test
+    fun `matching entries are listed by day, newest day first`() {
+        val late = post(0, 3, hour = 20)
+        val early = post(0, 5, hour = 8)
+        val before = post(3, 4)
+        val days = entryDays(listOf(late, before, early))
+        assertEquals(listOf(TODAY, TODAY.minusDays(3)), days.map { it.date })
+        assertEquals(listOf(early, late), days.first().posts)
+        assertEquals(emptyList<EntryDay>(), entryDays(listOf(late), EntryFilter(moodLevel = 1)))
+    }
+}

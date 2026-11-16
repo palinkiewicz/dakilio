@@ -125,4 +125,9 @@
     <string name="insights_gathering_flow">Mood flow</string>
     <string name="insights_gathering_links">What goes with your mood</string>
     <string name="insights_gathering_best_day">Best day of the week</string>
+    <!-- Entries and days -->
+    <string name="insights_back">Back</string>
+    <string name="insights_entries_none">No entries match in this period.</string>
+    <string name="insights_day_empty">No entries on this day.</string>
+    <string name="insights_day_add">Add an entry</string>
 </resources>

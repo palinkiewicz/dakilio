@@ -133,4 +133,9 @@
     <string name="insights_gathering_flow">Nastrój w czasie</string>
     <string name="insights_gathering_links">Co towarzyszy nastrojowi</string>
     <string name="insights_gathering_best_day">Najlepszy dzień tygodnia</string>
+    <!-- Entries and days -->
+    <string name="insights_back">Wstecz</string>
+    <string name="insights_entries_none">W tym okresie nie ma pasujących wpisów.</string>
+    <string name="insights_day_empty">Tego dnia nie ma wpisów.</string>
+    <string name="insights_day_add">Dodaj wpis</string>
 </resources>

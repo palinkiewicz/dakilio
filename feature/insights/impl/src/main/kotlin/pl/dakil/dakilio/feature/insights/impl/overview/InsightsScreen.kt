@@ -18,6 +18,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -26,6 +27,11 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation3.runtime.NavKey
+import java.time.LocalDate
+import pl.dakil.dakilio.feature.entry.api.EntryEditorKey
+import pl.dakil.dakilio.feature.insights.api.InsightsEntriesKey
+import pl.dakil.dakilio.feature.insights.impl.DaySheet
 import pl.dakil.dakilio.core.designsystem.component.entrance
 import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
@@ -52,7 +58,7 @@ import pl.dakil.dakilio.core.model.DateRange
 
 /** The Insights tab: one period at a glance, a card per topic. */
 @Composable
-internal fun InsightsScreen(viewModel: InsightsViewModel, onOpenPost: (Long) -> Unit) {
+internal fun InsightsScreen(viewModel: InsightsViewModel, onOpenPost: (Long) -> Unit, onOpen: (NavKey) -> Unit) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
@@ -77,7 +83,7 @@ internal fun InsightsScreen(viewModel: InsightsViewModel, onOpenPost: (Long) -> 
                         modifier = Modifier.padding(padding).align(Alignment.Center),
                     )
                 } else {
-                    InsightsContent(current, padding, viewModel, onOpenPost)
+                    InsightsContent(current, padding, viewModel, onOpenPost, onOpen)
                 }
             }
         }
@@ -103,11 +109,13 @@ private fun InsightsContent(
     padding: PaddingValues,
     viewModel: InsightsViewModel,
     onOpenPost: (Long) -> Unit,
+    onOpen: (NavKey) -> Unit,
 ) {
     val formats = rememberFormats()
     val overview = state.overview
     val header = state.header
     var picking by rememberSaveable { mutableStateOf(false) }
+    var openDay by rememberSaveable { mutableStateOf<Long?>(null) }
     LazyColumn(
         // The app bar's height is padding on the list itself, so the stepper sticks right under the bar.
         modifier = Modifier.padding(top = padding.calculateTopPadding()).widthIn(max = Spacing.maxContentWidth).fillMaxSize(),
@@ -138,11 +146,21 @@ private fun InsightsContent(
         }
         item(key = "calendar") {
             Box(Modifier.entrance(2)) {
-                CalendarCard(overview.calendar, header.months, state.moods, state.firstDay, state.today, formats, header.key, viewModel::setPeriod)
+                CalendarCard(
+                    calendar = overview.calendar,
+                    months = header.months,
+                    moods = state.moods,
+                    firstDay = state.firstDay,
+                    today = state.today,
+                    formats = formats,
+                    periodKey = header.key,
+                    onPeriod = viewModel::setPeriod,
+                    onDay = { openDay = it.toEpochDay() },
+                )
             }
         }
         if (overview.mood.moodEntries > 0) {
-            item(key = "mix") { MoodMixCard(overview.mood) }
+            item(key = "mix") { MoodMixCard(overview.mood, onLevel = { onOpen(InsightsEntriesKey(viewModel.scope, moodLevel = it)) }) }
         }
         if (overview.tags.any { it.link != null }) {
             item(key = "links") { TagLinksCard(overview.tags, state.moods, formats) }
@@ -161,6 +179,20 @@ private fun InsightsContent(
         if (overview.gathering.isNotEmpty()) {
             item(key = "gathering") { GatheringCard(overview.gathering) }
         }
+    }
+    openDay?.let(LocalDate::ofEpochDay)?.let { date ->
+        DaySheet(
+            date = date,
+            // Read again whenever the state changes, so an entry edited meanwhile shows as saved.
+            posts = remember(date, state) { viewModel.postsOn(date) },
+            moods = state.moods,
+            diaries = if (state.selectedDiaryId == null && state.diaries.size > 1) state.diaries.associateBy { it.id } else emptyMap(),
+            today = state.today,
+            formats = formats,
+            onOpenPost = onOpenPost,
+            onAddEntry = { onOpen(EntryEditorKey(presetDiaryId = state.selectedDiaryId, presetEpochDay = it.toEpochDay())) },
+            onDismiss = { openDay = null },
+        )
     }
     if (picking) {
         PeriodPicker(
