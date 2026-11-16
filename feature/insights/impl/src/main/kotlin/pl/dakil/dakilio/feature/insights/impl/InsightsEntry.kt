@@ -9,6 +9,9 @@ import pl.dakil.dakilio.feature.entry.api.EntryEditorKey
 import pl.dakil.dakilio.feature.insights.api.InsightsEntriesKey
 import pl.dakil.dakilio.feature.insights.api.InsightsKey
 import pl.dakil.dakilio.feature.insights.api.InsightsMoodKey
+import pl.dakil.dakilio.feature.insights.api.InsightsRhythmKey
+import pl.dakil.dakilio.feature.insights.impl.rhythm.InsightsRhythmScreen
+import pl.dakil.dakilio.feature.insights.impl.rhythm.InsightsRhythmViewModel
 import pl.dakil.dakilio.feature.insights.api.InsightsTagKey
 import pl.dakil.dakilio.feature.insights.api.InsightsTagsKey
 import pl.dakil.dakilio.feature.insights.impl.tags.InsightsTagScreen
@@ -49,6 +52,13 @@ fun EntryProviderScope<NavKey>.insightsEntries(navigator: Navigator) {
     entry<InsightsTagKey> { key ->
         InsightsTagScreen(
             viewModel = hiltViewModel<InsightsTagViewModel, InsightsTagViewModel.Factory>(creationCallback = { it.create(key) }),
+            onBack = navigator::goBack,
+            onOpen = navigator::navigate,
+        )
+    }
+    entry<InsightsRhythmKey> { key ->
+        InsightsRhythmScreen(
+            viewModel = hiltViewModel<InsightsRhythmViewModel, InsightsRhythmViewModel.Factory>(creationCallback = { it.create(key) }),
             onBack = navigator::goBack,
             onOpen = navigator::navigate,
         )

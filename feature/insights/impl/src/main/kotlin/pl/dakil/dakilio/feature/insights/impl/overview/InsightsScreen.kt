@@ -32,6 +32,7 @@ import java.time.LocalDate
 import pl.dakil.dakilio.feature.entry.api.EntryEditorKey
 import pl.dakil.dakilio.feature.insights.api.InsightsEntriesKey
 import pl.dakil.dakilio.feature.insights.api.InsightsMoodKey
+import pl.dakil.dakilio.feature.insights.api.InsightsRhythmKey
 import pl.dakil.dakilio.feature.insights.api.InsightsTagKey
 import pl.dakil.dakilio.feature.insights.api.InsightsTagsKey
 import pl.dakil.dakilio.feature.insights.impl.logic.TagSort
@@ -180,7 +181,9 @@ private fun InsightsContent(
         item(key = "tags") {
             TopTagsCard(overview.tags, onMore = { onOpen(InsightsTagsKey(viewModel.scope)) }, onTag = { onOpen(InsightsTagKey(viewModel.scope, it)) })
         }
-        item(key = "rhythm") { RhythmCard(overview.rhythm, state.moods, state.firstDay, formats, header.key) }
+        item(key = "rhythm") {
+            RhythmCard(overview.rhythm, state.moods, state.firstDay, formats, header.key, onMore = { onOpen(InsightsRhythmKey(viewModel.scope)) })
+        }
         if (overview.writing.words > 0 || overview.writing.photos > 0) {
             item(key = "writing") { WritingCard(overview.writing, state.today, formats, onOpenPost) }
         }

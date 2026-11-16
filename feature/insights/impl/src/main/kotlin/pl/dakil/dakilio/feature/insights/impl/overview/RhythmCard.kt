@@ -99,9 +99,13 @@ internal fun RhythmCard(
     formats: DakilioFormats,
     periodKey: String,
     onMore: (() -> Unit)? = null,
+    /** The measure set by the screen around the card; `null` lets the card keep its own, with its toggle. */
+    fixedMeasure: RhythmMeasure? = null,
+    title: String = stringResource(R.string.insights_rhythm),
 ) {
     val haptics = rememberHaptics()
-    var measure by rememberSaveable { mutableStateOf(RhythmMeasure.Mood) }
+    var ownMeasure by rememberSaveable { mutableStateOf(RhythmMeasure.Mood) }
+    val measure = fixedMeasure ?: ownMeasure
     var selected by rememberSaveable(periodKey, measure) { mutableStateOf<Int?>(null) }
     val weekdays = weekdaysFrom(firstDay)
     val maxEntries = rhythm.weekdays.values.maxOf { it.entries }
@@ -113,8 +117,8 @@ internal fun RhythmCard(
     // `map` is inline, so the labels can be composed here; a joinToString lambda can't.
     val slotLabels = weekdays.map { day -> formats.weekday(day) + " " + slotLabel(rhythm.weekdays.getValue(day), moods, formats) }
     InsightCard {
-        CardTitle(stringResource(R.string.insights_rhythm), onMore = onMore)
-        RhythmMeasureToggle(measure, { measure = it }, Modifier.padding(top = Spacing.m))
+        CardTitle(title, onMore = onMore)
+        if (fixedMeasure == null) RhythmMeasureToggle(measure, { ownMeasure = it }, Modifier.padding(top = Spacing.m))
         ColumnChart(
             columns = weekdays.map { day -> ChartColumn(rhythm.weekdays.getValue(day).fraction(measure, maxEntries), formats.weekdayShort(day)) },
             description = stringResource(R.string.insights_rhythm_cd, slotLabels.joinToString()),

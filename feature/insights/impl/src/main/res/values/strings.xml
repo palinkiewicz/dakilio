@@ -176,4 +176,13 @@
         <item quantity="one">See %d entry</item>
         <item quantity="other">See %d entries</item>
     </plurals>
+    <!-- When screen -->
+    <string name="insights_when_title">When</string>
+    <string name="insights_when_matrix">Days and times</string>
+    <string name="insights_when_matrix_hint">Tap a cell to see its entries.</string>
+    <string name="insights_when_weekdays">By weekday</string>
+    <string name="insights_when_hours">By hour</string>
+    <string name="insights_when_brightest">Brightest: %1$s · %2$s</string>
+    <string name="insights_when_heaviest">Heaviest: %1$s · %2$s</string>
+    <string name="insights_when_busiest">Most entries: %1$s · %2$s</string>
 </resources>

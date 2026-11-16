@@ -56,6 +56,26 @@ data class Rhythm(
 
     val bestDayPart: DayPart? get() = best(dayParts)
 
+    /** The weekday × part-of-day slot with the highest average among those with enough moods; `null` on a tie or with fewer than two. */
+    val brightestSlot: Pair<DayOfWeek, DayPart>? get() = extreme(1)
+
+    /** The same for the lowest average. */
+    val heaviestSlot: Pair<DayOfWeek, DayPart>? get() = extreme(-1)
+
+    /** The slot with the most entries; `null` on a tie or without entries. */
+    val busiestSlot: Pair<DayOfWeek, DayPart>?
+        get() {
+            val top = matrix.maxByOrNull { it.value.entries }?.takeIf { it.value.entries > 0 } ?: return null
+            return top.key.takeIf { matrix.values.count { it.entries == top.value.entries } == 1 }
+        }
+
+    private fun extreme(sign: Int): Pair<DayOfWeek, DayPart>? {
+        val trusted = matrix.filterValues { it.moodEntries >= MIN_SLOT_MOODS && it.average != null }
+        if (trusted.size < 2) return null
+        val top = trusted.maxByOrNull { sign * it.value.average!! } ?: return null
+        return top.key.takeIf { trusted.values.count { it.average == top.value.average } == 1 }
+    }
+
     /** The part of the day most entries are written in. */
     val busiestDayPart: DayPart? get() = dayParts.filterValues { it.entries > 0 }.maxByOrNull { it.value.entries }?.key
 

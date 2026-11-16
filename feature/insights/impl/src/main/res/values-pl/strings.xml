@@ -188,4 +188,13 @@
         <item quantity="many">Zobacz %d wpisów</item>
         <item quantity="other">Zobacz %d wpisu</item>
     </plurals>
+    <!-- When screen -->
+    <string name="insights_when_title">Kiedy</string>
+    <string name="insights_when_matrix">Dni i pory</string>
+    <string name="insights_when_matrix_hint">Dotknij pola, żeby zobaczyć jego wpisy.</string>
+    <string name="insights_when_weekdays">Według dnia tygodnia</string>
+    <string name="insights_when_hours">Według godziny</string>
+    <string name="insights_when_brightest">Najjaśniej: %1$s · %2$s</string>
+    <string name="insights_when_heaviest">Najciężej: %1$s · %2$s</string>
+    <string name="insights_when_busiest">Najwięcej wpisów: %1$s · %2$s</string>
 </resources>

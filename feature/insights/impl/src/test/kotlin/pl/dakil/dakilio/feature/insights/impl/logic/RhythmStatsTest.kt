@@ -46,4 +46,19 @@ class RhythmStatsTest {
         assertEquals(DayOfWeek.FRIDAY, rhythm(fridays + wednesdays).bestWeekday)
         assertNull(rhythm(fridays + wednesdays + post(0, 5)).bestWeekday)
     }
+
+    @Test
+    fun `the matrix names its standout slots`() {
+        // Thursday mornings are bright and busy, Wednesday evenings heavy.
+        val posts = (0L..3).map { post(it * 7, 5, hour = 8) } + (0L..2).map { post(it * 7 + 1, 2, hour = 20) } + post(2, 3, hour = 13)
+        val rhythm = rhythm(posts)
+        assertEquals(DayOfWeek.THURSDAY to DayPart.Morning, rhythm.brightestSlot)
+        assertEquals(DayOfWeek.WEDNESDAY to DayPart.Evening, rhythm.heaviestSlot)
+        assertEquals(DayOfWeek.THURSDAY to DayPart.Morning, rhythm.busiestSlot)
+        // One trusted slot is nothing to compare; equal counts are a tie.
+        val thin = rhythm(posts.take(4) + post(1, 2, hour = 20))
+        assertNull(thin.brightestSlot)
+        assertNull(rhythm(listOf(post(0, 5, hour = 8), post(1, 2, hour = 20))).busiestSlot)
+        assertNull(rhythm(emptyList()).busiestSlot)
+    }
 }
