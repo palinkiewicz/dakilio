@@ -252,4 +252,48 @@
     <string name="insights_now">Now</string>
     <string name="insights_this_period">This period</string>
     <string name="insights_average_mood">Average mood</string>
+    <!-- Recap -->
+    <string name="insights_recap">Recap</string>
+    <string name="insights_recap_play">Play recap</string>
+    <string name="insights_recap_close">Close recap</string>
+    <string name="insights_recap_page">Page %1$d of %2$d</string>
+    <string name="insights_recap_title_kicker">Your recap of</string>
+    <string name="insights_recap_tap">Tap to go on</string>
+    <string name="insights_recap_numbers">In numbers</string>
+    <string name="insights_recap_mood">How it felt</string>
+    <string name="insights_recap_brightest">Your brightest day</string>
+    <string name="insights_recap_open_entry">Open entry</string>
+    <string name="insights_recap_tags">What filled your days</string>
+    <string name="insights_recap_tag_brighter">Days with “%1$s” were brighter: %2$s</string>
+    <string name="insights_recap_rhythm">Your rhythm</string>
+    <string name="insights_recap_mostly_written">Mostly written in the %1$s</string>
+    <string name="insights_recap_change">Against the period before</string>
+    <string name="insights_recap_change_up">A brighter stretch</string>
+    <string name="insights_recap_change_down">A heavier stretch</string>
+    <string name="insights_recap_change_detail">Before: %1$s · now: %2$s</string>
+    <string name="insights_recap_end_kicker">That’s a wrap</string>
+    <string name="insights_recap_end">That was %1$s</string>
+    <string name="insights_recap_end_body">Every entry adds to the picture. See you in the next one.</string>
+    <string name="insights_recap_done">Done</string>
+    <string name="insights_share">Share</string>
+    <plurals name="insights_recap_entries">
+        <item quantity="one">entry</item>
+        <item quantity="other">entries</item>
+    </plurals>
+    <plurals name="insights_recap_days">
+        <item quantity="one">day journaled, of %d</item>
+        <item quantity="other">days journaled, of %d</item>
+    </plurals>
+    <plurals name="insights_recap_words">
+        <item quantity="one">word written</item>
+        <item quantity="other">words written</item>
+    </plurals>
+    <plurals name="insights_recap_streak">
+        <item quantity="one">day in a row at best</item>
+        <item quantity="other">days in a row at best</item>
+    </plurals>
+    <plurals name="insights_recap_streak_now">
+        <item quantity="one">day in a row, and counting</item>
+        <item quantity="other">days in a row, and counting</item>
+    </plurals>
 </resources>

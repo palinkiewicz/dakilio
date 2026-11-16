@@ -56,3 +56,7 @@ data class InsightsRhythmKey(val scope: InsightsScope = InsightsScope()) : NavKe
 /** The habits (the Habits extra) in a period: week by week, and each habit's numbers. */
 @Serializable
 data class InsightsHabitsKey(val scope: InsightsScope = InsightsScope()) : NavKey
+
+/** A period's recap: a few full-screen pages to tap through. Always measured against the period before. */
+@Serializable
+data class InsightsRecapKey(val scope: InsightsScope) : NavKey

@@ -10,6 +10,9 @@ import pl.dakil.dakilio.feature.insights.api.InsightsEntriesKey
 import pl.dakil.dakilio.feature.insights.api.InsightsKey
 import pl.dakil.dakilio.feature.insights.api.InsightsHabitsKey
 import pl.dakil.dakilio.feature.insights.api.InsightsMoodKey
+import pl.dakil.dakilio.feature.insights.api.InsightsRecapKey
+import pl.dakil.dakilio.feature.insights.impl.recap.InsightsRecapScreen
+import pl.dakil.dakilio.feature.insights.impl.recap.InsightsRecapViewModel
 import pl.dakil.dakilio.feature.insights.impl.habits.InsightsHabitsScreen
 import pl.dakil.dakilio.feature.insights.impl.habits.InsightsHabitsViewModel
 import pl.dakil.dakilio.feature.insights.api.InsightsRhythmKey
@@ -71,6 +74,13 @@ fun EntryProviderScope<NavKey>.insightsEntries(navigator: Navigator) {
             viewModel = hiltViewModel<InsightsHabitsViewModel, InsightsHabitsViewModel.Factory>(creationCallback = { it.create(key) }),
             onBack = navigator::goBack,
             onOpen = navigator::navigate,
+        )
+    }
+    entry<InsightsRecapKey> { key ->
+        InsightsRecapScreen(
+            viewModel = hiltViewModel<InsightsRecapViewModel, InsightsRecapViewModel.Factory>(creationCallback = { it.create(key) }),
+            onClose = navigator::goBack,
+            onOpenPost = openPost,
         )
     }
     entry<InsightsEntriesKey> { key ->

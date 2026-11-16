@@ -282,4 +282,58 @@
     <string name="insights_now">Teraz</string>
     <string name="insights_this_period">Ten okres</string>
     <string name="insights_average_mood">Średni nastrój</string>
+    <!-- Recap -->
+    <string name="insights_recap">Podsumowanie</string>
+    <string name="insights_recap_play">Odtwórz podsumowanie</string>
+    <string name="insights_recap_close">Zamknij podsumowanie</string>
+    <string name="insights_recap_page">Strona %1$d z %2$d</string>
+    <string name="insights_recap_title_kicker">Twoje podsumowanie</string>
+    <string name="insights_recap_tap">Dotknij, żeby przejść dalej</string>
+    <string name="insights_recap_numbers">W liczbach</string>
+    <string name="insights_recap_mood">Jak było</string>
+    <string name="insights_recap_brightest">Twój najjaśniejszy dzień</string>
+    <string name="insights_recap_open_entry">Otwórz wpis</string>
+    <string name="insights_recap_tags">Czym były wypełnione dni</string>
+    <string name="insights_recap_tag_brighter">Dni z tagiem „%1$s” były jaśniejsze: %2$s</string>
+    <string name="insights_recap_rhythm">Twój rytm</string>
+    <string name="insights_recap_mostly_written">Pora najczęstszych wpisów: %1$s</string>
+    <string name="insights_recap_change">Na tle poprzedniego okresu</string>
+    <string name="insights_recap_change_up">Jaśniejszy czas</string>
+    <string name="insights_recap_change_down">Cięższy czas</string>
+    <string name="insights_recap_change_detail">Wcześniej: %1$s · teraz: %2$s</string>
+    <string name="insights_recap_end_kicker">To już wszystko</string>
+    <string name="insights_recap_end">Tak wyglądał okres: %1$s</string>
+    <string name="insights_recap_end_body">Każdy wpis dopełnia obraz. Do zobaczenia w kolejnym podsumowaniu.</string>
+    <string name="insights_recap_done">Gotowe</string>
+    <string name="insights_share">Udostępnij</string>
+    <plurals name="insights_recap_entries">
+        <item quantity="one">wpis</item>
+        <item quantity="few">wpisy</item>
+        <item quantity="many">wpisów</item>
+        <item quantity="other">wpisu</item>
+    </plurals>
+    <plurals name="insights_recap_days">
+        <item quantity="one">dzień z wpisami, z %d</item>
+        <item quantity="few">dni z wpisami, z %d</item>
+        <item quantity="many">dni z wpisami, z %d</item>
+        <item quantity="other">dnia z wpisami, z %d</item>
+    </plurals>
+    <plurals name="insights_recap_words">
+        <item quantity="one">napisane słowo</item>
+        <item quantity="few">napisane słowa</item>
+        <item quantity="many">napisanych słów</item>
+        <item quantity="other">napisanego słowa</item>
+    </plurals>
+    <plurals name="insights_recap_streak">
+        <item quantity="one">dzień z rzędu w najlepszej serii</item>
+        <item quantity="few">dni z rzędu w najlepszej serii</item>
+        <item quantity="many">dni z rzędu w najlepszej serii</item>
+        <item quantity="other">dnia z rzędu w najlepszej serii</item>
+    </plurals>
+    <plurals name="insights_recap_streak_now">
+        <item quantity="one">dzień z rzędu i seria trwa</item>
+        <item quantity="few">dni z rzędu i seria trwa</item>
+        <item quantity="many">dni z rzędu i seria trwa</item>
+        <item quantity="other">dnia z rzędu i seria trwa</item>
+    </plurals>
 </resources>
