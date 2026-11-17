@@ -21,6 +21,9 @@ enum class RecapTitle { Bright, Climbing, Faithful, Steady, ManyShades, Yours }
 /** A photo in a recap, with the entry it belongs to. */
 data class RecapPhoto(val postId: Long, val date: LocalDate, val photo: PostPhoto)
 
+/** The top tags are counted down, with the first revealed on a tap, from this many tags. */
+const val RECAP_COUNTDOWN_FROM = 3
+
 /** A period earns a recap from this many entries. */
 const val RECAP_MIN_ENTRIES = 5
 
@@ -120,6 +123,13 @@ fun recap(overview: Overview, index: InsightsIndex, period: InsightsPeriod, mont
         newTags = newTags,
         bookPages = bookPages(overview.writing.words),
     )
+}
+
+/** Whether [page] holds a reveal that the forward tap shows before the page moves on. */
+fun Recap.hasReveal(page: RecapPage): Boolean = when (page) {
+    RecapPage.Tags -> overview.tags.size >= RECAP_COUNTDOWN_FROM
+    RecapPage.Rhythm -> overview.rhythm.bestWeekday != null
+    else -> false
 }
 
 /** The period's headline: the first [RecapTitle] whose rule holds. */
