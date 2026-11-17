@@ -332,6 +332,18 @@
     <string name="insights_recap_title_yours_month">Twój miesiąc, po twojemu</string>
     <string name="insights_recap_title_yours_year">Twój rok, po twojemu</string>
     <string name="insights_recap_days_kicker">Każdy dzień w kolorze</string>
+    <plurals name="insights_recap_photos_month">
+        <item quantity="one">%d zdjęcie z tego miesiąca</item>
+        <item quantity="few">%d zdjęcia z tego miesiąca</item>
+        <item quantity="many">%d zdjęć z tego miesiąca</item>
+        <item quantity="other">%d zdjęcia z tego miesiąca</item>
+    </plurals>
+    <plurals name="insights_recap_photos_year">
+        <item quantity="one">%d zdjęcie z tego roku</item>
+        <item quantity="few">%d zdjęcia z tego roku</item>
+        <item quantity="many">%d zdjęć z tego roku</item>
+        <item quantity="other">%d zdjęcia z tego roku</item>
+    </plurals>
     <plurals name="insights_recap_book_pages">
         <item quantity="one">To mniej więcej %d strona książki</item>
         <item quantity="few">To mniej więcej %d strony książki</item>
