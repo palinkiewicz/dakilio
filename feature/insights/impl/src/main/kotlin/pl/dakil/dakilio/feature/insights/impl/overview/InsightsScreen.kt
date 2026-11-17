@@ -65,6 +65,7 @@ import pl.dakil.dakilio.feature.insights.impl.PeriodKindToggle
 import pl.dakil.dakilio.feature.insights.impl.PeriodPicker
 import pl.dakil.dakilio.feature.insights.impl.PeriodStepper
 import pl.dakil.dakilio.feature.insights.impl.R
+import pl.dakil.dakilio.feature.insights.impl.appBarSurface
 import pl.dakil.dakilio.feature.insights.impl.hasPicker
 import pl.dakil.dakilio.feature.insights.impl.key
 import pl.dakil.dakilio.feature.insights.impl.logic.comparisonPeriod
@@ -169,7 +170,7 @@ private fun InsightsContent(
             }
         }
         item(key = "filters") {
-            Column(verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
+            Column(Modifier.appBarSurface(collapsedFraction, extendBelow = Spacing.m), verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
                 PeriodKindToggle(header.period.kind, viewModel::setKind)
                 if (state.diaries.size > 1) {
                     DiaryFilterRow(state.diaries, state.selectedDiaryId, viewModel::selectDiary, contentPadding = PaddingValues(0.dp))

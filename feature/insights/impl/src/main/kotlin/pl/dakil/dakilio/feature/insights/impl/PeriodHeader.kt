@@ -73,6 +73,8 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.geometry.Size
 
 /** What the period header shows and allows, shared by the overview and every deep-dive screen. */
 @Immutable
@@ -140,14 +142,10 @@ internal fun PeriodStepper(
 ) {
     val haptics = rememberHaptics()
     val colors = MaterialTheme.colorScheme
-    val barColors = TopAppBarDefaults.topAppBarColors()
     Row(
         modifier
-            .bleed(Spacing.gutter)
-            .fillMaxWidth()
-            // The same blend as the two-row app bars use for their own background.
-            .drawBehind { drawRect(lerp(barColors.containerColor, barColors.scrolledContainerColor, FastOutLinearInEasing.transform(collapsedFraction()))) }
-            .padding(horizontal = Spacing.gutter, vertical = Spacing.s),
+            .appBarSurface(collapsedFraction)
+            .padding(vertical = Spacing.s),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.s),
     ) {
@@ -369,3 +367,22 @@ internal val InsightsPeriod.hasPicker: Boolean get() = true
 
 /** A stable key for remembering things per period. */
 internal val PeriodHeaderState.key: String get() = period.encode()
+
+/**
+ * A background for what sits right under the app bar at the top of an Insights list (the period
+ * toggles, the diary filter, the sticky stepper): it reaches past the list's side padding to the
+ * screen's edges and takes on the app bar's color as the bar collapses ([collapsedFraction], the
+ * bar's scroll state), with the same blend the two-row app bars use, so they read as one surface.
+ * [extendBelow] also fills the gap to the next item. The content keeps the list's side padding.
+ */
+@Composable
+internal fun Modifier.appBarSurface(collapsedFraction: () -> Float, extendBelow: Dp = 0.dp): Modifier {
+    val barColors = TopAppBarDefaults.topAppBarColors()
+    return bleed(Spacing.gutter)
+        .fillMaxWidth()
+        .drawBehind {
+            val color = lerp(barColors.containerColor, barColors.scrolledContainerColor, FastOutLinearInEasing.transform(collapsedFraction()))
+            drawRect(color, size = Size(size.width, size.height + extendBelow.toPx()))
+        }
+        .padding(horizontal = Spacing.gutter)
+}

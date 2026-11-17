@@ -86,7 +86,13 @@ internal fun InsightsDetailScaffold(
                 ),
                 verticalArrangement = Arrangement.spacedBy(itemSpacing),
             ) {
-                item(key = "kind") { PeriodKindToggle(header.period.kind, viewModel::setKind) }
+                item(key = "kind") {
+                    PeriodKindToggle(
+                        header.period.kind,
+                        viewModel::setKind,
+                        Modifier.appBarSurface({ scrollBehavior.state.collapsedFraction }, extendBelow = itemSpacing),
+                    )
+                }
                 stickyHeader(key = "period") {
                     PeriodStepper(
                         header,
