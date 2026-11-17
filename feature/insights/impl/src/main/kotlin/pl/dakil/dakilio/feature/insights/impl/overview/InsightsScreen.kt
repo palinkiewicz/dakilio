@@ -16,6 +16,7 @@ import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -73,28 +74,64 @@ import pl.dakil.dakilio.feature.insights.impl.logic.calendarRange
 import pl.dakil.dakilio.feature.insights.impl.periodLabel
 import pl.dakil.dakilio.feature.insights.impl.rangeLabel
 import pl.dakil.dakilio.core.model.DateRange
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.FastOutLinearInEasing
 
-/** The Insights tab: one period at a glance, a card per topic. */
+/**
+ * The Insights tab: one period at a glance, a card per topic. Like the timeline, it has two app bars:
+ * with one diary the large bar, whose title collapses as the list scrolls; with more, a pinned bar
+ * holding the diary dropdown, and the title as the list's first row, scrolling away under it.
+ */
 @Composable
 internal fun InsightsScreen(viewModel: InsightsViewModel, onOpenPost: (Long) -> Unit, onOpen: (NavKey) -> Unit) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val ready = state as? InsightsUiState.Ready
+    val pinned = ready != null && ready.hasAnyEntries && ready.diaries.size > 1
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val listState = rememberLazyListState()
+    // The pinned bar turns surfaceContainer once anything is under it, like the timeline's.
+    val scrolled by animateFloatAsState(
+        if (pinned && listState.canScrollBackward) 1f else 0f,
+        MaterialTheme.motionScheme.defaultEffectsSpec(),
+        label = "barScrolled",
+    )
+    val barFraction: () -> Float = if (pinned) ({ scrolled }) else ({ scrollBehavior.state.collapsedFraction })
+    val actions: @Composable RowScope.() -> Unit = {
+        if (ready?.hasAnyEntries == true) {
+            IconButton(onClick = { onOpen(InsightsRecapsKey) }) {
+                DakilioIcon(DakilioSymbols.History, contentDescription = stringResource(R.string.insights_recaps_title))
+            }
+        }
+    }
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        // Only the large bar collapses; the pinned bar must not swallow the list's scrolling.
+        modifier = if (pinned) Modifier else Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         contentWindowInsets = WindowInsets(0),
         topBar = {
-            LargeFlexibleTopAppBar(
-                title = { Text(stringResource(R.string.insights_title)) },
-                subtitle = { Text(stringResource(R.string.insights_subtitle)) },
-                actions = {
-                    if ((state as? InsightsUiState.Ready)?.hasAnyEntries == true) {
-                        IconButton(onClick = { onOpen(InsightsRecapsKey) }) {
-                            DakilioIcon(DakilioSymbols.History, contentDescription = stringResource(R.string.insights_recaps_title))
-                        }
-                    }
-                },
-                scrollBehavior = scrollBehavior,
-            )
+            if (pinned) {
+                val barColors = TopAppBarDefaults.topAppBarColors()
+                TopAppBar(
+                    title = { DiaryFilterDropdown(ready.diaries, ready.selectedDiaryId, viewModel::selectDiary) },
+                    actions = actions,
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = lerp(barColors.containerColor, barColors.scrolledContainerColor, FastOutLinearInEasing.transform(scrolled)),
+                    ),
+                )
+            } else {
+                LargeFlexibleTopAppBar(
+                    title = { Text(stringResource(R.string.insights_title)) },
+                    subtitle = { Text(stringResource(R.string.insights_subtitle)) },
+                    actions = actions,
+                    scrollBehavior = scrollBehavior,
+                )
+            }
         },
     ) { padding ->
         when (val current = state) {
@@ -108,10 +145,19 @@ internal fun InsightsScreen(viewModel: InsightsViewModel, onOpenPost: (Long) -> 
                         modifier = Modifier.padding(padding).align(Alignment.Center),
                     )
                 } else {
-                    InsightsContent(current, padding, viewModel, onOpenPost, onOpen, collapsedFraction = { scrollBehavior.state.collapsedFraction })
+                    InsightsContent(current, padding, listState, pinned, viewModel, onOpenPost, onOpen, barFraction)
                 }
             }
         }
+    }
+}
+
+/** The title as the list's first row, when the diary dropdown takes the bar. */
+@Composable
+private fun InsightsTitle(barFraction: () -> Float) {
+    Column(Modifier.appBarSurface(barFraction, extendBelow = Spacing.m).padding(start = Spacing.xs, top = Spacing.m)) {
+        Text(stringResource(R.string.insights_title), style = MaterialTheme.typography.displaySmall, modifier = Modifier.semantics { heading() })
+        Text(stringResource(R.string.insights_subtitle), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
@@ -140,6 +186,8 @@ internal fun comparisonLabel(header: PeriodHeaderState, range: DateRange?, forma
 private fun InsightsContent(
     state: InsightsUiState.Ready,
     padding: PaddingValues,
+    listState: LazyListState,
+    pinned: Boolean,
     viewModel: InsightsViewModel,
     onOpenPost: (Long) -> Unit,
     onOpen: (NavKey) -> Unit,
@@ -151,11 +199,13 @@ private fun InsightsContent(
     var picking by rememberSaveable { mutableStateOf(false) }
     var openDay by rememberSaveable { mutableStateOf<Long?>(null) }
     LazyColumn(
+        state = listState,
         // The app bar's height is padding on the list itself, so the stepper sticks right under the bar.
         modifier = Modifier.padding(top = padding.calculateTopPadding()).widthIn(max = Spacing.maxContentWidth).fillMaxSize(),
         contentPadding = PaddingValues(bottom = bottomBarPadding(extra = Spacing.xl), start = Spacing.gutter, end = Spacing.gutter),
         verticalArrangement = Arrangement.spacedBy(Spacing.m),
     ) {
+        if (pinned) item(key = "title") { InsightsTitle(collapsedFraction) }
         if (state.offers.isNotEmpty()) {
             item(key = "offers") {
                 RecapOffersCard(
@@ -169,12 +219,7 @@ private fun InsightsContent(
             }
         }
         item(key = "filters") {
-            Column(Modifier.appBarSurface(collapsedFraction, extendBelow = Spacing.m), verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
-                PeriodKindToggle(header.period.kind, viewModel::setKind)
-                if (state.diaries.size > 1) {
-                    DiaryFilterDropdown(state.diaries, state.selectedDiaryId, viewModel::selectDiary)
-                }
-            }
+            PeriodKindToggle(header.period.kind, viewModel::setKind, Modifier.appBarSurface(collapsedFraction, extendBelow = Spacing.m))
         }
         stickyHeader(key = "period") {
             PeriodStepper(
