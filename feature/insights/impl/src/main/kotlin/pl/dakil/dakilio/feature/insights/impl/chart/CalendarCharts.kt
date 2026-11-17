@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
@@ -135,6 +136,8 @@ internal fun DaysGrid(
     formats: DakilioFormats,
     describe: @Composable (LocalDate) -> String,
     modifier: Modifier = Modifier,
+    selectable: Boolean = true,
+    appear: (() -> Float)? = null,
 ) {
     val colors = MaterialTheme.colorScheme
     val shapes = remember(moods) { moods.associate { it.level to PolygonShape(moodGlyph(it).rest) } }
@@ -171,8 +174,21 @@ internal fun DaysGrid(
                         modifier = Modifier
                             .weight(1f)
                             .aspectRatio(1f)
+                            .then(
+                                if (appear == null) {
+                                    Modifier
+                                } else {
+                                    val order = (date.toEpochDay() - range.from.toEpochDay()).toInt()
+                                    Modifier.graphicsLayer {
+                                        val p = waveAt(appear(), order, range.days)
+                                        alpha = p
+                                        scaleX = 0.3f + 0.7f * p
+                                        scaleY = 0.3f + 0.7f * p
+                                    }
+                                },
+                            )
                             .clip(CircleShape)
-                            .clickable(enabled = !future) { onSelect(date) }
+                            .clickable(enabled = selectable && !future) { onSelect(date) }
                             .then(if (isSelected) Modifier.border(2.dp, colors.onSurface, CircleShape) else Modifier)
                             .alpha(if (future) 0.38f else 1f)
                             .clearAndSetSemantics {
@@ -353,3 +369,10 @@ internal fun YearsGrid(
         }
     }
 }
+
+/**
+ * How far item [index] of [count] has come in (0..1) when a wave sweeping over them is at
+ * [progress]: items start one after another, each taking about [spread] items' time.
+ */
+internal fun waveAt(progress: Float, index: Int, count: Int, spread: Float = 4f): Float =
+    ((progress * (count + spread) - index) / spread).coerceIn(0f, 1f)

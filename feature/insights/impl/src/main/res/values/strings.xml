@@ -287,6 +287,21 @@
     <string name="insights_recap_end">That was %1$s</string>
     <string name="insights_recap_end_body">Every entry adds to the picture. See you in the next one.</string>
     <string name="insights_recap_done">Done</string>
+    <string name="insights_recap_title_bright_month">A bright month</string>
+    <string name="insights_recap_title_bright_year">A bright year</string>
+    <string name="insights_recap_title_climbing">On the way up</string>
+    <string name="insights_recap_title_faithful">You showed up, almost every day</string>
+    <string name="insights_recap_title_steady_month">A steady month</string>
+    <string name="insights_recap_title_steady_year">A steady year</string>
+    <string name="insights_recap_title_shades_month">A month of many shades</string>
+    <string name="insights_recap_title_shades_year">A year of many shades</string>
+    <string name="insights_recap_title_yours_month">Your month, your way</string>
+    <string name="insights_recap_title_yours_year">Your year, your way</string>
+    <string name="insights_recap_days_kicker">Every day, in color</string>
+    <plurals name="insights_recap_book_pages">
+        <item quantity="one">That’s about %d page of a book</item>
+        <item quantity="other">That’s about %d pages of a book</item>
+    </plurals>
     <string name="insights_share">Share</string>
     <plurals name="insights_recap_entries">
         <item quantity="one">entry</item>

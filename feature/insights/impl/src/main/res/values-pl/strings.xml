@@ -321,6 +321,23 @@
     <string name="insights_recap_end">Tak wyglądał okres: %1$s</string>
     <string name="insights_recap_end_body">Każdy wpis dopełnia obraz. Do zobaczenia w kolejnym podsumowaniu.</string>
     <string name="insights_recap_done">Gotowe</string>
+    <string name="insights_recap_title_bright_month">Jasny miesiąc</string>
+    <string name="insights_recap_title_bright_year">Jasny rok</string>
+    <string name="insights_recap_title_climbing">Coraz lepiej</string>
+    <string name="insights_recap_title_faithful">Prawie każdy dzień zapisany</string>
+    <string name="insights_recap_title_steady_month">Stabilny miesiąc</string>
+    <string name="insights_recap_title_steady_year">Stabilny rok</string>
+    <string name="insights_recap_title_shades_month">Miesiąc w wielu odcieniach</string>
+    <string name="insights_recap_title_shades_year">Rok w wielu odcieniach</string>
+    <string name="insights_recap_title_yours_month">Twój miesiąc, po twojemu</string>
+    <string name="insights_recap_title_yours_year">Twój rok, po twojemu</string>
+    <string name="insights_recap_days_kicker">Każdy dzień w kolorze</string>
+    <plurals name="insights_recap_book_pages">
+        <item quantity="one">To mniej więcej %d strona książki</item>
+        <item quantity="few">To mniej więcej %d strony książki</item>
+        <item quantity="many">To mniej więcej %d stron książki</item>
+        <item quantity="other">To mniej więcej %d strony książki</item>
+    </plurals>
     <string name="insights_share">Udostępnij</string>
     <plurals name="insights_recap_entries">
         <item quantity="one">wpis</item>
