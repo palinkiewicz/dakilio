@@ -108,7 +108,7 @@ internal fun InsightsScreen(viewModel: InsightsViewModel, onOpenPost: (Long) -> 
                         modifier = Modifier.padding(padding).align(Alignment.Center),
                     )
                 } else {
-                    InsightsContent(current, padding, viewModel, onOpenPost, onOpen)
+                    InsightsContent(current, padding, viewModel, onOpenPost, onOpen, collapsedFraction = { scrollBehavior.state.collapsedFraction })
                 }
             }
         }
@@ -143,6 +143,7 @@ private fun InsightsContent(
     viewModel: InsightsViewModel,
     onOpenPost: (Long) -> Unit,
     onOpen: (NavKey) -> Unit,
+    collapsedFraction: () -> Float,
 ) {
     val formats = rememberFormats()
     val overview = state.overview
@@ -176,7 +177,13 @@ private fun InsightsContent(
             }
         }
         stickyHeader(key = "period") {
-            PeriodStepper(header, formats, viewModel::step, onPick = if (header.period.hasPicker) ({ picking = true }) else null)
+            PeriodStepper(
+                header,
+                formats,
+                viewModel::step,
+                onPick = if (header.period.hasPicker) ({ picking = true }) else null,
+                collapsedFraction = collapsedFraction,
+            )
         }
         if (overview.isEmpty) {
             item(key = "empty") {

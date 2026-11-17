@@ -6,7 +6,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -69,6 +68,11 @@ import pl.dakil.dakilio.feature.insights.impl.logic.InsightsPeriod
 import pl.dakil.dakilio.feature.insights.impl.logic.PeriodKind
 import pl.dakil.dakilio.feature.insights.impl.logic.calendarRange
 import pl.dakil.dakilio.feature.insights.impl.logic.encode
+import pl.dakil.dakilio.feature.insights.impl.overview.bleed
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.animation.core.FastOutLinearInEasing
 
 /** What the period header shows and allows, shared by the overview and every deep-dive screen. */
 @Immutable
@@ -120,6 +124,10 @@ internal fun PeriodKindToggle(kind: PeriodKind, onKind: (PeriodKind) -> Unit, mo
 /**
  * ◀ the period's name ▶. The name slides in the direction of the step and opens the picker; under
  * it, "so far" marks a period that's still running. The arrows are disabled at the journal's ends.
+ *
+ * It's a sticky header: its background reaches past the list's side padding to the screen's edges,
+ * so nothing scrolls past beside it, and takes on the app bar's color as the bar collapses
+ * ([collapsedFraction], the bar's scroll state), so the two read as one surface.
  */
 @Composable
 internal fun PeriodStepper(
@@ -128,11 +136,18 @@ internal fun PeriodStepper(
     onStep: (forward: Boolean) -> Unit,
     onPick: (() -> Unit)?,
     modifier: Modifier = Modifier,
+    collapsedFraction: () -> Float = { 0f },
 ) {
     val haptics = rememberHaptics()
     val colors = MaterialTheme.colorScheme
+    val barColors = TopAppBarDefaults.topAppBarColors()
     Row(
-        modifier.fillMaxWidth().background(colors.surface).padding(vertical = Spacing.s),
+        modifier
+            .bleed(Spacing.gutter)
+            .fillMaxWidth()
+            // The same blend as the two-row app bars use for their own background.
+            .drawBehind { drawRect(lerp(barColors.containerColor, barColors.scrolledContainerColor, FastOutLinearInEasing.transform(collapsedFraction()))) }
+            .padding(horizontal = Spacing.gutter, vertical = Spacing.s),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.s),
     ) {

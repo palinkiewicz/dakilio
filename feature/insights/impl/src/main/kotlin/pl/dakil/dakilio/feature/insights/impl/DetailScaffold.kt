@@ -88,7 +88,13 @@ internal fun InsightsDetailScaffold(
             ) {
                 item(key = "kind") { PeriodKindToggle(header.period.kind, viewModel::setKind) }
                 stickyHeader(key = "period") {
-                    PeriodStepper(header, formats, viewModel::step, onPick = if (header.period.hasPicker) ({ picking = true }) else null)
+                    PeriodStepper(
+                        header,
+                        formats,
+                        viewModel::step,
+                        onPick = if (header.period.hasPicker) ({ picking = true }) else null,
+                        collapsedFraction = { scrollBehavior.state.collapsedFraction },
+                    )
                 }
                 content()
             }
