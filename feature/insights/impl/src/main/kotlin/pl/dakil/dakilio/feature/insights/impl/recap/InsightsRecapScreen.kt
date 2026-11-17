@@ -381,10 +381,12 @@ private fun RecapPageContent(
             }
         }
 
-        RecapPage.Months -> PageColumn {
+        RecapPage.Days -> PageColumn {
             Kicker(stringResource(R.string.insights_years))
             MonthFaces(recap, moods, formats, Modifier.entrance(1))
         }
+
+        RecapPage.Photos, RecapPage.NewTags -> PageColumn { }
 
         RecapPage.Records -> PageColumn {
             Box(Modifier.entrance(0)) { RecordsCard(overview.records!!, moods, state.today, formats) }
