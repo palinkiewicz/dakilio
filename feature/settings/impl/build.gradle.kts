@@ -8,4 +8,6 @@ android {
 
 dependencies {
     api(projects.feature.settings.api)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.core.ktx)
 }

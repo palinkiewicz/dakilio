@@ -57,4 +57,32 @@ class HabitsTest {
         val bumps = Habits.bumps(listOf(habit(1)), before = mapOf(1L to 2), after = mapOf(1L to 1), weekStart = monday)
         assertEquals(emptyList<HabitBump>(), bumps)
     }
+
+    private fun days(vararg offsets: Long) = offsets.map { monday.plusDays(it) }.toSet()
+
+    @Test fun `a habit's weeks start at the tag's first use`() {
+        val today = monday.plusWeeks(3).plusDays(2) // Wednesday of the 4th week
+        val range = DateRange(monday.minusWeeks(4), today)
+        // First used on Tuesday of week 1; 3 days in week 1, 1 in week 2, none in week 3, 2 so far in week 4.
+        val weeks = Habits.weeks(days(1, 3, 5, 8, 21, 22), target = 2, range, DayOfWeek.MONDAY, today)
+        assertEquals(listOf(monday, monday.plusWeeks(1), monday.plusWeeks(2), monday.plusWeeks(3)), weeks.map { it.start })
+        assertEquals(listOf(3, 1, 0, 2), weeks.map { it.days })
+        assertEquals(listOf(true, false, false, true), weeks.map { it.met })
+        assertEquals(listOf(false, true, true, false), weeks.map { it.missed })
+        assertEquals(true, weeks.last().inProgress)
+    }
+
+    @Test fun `a habit never used has no weeks`() =
+        assertEquals(emptyList<HabitWeek>(), Habits.weeks(emptySet(), 3, DateRange(monday, monday.plusWeeks(2)), DayOfWeek.MONDAY, monday.plusWeeks(2)))
+
+    @Test fun `runs count weeks on target in a row`() {
+        fun week(n: Long, days: Int, inProgress: Boolean = false) = HabitWeek(monday.plusWeeks(n), days, 2, inProgress)
+        val weeks = listOf(week(0, 2), week(1, 3), week(2, 2), week(3, 0), week(4, 2), week(5, 2), week(6, 1, inProgress = true))
+        // The week in progress, not on target yet, doesn't break the run.
+        assertEquals(2, Habits.currentRun(weeks))
+        assertEquals(3, Habits.longestRun(weeks))
+        assertEquals(3, Habits.currentRun(weeks.dropLast(1) + week(6, 2, inProgress = true)))
+        assertEquals(0, Habits.currentRun(weeks.dropLast(2) + week(5, 1)))
+        assertEquals(0, Habits.longestRun(emptyList()))
+    }
 }

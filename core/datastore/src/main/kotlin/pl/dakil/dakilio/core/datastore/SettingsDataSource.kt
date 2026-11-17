@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import javax.inject.Inject
@@ -57,6 +58,10 @@ class SettingsDataSource @Inject constructor(
                 decorativeAnimations = prefs[DECORATIVE_ANIMATIONS] ?: true,
                 progressStyle = prefs[PROGRESS_STYLE]?.let { name -> ProgressStyle.entries.firstOrNull { it.name == name } }
                     ?: ProgressStyle.Wavy,
+                recaps = prefs[RECAPS] ?: true,
+                recapNotifications = prefs[RECAP_NOTIFICATIONS] ?: false,
+                recapDismissedMonth = prefs[RECAP_DISMISSED_MONTH],
+                recapDismissedYear = prefs[RECAP_DISMISSED_YEAR],
             )
         }
         .distinctUntilChanged()
@@ -162,6 +167,22 @@ class SettingsDataSource @Inject constructor(
         dataStore.edit { it[PROGRESS_STYLE] = style.name }
     }
 
+    suspend fun setRecaps(enabled: Boolean) {
+        dataStore.edit { it[RECAPS] = enabled }
+    }
+
+    suspend fun setRecapNotifications(enabled: Boolean) {
+        dataStore.edit { it[RECAP_NOTIFICATIONS] = enabled }
+    }
+
+    suspend fun dismissMonthRecap(month: String) {
+        dataStore.edit { it[RECAP_DISMISSED_MONTH] = month }
+    }
+
+    suspend fun dismissYearRecap(year: Int) {
+        dataStore.edit { it[RECAP_DISMISSED_YEAR] = year }
+    }
+
     private companion object {
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val LAST_ENTRY_DIARY = longPreferencesKey("last_entry_diary_id")
@@ -184,6 +205,10 @@ class SettingsDataSource @Inject constructor(
         val ANIMATED_NUMBERS = booleanPreferencesKey("animated_numbers")
         val DECORATIVE_ANIMATIONS = booleanPreferencesKey("decorative_animations")
         val PROGRESS_STYLE = stringPreferencesKey("progress_style")
+        val RECAPS = booleanPreferencesKey("recaps")
+        val RECAP_NOTIFICATIONS = booleanPreferencesKey("recap_notifications")
+        val RECAP_DISMISSED_MONTH = stringPreferencesKey("recap_dismissed_month")
+        val RECAP_DISMISSED_YEAR = intPreferencesKey("recap_dismissed_year")
         val INTRO_STARTED = booleanPreferencesKey("intro_started")
         val INTRO_DONE = booleanPreferencesKey("intro_done")
     }

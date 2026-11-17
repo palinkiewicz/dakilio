@@ -108,6 +108,14 @@ data class UserSettings(
     /** Spins, shape morphs on selection and content cascading in. Screen transitions don't depend on it. */
     val decorativeAnimations: Boolean = true,
     val progressStyle: ProgressStyle = ProgressStyle.Wavy,
+    /** Insights offers a recap when a month or a year ends. */
+    val recaps: Boolean = true,
+    /** A notification says when a recap is ready (only with [recaps]). */
+    val recapNotifications: Boolean = false,
+    /** The month whose recap offer was dismissed (`YearMonth` text, "2026-10"); not backed up. */
+    val recapDismissedMonth: String? = null,
+    /** The year whose recap offer was dismissed; not backed up. */
+    val recapDismissedYear: Int? = null,
 )
 
 /** The range of the entry text size settings. Only entry titles and notes scale, never the rest of the UI. */

@@ -284,6 +284,14 @@ internal class LocalSettingsRepository @Inject constructor(
 
     override suspend fun setProgressStyle(style: ProgressStyle) = dataSource.setProgressStyle(style)
 
+    override suspend fun setRecaps(enabled: Boolean) = dataSource.setRecaps(enabled)
+
+    override suspend fun setRecapNotifications(enabled: Boolean) = dataSource.setRecapNotifications(enabled)
+
+    override suspend fun dismissMonthRecap(month: String) = dataSource.dismissMonthRecap(month)
+
+    override suspend fun dismissYearRecap(year: Int) = dataSource.dismissYearRecap(year)
+
     override val firstDayOfWeek: Flow<DayOfWeek> =
         dataSource.settings.map { it.weekStart.resolve(deviceLocale()) }.distinctUntilChanged()
 

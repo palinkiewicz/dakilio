@@ -7,6 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import java.text.NumberFormat
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
@@ -29,6 +30,28 @@ class DakilioFormats(private val locale: Locale, is24Hour: Boolean) {
     private val monthShort = DateTimeFormatter.ofPattern("LLL", locale)
     private val fullDate = DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "EEEEdMMMM"), locale)
     private val fullDateYear = DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "EEEEdMMMMyyyy"), locale)
+
+    private val oneDecimal = NumberFormat.getNumberInstance(locale).apply {
+        minimumFractionDigits = 1
+        maximumFractionDigits = 1
+    }
+    private val integer = NumberFormat.getIntegerInstance(locale)
+
+    /** A number with one decimal in the locale's notation ("4.2", „4,2”): mood levels in Insights. */
+    fun decimal(value: Float): String = oneDecimal.format(value.toDouble())
+
+    /** [decimal] with its sign, for a change: "+0.6", "−0.4"; a change that rounds to nothing is "0.0". */
+    fun signedDecimal(value: Float): String {
+        val tenths = Math.round(value * 10)
+        return when {
+            tenths > 0 -> "+" + decimal(tenths / 10f)
+            tenths < 0 -> "−" + decimal(-tenths / 10f)
+            else -> decimal(0f)
+        }
+    }
+
+    /** A whole number with the locale's digit grouping ("2,340", „2 340”). */
+    fun count(value: Int): String = integer.format(value.toLong())
 
     fun time(time: LocalTime): String = this.time.format(time)
     fun weekday(date: LocalDate): String = weekday.format(date).replaceFirstChar { it.titlecase() }

@@ -20,4 +20,15 @@ class StreaksTest {
     }
 
     @Test fun `longest finds the longest run anywhere`() = assertEquals(4, Streaks.longest(daysAgo(0, 1, 5, 6, 7, 8, 10)))
+
+    @Test fun `the longest run comes with its dates, the latest of equals`() {
+        assertEquals(DateRange(today.minusDays(8), today.minusDays(5)), Streaks.longestRun(daysAgo(0, 1, 5, 6, 7, 8, 10)))
+        assertEquals(DateRange(today.minusDays(1), today), Streaks.longestRun(daysAgo(0, 1, 5, 6)))
+        assertEquals(null, Streaks.longestRun(emptySet()))
+    }
+
+    @Test fun `a run is cut at the range it's asked for`() {
+        val range = DateRange(today.minusDays(6), today)
+        assertEquals(DateRange(today.minusDays(6), today.minusDays(5)), Streaks.longestWithin(daysAgo(5, 6, 7, 8, 10), range))
+    }
 }

@@ -61,4 +61,67 @@ object Habits {
             val now = after[habit.id] ?: 0
             if (now > was) HabitBump(habit, was, now, weekStart) else null
         }
+
+    /**
+     * The habit's weeks that touch [range], oldest first, each with the days that carry its tag
+     * ([days], every diary). Weeks before the tag's first use are left out, since the habit can't
+     * have been kept before it existed. Today's target applies to every week.
+     */
+    fun weeks(days: Set<LocalDate>, target: Int, range: DateRange, firstDay: DayOfWeek, today: LocalDate): List<HabitWeek> {
+        val firstUse = days.minOrNull() ?: return emptyList()
+        val start = weekStart(maxOf(range.from, firstUse), firstDay)
+        val end = minOf(range.to, today)
+        if (end.isBefore(start)) return emptyList()
+        return generateSequence(start) { it.plusWeeks(1) }
+            .takeWhile { !it.isAfter(end) }
+            .map { week ->
+                val count = (0L..6L).count { week.plusDays(it) in days }
+                HabitWeek(week, count, target, inProgress = !week.plusDays(6).isBefore(today))
+            }
+            .toList()
+    }
+
+    /**
+     * Weeks on target in a row, ending with the newest finished week. The week in progress adds to
+     * the run once it's on target, and never breaks it while it isn't yet.
+     */
+    fun currentRun(weeks: List<HabitWeek>): Int {
+        var run = 0
+        for (week in weeks.asReversed()) {
+            when {
+                week.met -> run++
+                week.inProgress -> continue
+                else -> break
+            }
+        }
+        return run
+    }
+
+    /** The most weeks on target in a row. */
+    fun longestRun(weeks: List<HabitWeek>): Int {
+        var best = 0
+        var run = 0
+        for (week in weeks) {
+            if (week.met) {
+                run++
+                best = maxOf(best, run)
+            } else if (!week.inProgress) {
+                run = 0
+            }
+        }
+        return best
+    }
+}
+
+/**
+ * One week of a habit.
+ *
+ * @property days days of the week with the habit's tag.
+ * @property inProgress the current week, which can still reach its target.
+ */
+data class HabitWeek(val start: LocalDate, val days: Int, val target: Int, val inProgress: Boolean) {
+    val met: Boolean get() = days >= target
+
+    /** A finished week that fell short; the week in progress never counts as missed. */
+    val missed: Boolean get() = !met && !inProgress
 }

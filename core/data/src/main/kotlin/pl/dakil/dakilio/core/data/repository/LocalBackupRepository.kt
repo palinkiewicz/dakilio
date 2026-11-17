@@ -292,6 +292,8 @@ internal class LocalBackupRepository @Inject constructor(
         s.animatedNumbers?.let { settings.setAnimatedNumbers(it) }
         s.decorativeAnimations?.let { settings.setDecorativeAnimations(it) }
         s.progressStyle?.let { settings.setProgressStyle(it) }
+        s.recaps?.let { settings.setRecaps(it) }
+        s.recapNotifications?.let { settings.setRecapNotifications(it) }
         settings.setLastEntryDiaryId(diaryIds[s.lastDiaryIndex ?: 0])
         settings.setTimelineDiaryId(s.timelineDiaryIndex?.let(diaryIds::getOrNull))
         settings.setSampleHintDismissed(true)

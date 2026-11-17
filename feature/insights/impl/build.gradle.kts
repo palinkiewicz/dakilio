@@ -8,4 +8,7 @@ android {
 
 dependencies {
     api(projects.feature.insights.api)
+    implementation(projects.feature.entry.api)
+    implementation(projects.feature.habits.api)
+    implementation(libs.androidx.activity.compose)
 }

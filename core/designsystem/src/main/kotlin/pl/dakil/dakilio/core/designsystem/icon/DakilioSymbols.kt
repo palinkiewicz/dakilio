@@ -91,6 +91,12 @@ object DakilioSymbols {
     val Animation = VectorSymbol("animation", R.drawable.sym_animation, R.drawable.sym_animation_fill, SymbolCategory.Ui)
     val Numbers = VectorSymbol("numbers", R.drawable.sym_numbers, R.drawable.sym_numbers_fill, SymbolCategory.Ui)
     val Waves = VectorSymbol("waves", R.drawable.sym_waves, R.drawable.sym_waves_fill, SymbolCategory.Ui)
+    val TrendingUp = VectorSymbol("trending_up", R.drawable.sym_trending_up, R.drawable.sym_trending_up_fill, SymbolCategory.Ui)
+    val TrendingDown = VectorSymbol("trending_down", R.drawable.sym_trending_down, R.drawable.sym_trending_down_fill, SymbolCategory.Ui)
+    val TrendingFlat = VectorSymbol("trending_flat", R.drawable.sym_trending_flat, R.drawable.sym_trending_flat_fill, SymbolCategory.Ui)
+    val CompareArrows = VectorSymbol("compare_arrows", R.drawable.sym_compare_arrows, R.drawable.sym_compare_arrows_fill, SymbolCategory.Ui)
+    val PlayArrow = VectorSymbol("play_arrow", R.drawable.sym_play_arrow, R.drawable.sym_play_arrow_fill, SymbolCategory.Ui)
+    val WbTwilight = VectorSymbol("wb_twilight", R.drawable.sym_wb_twilight, R.drawable.sym_wb_twilight_fill, SymbolCategory.Ui)
     val SentimentVerySatisfied = VectorSymbol("sentiment_very_satisfied", R.drawable.sym_sentiment_very_satisfied, R.drawable.sym_sentiment_very_satisfied_fill, SymbolCategory.Emotions)
     val SentimentSatisfied = VectorSymbol("sentiment_satisfied", R.drawable.sym_sentiment_satisfied, R.drawable.sym_sentiment_satisfied_fill, SymbolCategory.Emotions)
     val SentimentNeutral = VectorSymbol("sentiment_neutral", R.drawable.sym_sentiment_neutral, R.drawable.sym_sentiment_neutral_fill, SymbolCategory.Emotions)
@@ -301,6 +307,12 @@ object DakilioSymbols {
         Animation,
         Numbers,
         Waves,
+        TrendingUp,
+        TrendingDown,
+        TrendingFlat,
+        CompareArrows,
+        PlayArrow,
+        WbTwilight,
         SentimentVerySatisfied,
         SentimentSatisfied,
         SentimentNeutral,

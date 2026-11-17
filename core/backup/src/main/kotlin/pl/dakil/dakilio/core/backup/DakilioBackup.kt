@@ -92,6 +92,10 @@ data class BackupSettings(
     val decorativeAnimations: Boolean? = null,
     /** A `ProgressStyle` name: `Wavy` or `Straight`. */
     val progressStyle: String? = null,
+    /** Insights offers recaps of finished months and years. */
+    val recaps: Boolean? = null,
+    /** A notification says when a recap is ready. */
+    val recapNotifications: Boolean? = null,
 )
 
 /** A mood: one primary per level (1 = worst … 5 = best), plus aliases. */

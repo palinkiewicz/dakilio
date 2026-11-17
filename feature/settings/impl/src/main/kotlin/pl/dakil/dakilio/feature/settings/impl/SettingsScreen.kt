@@ -76,6 +76,7 @@ import pl.dakil.dakilio.core.ui.rememberFormats
 @Composable
 internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val recapAccess = rememberRecapNotificationAccess()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -306,6 +307,40 @@ internal fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
                                     pluralStringResource(R.plurals.settings_shrink_photos, state.oversizedPhotos, state.oversizedPhotos)
                                 },
                             )
+                        }
+                    }
+                }
+
+                SectionHeader(stringResource(R.string.settings_recaps_section))
+                Column(verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)) {
+                    SwitchListItem(
+                        title = stringResource(R.string.settings_recaps),
+                        body = stringResource(R.string.settings_recaps_body),
+                        symbol = DakilioSymbols.History,
+                        polygon = MaterialShapes.Cookie12Sided,
+                        checked = state.recaps,
+                        onCheckedChange = viewModel::setRecaps,
+                        index = 0,
+                        count = 2,
+                    )
+                    val blocked = state.recaps && state.recapNotifications && recapAccess.blocked
+                    SwitchListItem(
+                        title = stringResource(R.string.settings_recap_notifications),
+                        body = stringResource(if (blocked) R.string.settings_recap_notifications_blocked else R.string.settings_recap_notifications_body),
+                        symbol = DakilioSymbols.NotificationsActive,
+                        polygon = MaterialShapes.Cookie9Sided,
+                        checked = state.recaps && state.recapNotifications,
+                        onCheckedChange = { on ->
+                            viewModel.setRecapNotifications(on)
+                            if (on) recapAccess.request()
+                        },
+                        enabled = state.recaps,
+                        index = 1,
+                        count = 2,
+                    )
+                    if (blocked) {
+                        TextButton(onClick = recapAccess::openSettings, modifier = Modifier.padding(start = Spacing.s)) {
+                            Text(stringResource(R.string.settings_recap_notifications_fix))
                         }
                     }
                 }
