@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pl.dakil.dakilio.core.designsystem.component.SectionHeader
 import pl.dakil.dakilio.core.designsystem.component.entrance
+import pl.dakil.dakilio.core.designsystem.component.rememberEntrance
 import pl.dakil.dakilio.core.designsystem.theme.decorativeMotion
 import pl.dakil.dakilio.core.designsystem.component.ShapedIcon
 import pl.dakil.dakilio.core.designsystem.component.segmentedItemColors
@@ -235,9 +236,9 @@ internal fun MoreScreen(
 
 @Composable
 private fun Header() {
-    // The badge turns into place once as the screen comes in, then rests. Decorative, so without it
-    // the badge simply sits still.
-    val decorative = decorativeMotion
+    // The badge turns into place once as the screen first opens, then rests. Decorative, so without
+    // it the badge simply sits still.
+    val decorative = decorativeMotion && rememberEntrance()
     val turn = remember { Animatable(if (decorative) -120f else 0f) }
     val turnSpec = MaterialTheme.motionScheme.slowSpatialSpec<Float>()
     LaunchedEffect(Unit) { turn.animateTo(0f, turnSpec) }

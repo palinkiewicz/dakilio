@@ -3,6 +3,7 @@ package pl.dakil.dakilio.feature.insights.impl
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
+import pl.dakil.dakilio.core.designsystem.component.EntranceScope
 import pl.dakil.dakilio.core.navigation.Navigator
 import pl.dakil.dakilio.core.ui.NavTransitions
 import pl.dakil.dakilio.feature.entry.api.EntryEditorKey
@@ -38,11 +39,13 @@ import pl.dakil.dakilio.feature.insights.impl.overview.InsightsScreen
 fun EntryProviderScope<NavKey>.insightsEntries(navigator: Navigator) {
     val openPost: (Long) -> Unit = { navigator.navigate(EntryEditorKey(postId = it)) }
     entry<InsightsKey>(metadata = NavTransitions.topLevel) {
-        InsightsScreen(
-            viewModel = hiltViewModel(),
-            onOpenPost = openPost,
-            onOpen = navigator::navigate,
-        )
+        EntranceScope {
+            InsightsScreen(
+                viewModel = hiltViewModel(),
+                onOpenPost = openPost,
+                onOpen = navigator::navigate,
+            )
+        }
     }
     entry<InsightsMoodKey> { key ->
         InsightsMoodScreen(
@@ -88,10 +91,12 @@ fun EntryProviderScope<NavKey>.insightsEntries(navigator: Navigator) {
         )
     }
     entry<InsightsRecapsKey> {
-        RecapArchiveScreen(
-            onBack = navigator::goBack,
-            onPlay = { navigator.navigate(InsightsRecapKey(InsightsScope(period = it.encode()))) },
-        )
+        EntranceScope {
+            RecapArchiveScreen(
+                onBack = navigator::goBack,
+                onPlay = { navigator.navigate(InsightsRecapKey(InsightsScope(period = it.encode()))) },
+            )
+        }
     }
     entry<InsightsEntriesKey> { key ->
         InsightsEntriesScreen(

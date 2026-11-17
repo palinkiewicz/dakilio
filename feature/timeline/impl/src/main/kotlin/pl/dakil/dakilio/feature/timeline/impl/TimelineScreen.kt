@@ -91,8 +91,8 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneOffset
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import pl.dakil.dakilio.core.designsystem.component.EntranceScope
 import pl.dakil.dakilio.core.designsystem.component.entrance
 import pl.dakil.dakilio.core.designsystem.component.pressScale
 import pl.dakil.dakilio.core.designsystem.component.rememberHaptics
@@ -135,20 +135,22 @@ internal fun TimelineRoute(
         viewModel.refreshToday()
         onPauseOrDispose { }
     }
-    TimelineScreen(
-        state = state,
-        onSelectDiary = viewModel::selectDiary,
-        onToggleStretch = viewModel::toggleStretch,
-        onExpandStretch = viewModel::expandStretch,
-        onOpenEntry = onOpenEntry,
-        onOpenSearch = onOpenSearch,
-        onPreviewLength = viewModel::setPreviewLength,
-        onCompactTags = viewModel::setCompactTags,
-        onTagLimit = viewModel::setTagLimit,
-        onMonthNavigator = viewModel::setMonthNavigator,
-        onMonthNavigatorInAppBar = viewModel::setMonthNavigatorInAppBar,
-        onTextScale = viewModel::setTimelineTextScale,
-    )
+    EntranceScope {
+        TimelineScreen(
+            state = state,
+            onSelectDiary = viewModel::selectDiary,
+            onToggleStretch = viewModel::toggleStretch,
+            onExpandStretch = viewModel::expandStretch,
+            onOpenEntry = onOpenEntry,
+            onOpenSearch = onOpenSearch,
+            onPreviewLength = viewModel::setPreviewLength,
+            onCompactTags = viewModel::setCompactTags,
+            onTagLimit = viewModel::setTagLimit,
+            onMonthNavigator = viewModel::setMonthNavigator,
+            onMonthNavigatorInAppBar = viewModel::setMonthNavigatorInAppBar,
+            onTextScale = viewModel::setTimelineTextScale,
+        )
+    }
 }
 
 @Composable
@@ -365,16 +367,6 @@ internal fun TimelineScreen(
         when (state) {
             TimelineUiState.Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { LoadingIndicator() }
             is TimelineUiState.Ready -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-                // The first screenful cascades in once (decorative); scrolling back up, coming back
-                // from an entry or from another tab doesn't replay it.
-                var cascadeDone by rememberSaveable { mutableStateOf(false) }
-                LaunchedEffect(Unit) {
-                    delay(CASCADE_WINDOW_MS)
-                    cascadeDone = true
-                }
-                @Composable
-                fun Modifier.cascade(index: Int): Modifier =
-                    if (!cascadeDone && index < CASCADE_ITEMS) entrance(index) else this
                 LazyColumn(
                     state = listState,
                     modifier = Modifier.widthIn(max = Spacing.maxContentWidth).fillMaxSize(),
@@ -386,10 +378,10 @@ internal fun TimelineScreen(
                     ),
                 ) {
                     if (headerCount > 0) {
-                        item(key = "greeting", contentType = "greeting") { Box(Modifier.cascade(0)) { Greeting(state, formats) } }
+                        item(key = "greeting", contentType = "greeting") { Box(Modifier.entrance(0)) { Greeting(state, formats) } }
                     }
                     itemsIndexed(state.items, key = { _, item -> item.key }, contentType = { _, item -> item::class }) { index, item ->
-                        val itemModifier = Modifier.animateItem().cascade(headerCount + index)
+                        val itemModifier = Modifier.animateItem().entrance(headerCount + index)
                         when (item) {
                             is TimelineItem.MonthDivider -> MonthDivider(item, formats, itemModifier)
                             is TimelineItem.DayHeader -> DayHeader(item, state.today, formats, itemModifier)
@@ -520,12 +512,6 @@ internal fun TimelineScreen(
 }
 
 /** Rows scrolled past before the "scroll to top" button shows up. */
-/** Rows further down than this don't cascade in (they'd wait too long, and are off screen anyway). */
-private const val CASCADE_ITEMS = 12
-
-/** How long after the list first shows its first screenful may still cascade in. */
-private const val CASCADE_WINDOW_MS = 1_200L
-
 private const val SCROLL_TO_TOP_THRESHOLD = 4
 
 /** Beyond this many rows, the list first jumps close to the top so the animated part stays short. */
