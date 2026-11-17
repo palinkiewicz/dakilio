@@ -28,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavKey
 import java.time.LocalDate
@@ -54,7 +53,7 @@ import pl.dakil.dakilio.core.designsystem.icon.DakilioSymbols
 import pl.dakil.dakilio.core.designsystem.theme.Spacing
 import pl.dakil.dakilio.core.ui.DakilioFormats
 import pl.dakil.dakilio.core.ui.bottomBarPadding
-import pl.dakil.dakilio.core.ui.component.DiaryFilterRow
+import pl.dakil.dakilio.core.ui.component.DiaryFilterDropdown
 import pl.dakil.dakilio.core.ui.component.EmptyState
 import pl.dakil.dakilio.core.ui.hintOrNull
 import pl.dakil.dakilio.core.ui.rememberFormats
@@ -173,7 +172,7 @@ private fun InsightsContent(
             Column(Modifier.appBarSurface(collapsedFraction, extendBelow = Spacing.m), verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
                 PeriodKindToggle(header.period.kind, viewModel::setKind)
                 if (state.diaries.size > 1) {
-                    DiaryFilterRow(state.diaries, state.selectedDiaryId, viewModel::selectDiary, contentPadding = PaddingValues(0.dp))
+                    DiaryFilterDropdown(state.diaries, state.selectedDiaryId, viewModel::selectDiary)
                 }
             }
         }
