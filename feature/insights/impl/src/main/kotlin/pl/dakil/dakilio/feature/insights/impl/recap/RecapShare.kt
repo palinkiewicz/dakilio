@@ -210,6 +210,7 @@ internal fun RecapShareCard(state: InsightsRecapUiState.Ready, includeTags: Bool
                             onSelect = {},
                             formats = formats,
                             describe = { dayCaption(it, overview.calendar.cells[it], moods, state.today, formats) },
+                            selectable = false,
                         )
                     }
                     is InsightsPeriod.Year -> if (state.recap.months.any { it.second != null }) MonthFaces(state.recap, moods, formats)

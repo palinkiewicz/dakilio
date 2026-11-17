@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,6 +31,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.graphicsLayer
@@ -411,15 +416,55 @@ internal fun MonthFaces(recap: Recap, moods: List<Mood>, formats: DakilioFormats
     }
 }
 
-/** The end: the recap's card, as it would be shared, with Share and Done. */
+/**
+ * The end: the recap's card, exactly as it would be shared (without tag names), scaled down to fit
+ * what's left of the page, with Share and Done under it.
+ */
 @Composable
 private fun FinalePage(state: InsightsRecapUiState.Ready, periodName: String, formats: DakilioFormats, onShare: () -> Unit, onDone: () -> Unit) {
-    PageColumn {
-        Kicker(stringResource(R.string.insights_recap_end_kicker))
-        Text(stringResource(R.string.insights_recap_end, periodName), style = MaterialTheme.typography.displaySmallEmphasized, modifier = Modifier.recapEntrance(1))
-        Text(stringResource(R.string.insights_recap_end_body), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.recapEntrance(2))
-        Spacer(Modifier.height(Spacing.l))
+    Column(
+        Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .navigationBarsPadding()
+            .padding(top = 72.dp, bottom = Spacing.xl)
+            .padding(horizontal = Spacing.xl),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(Spacing.m),
+    ) {
+        Column(Modifier.widthIn(max = 480.dp).fillMaxWidth()) {
+            Kicker(stringResource(R.string.insights_recap_end_kicker))
+            Text(stringResource(R.string.insights_recap_end, periodName), style = MaterialTheme.typography.headlineLargeEmphasized, modifier = Modifier.recapEntrance(1))
+        }
+        Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+            ScaledToFit(maxWidth = 360.dp, modifier = Modifier.recapPop(2, turn = -3f).clip(RoundedCornerShape(28.dp))) {
+                RecapShareCard(state, includeTags = false, formats = formats)
+            }
+        }
         FinaleButtons(onShare, onDone, Modifier.recapEntrance(3))
+    }
+}
+
+/**
+ * Lays [content] out at [maxWidth] (or less) with all the height it wants, then scales it down,
+ * from the top center, until it fits the height there is. Never scales up.
+ */
+@Composable
+private fun ScaledToFit(maxWidth: Dp, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    Layout(content, modifier) { measurables, constraints ->
+        val width = minOf(constraints.maxWidth, maxWidth.roundToPx())
+        val placeable = measurables.first().measure(Constraints(minWidth = width, maxWidth = width))
+        val available = if (constraints.hasBoundedHeight) constraints.maxHeight else placeable.height
+        val scale = minOf(1f, available.toFloat() / placeable.height.coerceAtLeast(1))
+        val shownWidth = (placeable.width * scale).roundToInt()
+        val shownHeight = (placeable.height * scale).roundToInt()
+        layout(shownWidth, shownHeight) {
+            placeable.placeWithLayer((shownWidth - placeable.width) / 2, 0) {
+                scaleX = scale
+                scaleY = scale
+                transformOrigin = TransformOrigin(0.5f, 0f)
+            }
+        }
     }
 }
 

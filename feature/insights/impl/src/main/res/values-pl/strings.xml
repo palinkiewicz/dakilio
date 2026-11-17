@@ -319,7 +319,6 @@
     <string name="insights_recap_change_detail">Wcześniej: %1$s · teraz: %2$s</string>
     <string name="insights_recap_end_kicker">To już wszystko</string>
     <string name="insights_recap_end">Tak wyglądał okres: %1$s</string>
-    <string name="insights_recap_end_body">Każdy wpis dopełnia obraz. Do zobaczenia w kolejnym podsumowaniu.</string>
     <string name="insights_recap_done">Gotowe</string>
     <string name="insights_recap_title_bright_month">Jasny miesiąc</string>
     <string name="insights_recap_title_bright_year">Jasny rok</string>

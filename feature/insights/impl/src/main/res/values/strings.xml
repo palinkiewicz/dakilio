@@ -285,7 +285,6 @@
     <string name="insights_recap_change_detail">Before: %1$s · now: %2$s</string>
     <string name="insights_recap_end_kicker">That’s a wrap</string>
     <string name="insights_recap_end">That was %1$s</string>
-    <string name="insights_recap_end_body">Every entry adds to the picture. See you in the next one.</string>
     <string name="insights_recap_done">Done</string>
     <string name="insights_recap_title_bright_month">A bright month</string>
     <string name="insights_recap_title_bright_year">A bright year</string>
