@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
@@ -101,7 +102,10 @@ internal fun TagsPage(state: InsightsRecapUiState.Ready, steps: RecapSteps, form
             Text(
                 stringResource(R.string.insights_recap_tag_brighter, stat.tag.label, formats.signedDecimal(stat.link!!.lift)),
                 style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(top = Spacing.m).graphicsLayer { alpha = shown() },
+                modifier = Modifier
+                    .padding(top = Spacing.m)
+                    .then(if (revealed) Modifier else Modifier.clearAndSetSemantics { })
+                    .graphicsLayer { alpha = shown() },
             )
         }
     }
@@ -216,6 +220,8 @@ internal fun RhythmPage(state: InsightsRecapUiState.Ready, steps: RecapSteps, fo
     val rhythm = state.recap.overview.rhythm
     val best = rhythm.bestWeekday
     val revealed = steps.isRevealed(RecapPage.Rhythm)
+    // Everything after the guess waits for the answer; without a guess there's nothing to wait for.
+    val shown = rememberReveal(revealed || best == null)
     val haptics = rememberHaptics()
     PageColumn {
         Kicker(stringResource(R.string.insights_recap_rhythm))
@@ -240,7 +246,6 @@ internal fun RhythmPage(state: InsightsRecapUiState.Ready, steps: RecapSteps, fo
                     }
                 }
             }
-            val shown = rememberReveal(revealed)
             val answer = when (steps.guess) {
                 null -> stringResource(R.string.insights_recap_guess_answer, formats.weekday(best))
                 best -> stringResource(R.string.insights_recap_guess_right, formats.weekday(best))
@@ -267,7 +272,16 @@ internal fun RhythmPage(state: InsightsRecapUiState.Ready, steps: RecapSteps, fo
                     else -> stringResource(R.string.insights_recap_mostly_written, dayPartLabel(part).lowercase())
                 },
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.recapEntrance(4).padding(top = Spacing.l),
+                // Laid out from the start but hidden until the guess is answered, so nothing moves.
+                modifier = Modifier
+                    .recapEntrance(4)
+                    .padding(top = Spacing.l)
+                    .then(if (revealed || best == null) Modifier else Modifier.clearAndSetSemantics { })
+                    .graphicsLayer {
+                        val p = shown()
+                        alpha = p
+                        translationY = (1f - p) * 24.dp.toPx()
+                    },
             )
         }
     }
